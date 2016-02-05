@@ -1,5 +1,4 @@
 # JQuantLib
-
 module JQuantLib
 
 # functions overridden from based

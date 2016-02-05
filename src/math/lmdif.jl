@@ -594,15 +594,6 @@ function lmdif!{I <: Integer}(m::I, n::I, x::Vector{Float64}, fvec::Vector{Float
 
   # compute the QR factorization of the Jacobian
   qrfac!(m, n, fjac, ldfjac, 1, ipvt, n, wa1, wa2, wa3)
-  # qr = qrfact(fjac, Val{true})
-  # q = qr[:Q]
-  #
-  # println("fvec: ", fvec)
-  #
-  # println("next: ", q' * fvec)
-  #
-  #
-  # error("break")
 
   # on the first iteration and if mode is 1, scale according to the norms
   # of the columns in the initial jacobin
