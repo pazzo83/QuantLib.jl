@@ -31,7 +31,7 @@ function TenorPeriod(p::Dates.Month)
     return TenorPeriod(p, Quarterly())
   elseif x == 4
     return TenorPeriod(p, EveryFourthMonth())
-  elseif x == 6
+  elseif x == 2
     return TenorPeriod(p, Bimonthly())
   else
     return TenorPeriod(p, Monthly())

@@ -1,21 +1,39 @@
 using Base.Dates
 
+# helper methods
+function next_twentieth(d::Date)
+  res = Date(year(d), month(d), 20)
+  if res < d
+    res += Month(1)
+  end
+
+  # add logic for certain rules passed in
+  m = month(res)
+  if m % 3 != 0 # not a main IMM month
+    skip_ = 3 - m%3
+    res += skip_ * Month(1)
+  end
+
+  return res
+end
+
 abstract DateGenerationRule
 type DateGenerationBackwards <: DateGenerationRule end
 type DateGenerationForwards <: DateGenerationRule end
+type DateGenerationTwentieth <: DateGenerationRule end
 
-type Schedule{B <: BusinessDayConvention, D <: DateGenerationRule, C <: BusinessCalendar}
+type Schedule{B <: BusinessDayConvention, B1 <: BusinessDayConvention, D <: DateGenerationRule, C <: BusinessCalendar}
   effectiveDate::Date
   terminationDate::Date
   tenor::TenorPeriod
   convention::B
-  termDateConvention::B
+  termDateConvention::B1
   rule::D
   endOfMonth::Bool
   dates::Vector{Date}
   cal::C
 
-  function Schedule(effectiveDate::Date, terminationDate::Date, tenor::TenorPeriod, convention::B, termDateConvention::B,
+  function Schedule(effectiveDate::Date, terminationDate::Date, tenor::TenorPeriod, convention::B, termDateConvention::B1,
                   rule::D, endOfMonth::Bool, dates::Vector{Date}, cal::C = TargetCalendar())
     # adjust end date if necessary
     dates[end] = adjust(cal, termDateConvention, dates[end])
@@ -24,7 +42,7 @@ type Schedule{B <: BusinessDayConvention, D <: DateGenerationRule, C <: Business
   end
 end
 
-function Schedule{B <: BusinessDayConvention, C <: BusinessCalendar}(effectiveDate::Date, terminationDate::Date, tenor::TenorPeriod, convention::B, termDateConvention::B,
+function Schedule{B <: BusinessDayConvention, B1 <: BusinessDayConvention, C <: BusinessCalendar}(effectiveDate::Date, terminationDate::Date, tenor::TenorPeriod, convention::B, termDateConvention::B1,
   rule::DateGenerationForwards, endOfMonth::Bool, cal::C = TargetCalendar())
   # dt = effectiveDate
   # num_dates = 1
@@ -61,10 +79,10 @@ function Schedule{B <: BusinessDayConvention, C <: BusinessCalendar}(effectiveDa
     push!(dates, terminationDate)
   end
 
-  return Schedule{B, DateGenerationForwards, C}(effectiveDate, terminationDate, tenor, convention, termDateConvention, rule, endOfMonth, dates, cal)
+  return Schedule{B, B1, DateGenerationForwards, C}(effectiveDate, terminationDate, tenor, convention, termDateConvention, rule, endOfMonth, dates, cal)
 end
 
-function Schedule{B <: BusinessDayConvention, C <: BusinessCalendar}(effectiveDate::Date, terminationDate::Date, tenor::TenorPeriod, convention::B, termDateConvention::B,
+function Schedule{B <: BusinessDayConvention, B1 <: BusinessDayConvention, C <: BusinessCalendar}(effectiveDate::Date, terminationDate::Date, tenor::TenorPeriod, convention::B, termDateConvention::B1,
   rule::DateGenerationBackwards, endOfMonth::Bool, cal::C = TargetCalendar())
   size = get_size(tenor.period, effectiveDate, terminationDate)
   dates = Vector{Date}(size)
@@ -91,7 +109,38 @@ function Schedule{B <: BusinessDayConvention, C <: BusinessCalendar}(effectiveDa
   #
   # insert!(dates, 1, effectiveDate)
 
-  return Schedule{B, DateGenerationBackwards, C}(effectiveDate, terminationDate, tenor, convention, termDateConvention, rule, endOfMonth, dates, cal)
+  return Schedule{B, B1, DateGenerationBackwards, C}(effectiveDate, terminationDate, tenor, convention, termDateConvention, rule, endOfMonth, dates, cal)
+end
+
+function Schedule{B <: BusinessDayConvention, B1 <: BusinessDayConvention, C <: BusinessCalendar}(effectiveDate::Date, terminationDate::Date, tenor::TenorPeriod, convention::B, termDateConvention::B1,
+  rule::DateGenerationTwentieth, endOfMonth::Bool, cal::C = TargetCalendar())
+
+  dates = Vector{Date}()
+  dt = effectiveDate
+  push!(dates, adjust(cal, convention, dt))
+  seed = effectiveDate
+
+  # next 20th
+  next20th = next_twentieth(effectiveDate)
+
+  if next20th != effectiveDate
+    push!(dates, next20th)
+    seed = next20th
+  end
+
+  seed += tenor.period
+  while seed < terminationDate
+    push!(dates, adjust(cal, convention, seed))
+    seed += tenor.period
+  end
+
+  if dates[end] != adjust(cal, convention, terminationDate)
+    push!(dates, next_twentieth(terminationDate))
+  else
+    push!(dates, terminationDate)
+  end
+
+  return Schedule{B, B1, DateGenerationTwentieth, C}(effectiveDate, terminationDate, tenor, convention, termDateConvention, rule, endOfMonth, dates, cal)
 end
 
 # helpers

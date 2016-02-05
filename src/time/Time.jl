@@ -25,7 +25,7 @@ easter_date, is_holiday, advance, adjust
 export TenorPeriod
 
 # schedule.jl
-export DateGenerationRule, DateGenerationForwards, DateGenerationBackwards, Schedule
+export DateGenerationRule, DateGenerationForwards, DateGenerationBackwards, DateGenerationTwentieth, Schedule
 
 # time_grid.jl
 export TimeGrid
