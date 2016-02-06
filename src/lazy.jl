@@ -1,8 +1,12 @@
+## Allows for lazy calculation (when requested)
+## Also will have observer mixin in here
+
 type LazyMixin
   calculated::Bool
   frozen::Bool
+  observe::ObserverMixin
 
-  LazyMixin() = new(false, false)
+  LazyMixin() = new(false, false, ObserverMixin())
 end
 
 is_calculated{L <: LazyObject}(lazy::L) = lazy.lazyMixin.calculated
@@ -25,3 +29,5 @@ function recalculate!{L <: LazyObject}(lazy::L)
 
   return lazy
 end
+
+get_observers(lazy::LazyObject) = lazy.lazyMixin.observe.observers

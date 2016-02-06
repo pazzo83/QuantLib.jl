@@ -1,5 +1,8 @@
+# Observer
+abstract Observer
+
 # Lazy Object
-abstract LazyObject
+abstract LazyObject <: Observer
 
 # Process
 abstract StochasticProcess
@@ -70,7 +73,7 @@ abstract Parameter
 abstract CalibrationErrorType
 abstract CalibrationHelper <: LazyObject
 abstract ModelType
-abstract Model{T <: ModelType}
+abstract Model{T <: ModelType} <: Observer
 abstract ShortRateModel{T} <: Model{T}
 abstract OneFactorModel{T} <: ShortRateModel{T}
 abstract TwoFactorModel{T} <: ShortRateModel{T}

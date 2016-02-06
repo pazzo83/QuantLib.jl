@@ -150,6 +150,9 @@ export
 # abstract types
 include("abstract_types.jl")
 
+# observer
+include("observer.jl")
+
 # lazy
 include("lazy.jl")
 

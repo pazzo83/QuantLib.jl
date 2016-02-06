@@ -5,19 +5,11 @@ type PrivateConstraint{P <: Parameter} <: Constraint
   arguments::Vector{P}
 end
 
-type ShortRateModelCommon
-  observers::Vector
-end
-
-ShortRateModelCommon() = ShortRateModelCommon([])
-
-function add_observer!{T}(model::ShortRateModel, obsv::T)
-  if ~in(obsv, model.common.observers)
-    push!(model.common.observers, obsv)
-  end
-
-  return model
-end
+# type ShortRateModelCommon
+#   observers::Vector
+# end
+#
+# ShortRateModelCommon() = ShortRateModelCommon([])
 
 function JQuantLib.Math.test(c::PrivateConstraint, x::Vector{Float64})
   k = 1
@@ -79,14 +71,6 @@ function value(calibF::CalibrationFunction, params::Vector{Float64})
   end
 
   return sqrt(_value)
-end
-
-function notify_observers!(m::ShortRateModel)
-  for obsv in m.common.observers
-    update!(obsv)
-  end
-
-  return m
 end
 
 # accessor methods ##

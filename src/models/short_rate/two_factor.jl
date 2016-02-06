@@ -68,7 +68,7 @@ type G2{AffineModelType, T <: TermStructure} <: TwoFactorModel{AffineModelType}
   phi::G2FittingParameter
   ts::T
   privateConstraint::PrivateConstraint
-  common::ShortRateModelCommon
+  common::ModelCommon
 end
 
 function G2{T <: TermStructure}(ts::T, a::Float64 = 0.1, sigma::Float64 = 0.01, b::Float64 = 0.1, eta::Float64 = 0.01, rho::Float64 = -0.75)
@@ -82,7 +82,7 @@ function G2{T <: TermStructure}(ts::T, a::Float64 = 0.1, sigma::Float64 = 0.01, 
 
   phi = G2FittingParameter(a, sigma, b, eta, rho, ts)
 
-  return G2{AffineModelType, T}(AffineModelType(), a_const, sigma_const, b_const, eta_const, rho_const, phi, ts, privateConstraint, ShortRateModelCommon())
+  return G2{AffineModelType, T}(AffineModelType(), a_const, sigma_const, b_const, eta_const, rho_const, phi, ts, privateConstraint, ModelCommon())
 end
 
 get_eta(m::G2) = m.eta.data[1]

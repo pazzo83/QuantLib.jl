@@ -32,7 +32,7 @@ type BlackKarasinski{TermStructureConsistentModelType, T <: TermStructure} <: On
   sigma::ConstantParameter
   ts::T
   privateConstraint::PrivateConstraint
-  common::ShortRateModelCommon
+  common::ModelCommon
 end
 
 function BlackKarasinski(ts::TermStructure, a::Float64 = 0.1, sigma = 0.1)
@@ -41,7 +41,7 @@ function BlackKarasinski(ts::TermStructure, a::Float64 = 0.1, sigma = 0.1)
 
   privateConstraint = PrivateConstraint(ConstantParameter[a_const, sigma_const])
 
-  return BlackKarasinski(TermStructureConsistentModelType(), a_const, sigma_const, ts, privateConstraint, ShortRateModelCommon())
+  return BlackKarasinski(TermStructureConsistentModelType(), a_const, sigma_const, ts, privateConstraint, ModelCommon()) # ShortRateModelCommon())
 end
 
 generate_arguments!(m::BlackKarasinski) = m # do nothing
@@ -55,7 +55,7 @@ type HullWhite{AffineModelType, T <: TermStructure} <: OneFactorModel{AffineMode
   phi::HullWhiteFittingParameter
   ts::T
   privateConstraint::PrivateConstraint
-  common::ShortRateModelCommon
+  common::ModelCommon
 end
 
 function HullWhite{T <: TermStructure}(ts::T, a::Float64 = 0.1, sigma::Float64 = 0.01)
@@ -68,7 +68,7 @@ function HullWhite{T <: TermStructure}(ts::T, a::Float64 = 0.1, sigma::Float64 =
 
   phi  = HullWhiteFittingParameter(a, sigma, ts)
 
-  return HullWhite(AffineModelType(), r0, a_const, sigma_const, phi, ts, privateConstraint, ShortRateModelCommon())
+  return HullWhite(AffineModelType(), r0, a_const, sigma_const, phi, ts, privateConstraint, ModelCommon()) #, ShortRateModelCommon())
 end
 
 ## Dynamics ##
