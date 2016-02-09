@@ -50,6 +50,7 @@ abstract FittingMethod
 abstract BootstrapHelper <: LazyObject
 abstract BondHelper <: BootstrapHelper
 abstract RateHelper <: BootstrapHelper
+abstract AbstractCDSHelper
 
 # Pricing Engines
 abstract PricingEngine

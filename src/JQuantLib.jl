@@ -116,6 +116,9 @@ export
     Discount, guess, min_value_after, max_value_after,
     IterativeBootstrap, initialize, quote_error,
 
+    # termstructures/credit_helper.jl
+    SpreadCDSHelper,
+
     # termstructures/nonlinear_fitting_methods.jl
     ExponentialSplinesFitting, SimplePolynomialFitting, NelsonSiegelFitting, SvenssonFitting, CubicBSplinesFitting, discount_function, guess_size,
 
@@ -204,6 +207,8 @@ include("termstructures/curve.jl")
 include("termstructures/vol_term_structure.jl")
 # bootstrapping
 include("termstructures/bootstrap.jl")
+# credit helpers
+include("termstructures/credit_helpers.jl")
 
 # nonlinear fitting methods
 include("termstructures/nonlinear_fitting_methods.jl")
