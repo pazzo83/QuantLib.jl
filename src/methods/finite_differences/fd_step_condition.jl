@@ -64,7 +64,7 @@ function apply_to!(cond::FdmBermudanStepCondition, a::Vector{Float64}, t::Float6
         locations[dims] = get_location(cond.mesher, coords, j)
       end
 
-      innerValue = inner_value(cond.calculator, coords, i, t)
+      innerValue, cond.calculator = inner_value(cond.calculator, coords, i, t)
       if innerValue > a[i]
         a[i] = innerValue
       end

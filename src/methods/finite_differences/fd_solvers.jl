@@ -79,7 +79,7 @@ type Fdm1DimSolver{FD <: FdmLinearOpComposite} <: LazyObject
     coords = ones(Int, length(layout.dim))
 
     for i = 1:layout.size
-      initialValues[i] = avg_inner_value(solverDesc.calculator, coords, i, solverDesc.maturity)
+      initialValues[i], solverDesc.calculator = avg_inner_value(solverDesc.calculator, coords, i, solverDesc.maturity)
       x[i] = get_location(solverDesc.mesher, coords, 1)
 
       iter_coords!(coords, layout.dim)
@@ -119,7 +119,7 @@ type Fdm2DimSolver{FD <: FdmLinearOpComposite} <: LazyObject
     coords = ones(Int, length(layout.dim))
 
     for i = 1:layout.size
-      initialValues[i] = avg_inner_value(solverDesc.calculator, coords, i, solverDesc.maturity)
+      initialValues[i], solverDesc.calculator = avg_inner_value(solverDesc.calculator, coords, i, solverDesc.maturity)
 
       if coords[2] == 1
         x[x_count] = get_location(solverDesc.mesher, coords, 1)

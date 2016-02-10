@@ -34,10 +34,17 @@ type FdmAffineModelSwapInnerValue{M1 <: Model, M2 <: Model, FM <: FdmMesher, I <
 
     return new{M1, M2, FM, I}(disModel, fwdModel, newSwap, exerciseDates, mesher, direction)
   end
+
+  FdmAffineModelSwapInnerValue{M1, M2, FM, I}(disModel::M1, fwdModel::M2, swap::VanillaSwap, exerciseDates::Dict{Float64, Date}, mesher::FM, direction::I,
+                                              disTs, fwdTs) = new{M1, M2, FM, I}(disModel, fwdModel, swap, exerciseDates, mesher, direction, disTs, fwdTs)
 end
 
 FdmAffineModelSwapInnerValue{M1 <: Model, M2 <: Model, FM <: FdmMesher, I <: Integer}(disModel::M1, fwdModel::M2, swap::VanillaSwap, exerciseDates::Dict{Float64, Date}, mesher::FM, direction::I) =
                             FdmAffineModelSwapInnerValue{M1, M2, FM, I}(disModel, fwdModel, swap, exerciseDates, mesher, direction)
+
+FdmAffineModelSwapInnerValue{M1 <: Model, M2 <: Model, FM <: FdmMesher, I <: Integer}(disModel::M1, fwdModel::M2, swap::VanillaSwap,
+                            exerciseDates::Dict{Float64, Date}, mesher::FM, direction::I, disTs::FdmAffineModelTermStructure, fwdTs::FdmAffineModelTermStructure) =
+                            FdmAffineModelSwapInnerValue{M1, M2, FM, I}(disModel, fwdModel, swap, exerciseDates, mesher, direction, disTs, fwdTs)
 
 function get_state{I <: Integer}(::G2, calc::FdmAffineModelSwapInnerValue, coords::Vector{I}, ::Float64)
   retVal = Vector{Float64}(2)
@@ -55,12 +62,16 @@ function inner_value{I <: Integer}(calc::FdmAffineModelSwapInnerValue, coords::V
   fwdRate = get_state(calc.fwdModel, calc, coords, t)
 
   if !isdefined(calc, :disTs) || iterExerciseDate != reference_date(calc.disTs)
+    # Build new calc
     disc = calc.disModel.ts
-    calc.disTs = FdmAffineModelTermStructure(iterExerciseDate, disc.calendar, disc.dc, reference_date(disc), calc.disModel, disRate)
+    newDisTs = FdmAffineModelTermStructure(iterExerciseDate, disc.calendar, disc.dc, reference_date(disc), calc.disModel, disRate)
     fwd = calc.fwdModel.ts
-    calc.fwdTs = FdmAffineModelTermStructure(iterExerciseDate, fwd.calendar, fwd.dc, reference_date(fwd), calc.fwdModel, fwdRate)
-    # probably should put this in something more logical
-    calc.swap.iborIndex.ts = calc.fwdTs
+    newFwdTs = FdmAffineModelTermStructure(iterExerciseDate, fwd.calendar, fwd.dc, reference_date(fwd), calc.fwdModel, fwdRate)
+    # cloining swap
+    newSwap = clone(calc.swap, calc.swap.pricingEngine, newFwdTs)
+
+    # new calc
+    calc = FdmAffineModelSwapInnerValue(calc.disModel, calc.fwdModel, newSwap, calc.exerciseDates, calc.mesher, calc.direction, newDisTs, newFwdTs)
   else
     # do some updating
     set_variable(calc.disTs, disRate)
@@ -82,7 +93,7 @@ function inner_value{I <: Integer}(calc::FdmAffineModelSwapInnerValue, coords::V
   if isa(calc.swap.swapT, Receiver)
     npv *= -1.0
   end
-  return max(0.0, npv)
+  return max(0.0, npv), calc
 end
 
 avg_inner_value{I <: Integer}(calc::FdmAffineModelSwapInnerValue, coords::Vector{I}, i::I, t::Float64) = inner_value(calc, coords, i, t)

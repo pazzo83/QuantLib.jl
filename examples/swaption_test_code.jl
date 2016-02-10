@@ -71,11 +71,18 @@ function main()
   times = zeros(0)
   swaptions = Vector{SwaptionHelper}(numRows)
 
+  # First Model
+  modelG2 = G2(rhTermStructure)
+  hullWhiteModel = HullWhite(rhTermStructure)
+  hullWhiteModel2 = HullWhite(rhTermStructure)
+  blackKarasinski = BlackKarasinski(rhTermStructure)
+
   for i = 1:numRows
     j = numCols - (i - 1)
     k = (i - 1) * numCols + j
 
-    sh = SwaptionHelper(swaptionMats[i], swaptionLengths[j], Quote(swaptionVols[k]), indexSixMonths, indexSixMonths.tenor, indexSixMonths.dc, indexSixMonths.dc, rhTermStructure)
+    sh = SwaptionHelper(swaptionMats[i], swaptionLengths[j], Quote(swaptionVols[k]), indexSixMonths, indexSixMonths.tenor, indexSixMonths.dc, indexSixMonths.dc,
+                        rhTermStructure, G2SwaptionEngine(modelG2, 6.0, 16))
 
     times = add_times_to!(sh, times)
     swaptions[i] = sh
@@ -84,14 +91,14 @@ function main()
   tg = JQuantLib.Time.TimeGrid(times, 30)
 
   # models
-  modelG2 = G2(rhTermStructure)
-  hullWhiteModel = HullWhite(rhTermStructure)
-  hullWhiteModel2 = HullWhite(rhTermStructure)
-  blackKarasinski = BlackKarasinski(rhTermStructure)
-
-  for swaptionHelper in swaptions
-    swaptionHelper.pricingEngine = G2SwaptionEngine(modelG2, 6.0, 16)
-  end
+  # modelG2 = G2(rhTermStructure)
+  # hullWhiteModel = HullWhite(rhTermStructure)
+  # hullWhiteModel2 = HullWhite(rhTermStructure)
+  # blackKarasinski = BlackKarasinski(rhTermStructure)
+  #
+  # for swaptionHelper in swaptions
+  #   swaptionHelper.pricingEngine = G2SwaptionEngine(modelG2, 6.0, 16)
+  # end
 
   println("G2 (analytic formulae) calibration")
   calibrate_model(modelG2, swaptions)
@@ -101,8 +108,8 @@ function main()
   println(@sprintf("rho = %.6f", get_params(modelG2)[5]))
 
   # Hull White
-  for swaptionHelper in swaptions
-    update_pricing_engine!(swaptionHelper, JamshidianSwaptionEngine(hullWhiteModel))
+  for i in eachindex(swaptions)
+    swaptions[i] = update_pricing_engine(swaptions[i], JamshidianSwaptionEngine(hullWhiteModel))
   end
 
   println("")
@@ -112,8 +119,8 @@ function main()
   println(@sprintf("a = %.6f, sigma = %.6f", get_params(hullWhiteModel)[1], get_params(hullWhiteModel)[2]))
 
   # Hull White (numeric)
-  for swaptionHelper in swaptions
-    swaptionHelper.pricingEngine = TreeSwaptionEngine(hullWhiteModel2, tg)
+  for i in eachindex(swaptions)
+    swaptions[i] = update_pricing_engine(swaptions[i], TreeSwaptionEngine(hullWhiteModel2, tg))
   end
 
   println("")
@@ -123,8 +130,8 @@ function main()
   println(@sprintf("a = %.6f, sigma = %.6f", get_params(hullWhiteModel2)[1], get_params(hullWhiteModel2)[2]))
 
   # Black Karasinski
-  for swaptionHelper in swaptions
-    swaptionHelper.pricingEngine = TreeSwaptionEngine(blackKarasinski, tg)
+  for i in eachindex(swaptions)
+    swaptions[i] = update_pricing_engine(swaptions[i], TreeSwaptionEngine(blackKarasinski, tg))
   end
 
   println("")
