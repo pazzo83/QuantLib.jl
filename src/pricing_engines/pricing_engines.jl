@@ -25,6 +25,12 @@ type DiscountingSwapEngine{Y <: YieldTermStructure} <: PricingEngine
   end
 end
 
+type MidPointCdsEngine{P <: AbstractDefaultProbabilityTermStructure, Y <: YieldTermStructure} <: PricingEngine
+  probability::P
+  recoveryRate::Float64
+  discountCurve::Y
+end
+
 function _calculate!{B <: Bond}(pe::DiscountingBondEngine, bond::B)
   yts = pe.yts
   valuation_date = yts.referenceDate
@@ -74,3 +80,7 @@ function _calculate!{S <: Swap}(pe::DiscountingSwapEngine, swap::S)
 
   return swap
 end
+
+# clone methods #
+clone(pe::DiscountingBondEngine, ts::TermStructure) = DiscountingBondEngine(ts)
+clone(pe::DiscountingSwapEngine, ts::TermStructure) = DiscountingSwapEngine(ts)

@@ -49,7 +49,7 @@ function npv(swaption::Swaption)
   return swaption.results.value
 end
 
-function clone(swaption::Swaption; pe::PricingEngine = swaption.pricingEngine)
+function clone(swaption::Swaption, pe::PricingEngine = swaption.pricingEngine)
   lazyMixin, res = pe == swaption.pricingEngine ? (swaption.lazyMixin, swaption.results) : (LazyMixin(), SwaptionResults())
 
   newSwaption = Swaption(lazyMixin, swaption.swap, swaption.exercise, swaption.delivery, res, pe)

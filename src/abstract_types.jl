@@ -34,13 +34,19 @@ abstract SettlementType
 abstract Option <: Instrument
 abstract OptionType
 abstract SwapType
+abstract CDSProtectionSide
 abstract Results
 
 # Term Structures
 abstract TermStructure <: LazyObject
 abstract YieldTermStructure <: TermStructure
+# Curves
 abstract Curve <: YieldTermStructure
 abstract InterpolatedCurve{I, DC, P, T} <: Curve
+abstract AbstractDefaultProbabilityTermStructure <: TermStructure
+abstract AbstractDefaultProbabilityCurve <: AbstractDefaultProbabilityTermStructure
+abstract InterpolatedDefaultProbabilityCurve{I, DC, P, T} <: AbstractDefaultProbabilityCurve
+
 abstract VolatilityTermStructure <: TermStructure
 abstract OptionletVolatilityStructure <: VolatilityTermStructure
 abstract SwaptionVolatilityStructure <: VolatilityTermStructure
@@ -50,7 +56,7 @@ abstract FittingMethod
 abstract BootstrapHelper <: LazyObject
 abstract BondHelper <: BootstrapHelper
 abstract RateHelper <: BootstrapHelper
-abstract AbstractCDSHelper
+abstract AbstractCDSHelper <: BootstrapHelper
 
 # Pricing Engines
 abstract PricingEngine

@@ -21,4 +21,7 @@ function reference_date{T <: TermStructure}(ts::T)
   return ts.referenceDate
 end
 
+## Null TS ##
+type NullTermStructure <: TermStructure end
+type NullDefaultProbabilityTermStructure <: AbstractDefaultProbabilityTermStructure end
 # end

@@ -2,7 +2,7 @@
 
 type NullCurve <: Curve end
 
-type PiecewiseYieldCurve{I <: Integer, B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait} <: InterpolatedCurve{B, DC, P, T}
+type PiecewiseYieldCurve{I <: Integer, B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap} <: InterpolatedCurve{B, DC, P, T}
   lazyMixin::LazyMixin
   settlementDays::I
   referenceDate::Date
@@ -11,19 +11,60 @@ type PiecewiseYieldCurve{I <: Integer, B <: BootstrapHelper, DC <: DayCount, P <
   interp::P
   trait::T
   accuracy::Float64
-  boot::Bootstrap
+  boot::BT
   times::Vector{Float64}
   data::Vector{Float64}
   errors::Vector{Function}
   validCurve::Bool
 end
 
-function PiecewiseYieldCurve{B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait}(referenceDate::Date, instruments::Vector{B}, dc::DC, interp::P, trait::T,
-                                accuracy::Float64, boot::Bootstrap)
+function PiecewiseYieldCurve{B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap}(referenceDate::Date, instruments::Vector{B}, dc::DC, interp::P, trait::T,
+                                accuracy::Float64, boot::BT = IterativeBootstrap())
   # get the initial length of instruments
   n = length(instruments)
   # create an initial state of the curve
   pyc = PiecewiseYieldCurve(LazyMixin(),
+                            0,
+                            referenceDate,
+                            instruments,
+                            dc,
+                            interp,
+                            trait,
+                            accuracy,
+                            boot,
+                            Vector{Float64}(n + 1),
+                            Vector{Float64}(n + 1),
+                            Vector{Function}(n + 1),
+                            false)
+
+  # initialize the bootstrapping
+  initialize(pyc.boot, pyc)
+
+  return pyc
+end
+
+type PiecewiseDefaultCurve{I <: Integer, B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap} <: InterpolatedDefaultProbabilityCurve{B, DC, P, T}
+  lazyMixin::LazyMixin
+  settlementDays::I
+  referenceDate::Date
+  instruments::Vector{B}
+  dc::DC
+  interp::P
+  trait::T
+  accuracy::Float64
+  boot::BT
+  times::Vector{Float64}
+  data::Vector{Float64}
+  errors::Vector{Function}
+  validCurve::Bool
+end
+
+function PiecewiseDefaultCurve{B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap}(referenceDate::Date, instruments::Vector{B}, dc::DC, interp::P, trait::T,
+                                accuracy::Float64, boot::BT = IterativeBootstrap())
+  # get the initial length of instruments
+  n = length(instruments)
+  # create an initial state of the curve
+  pyc = PiecewiseDefaultCurve(LazyMixin(),
                             0,
                             referenceDate,
                             instruments,

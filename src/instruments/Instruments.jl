@@ -6,7 +6,7 @@ function update_pricing_engine{I <: Instrument, P <: PricingEngine}(inst::I, pe:
     inst.lazyMixin.calculated = false
   else
     # we have to clone
-    inst = clone(inst; pe = pe)
+    inst = clone(inst, pe)
   end
 
   return inst

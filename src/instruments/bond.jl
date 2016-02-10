@@ -163,3 +163,11 @@ function settlement_date{B <: Bond}(bond::B, d::Date = Date())
 
   return d + Base.Dates.Day(get_settlement_days(bond))
 end
+
+## clone methods ##
+function clone(bond::FixedRateBond, pe::PricingEngine = bond.pricingEngine)
+  # if everything is the same, we keep the calculation status etc
+  lazyMixin, settlementValue = pe == bond.pricingEngine ? (bond.lazyMixin, bond.settlementValue) : (LazyMixin(), 0.0)
+
+  return FixedRateBond(lazyMixin, bond.bondMixin, bond.faceAmount, bond.schedule, bond.cashflows, bond.dc, bond.redemption, bond.startDate, pe, settlementValue)
+end

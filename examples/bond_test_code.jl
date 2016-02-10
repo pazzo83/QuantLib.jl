@@ -231,12 +231,12 @@ function fitted_bond_curve_all()
   println("Svensson Fitting: $(sf_fitted_curve.fittingMethod.commons.numberOfIterations)")
 end
 
-function generate_floatingrate_bond()
+function generate_floatingrate_bond(yts::YieldTermStructure, disc_yts::YieldTermStructure)
   # Floating Rate bond
   settlement_days = 3
   face_amount = 100.0
   fb_issue_date = Date(2005, 10, 21)
-  bond_engine = DiscountingBondEngine()
+  bond_engine = DiscountingBondEngine(disc_yts)
   fb_dc = JQuantLib.Time.Actual360()
   conv = JQuantLib.Time.ModifiedFollowing()
   fb_schedule = JQuantLib.Time.Schedule(Date(2005, 10, 21), Date(2010, 10, 21), JQuantLib.Time.TenorPeriod(JQuantLib.Time.Quarterly()),
@@ -246,13 +246,13 @@ function generate_floatingrate_bond()
   in_arrears = true
   gearings = ones(length(fb_schedule.dates) - 1)
   spreads = fill(0.001, length(fb_schedule.dates) - 1)
-  libor_3m = usd_libor_index(JQuantLib.Time.TenorPeriod(Base.Dates.Month(3)))
+  libor_3m = usd_libor_index(JQuantLib.Time.TenorPeriod(Base.Dates.Month(3)), yts)
   floating_bond = FloatingRateBond(settlement_days, face_amount, fb_schedule, libor_3m, fb_dc, conv, fixing_days, fb_issue_date, bond_engine, in_arrears, 100.0, gearings, spreads)
 
   return floating_bond
 end
 
-function generate_fixedrate_bond()
+function generate_fixedrate_bond(yts::YieldTermStructure)
   settlement_days = 3
   face_amount = 100.0
 
@@ -260,7 +260,7 @@ function generate_fixedrate_bond()
                                         JQuantLib.Time.Unadjusted(), JQuantLib.Time.Unadjusted(), JQuantLib.Time.DateGenerationBackwards(), false,
                                         JQuantLib.Time.USGovernmentBondCalendar())
 
-  pe = DiscountingBondEngine()
+  pe = DiscountingBondEngine(yts)
 
   fixedrate_bond = FixedRateBond(settlement_days, face_amount, fx_schedule, 0.045, JQuantLib.Time.ISMAActualActual(), JQuantLib.Time.ModifiedFollowing(),
                                 100.0, Date(2007, 5, 15), fx_schedule.cal, pe)
@@ -469,13 +469,13 @@ function main3()
   disc_yts = generate_discounting_ts(settlement_date)
 
   # Floating Rate Bond
-  fb = generate_floatingrate_bond()
+  fb = generate_floatingrate_bond(yts, disc_yts)
 
   cap_vol = ConstantOptionVolatility(3, cal, JQuantLib.Time.ModifiedFollowing(), 0.0, JQuantLib.Time.Actual365())
   update_pricer!(fb.cashflows, cap_vol)
 
-  fb.iborIndex.ts = yts
-  fb.pricingEngine.yts = disc_yts
+  # fb.iborIndex.ts = yts
+  # fb.pricingEngine.yts = disc_yts
 
   # Zero Coupon Bond
   zcb_pe = DiscountingBondEngine(disc_yts)
@@ -485,8 +485,8 @@ function main3()
   zcb = ZeroCouponBond(3, zcb_cal, 100.0, Date(2013, 8, 15), JQuantLib.Time.Following(), 116.92, Date(2003, 8, 15), zcb_pe)
 
   # fixed rate bond
-  fxb = generate_fixedrate_bond()
-  fxb.pricingEngine.yts = disc_yts
+  fxb = generate_fixedrate_bond(disc_yts)
+  # fxb.pricingEngine.yts = disc_yts
 
   println("Today's date: ", settings.evaluation_date)
   println("Settlement date: ", settlement_date)

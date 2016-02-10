@@ -2,11 +2,18 @@
 const avg_rate = 0.05
 const max_rate = 1.0
 
+const AVG_HAZARD_RATE = 0.01
+const MAX_HAZARD_RATE = 1.0
+
 # Discount bootstrap trait
 type Discount <: BootstrapTrait end
+type HazardRate <: BootstrapTrait end
 
 initial_value(::Discount) = 1.0
 max_iterations(::Discount) = 100
+
+initial_value(::HazardRate) = AVG_HAZARD_RATE
+max_iterations(::HazardRate) = 30
 
 function guess{I <: Integer, T <: TermStructure}(::Discount, i::I, ts::T, valid::Bool)
   if valid
@@ -45,13 +52,25 @@ end
 
 get_pricing_engine{Y}(::Discount, yts::Y) = DiscountingBondEngine(yts)
 
-apply_termstructure!{R <: RateHelper, T <: TermStructure}(rate::R, ts::T) = rate.iborIndex.ts = ts
-apply_termstructure!{B <: BondHelper, T <: TermStructure}(b::B, ts::T) = b.bond.pricingEngine.yts = ts
-function apply_termstructure!{T <: TermStructure}(s::SwapRateHelper, ts::T)
-  s.swap.iborIndex.ts = ts
-  s.swap.pricingEngine.yts = ts
+function apply_termstructure{R <: RateHelper, T <: TermStructure}(rate::R, ts::T)
+  newRate = update_termstructure(rate, ts)
 
-  return s
+  return newRate
+end
+
+apply_termstructure{B <: BondHelper, T <: TermStructure}(b::B, ts::T) = update_termstructure(b, ts)
+function apply_termstructure{T <: TermStructure}(s::SwapRateHelper, ts::T)
+  newSwapHelper = update_termstructure(s, ts)
+
+  return newSwapHelper
+end
+
+function apply_termstructure(cds::AbstractCDSHelper, ts::TermStructure)
+  # have to clone
+  newCDS = clone(cds, ts)
+  reset_engine!(newCDS)
+
+  return newCDS
 end
 
 # BOOTSTRAPPING
@@ -84,9 +103,10 @@ function initialize{T <: TermStructure}(::IterativeBootstrap, ts::T)
   ts.times[1] = time_from_reference(ts, ts.referenceDate)
   for i = 2:n
     @inbounds ts.times[i] = time_from_reference(ts, maturity_date(ts.instruments[i - 1]))
-    @inbounds ts.errors[i] = bootstrap_error(i, ts.instruments[i - 1], ts)
     # set yield term Structure
-    @inbounds apply_termstructure!(ts.instruments[i - 1], ts)
+    @inbounds ts.instruments[i - 1] = apply_termstructure(ts.instruments[i - 1], ts)
+    # set error function
+    @inbounds ts.errors[i] = bootstrap_error(i, ts.instruments[i - 1], ts)
   end
 
   # initialize interpolation
@@ -147,7 +167,7 @@ function _calculate!{T <: TermStructure}(boot::IterativeBootstrap, ts::T)
   return ts
 end
 
-function bootstrap_error{I <: Integer, T <: BootstrapHelper, Y <: YieldTermStructure}(i::I, inst::T, ts::Y)
+function bootstrap_error{I <: Integer, T <: BootstrapHelper, Y <: TermStructure}(i::I, inst::T, ts::Y)
   function bootstrap_error_inner(g::Float64)
     # update trait
     update_guess!(ts.trait, i, ts, g)

@@ -39,14 +39,14 @@ end
 
 maturity_date(sh::SwapRateHelper) = maturity_date(sh.swap)
 
-type DepositRateHelper <: RateHelper
+type DepositRateHelper{I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount} <: RateHelper
   rate::Quote
   tenor::TenorPeriod
-  fixingDays::Integer
-  calendar::BusinessCalendar
-  convention::BusinessDayConvention
+  fixingDays::I
+  calendar::B
+  convention::C
   endOfMonth::Bool
-  dc::DayCount
+  dc::DC
   iborIndex::IborIndex
   evaluationDate::Date
   referenceDate::Date
@@ -89,3 +89,24 @@ function implied_quote(swap_helper::SwapRateHelper)
 
   return totNPV / (fixed_leg_BPS(swap) / basisPoint)
 end
+
+# Clone functions #
+function clone(depo::DepositRateHelper, ts::TermStructure = depo.iborIndex.ts)
+  # first we have to clone a new index
+  newIdx = clone(depo.iborIndex, ts)
+  #now we build a new depo helper
+  return DepositRateHelper(depo.rate, depo.tenor, depo.fixingDays, depo.calendar, depo.convention, depo.endOfMonth, depo.dc, newIdx, depo.evaluationDate, depo.referenceDate,
+                          depo.earliestDate, depo.maturityDate, depo.fixingDate)
+end
+
+function clone(swapHelper::SwapRateHelper, ts::TermStructure = swapHelper.swap.iborIndex.ts)
+  # first we need a new PE for the swap
+  newPE = clone(swapHelper.swap.pricingEngine, ts)
+  # then we have to clone the swap
+  newSwap = clone(swapHelper.swap, newPE, ts)
+
+  # now we can clone the helper
+  return SwapRateHelper(swapHelper.rate, swapHelper.tenor, swapHelper.fwdStart, newSwap)
+end
+
+update_termstructure(rateHelper::RateHelper, ts::TermStructure) = clone(rateHelper, ts)

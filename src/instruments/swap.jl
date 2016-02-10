@@ -1,6 +1,8 @@
 type Payer <: SwapType end
 type Receiver <: SwapType end
 
+type Buyer <: CDSProtectionSide end
+
 type SwapResults <: Results
   legNPV::Vector{Float64}
   legBPS::Vector{Float64}
@@ -92,6 +94,38 @@ function VanillaSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B
                     paymentConvention, legs, payer, pricingEngine, results, VanillaSwapArgs(legs))
 end
 
+# CDS #
+type CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvention, DC <: DayCount, P <: PricingEngine} <: Swap
+  lazyMixin::LazyMixin
+  side::S
+  notional::Float64
+  spread::Float64
+  schedule::Schedule
+  convention::B
+  dc::DC
+  settlesAccrual::Bool
+  paysAtDefaultTime::Bool
+  protectionStart::Date
+  pricingEngine::P
+
+  CreditDefaultSwap(lazyMixin::LazyMixin,
+                    side::S,
+                    notional::Float64,
+                    spread::Float64,
+                    schedule::Schedule,
+                    convention::B,
+                    dc::DC,
+                    settlesAccrual::Bool,
+                    paysAtDefaultTime::Bool,
+                    protectionStart::Date,
+                    pricingEngine::P) = new(lazyMixin, side, notional, spread, schedule, convention, dc, settlesAccrual, paysAtDefaultTime, protectionStart, pricingEngine)
+end
+
+function CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvention, DC <: DayCount, P <: PricingEngine}(side::S, notional::Float64, spread::Float64, schedule::Schedule,
+                          convention::B, dc::DC, settlesAccrual::Bool, paysAtDefaultTime::Bool, protectionStart::Date, pricingEngine::P)
+  return CreditDefaultSwap{S, B, DC, P}(LazyMixin(), side, notional, spread, schedule, convention, dc, settlesAccrual, paysAtDefaultTime, protectionStart, pricingEngine)
+end
+
 # Swap Helper methods
 function _build_payer(swapT::Payer)
   x = ones(2)
@@ -136,13 +170,33 @@ function fair_rate(swap::VanillaSwap)
 end
 
 # some helper methods #
-function clone(swap::VanillaSwap; pe::PricingEngine = swap.pricingEngine)
-  lazyMixin, res, args = pe == swap.pricingEngine ? (swap.lazyMixin, swap.results, swap.args) : (LazyMixin(), SwapResults(2), VanillaSwapArgs(swap.legs))
-  # args = VanillaSwapArgs(swap.legs)
-  # res = SwapResults(2)
+# function clone(swap::VanillaSwap, pe::PricingEngine = swap.pricingEngine)
+#   lazyMixin, res, args = pe == swap.pricingEngine ? (swap.lazyMixin, swap.results, swap.args) : (LazyMixin(), SwapResults(2), VanillaSwapArgs(swap.legs))
+#   # args = VanillaSwapArgs(swap.legs)
+#   # res = SwapResults(2)
+#
+#   return VanillaSwap(lazyMixin, swap.swapT, swap.nominal, swap.fixedSchedule, swap.fixedRate, swap.fixedDayCount, swap.iborIndex, swap.spread,
+#                     swap.floatSchedule, swap.floatDayCount, swap.paymentConvention, swap.legs, swap.payer, pe, res, args)
+# end
 
-  return VanillaSwap(lazyMixin, swap.swapT, swap.nominal, swap.fixedSchedule, swap.fixedRate, swap.fixedDayCount, swap.iborIndex, swap.spread,
-                    swap.floatSchedule, swap.floatDayCount, swap.paymentConvention, swap.legs, swap.payer, pe, res, args)
+function clone(swap::VanillaSwap, pe::PricingEngine = swap.pricingEngine, ts::TermStructure = swap.iborIndex.ts)
+  is_new = pe != swap.pricingEngine || ts != swap.iborIndex.ts
+
+  lazyMixin, res, args = is_new ? (swap.lazyMixin, swap.results, swap.args) : (LazyMixin(), SwapResults(2), VanillaSwapArgs(swap.legs))
+
+  # we need a new ibor and to rebuild floating rate coupons
+  if ts != swap.iborIndex.ts
+    newIbor = clone(swap.iborIndex, ts)
+    newLegs = Vector{Leg}(2)
+    newLegs[1] = swap.legs[1]
+    newLegs[2] = IborLeg(swap.floatSchedule, swap.nominal, newIbor, swap.floatDayCount, swap.paymentConvention; add_redemption=false)
+  else
+    newIbor = swap.iborIndex
+    newLegs = swap.legs
+  end
+
+  return VanillaSwap(lazyMixin, swap.swapT, swap.nominal, swap.fixedSchedule, swap.fixedRate, swap.fixedDayCount, newIbor, swap.spread,
+                    swap.floatSchedule, swap.floatDayCount, swap.paymentConvention, newLegs, swap.payer, pe, res, args)
 end
 
 get_pricing_engine_type{ST, DC_fix, DC_float, B, L, P}(::VanillaSwap{ST, DC_fix, DC_float, B, L, P}) = P

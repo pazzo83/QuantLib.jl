@@ -19,8 +19,10 @@ function main()
 
   maturities = [JQuantLib.Time.adjust(cal, JQuantLib.Following(), todays_date + ten) for ten in tenors]
 
-  insts = [SpreadCDSHelper(Quote(quoteSpreads[i]), tenors[i], 0, cal, JQuantLib.Time.Quarterly(), JQuantLib.Time.Following(), JQuantLib.Time.DateGenerationTwentieth(),
+  insts = SpreadCDSHelper[SpreadCDSHelper(Quote(quoteSpreads[i]), tenors[i], 0, cal, JQuantLib.Time.Quarterly(), JQuantLib.Time.Following(), JQuantLib.Time.DateGenerationTwentieth(),
             JQuantLib.Time.Actual365(), recoveryRate, tsCurve) for i in eachindex(tenors)]
 
-  return insts
+  hazardRateStructure = PiecewiseDefaultCurve(todays_date, insts, JQuantLib.Time.Actual365(), JQuantLib.Math.BackwardFlatInterpolation(), HazardRate(), 1.0e-12)
+
+  return hazardRateStructure
 end

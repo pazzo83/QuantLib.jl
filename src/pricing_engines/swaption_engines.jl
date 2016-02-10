@@ -154,7 +154,7 @@ function _calculate!(pe::BlackSwaptionEngine, swaption::Swaption)
   strike = swap.fixedRate
 
   # override swap's pricing engine temporarily, bypassing normal calc flow, since swap.iborIndex might be using a diff curve
-  tempSwap = clone(swap; pe=DiscountingSwapEngine(pe.yts))
+  tempSwap = clone(swap, DiscountingSwapEngine(pe.yts))
   # _calculate!(DiscountingSwapEngine(pe.yts), swap)
   calculate!(tempSwap)
   # swap.lazyMixin.calculated = true

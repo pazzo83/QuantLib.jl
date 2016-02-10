@@ -87,7 +87,7 @@ export
     Put, Call,
 
     # instruments/swap.jl
-    Payer, Receiver, SwapResults, VanillaSwap, fair_rate,
+    Payer, Receiver, SwapResults, VanillaSwap, CreditDefaultSwap, fair_rate,
 
     # instruments/swaption.jl
     SettlementCash, SettlementPhysical, Swaption,
@@ -106,14 +106,14 @@ export
     calculated!, discount, zero_rate, forward_rate, discount_impl,
 
     # termstructures/curve.jl
-    PiecewiseYieldCurve, FittedBondDiscountCurve, FittingCost, NullCurve,
+    PiecewiseYieldCurve, PiecewiseDefaultCurve, FittedBondDiscountCurve, FittingCost, NullCurve,
     max_date, discount, calculate!, initialize!, value,
 
     # termstructures/vol_term_structure.jl
     ConstantOptionVolatility, ConstantSwaptionVolatility,
 
     # termstructures/bootstrap.jl
-    Discount, guess, min_value_after, max_value_after,
+    Discount, HazardRate, guess, min_value_after, max_value_after,
     IterativeBootstrap, initialize, quote_error,
 
     # termstructures/credit_helper.jl
@@ -142,7 +142,7 @@ export
     FdmG2Solver,FdmHullWhiteSolver,
 
     # pricing_engines/pricing_engines.jl
-    DiscountingBondEngine, DiscountingSwapEngine,
+    DiscountingBondEngine, DiscountingSwapEngine, MidPointCdsEngine, 
 
     # pricing_engines/discretized_asset.jl
     DiscretizedSwaption, DiscretizedSwap,

@@ -4,6 +4,12 @@ using Dierckx
 abstract Interpolation
 abstract Interpolation2D <: Interpolation
 
+type BackwardFlatInterpolation <: Interpolation
+  x_vals::Vector{Float64}
+  y_vals::Vector{Float64}
+  primitive::Vector{Float64}
+end
+
 type LinearInterpolation <: Interpolation
   x_vals::Vector{Float64}
   y_vals::Vector{Float64}
@@ -105,6 +111,14 @@ function LogInterpolation()
   return LogInterpolation(x_vals, y_vals, interpolator)
 end
 
+function BackwardFlatInterpolation()
+  x_vals = Vector{Float64}()
+  y_vals = Vector{Float64}()
+  primitive = Vector{Float64}()
+
+  return BackwardFlatInterpolation(x_vals, y_vals, primitive)
+end
+
 # Log initialize
 function initialize!(interp::LogInterpolation, x_vals::Vector{Float64}, y_vals::Vector{Float64})
   interp.x_vals = x_vals
@@ -125,6 +139,15 @@ function initialize!(interp::LinearInterpolation, x_vals::Vector{Float64}, y_val
   interp.x_vals = x_vals
   interp.y_vals = y_vals
   interp.s = zeros(length(y_vals))
+
+  return interp
+end
+
+# Backward Flat initialize #
+function initialize!(interp::BackwardFlatInterpolation, x_vals::Vector{Float64}, y_vals::Vector{Float64})
+  interp.x_vals = x_vals
+  interp.y_vals = y_vals
+  interp.primitive = zeros(length(y_vals))
 
   return interp
 end
