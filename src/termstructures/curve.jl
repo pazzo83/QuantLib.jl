@@ -2,7 +2,7 @@
 
 type NullCurve <: Curve end
 
-type PiecewiseYieldCurve{I <: Integer, B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap} <: InterpolatedCurve{B, DC, P, T}
+type PiecewiseYieldCurve{I <: Integer, B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap} <: InterpolatedCurve{P, T}
   lazyMixin::LazyMixin
   settlementDays::I
   referenceDate::Date
@@ -13,6 +13,7 @@ type PiecewiseYieldCurve{I <: Integer, B <: BootstrapHelper, DC <: DayCount, P <
   accuracy::Float64
   boot::BT
   times::Vector{Float64}
+  dates::Vector{Date}
   data::Vector{Float64}
   errors::Vector{Function}
   validCurve::Bool
@@ -33,6 +34,7 @@ function PiecewiseYieldCurve{B <: BootstrapHelper, DC <: DayCount, P <: Interpol
                             accuracy,
                             boot,
                             Vector{Float64}(n + 1),
+                            Vector{Date}(n + 1),
                             Vector{Float64}(n + 1),
                             Vector{Function}(n + 1),
                             false)
@@ -43,7 +45,7 @@ function PiecewiseYieldCurve{B <: BootstrapHelper, DC <: DayCount, P <: Interpol
   return pyc
 end
 
-type PiecewiseDefaultCurve{I <: Integer, B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap} <: InterpolatedDefaultProbabilityCurve{B, DC, P, T}
+type PiecewiseDefaultCurve{I <: Integer, B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap} <: InterpolatedDefaultProbabilityCurve{P, T}
   lazyMixin::LazyMixin
   settlementDays::I
   referenceDate::Date
@@ -54,6 +56,7 @@ type PiecewiseDefaultCurve{I <: Integer, B <: BootstrapHelper, DC <: DayCount, P
   accuracy::Float64
   boot::BT
   times::Vector{Float64}
+  dates::Vector{Date}
   data::Vector{Float64}
   errors::Vector{Function}
   validCurve::Bool
@@ -74,6 +77,7 @@ function PiecewiseDefaultCurve{B <: BootstrapHelper, DC <: DayCount, P <: Interp
                             accuracy,
                             boot,
                             Vector{Float64}(n + 1),
+                            Vector{Date}(n + 1),
                             Vector{Float64}(n + 1),
                             Vector{Function}(n + 1),
                             false)
@@ -161,6 +165,11 @@ function discount_impl{C <: InterpolatedCurve}(curve::C, t::Float64)
 end
 
 function perform_calculations!{C <: InterpolatedCurve}(curve::C)
+  _calculate!(curve.boot, curve)
+  return curve
+end
+
+function perform_calculations!(curve::InterpolatedDefaultProbabilityCurve)
   _calculate!(curve.boot, curve)
   return curve
 end
@@ -275,4 +284,69 @@ function value{C <: CostFunction, T}(cf::C, x::Vector{T})
   end
 
   return squared_error
+end
+
+survival_probability(ts::AbstractDefaultProbabilityTermStructure, d::Date) = survival_probability(ts, time_from_reference(ts, d))
+
+function survival_probability(ts::AbstractDefaultProbabilityTermStructure, t::Float64)
+  # TODO handle jumps
+  return survival_probability_impl(ts, t)
+end
+
+function survival_probability_impl(ts::InterpolatedHazardRateCurve, t::Float64)
+  if t == 0.0
+    return 1.0
+  end
+
+  if t <= ts.times[end]
+    integral = get_primitive(ts.interp, t, true)
+  else
+    # flat hazard rate extrapolation
+    integral = get_primitive(ts.interp, ts.times[end], true) + ts.data[end] * (t - ts.times[end])
+  end
+
+  return exp(-integral)
+end
+
+default_probability(ts::AbstractDefaultProbabilityTermStructure, d::Date) = 1.0 - survival_probability(ts, d)
+
+function default_probability(ts::AbstractDefaultProbabilityTermStructure, d1::Date, d2::Date)
+  p1 = d1 < reference_date(ts) ? 0.0 : default_probability(ts, d1)
+  p2 = default_probability(ts, d2)
+
+  return p2 - p1
+end
+
+default_density(ts::AbstractDefaultProbabilityTermStructure, d::Date) = default_density(ts, time_from_reference(ts, d))
+function default_density(ts::AbstractDefaultProbabilityTermStructure, t::Float64)
+  # TODO check range
+  return default_density_impl(ts, t)
+end
+
+default_density_impl(ts::InterpolatedHazardRateCurve, t::Float64) = _default_density_impl(ts, t) * survival_probability_impl(ts, t)
+
+# sub method
+function _default_density_impl(ts::InterpolatedHazardRateCurve, t::Float64)
+  if t <= ts.times[end]
+    return JQuantLib.Math.value(ts.interp, t)
+  end
+
+  return ts.data[end]
+end
+
+hazard_rate(ts::AbstractDefaultProbabilityTermStructure, d::Date) = hazard_rate(ts, time_from_reference(ts, d))
+
+function hazard_rate(ts::AbstractDefaultProbabilityTermStructure, t::Float64)
+  S = survival_probability(ts, t)
+  return S == 0.0 ? 0.0 : default_density(ts, t) / S
+end
+
+function nodes(ts::InterpolatedHazardRateCurve)
+  calculate!(ts)
+  results = Vector{Tuple}(length(ts.dates))
+  for i in eachindex(ts.dates)
+    results[i] = (ts.dates[i], ts.data[i])
+  end
+
+  return results
 end

@@ -1,55 +1,3 @@
-# bootstrapping traits
-const avg_rate = 0.05
-const max_rate = 1.0
-
-const AVG_HAZARD_RATE = 0.01
-const MAX_HAZARD_RATE = 1.0
-
-# Discount bootstrap trait
-type Discount <: BootstrapTrait end
-type HazardRate <: BootstrapTrait end
-
-initial_value(::Discount) = 1.0
-max_iterations(::Discount) = 100
-
-initial_value(::HazardRate) = AVG_HAZARD_RATE
-max_iterations(::HazardRate) = 30
-
-function guess{I <: Integer, T <: TermStructure}(::Discount, i::I, ts::T, valid::Bool)
-  if valid
-    # return previous iteration value
-    return ts.data[i]
-  end
-
-  if i == 2
-    # first pillar
-    return 1.0 / (1.0 + avg_rate * ts.times[2])
-  end
-
-  r = -log(ts.data[i - 1]) / ts.times[i - 1]
-  return exp(-r * ts.times[i])
-end
-
-function min_value_after{I <: Integer, T <: TermStructure}(::Discount, i::I, ts::T, valid::Bool)
-  if valid
-    return ts.data[end] / 2.0
-  end
-
-  dt = ts.times[i] - ts.times[i - 1]
-  return ts.data[i - 1] * exp( -max_rate * dt)
-end
-
-function max_value_after{I <: Integer, T <: TermStructure}(::Discount, i::I, ts::T)
-  dt = ts.times[i] - ts.times[i - 1]
-  return ts.data[i - 1] * exp(max_rate * dt)
-  #return ts.data[i - 1]
-end
-
-function update_guess!{I <: Integer, T <: TermStructure}(::Discount, i::I, ts::T, discount::Float64)
-  ts.data[i] = discount
-  return ts
-end
-
 get_pricing_engine{Y}(::Discount, yts::Y) = DiscountingBondEngine(yts)
 
 function apply_termstructure{R <: RateHelper, T <: TermStructure}(rate::R, ts::T)
@@ -101,8 +49,10 @@ function initialize{T <: TermStructure}(::IterativeBootstrap, ts::T)
 
   # build times and error vectors (which have the functions for the solver)
   ts.times[1] = time_from_reference(ts, ts.referenceDate)
+  ts.dates[1] = ts.referenceDate
   for i = 2:n
     @inbounds ts.times[i] = time_from_reference(ts, maturity_date(ts.instruments[i - 1]))
+    @inbounds ts.dates[i] = maturity_date(ts.instruments[i - 1])
     # set yield term Structure
     @inbounds ts.instruments[i - 1] = apply_termstructure(ts.instruments[i - 1], ts)
     # set error function
@@ -125,7 +75,7 @@ function _calculate!{T <: TermStructure}(boot::IterativeBootstrap, ts::T)
 
       # bracket root and calculate guess
       min = min_value_after(ts.trait, i, ts, valid_data)
-      max = max_value_after(ts.trait, i, ts)
+      max = max_value_after(ts.trait, i, ts, valid_data)
       g = guess(ts.trait, i, ts, valid_data)
 
       # adjust if needed
@@ -185,3 +135,4 @@ end
 
 quote_error{B <: BondHelper}(inst::B) = JQuantLib.value(inst) - implied_quote(inst) # recalculate
 quote_error{R <: RateHelper}(rate::R) = JQuantLib.value(rate) - implied_quote(rate)
+quote_error(rate::AbstractCDSHelper) = JQuantLib.value(rate) - implied_quote(rate)

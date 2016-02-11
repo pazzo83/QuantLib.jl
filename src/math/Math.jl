@@ -117,7 +117,7 @@ export Integrator, SegmentIntegral, operator, integrate
 include("integral.jl")
 
 # interpolation.jl
-export Interpolation, LogInterpolation, BicubicSpline, NaturalCubicSpline, BackwardFlatInterpolation, update!, locate, initialize!, value
+export Interpolation, LogInterpolation, BicubicSpline, NaturalCubicSpline, BackwardFlatInterpolation, update!, locate, initialize!, value, get_primitive
 
 include("interpolation.jl")
 

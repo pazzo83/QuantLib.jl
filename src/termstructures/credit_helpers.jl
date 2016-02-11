@@ -38,6 +38,8 @@ function SpreadCDSHelper(runningSpread::Quote, tenor::Dates.Period, settlementDa
   return SpreadCDSHelper(runningSpread, tenor, settlementDays, calendar, frequency, paymentConvention, dc, recoveryRate, schedule, discountCurve, settlesAccrual, paysAtDefaultTime, protectionStart)
 end
 
+value(cdsHelper::SpreadCDSHelper) = cdsHelper.runningSpread.value
+
 function initialize_dates(::Type{SpreadCDSHelper}, evaluationDate::Date, settlementDays::Int, calendar::BusinessCalendar, paymentConvention::BusinessDayConvention, tenor::Dates.Period, frequency::Frequency, rule::DateGenerationRule)
   protectionStart = evaluationDate + Dates.Day(settlementDays)
   startDate = adjust(calendar, paymentConvention, protectionStart)
@@ -55,6 +57,11 @@ function reset_engine!(cds::SpreadCDSHelper)
               cds.protectionStart, MidPointCdsEngine(cds.probability, cds.recoveryRate, cds.discountCurve))
 
   return cds
+end
+
+function implied_quote(cdsHelper::SpreadCDSHelper)
+  recalculate!(cdsHelper.swap)
+  return cdsHelper.swap.results.fairSpread
 end
 
 # defaults to existing prob ts, note: this doesn't copy the swap!

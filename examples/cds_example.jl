@@ -24,5 +24,5 @@ function main()
 
   hazardRateStructure = PiecewiseDefaultCurve(todays_date, insts, JQuantLib.Time.Actual365(), JQuantLib.Math.BackwardFlatInterpolation(), HazardRate(), 1.0e-12)
 
-  return hazardRateStructure
+  return nodes(hazardRateStructure)
 end

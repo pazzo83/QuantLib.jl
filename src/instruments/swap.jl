@@ -2,6 +2,7 @@ type Payer <: SwapType end
 type Receiver <: SwapType end
 
 type Buyer <: CDSProtectionSide end
+type Seller <: CDSProtectionSide end
 
 type SwapResults <: Results
   legNPV::Vector{Float64}
@@ -57,6 +58,32 @@ function reset!(sr::SwapResults)
   return sr
 end
 
+type CDSResults
+  upfrontNPV::Float64
+  couponLegNPV::Float64
+  defaultLegNPV::Float64
+  fairSpread::Float64
+  fairUpfront::Float64
+  couponLegBPS::Float64
+  upfrontBPS::Float64
+  value::Float64
+end
+
+CDSResults() = CDSResults(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+
+function reset!(cr::CDSResults)
+  cr.upfrontNPV = 0.0
+  cr.couponLegNPV = 0.0
+  cr.defaultLegNPV = 0.0
+  cr.fairSpread = 0.0
+  cr.fairUpfront = 0.0
+  cr.couponLegBPS = 0.0
+  cr.upfrontBPS = 0.0
+  cr.value = 0.0
+
+  return cr
+end
+
 type VanillaSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, L <: Leg, P <: PricingEngine} <: Swap
   lazyMixin::LazyMixin
   swapT::ST
@@ -103,10 +130,14 @@ type CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvention, DC <:
   schedule::Schedule
   convention::B
   dc::DC
+  leg::FixedRateLeg
+  upfrontPayment::SimpleCashFlow
   settlesAccrual::Bool
   paysAtDefaultTime::Bool
   protectionStart::Date
   pricingEngine::P
+  claim::FaceValueClaim
+  results::CDSResults
 
   CreditDefaultSwap(lazyMixin::LazyMixin,
                     side::S,
@@ -115,15 +146,23 @@ type CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvention, DC <:
                     schedule::Schedule,
                     convention::B,
                     dc::DC,
+                    leg::FixedRateLeg,
+                    upfrontPayment::SimpleCashFlow,
                     settlesAccrual::Bool,
                     paysAtDefaultTime::Bool,
                     protectionStart::Date,
-                    pricingEngine::P) = new(lazyMixin, side, notional, spread, schedule, convention, dc, settlesAccrual, paysAtDefaultTime, protectionStart, pricingEngine)
+                    pricingEngine::P) = new(lazyMixin, side, notional, spread, schedule, convention, dc, leg, upfrontPayment, settlesAccrual, paysAtDefaultTime, protectionStart, pricingEngine,
+                                            FaceValueClaim(), CDSResults())
 end
 
 function CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvention, DC <: DayCount, P <: PricingEngine}(side::S, notional::Float64, spread::Float64, schedule::Schedule,
                           convention::B, dc::DC, settlesAccrual::Bool, paysAtDefaultTime::Bool, protectionStart::Date, pricingEngine::P)
-  return CreditDefaultSwap{S, B, DC, P}(LazyMixin(), side, notional, spread, schedule, convention, dc, settlesAccrual, paysAtDefaultTime, protectionStart, pricingEngine)
+  # build leg
+  leg = FixedRateLeg(schedule, notional, spread, schedule.cal, convention, dc; add_redemption = false)
+
+  # build upfront payment
+  upfrontPayment = SimpleCashFlow(0.0, schedule.dates[1])
+  return CreditDefaultSwap{S, B, DC, P}(LazyMixin(), side, notional, spread, schedule, convention, dc, leg, upfrontPayment, settlesAccrual, paysAtDefaultTime, protectionStart, pricingEngine)
 end
 
 # Swap Helper methods
@@ -158,6 +197,13 @@ function perform_calculations!(swap::VanillaSwap)
   return swap
 end
 
+function perform_calculations!(cds::CreditDefaultSwap)
+  reset!(cds.results)
+  _calculate!(cds.pricingEngine, cds)
+
+  return cds
+end
+
 floating_leg_NPV(swap::VanillaSwap) = swap.results.legNPV[2]
 floating_leg_BPS(swap::VanillaSwap) = swap.results.legBPS[2]
 
@@ -180,9 +226,9 @@ end
 # end
 
 function clone(swap::VanillaSwap, pe::PricingEngine = swap.pricingEngine, ts::TermStructure = swap.iborIndex.ts)
-  is_new = pe != swap.pricingEngine || ts != swap.iborIndex.ts
+  # is_new = pe != swap.pricingEngine || ts != swap.iborIndex.ts
 
-  lazyMixin, res, args = is_new ? (swap.lazyMixin, swap.results, swap.args) : (LazyMixin(), SwapResults(2), VanillaSwapArgs(swap.legs))
+  lazyMixin, res, args = pe == swap.pricingEngine ? (swap.lazyMixin, swap.results, swap.args) : (LazyMixin(), SwapResults(2), VanillaSwapArgs(swap.legs))
 
   # we need a new ibor and to rebuild floating rate coupons
   if ts != swap.iborIndex.ts

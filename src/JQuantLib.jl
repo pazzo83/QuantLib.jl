@@ -86,6 +86,9 @@ export
     # instruments/option.jl
     Put, Call,
 
+    # instruments/claim.jl
+    FaceValueClaim,
+
     # instruments/swap.jl
     Payer, Receiver, SwapResults, VanillaSwap, CreditDefaultSwap, fair_rate,
 
@@ -105,15 +108,17 @@ export
     NullYieldTermStructure, FlatForwardTermStructure, JumpDate, JumpTime,
     calculated!, discount, zero_rate, forward_rate, discount_impl,
 
+    # termstructures/bootstrap_traits.jl
+    Discount, HazardRate, guess, min_value_after, max_value_after,
+
     # termstructures/curve.jl
     PiecewiseYieldCurve, PiecewiseDefaultCurve, FittedBondDiscountCurve, FittingCost, NullCurve,
-    max_date, discount, calculate!, initialize!, value,
+    max_date, discount, calculate!, initialize!, value, nodes, 
 
     # termstructures/vol_term_structure.jl
     ConstantOptionVolatility, ConstantSwaptionVolatility,
 
     # termstructures/bootstrap.jl
-    Discount, HazardRate, guess, min_value_after, max_value_after,
     IterativeBootstrap, initialize, quote_error,
 
     # termstructures/credit_helper.jl
@@ -124,7 +129,6 @@ export
 
     # models/parameter.jl
     ConstantParameter, G2FittingParameter, HullWhiteFittingParameter,
-
 
     # models/calibration_helpers.jl
     SwaptionHelper, implied_volatility!, add_times_to!, model_value!, update_pricing_engine!, # for swaptionHelper only
@@ -142,7 +146,7 @@ export
     FdmG2Solver,FdmHullWhiteSolver,
 
     # pricing_engines/pricing_engines.jl
-    DiscountingBondEngine, DiscountingSwapEngine, MidPointCdsEngine, 
+    DiscountingBondEngine, DiscountingSwapEngine, MidPointCdsEngine,
 
     # pricing_engines/discretized_asset.jl
     DiscretizedSwaption, DiscretizedSwap,
@@ -190,6 +194,7 @@ include("instruments/Instruments.jl")
 # bond
 include("instruments/bond.jl")
 include("instruments/option.jl")
+include("instruments/claim.jl")
 include("instruments/swap.jl")
 include("instruments/swaption.jl")
 
@@ -201,6 +206,8 @@ include("termstructures/rate_helpers.jl")
 include("termstructures/TermStructures.jl")
 # yield term structures
 include("termstructures/yield_term_structure.jl")
+# bootstrapping traits
+include("termstructures/bootstrap_traits.jl")
 # Curves
 include("termstructures/curve.jl")
 # volatility

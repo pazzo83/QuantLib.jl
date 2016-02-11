@@ -30,6 +30,7 @@ abstract Instrument <: LazyObject
 abstract Bond <: Instrument
 abstract AbstractRate <: Instrument
 abstract Swap <: Instrument
+abstract AbstractClaim
 abstract SettlementType
 abstract Option <: Instrument
 abstract OptionType
@@ -40,12 +41,13 @@ abstract Results
 # Term Structures
 abstract TermStructure <: LazyObject
 abstract YieldTermStructure <: TermStructure
+abstract CreditTermStructure <: TermStructure
 # Curves
 abstract Curve <: YieldTermStructure
-abstract InterpolatedCurve{I, DC, P, T} <: Curve
-abstract AbstractDefaultProbabilityTermStructure <: TermStructure
+abstract InterpolatedCurve{P, T} <: Curve
+abstract AbstractDefaultProbabilityTermStructure <: CreditTermStructure
 abstract AbstractDefaultProbabilityCurve <: AbstractDefaultProbabilityTermStructure
-abstract InterpolatedDefaultProbabilityCurve{I, DC, P, T} <: AbstractDefaultProbabilityCurve
+abstract InterpolatedDefaultProbabilityCurve{P, T} <: AbstractDefaultProbabilityCurve
 
 abstract VolatilityTermStructure <: TermStructure
 abstract OptionletVolatilityStructure <: VolatilityTermStructure
