@@ -113,7 +113,7 @@ export
 
     # termstructures/curve.jl
     PiecewiseYieldCurve, PiecewiseDefaultCurve, FittedBondDiscountCurve, FittingCost, NullCurve,
-    max_date, discount, calculate!, initialize!, value, nodes, 
+    max_date, discount, calculate!, initialize!, value, nodes, survival_probability, 
 
     # termstructures/vol_term_structure.jl
     ConstantOptionVolatility, ConstantSwaptionVolatility,

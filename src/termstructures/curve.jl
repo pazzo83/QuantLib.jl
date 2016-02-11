@@ -294,6 +294,7 @@ function survival_probability(ts::AbstractDefaultProbabilityTermStructure, t::Fl
 end
 
 function survival_probability_impl(ts::InterpolatedHazardRateCurve, t::Float64)
+  calculate!(ts)
   if t == 0.0
     return 1.0
   end
@@ -327,6 +328,7 @@ default_density_impl(ts::InterpolatedHazardRateCurve, t::Float64) = _default_den
 
 # sub method
 function _default_density_impl(ts::InterpolatedHazardRateCurve, t::Float64)
+  calculate!(ts)
   if t <= ts.times[end]
     return JQuantLib.Math.value(ts.interp, t)
   end

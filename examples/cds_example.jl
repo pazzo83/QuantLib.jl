@@ -24,5 +24,8 @@ function main()
 
   hazardRateStructure = PiecewiseDefaultCurve(todays_date, insts, JQuantLib.Time.Actual365(), JQuantLib.Math.BackwardFlatInterpolation(), HazardRate(), 1.0e-12)
 
-  return nodes(hazardRateStructure)
+  hr_curve_data = nodes(hazardRateStructure)
+
+  println(@sprintf("1Y Survival Probability: %.6f %%", survival_probability(hazardRateStructure, todays_date + Dates.Year(1)) * 100.0))
+  println(@sprintf("2Y Survival Probability: %.6f %%", survival_probability(hazardRateStructure, todays_date + Dates.Year(2)) * 100.0))
 end
