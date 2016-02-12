@@ -90,10 +90,10 @@ export
     FaceValueClaim,
 
     # instruments/swap.jl
-    Payer, Receiver, SwapResults, VanillaSwap, CreditDefaultSwap, fair_rate,
+    Payer, Receiver, SwapResults, VanillaSwap, NonstandardSwap, CreditDefaultSwap, fair_rate,
 
     # instruments/swaption.jl
-    SettlementCash, SettlementPhysical, Swaption,
+    SettlementCash, SettlementPhysical, Swaption, NonstandardSwaption,
 
     # termstructures/bond_helpers.jl
     FixedRateBondHelper, implied_quote,
@@ -113,7 +113,7 @@ export
 
     # termstructures/curve.jl
     PiecewiseYieldCurve, PiecewiseDefaultCurve, FittedBondDiscountCurve, FittingCost, NullCurve,
-    max_date, discount, calculate!, initialize!, value, nodes, survival_probability, 
+    max_date, discount, calculate!, initialize!, value, nodes, survival_probability,
 
     # termstructures/vol_term_structure.jl
     ConstantOptionVolatility, ConstantSwaptionVolatility,

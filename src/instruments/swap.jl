@@ -58,6 +58,22 @@ function reset!(sr::SwapResults)
   return sr
 end
 
+type NonstandardSwapArgs
+  vSwapArgs::VanillaSwapArgs
+  fixedIsRedemptionFlow::Vector{Bool}
+  floatingIsRedemptionFlow::Vector{Bool}
+  floatingGearings::Vector{Float64}
+end
+
+function NonstandardSwapArgs{L <: Leg}(legs::Vector{L})
+  vSwapArgs = VanillaSwapArgs(legs)
+  fixedIsRedemptionFlow = Bool[!check_coupon(cf) for cf in legs[1].coupons]
+  floatingIsRedemptionFlow = Bool[!check_coupon(cf) for cf in legs[2].coupons]
+  floatingGearings = get_gearings(legs[2].coupons)
+
+  return NonstandardSwapArgs(vSwapArgs, fixedIsRedemptionFlow, floatingIsRedemptionFlow, floatingGearings)
+end
+
 type CDSResults
   upfrontNPV::Float64
   couponLegNPV::Float64
@@ -105,7 +121,7 @@ end
 
 # Constructors
 function VanillaSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, P <: PricingEngine}(swapT::ST, nominal::Float64, fixedSchedule::Schedule, fixedRate::Float64,
-                    fixedDayCount::DC_fix, iborIndex::IborIndex, spread::Float64, floatSchedule::Schedule, floatDayCount::DC_float, pricingEngine::P, paymentConvention::B = floatSchedule.convention)
+                    fixedDayCount::DC_fix, iborIndex::IborIndex, spread::Float64, floatSchedule::Schedule, floatDayCount::DC_float, pricingEngine::P = NullPricingEngine(), paymentConvention::B = floatSchedule.convention)
   # build swap cashflows
   legs = Vector{Leg}(2)
   # first leg is fixed
@@ -120,6 +136,60 @@ function VanillaSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B
   return VanillaSwap{ST, DC_fix, DC_float, B, Leg, P}(LazyMixin(), swapT, nominal, fixedSchedule, fixedRate, fixedDayCount, iborIndex, spread, floatSchedule, floatDayCount,
                     paymentConvention, legs, payer, pricingEngine, results, VanillaSwapArgs(legs))
 end
+
+type NonstandardSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, L <: Leg, P <: PricingEngine} <: Swap
+  lazyMixin::LazyMixin
+  swapT::ST
+  fixedNominal::Vector{Float64}
+  floatingNominal::Vector{Float64}
+  fixedSchedule::Schedule
+  fixedRate::Vector{Float64}
+  fixedDayCount::DC_fix
+  iborIndex::IborIndex
+  spread::Float64
+  gearing::Float64
+  floatSchedule::Schedule
+  floatDayCount::DC_float
+  paymentConvention::B
+  intermediateCapitalExchange::Bool
+  finalCapitalExchange::Bool
+  legs::Vector{L}
+  payer::Vector{Float64}
+  pricingEngine::P
+  results::SwapResults
+  args::NonstandardSwapArgs
+end
+
+# Constructor #
+function NonstandardSwap(vs::VanillaSwap)
+  # build swap cashflows
+  legs = Vector{Leg}(2)
+  # first leg is fixed
+  legs[1] = FixedRateLeg(vs.fixedSchedule, vs.nominal, vs.fixedRate, vs.fixedSchedule.cal, vs.paymentConvention, vs.fixedDayCount; add_redemption=false)
+  # second leg is floating
+  legs[2] = IborLeg(vs.floatSchedule, vs.nominal, vs.iborIndex, vs.floatDayCount, vs.paymentConvention; add_redemption=false)
+
+  payer = _build_payer(vs.swapT)
+
+  results = SwapResults(2)
+
+  fixedSize = length(vs.legs[1].coupons)
+  floatSize = length(vs.legs[2].coupons)
+
+  return NonstandardSwap(LazyMixin(), vs.swapT, fill(vs.nominal, fixedSize), fill(vs.nominal, floatSize), vs.fixedSchedule, fill(vs.fixedRate, fixedSize),
+                        vs.fixedDayCount, vs.iborIndex, vs.spread, 1.0, vs.floatSchedule, vs.floatDayCount, vs.paymentConvention, false, false, legs,
+                        payer, vs.pricingEngine, results, NonstandardSwapArgs(legs))
+end
+
+# accessor methods #
+get_fixed_reset_dates(swap::NonstandardSwap) = swap.args.vSwapArgs.fixedResetDates
+get_fixed_pay_dates(swap::NonstandardSwap) = swap.args.vSwapArgs.fixedPayDates
+get_floating_reset_dates(swap::NonstandardSwap) = swap.args.vSwapArgs.floatingResetDates
+get_floating_pay_dates(swap::NonstandardSwap) = swap.args.vSwapArgs.floatingPayDates
+get_floating_accrual_dates(swap::NonstandardSwap) = swap.args.vSwapArgs.floatingAccrualDates
+get_floating_spreads(swap::NonstandardSwap) = swap.args.vSwapArgs.floatingSpreads
+get_fixed_coupons(swap::NonstandardSwap) = swap.args.vSwapArgs.fixedCoupons
+get_floating_coupons(swap::NonstandardSwap) = swap.args.vSwapArgs.floatingCoupons
 
 # CDS #
 type CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvention, DC <: DayCount, P <: PricingEngine} <: Swap

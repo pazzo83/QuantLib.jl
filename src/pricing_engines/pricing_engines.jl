@@ -1,6 +1,8 @@
 # Pricing Engines module
 # module PricingEngines
 
+type NullPricingEngine <: PricingEngine end
+
 type DiscountingBondEngine{Y <: YieldTermStructure} <: PricingEngine
   yts::Y
 
@@ -30,6 +32,8 @@ type MidPointCdsEngine{P <: AbstractDefaultProbabilityTermStructure, Y <: YieldT
   recoveryRate::Float64
   discountCurve::Y
 end
+
+_calculate!(pe::NullPricingEngine, inst::Instrument) = error("You must set a valid pricing engine")
 
 function _calculate!{B <: Bond}(pe::DiscountingBondEngine, bond::B)
   yts = pe.yts

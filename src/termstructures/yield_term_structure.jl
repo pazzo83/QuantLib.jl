@@ -106,6 +106,9 @@ end
 FlatForwardTermStructure{B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency}(referenceDate::Date, calendar::B, forward::Quote, dc::DC, comp::C = ContinuousCompounding(), freq::F = JQuantLib.Time.Annual()) =
                         FlatForwardTermStructure(0, referenceDate, calendar, forward, dc, comp, freq)
 
+FlatForwardTermStructure{B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency}(settlementDays::Int, calendar::B, forward::Quote, dc::DC, comp::C = ContinuousCompounding(), freq::F = JQuantLib.Time.Annual()) =
+                        FlatForwardTermStructure(settlementDays, Date(), calendar, forward, dc, comp, freq)
+
 discount_impl(ffts::FlatForwardTermStructure, time_frac::Float64) = discount_factor(ffts.rate, time_frac)
 
 # discount_impl(ffts::FlatForwardTermStructure, time_frac::Float64) = discount_factor(ffts.rate, time_frac)
