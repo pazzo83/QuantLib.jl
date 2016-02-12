@@ -116,8 +116,12 @@ include("distributions.jl")
 export Integrator, SegmentIntegral, operator, integrate
 include("integral.jl")
 
+# tridiagonal_operator.jl
+export TridiagonalOperator
+include("tridiagonal_operator.jl")
+
 # interpolation.jl
-export Interpolation, LogInterpolation, BicubicSpline, NaturalCubicSpline, BackwardFlatInterpolation, update!, locate, initialize!, value, get_primitive
+export Interpolation, Spline, Lagrange, LogInterpolation, BicubicSpline, NaturalCubicSpline, CubicInterpolation, BackwardFlatInterpolation, update!, locate, initialize!, value, get_primitive
 
 include("interpolation.jl")
 
