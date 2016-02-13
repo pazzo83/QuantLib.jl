@@ -21,6 +21,47 @@ end
 
 std_deviation(process::OrnsteinUhlenbeckProcess, t::Float64, x0::Float64, dt::Float64) = sqrt(variance(process, t, x0, dt))
 
+type GsrProcess <: StochasticProcess1D
+  times::Vector{Float64}
+  vols::Vector{Float64}
+  reversions::Vector{Float64}
+  T::Float64
+  revZero::Vector{Bool}
+  cache1::Dict{Pair{Float64, Float64}, Float64}
+  cache2::Dict{Pair{Float64, Float64}, Float64}
+  cache3::Dict{Pair{Float64, Float64}, Float64}
+  cache4::Dict{Float64, Float64}
+  cache5::Dict{Pair{Float64, Float64}, Float64}
+end
+
+function GsrProcess(times::Vector{Float64}, vols::Vector{Float64}, reversions::Vector{Float64}, T::Float64 = 60.0)
+  revZero = falses(length(reversions))
+  cache1 = Dict{Pair{Float64, Float64}, Float64}()
+  cache2 = Dict{Pair{Float64, Float64}, Float64}()
+  cache3 = Dict{Pair{Float64, Float64}, Float64}()
+  cache4 = Dict{Float64, Float64}()
+  cache5 = Dict{Pair{Float64, Float64}, Float64}()
+
+  return GsrProcess(times, vols, reversions, T, revZero, cache1, cache2, cache3, cache4, cache5)
+end
+
+function flush_cache!(gsrP::GsrProcess)
+  for i in eachindex(gsrP.reversions)
+    if abs(gsrP.reversions[i]) < 1e-4
+      gsrP.revZero[i] = true
+    else
+      gsrP.revZero[i] = false
+    end
+  end
+  empty!(gsrP.cache1)
+  empty!(gsrP.cache2)
+  empty!(gsrP.cache3)
+  empty!(gsrP.cache4)
+  empty!(gsrP.cache4)
+
+  return gsrP
+end
+
 evolve(process::StochasticProcess1D, t0::Float64, x0::Float64, dt::Float64, dw::Float64) =
       apply(process, expectation(process, t0, x0, dt), std_deviation(process, t0, x0, dt) * dw)
 

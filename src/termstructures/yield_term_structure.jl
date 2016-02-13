@@ -85,7 +85,7 @@ end
 
 ## FlatForwardTermStructure
 type FlatForwardTermStructure{I <: Integer, B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency} <: YieldTermStructure
-  settlement_days::I
+  settlementDays::I
   referenceDate::Date
   calendar::B
   forward::Quote

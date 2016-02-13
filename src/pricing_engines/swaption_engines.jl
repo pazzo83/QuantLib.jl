@@ -99,6 +99,44 @@ FdHullWhiteSwaptionEngine(model::HullWhite, tGrid::Int = 100, xGrid::Int = 100, 
                   schemeDesc::FdmSchemeDesc = FdmSchemeDesc(Douglas())) =
                   FdHullWhiteSwaptionEngine(model, tGrid, xGrid, dampingSteps, invEps, schemeDesc, model.ts)
 
+# Gaussian One-D engines #
+abstract GaussianProbabilities
+type NoneProbabilities <: GaussianProbabilities end
+type NaiveProbabilities <: GaussianProbabilities end
+type DigitalProbabilities <: GaussianProbabilities end
+
+type Gaussian1DSwaptionEngine{G <: Gaussian1DModel, I <: Integer, Y <: YieldTermStructure, P <: GaussianProbabilities} <: PricingEngine
+  model::G
+  integrationPoints::I
+  stddevs::Float64
+  extrapolatePayoff::Bool
+  flatPayoffExtrapolation::Bool
+  discountCurve::Y
+  probabilities::P
+end
+
+Gaussian1DSwaptionEngine{G <: Gaussian1DModel, I <: Integer, Y <: YieldTermStructure, P <: GaussianProbabilities}(model::G, integrationPoints::I = 64, stddevs::Float64 = 7.0,
+                        extrapolatePayoff::Bool = true, flatPayoffExtrapolation::Bool = false, discountCurve::Y = NullYieldTermStructure(), probabilities::P = NoneProbabilities()) =
+                        Gaussian1DSwaptionEngine{G, I, Y, P}(model, integrationPoints, stddevs, extrapolatePayoff, flatPayoffExtrapolation, discountCurve, probabilities)
+
+type Gaussian1DNonstandardSwaptionEngine{G <: Gaussian1DModel, I <: Integer, Y <: YieldTermStructure, P <: GaussianProbabilities} <: PricingEngine
+  model::G
+  integrationPoints::I
+  stddevs::Float64
+  extrapolatePayoff::Bool
+  flatPayoffExtrapolation::Bool
+  oas::Quote
+  discountCurve::Y
+  probabilities::P
+end
+
+Gaussian1DNonstandardSwaptionEngine{G <: Gaussian1DModel, I <: Integer, Y <: YieldTermStructure, P <: GaussianProbabilities}(model::G, integrationPoints::I = 64, stddevs::Float64 = 7.0,
+                        extrapolatePayoff::Bool = true, flatPayoffExtrapolation::Bool = false, oas::Quote = Quote(-1.0), discountCurve::Y = NullYieldTermStructure(),
+                        probabilities::P = NoneProbabilities()) =
+                        Gaussian1DNonstandardSwaptionEngine{G, I, Y, P}(model, integrationPoints, stddevs, extrapolatePayoff, flatPayoffExtrapolation, oas, discountCurve, probabilities)
+
+# methods #
+
 function update!(eng::LatticeShortRateModelEngine)
   if length(eng.common.tg.times) > 0
     eng.common.lattice = tree(eng.model, eng.common.tg)

@@ -71,6 +71,79 @@ function HullWhite{T <: TermStructure}(ts::T, a::Float64 = 0.1, sigma::Float64 =
   return HullWhite(AffineModelType(), r0, a_const, sigma_const, phi, ts, privateConstraint, ModelCommon()) #, ShortRateModelCommon())
 end
 
+immutable CachedSwapKey
+  index::SwapIndex
+  fixing::Date
+  tenor::Dates.Period
+end
+
+Base.isequal(A::CachedSwapKey, B::CachedSwapKey) = A.index == B.index && A.fixing == B.fixing && A.tenor == B.tenor
+# Base.hash(A::CachedSwapKey) = hash(A.index + A.fixing + A.tenor)
+
+type GSR{TermStructureConsistentModelType, P <: StochasticProcess1D, PARAM1 <: Parameter, PARAM2 <: Parameter, T <: YieldTermStructure} <: Gaussian1DModel{TermStructureConsistentModelType}
+  modT::TermStructureConsistentModelType
+  stateProcess::P
+  evaluationDate::Date
+  enforcesTodaysHistoricFixings::Bool
+  reversion::PARAM1
+  sigma::PARAM2
+  volatilities::Vector{Quote}
+  reversions::Vector{Quote}
+  volstepdates::Vector{Date}
+  volsteptimes::Vector{Float64}
+  volsteptimesArray::Vector{Float64}
+  ts::T
+  swapCache::Dict{CachedSwapKey, VanillaSwap}
+end
+
+function GSR(ts::YieldTermStructure, volstepdates::Vector{Date}, volatilities::Vector{Float64}, reversion::Float64, T::Float64 = 60.0)
+  volatilityQuotes = Quote[Quote(v) for v in volatilities]
+  reversions = [Quote(reversion)]
+
+  volsteptimes, volsteptimesArray = update_times(ts, volstepdates)
+
+  sigma = PiecewiseConstantParameter(volsteptimes, NoConstraint())
+  if length(reversions) == 1
+    reversion = ConstantParameter([reversions[1].value], NoConstraint())
+  else
+    reversion = PiecewiseConstantParameter(volsteptimes, NoConstraint())
+  end
+
+  for i in eachindex(sigma.times)
+    set_params!(sigma, i, volatilities[i])
+  end
+
+  for i in eachindex(get_data(reversion))
+    set_params!(reversion, i, reversions[i].value)
+  end
+
+  stateProcess = GsrProcess(volsteptimesArray, sigma.times, get_data(reversion), T)
+
+  swapCache = Dict{CachedSwapKey, VanillaSwap}()
+
+  # TOOD registration with quotes in reversions and volatilities
+
+  return GSR(TermStructureConsistentModelType(), stateProcess, Date(), true, reversion, sigma, volatilityQuotes, reversions, volstepdates, volsteptimes, volsteptimesArray, ts, swapCache)
+end
+
+function update_times(ts::TermStructure, volstepdates::Vector{Date})
+  volsteptimes = zeros(length(volstepdates))
+  volsteptimesArray = zeros(length(volsteptimes))
+  for i in eachindex(volstepdates)
+    volsteptimes[i] = time_from_reference(ts, volstepdates[i])
+    volsteptimesArray[i] = volsteptimes[i]
+    if i == 1
+      volsteptimes[1] > 0.0 || error("volsteptimes must be positive")
+    else
+      volsteptimes[i] > volsteptimes[i - 1] || error("volsteptimes must be strictly increasing")
+    end
+  end
+
+  # TODO flush cache for process
+
+  return volsteptimes, volsteptimesArray
+end
+
 ## Dynamics ##
 
 type HullWhiteDynamics{P <: Parameter} <: ShortRateDynamics

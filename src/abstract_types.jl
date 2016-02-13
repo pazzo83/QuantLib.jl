@@ -85,6 +85,7 @@ abstract ModelType
 abstract Model{T <: ModelType} <: Observer
 abstract ShortRateModel{T} <: Model{T}
 abstract OneFactorModel{T} <: ShortRateModel{T}
+abstract Gaussian1DModel{T} <: OneFactorModel{T}
 abstract TwoFactorModel{T} <: ShortRateModel{T}
 abstract ShortRateDynamics
 abstract ShortRateTree

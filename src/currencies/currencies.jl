@@ -1,5 +1,5 @@
 ### Based off of Ito.jl
-type NullCurrency <: AbstractCurrency end
+immutable NullCurrency <: AbstractCurrency end
 
 immutable Currency{S <: AbstractString, S2 <: AbstractString, S3 <: AbstractString, I <: Integer} <: AbstractCurrency
 	name::S
@@ -15,7 +15,7 @@ end
 # Data from http://fx.sauder.ubc.ca/currency_table.html
 # and http://www.thefinancials.com/vortex/CurrencyFormats.html
 
-list_currencies=[
+const list_currencies=[
 
 # Africa
 ("South-African rand", "ZAR", 710, "R", "", 100, identity, "%3% %1\$.2f"),

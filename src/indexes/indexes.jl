@@ -1,8 +1,8 @@
-type IborIndex{S <: AbstractString, I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
+immutable IborIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
   familyName::S
-  tenor::TenorPeriod
+  tenor::TP
   fixingDays::I
-  currency::AbstractCurrency
+  currency::Currency
   fixingCalendar::B
   convention::C
   endOfMonth::Bool
@@ -21,13 +21,13 @@ type IborIndex{S <: AbstractString, I <: Integer, B <: BusinessCalendar, C <: Bu
   #                                                                                           endOfMonth, dc, ts)
 end
 
-IborIndex{S <: AbstractString, I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::S, tenor::TenorPeriod, fixingDays::I, currency::AbstractCurrency,
-          fixingCalendar::B, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) = IborIndex{S, I, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, convention, endOfMonth, dc, ts)
+IborIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::S, tenor::TP, fixingDays::I, currency::Currency,
+          fixingCalendar::B, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) = IborIndex{S, TP, I, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, convention, endOfMonth, dc, ts)
 
 
-type LiborIndex{S <: AbstractString, I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
+immutable LiborIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
   familyName::S
-  tenor::TenorPeriod
+  tenor::TP
   fixingDays::I
   currency::Currency
   fixingCalendar::B
@@ -44,8 +44,8 @@ type LiborIndex{S <: AbstractString, I <: Integer, B <: BusinessCalendar, C <: B
 end
 
 # catch all constructor #
-LiborIndex{S <: AbstractString, I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::S, tenor::TenorPeriod, fixingDays::I, currency::Currency, fixingCalendar::B,
-                  jointCalendar::JointCalendar, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) = LiborIndex{S, I, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, jointCalendar, convention,
+LiborIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::S, tenor::TP, fixingDays::I, currency::Currency, fixingCalendar::B,
+                  jointCalendar::JointCalendar, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) = LiborIndex{S, TP, I, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, jointCalendar, convention,
                                                                                           endOfMonth, dc, ts)
 
 

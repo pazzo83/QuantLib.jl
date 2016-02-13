@@ -1,9 +1,12 @@
 call{P <: Parameter}(param::P, t::Float64) = value(param, t)
 
-type ConstantParameter <: Parameter
+type ConstantParameter{C <: Constraint} <: Parameter
   data::Vector{Float64}
-  constraint::Constraint
+  constraint::C
 end
+
+get_data(c::ConstantParameter) = c.data
+set_params!(c::ConstantParameter, i::Int, val::Float64) = c.data[i] = val
 
 type G2FittingParameter{T <: TermStructure} <: Parameter
   a::Float64
@@ -63,6 +66,14 @@ function value(param::TermStructureFittingParameter, t::Float64)
   idx = findfirst(param.times, t)
   return param.values[idx]
 end
+
+type PiecewiseConstantParameter{C <: Constraint} <: Parameter
+  times::Vector{Float64}
+  constraint::C
+end
+
+set_params!(param::PiecewiseConstantParameter, i::Int, val::Float64) = param.times[i] = val
+get_data(param::PiecewiseConstantParameter) = param.times
 
 NullParameter{P <: DataType}(_type::P) = _type([0.0], NoConstraint())
 

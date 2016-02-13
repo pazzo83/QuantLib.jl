@@ -35,6 +35,7 @@ type Swaption{E <: Exercise, S <: SettlementType, P <: PricingEngine} <: Option
 end
 
 Swaption{E <: Exercise}(swap::VanillaSwap, exercise::E) = Swaption(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults())
+Swaption{E <: Exercise, P <: PricingEngine}(swap::VanillaSwap, exercise::E, pe::P) = Swaption(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults(), pe)
 
 type NonstandardSwaption{E <: Exercise, S <: SettlementType, P <: PricingEngine} <: Option
   lazyMixin::LazyMixin
@@ -50,6 +51,7 @@ type NonstandardSwaption{E <: Exercise, S <: SettlementType, P <: PricingEngine}
 end
 
 NonstandardSwaption{E <: Exercise}(swap::NonstandardSwap, exercise::E) = NonstandardSwaption(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults())
+NonstandardSwaption{E <: Exercise, P <: PricingEngine}(swap::NonstandardSwap, exercise::E, pe::P) = NonstandardSwaption(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults(), pe)
 
 function perform_calculations!(swaption::Swaption)
   reset!(swaption.results)

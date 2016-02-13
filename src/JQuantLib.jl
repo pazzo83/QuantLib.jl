@@ -45,7 +45,7 @@ export
 
     # Process
     # process/stochastic_process/jl
-    OrnsteinUhlenbeckProcess, expectation, variance,
+    OrnsteinUhlenbeckProcess, GsrProcess, expectation, variance,
 
     # Methods
     # methods/lattice.jl
@@ -91,6 +91,9 @@ export
 
     # instruments/swap.jl
     Payer, Receiver, SwapResults, VanillaSwap, NonstandardSwap, CreditDefaultSwap, fair_rate,
+
+    # Swap Index
+    SwapIndex, EuriborSwapIsdaFixA,
 
     # instruments/swaption.jl
     SettlementCash, SettlementPhysical, Swaption, NonstandardSwaption,
@@ -140,7 +143,7 @@ export
     G2,
 
     # models/short_rate/one_factor.jl
-    BlackKarasinski, HullWhite,
+    BlackKarasinski, HullWhite, GSR,
 
     # methods - finite difference
     FdmG2Solver,FdmHullWhiteSolver,
@@ -152,7 +155,7 @@ export
     DiscretizedSwaption, DiscretizedSwap,
 
     # pricing_engines/swaption_engines.jl
-    G2SwaptionEngine, JamshidianSwaptionEngine, TreeSwaptionEngine, FdG2SwaptionEngine, FdHullWhiteSwaptionEngine
+    G2SwaptionEngine, JamshidianSwaptionEngine, TreeSwaptionEngine, FdG2SwaptionEngine, FdHullWhiteSwaptionEngine, Gaussian1DSwaptionEngine, Gaussian1DNonstandardSwaptionEngine
 
 # abstract types
 include("abstract_types.jl")
@@ -196,6 +199,7 @@ include("instruments/bond.jl")
 include("instruments/option.jl")
 include("instruments/claim.jl")
 include("instruments/swap.jl")
+include("indexes/swap_index.jl") # need this here because swap index needs to know what a VanillaSwap is
 include("instruments/swaption.jl")
 
 # helpers

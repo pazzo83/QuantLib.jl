@@ -32,17 +32,28 @@ function main()
   floatingSchedule = JQuantLib.Time.Schedule(effectiveDate, maturityDate, JQuantLib.Time.TenorPeriod(Dates.Month(6)), schedBizConvention, schedBizConvention,
                   JQuantLib.Time.DateGenerationForwards(), false, JQuantLib.Time.TargetCalendar())
 
-  underlying = NonstandardSwap(VanillaSwap(Payer(), 1.0, fixedSchedule, strike, JQuantLib.Time.BondThirty360(), euribor6m, 0.0, floatingSchedule, JQuantLib.Time.Actual360()))
-
   exerciseDates = Vector{Date}(9)
 
   for i = 2:10
     exerciseDates[i - 1] = JQuantLib.Time.advance(Dates.Day(-2), JQuantLib.Time.TargetCalendar(), fixedSchedule.dates[i])
   end
 
+  stepDates = exerciseDates[1:end - 1]
+  sigmas = fill(0.01, length(exerciseDates))
+  reversion = 0.01
+
+  gsr = GSR(yts6m, stepDates, sigmas, reversion)
+
+  swaptionEngine = Gaussian1DSwaptionEngine(gsr, 64, 7.0, true, false, ytsOis)
+  nonstandardSwaptionEngine = Gaussian1DNonstandardSwaptionEngine(gsr, 64, 7.0, true, false, Quote(-1.0), ytsOis)
+
+  underlying = NonstandardSwap(VanillaSwap(Payer(), 1.0, fixedSchedule, strike, JQuantLib.Time.BondThirty360(), euribor6m, 0.0, floatingSchedule, JQuantLib.Time.Actual360()))
+
   exercise = BermudanExercise(exerciseDates)
 
-  swaption = NonstandardSwaption(underlying, exercise)
+  swaption = NonstandardSwaption(underlying, exercise, nonstandardSwaptionEngine)
 
-  return swaption
+  swapBase = EuriborSwapIsdaFixA(JQuantLib.Time.TenorPeriod(Dates.Year(10)), yts6m, ytsOis)
+
+  return swapBase
 end
