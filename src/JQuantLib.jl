@@ -96,7 +96,7 @@ export
     SwapIndex, EuriborSwapIsdaFixA,
 
     # instruments/swaption.jl
-    SettlementCash, SettlementPhysical, Swaption, NonstandardSwaption,
+    SettlementCash, SettlementPhysical, Swaption, NonstandardSwaption, calibration_basket,
 
     # termstructures/bond_helpers.jl
     FixedRateBondHelper, implied_quote,
@@ -134,7 +134,7 @@ export
     ConstantParameter, G2FittingParameter, HullWhiteFittingParameter,
 
     # models/calibration_helpers.jl
-    SwaptionHelper, implied_volatility!, add_times_to!, model_value!, update_pricing_engine!, # for swaptionHelper only
+    NaiveBasketType, SwaptionHelper, implied_volatility!, add_times_to!, model_value!, update_pricing_engine!, underlying_swap!, # for swaptionHelper only
 
     # models/short_rate/short_rate.jl
     PrivateConstraint, test, calibrate!, func_values, value, get_params,

@@ -62,7 +62,7 @@ end
 
 fixing_date{I <: InterestRateIndex}(idx::I, d::Date) = advance(Dates.Day(-idx.fixingDays), idx.fixingCalendar, d, idx.convention)
 maturity_date(idx::IborIndex, d::Date) = advance(idx.tenor.period, idx.fixingCalendar, d, idx.convention)
-value_date{I <: InterestRateIndex}(idx::I, d::Date) = advance(Dates.Day(idx.fixingDays), idx.fixingCalendar, d, idx.convention)
+value_date{I <: InterestRateIndex}(idx::I, d::Date) = advance(Dates.Day(idx.fixingDays), idx.fixingCalendar, d)
 
 function fixing{I <: InterestRateIndex, T <: TermStructure}(idx::I, ts::T, _fixing_date::Date, forecast_todays_fixing::Bool=true)
   today = settings.evaluation_date

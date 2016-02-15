@@ -1,5 +1,30 @@
 type NullOptionVolatilityStructure <: OptionletVolatilityStructure end
 
+type ShiftedLognormalVolType <: VolatilityType end
+type NormalVolType <: VolatilityType end
+
+type FlatSmileSection{DC <: DayCount, V <: VolatilityType} <: AbstractSmileSection
+  exerciseDate::Date
+  exerciseTime::Float64
+  vol::Float64
+  dc::DC
+  referenceDate::Date
+  atmLevel::Float64
+  shift::Float64
+  volType::V
+  isFloating::Bool
+end
+
+function FlatSmileSection{DC <: DayCount}(d::Date, vol::Float64, dc::DC, referenceDate::Date = Date(), atmLevel::Float64 = -1.0, shift::Float64 = 0.0)
+  d >= referenceDate || error("Exercise Date must be greater than reference date")
+  exerciseTime = year_fraction(dc, referenceDate, d)
+  isFloating = referenceDate == Date()
+  return FlatSmileSection{DC, ShiftedLognormalVolType}(d, exerciseTime, vol, dc, referenceDate, atmLevel, shift, ShiftedLognormalVolType(), isFloating)
+end
+
+volatility_impl(smile::FlatSmileSection, ::Float64) = smile.vol
+volatility(smile::AbstractSmileSection, rate::Float64) = volatility_impl(smile, rate)
+
 type ConstantOptionVolatility{I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount} <: OptionletVolatilityStructure
   settlementDays::I
   referenceDate::Date
@@ -65,3 +90,10 @@ function black_varience{V <: SwaptionVolatilityStructure}(swapVol::V, optionDate
   optionTime = time_from_reference(swapVol, optionDate)
   return v * v * optionTime
 end
+
+function smile_section_impl(swapVol::ConstantSwaptionVolatility, optionDate::Date, ::Dates.Period)
+  atmVol = swapVol.volatility.value
+  return FlatSmileSection(optionDate, atmVol, swapVol.dc, reference_date(swapVol))
+end
+
+smile_section(swapVol::SwaptionVolatilityStructure, optionDate::Date, swapTenor::Dates.Period) = smile_section_impl(swapVol, optionDate, swapTenor)

@@ -253,12 +253,12 @@ function npv(leg::ZeroCouponLeg, y::InterestRate, include_settlement_cf::Bool, s
 end
 
 
-function npvbps{L <: Leg, Y <: YieldTermStructure}(leg::L, yts::Y, settlement_date::Date, npv_date::Date)
+function npvbps{L <: Leg, Y <: YieldTermStructure}(leg::L, yts::Y, settlement_date::Date, npv_date::Date, includeSettlementDateFlows::Bool = true)
   npv = 0.0
   bps = 0.0
 
   for cp in leg
-    if has_occurred(cp, settlement_date)
+    if has_occurred(cp, settlement_date, includeSettlementDateFlows)
       continue
     end
 

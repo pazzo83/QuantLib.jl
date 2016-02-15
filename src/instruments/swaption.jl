@@ -66,6 +66,11 @@ function npv(swaption::Swaption)
   return swaption.results.value
 end
 
+function calibration_basket(swaption::NonstandardSwaption, swaptionEngine::PricingEngine, swapIndex::SwapIndex, swaptionVol::SwaptionVolatilityStructure,
+                            basketType::CalibrationBasketType)
+  return calibration_basket(swaptionEngine, swaption, swapIndex, swaptionVol, basketType)
+end
+
 function clone(swaption::Swaption, pe::PricingEngine = swaption.pricingEngine)
   lazyMixin, res = pe == swaption.pricingEngine ? (swaption.lazyMixin, swaption.results) : (LazyMixin(), SwaptionResults())
 

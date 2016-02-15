@@ -1,5 +1,21 @@
 using JQuantLib
 
+function print_calibration_basket(basket::Vector{SwaptionHelper})
+  println("Expiry         Maturity       Nominal        Rate               Pay/Rec    Market ivol")
+  println("======================================================================================")
+  for i in eachindex(basket)
+    helper = basket[i]
+    underlying = underlying_swap!(helper)
+    endDate = underlying.fixedSchedule.dates[end]
+    nominal = underlying.nominal
+    vol = helper.volatility.value
+    rate = underlying.fixedRate
+    expiry = helper.swaption.exercise.dates[1]
+    swapT = underlying.swapT == JQuantLib.Receiver() ? "Receiver" : "Payer"
+    println("$expiry    $endDate      $nominal       $rate   $swapT      $vol")
+  end
+end
+
 function main()
   refDate = Dates.Date(2014, 4, 30)
   set_eval_date!(settings, refDate)
@@ -55,5 +71,7 @@ function main()
 
   swapBase = EuriborSwapIsdaFixA(JQuantLib.Time.TenorPeriod(Dates.Year(10)), yts6m, ytsOis)
 
-  return swapBase
+  basket = calibration_basket(swaption, nonstandardSwaptionEngine, swapBase, swaptionVol, NaiveBasketType())
+
+  print_calibration_basket(basket)
 end

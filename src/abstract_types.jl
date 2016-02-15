@@ -52,6 +52,8 @@ abstract InterpolatedDefaultProbabilityCurve{P, T} <: AbstractDefaultProbability
 abstract VolatilityTermStructure <: TermStructure
 abstract OptionletVolatilityStructure <: VolatilityTermStructure
 abstract SwaptionVolatilityStructure <: VolatilityTermStructure
+abstract AbstractSmileSection
+abstract VolatilityType
 abstract BootstrapTrait
 abstract Bootstrap
 abstract FittingMethod
@@ -81,6 +83,7 @@ abstract InterestRateIndex
 abstract Parameter
 abstract CalibrationErrorType
 abstract CalibrationHelper <: LazyObject
+abstract CalibrationBasketType
 abstract ModelType
 abstract Model{T <: ModelType} <: Observer
 abstract ShortRateModel{T} <: Model{T}

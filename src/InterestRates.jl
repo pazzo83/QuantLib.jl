@@ -26,7 +26,7 @@ function discount_factor(ir::InterestRate, date1::Date, date2::Date, ref_start::
 end
 
 function compound_factor(ir::InterestRate, time_frac::Float64)
-  time_frac < 0.0 && error("negative time not allowed!")
+  time_frac < 0.0 && error("negative time not allowed!  Time fraction is $time_frac")
 
   return _compound_factor(ir.comp, ir.rate, time_frac, ir.freq)
 end

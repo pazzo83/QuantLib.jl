@@ -414,3 +414,40 @@ function _calculate!(pe::FdHullWhiteSwaptionEngine, swaption::Swaption)
   solver = FdmHullWhiteSolver(pe.model, solverDesc, pe.schemeDesc)
   swaption.results.value = value_at(solver, 0.0)
 end
+
+underlying_last_date(::Gaussian1DNonstandardSwaptionEngine, swaption::NonstandardSwaption) = get_fixed_pay_dates(swaption.swap)[end]
+
+function calibration_basket(swaptionEngine::Gaussian1DNonstandardSwaptionEngine, swaption::NonstandardSwaption, swapIndex::SwapIndex,
+                            swaptionVol::SwaptionVolatilityStructure, basketType::NaiveBasketType)
+
+  n = length(swaption.exercise.dates)
+  minIdxAlive = searchsortedlast(swaption.exercise.dates, settings.evaluation_date)
+  minIdxAlive = minIdxAlive == 0 ? 1 : minIdxAlive
+  result = Vector{SwaptionHelper}(n - (minIdxAlive - 1))
+
+  # rebEx = RebatedExercise(exercise)
+
+  for i = minIdxAlive:n
+    expiry = swaption.exercise.dates[i]
+    rebate = 0.0
+    rebateDate = expiry
+
+    swapLength = year_fraction(swaptionVol.dc, value_date(swapIndex, expiry), underlying_last_date(swaptionEngine, swaption))
+    sec = smile_section(swaptionVol, expiry, Dates.Month(round(Int, floor(swapLength * 12.0 + 0.5))))
+    atmStrike = sec.atmLevel
+    if atmStrike == -1.0
+      atmVol = volatility(sec, 0.03)
+    else
+      atmVol = volatility(sec, atmStrike)
+    end
+
+    shift = sec.shift
+    ts = swapIndex.exogenousDiscount ? swapIndex.discount : swapIndex.iborIndex.ts
+    helper = SwaptionHelper(expiry, underlying_last_date(swaptionEngine, swaption), Quote(atmVol), swapIndex.iborIndex, TenorPeriod(swapIndex.fixedLegTenor),
+                            swapIndex.fixedLegDayCount, swapIndex.iborIndex.dc,  ts, NullSwaptionEngine(), -1.0, 1.0, shift)
+
+    result[i] = helper
+  end
+
+  return result
+end

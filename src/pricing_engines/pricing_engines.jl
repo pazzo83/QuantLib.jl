@@ -17,13 +17,14 @@ end
 
 type DiscountingSwapEngine{Y <: YieldTermStructure} <: PricingEngine
   yts::Y
+  includeSettlementDateFlows::Bool
 
   function call(::Type{DiscountingSwapEngine})
     new{YieldTermStructure}()
   end
 
-  function call{Y}(::Type{DiscountingSwapEngine}, yts::Y)
-    new{Y}(yts)
+  function call{Y}(::Type{DiscountingSwapEngine}, yts::Y, includeSettlementDateFlows::Bool = true)
+    new{Y}(yts, includeSettlementDateFlows)
   end
 end
 
@@ -54,14 +55,12 @@ function _calculate!{S <: Swap}(pe::DiscountingSwapEngine, swap::S)
   swap.results.value = 0.0
   yts = pe.yts
 
-  ref_date = yts.referenceDate
-
+  ref_date = reference_date(yts)
   swap.results.npvDateDiscount = discount(yts, ref_date)
-
   # for (i, leg) in enumerate(swap.legs)
   for i = 1:length(swap.legs)
     leg = swap.legs[i]
-    swap.results.legNPV[i], swap.results.legBPS[i] = npvbps(leg, yts, ref_date, ref_date)
+    swap.results.legNPV[i], swap.results.legBPS[i] = npvbps(leg, yts, ref_date, ref_date, pe.includeSettlementDateFlows)
     swap.results.legNPV[i] *= swap.payer[i]
     swap.results.legBPS[i] *= swap.payer[i]
 
@@ -79,6 +78,9 @@ function _calculate!{S <: Swap}(pe::DiscountingSwapEngine, swap::S)
   end
 
   if swap.results.legBPS[1] != 0.0
+    # println("fixedRate: $(swap.fixedRate)")
+    # println("NPV: $(swap.results.value)")
+    # println("legBPS: $(swap.results.legBPS[1])")
     swap.results.fairRate = swap.fixedRate - swap.results.value / (swap.results.legBPS[1] / basisPoint)
   end
 
