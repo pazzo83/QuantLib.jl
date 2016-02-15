@@ -415,6 +415,28 @@ function _calculate!(pe::FdHullWhiteSwaptionEngine, swaption::Swaption)
   swaption.results.value = value_at(solver, 0.0)
 end
 
+function _calculate!(pe::Gaussian1DSwaptionEngine, swaption::Swaption)
+  isa(swaption.delivery, SettlementPhysical) || error("cash-settled swaptions not yet implemented")
+  settlement = reference_date(pe.model.ts)
+
+  if swaption.exercise.dates[end] <= settlement
+    swaption.results.value = 0.0 # swaption is expired
+    return swaption
+  end
+  idx = length(swaption.dates)
+  minIdxAlive = searchsortedlast(swaption.exercise.dates, settlement)
+  minIdxAlive = minIdxAlive == 0 ? 1 : minIdxAlive
+
+  swap = swaption.swap
+  optType = isa(swap.swapT, Payer()) ? Call() : Put()
+  fixedSchedule = swap.fixedSchedule
+  floatingSchedule = swap.floatSchedule
+
+  npv0 = zeros(2 * pe.integrationPoints + 1)
+  npv1 = zeros(2 * pe.integrationPoints + 1)
+  z = y_grid(pe.model, pe.stddevs, pe.integrationPoints)
+end
+
 underlying_last_date(::Gaussian1DNonstandardSwaptionEngine, swaption::NonstandardSwaption) = get_fixed_pay_dates(swaption.swap)[end]
 
 function calibration_basket(swaptionEngine::Gaussian1DNonstandardSwaptionEngine, swaption::NonstandardSwaption, swapIndex::SwapIndex,

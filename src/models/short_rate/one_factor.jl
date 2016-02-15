@@ -333,3 +333,9 @@ function discount_bond_option{O <: OptionType}(model::HullWhite, optionType::O, 
 
    return black_formula(optionType, k, f, v)
  end
+
+ function y_grid(model::Gaussian1DModel, stdDevs::Float64, gridPoints::Int, T::Float64 = 1.0, t::Float64 = 0.0, y::Float64 = 0.0)
+   result = zeros(2 * gridPoints + 1)
+
+   stdDev_0_T = std_deviation(model.stateProcess, 0.0, 0.0, T)
+ end
