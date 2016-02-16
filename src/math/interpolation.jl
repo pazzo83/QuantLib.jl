@@ -124,6 +124,8 @@ function CubicInterpolation(dApprox::DerivativeApprox, leftBoundary::BoundaryCon
   return ci
 end
 
+call(interp::CubicInterpolation, x::Float64) = value(interp, x)
+
 # type aliases #
 typealias SplineCubicInterpolation{D, B1, B2, N} CubicInterpolation{Spline, B1, B2, N} # First derivative approximation
 

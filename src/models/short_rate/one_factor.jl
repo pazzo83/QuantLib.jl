@@ -1,3 +1,8 @@
+## Consts (might move these to MATH)
+const M_SQRT2 = 1.41421356237309504880168872420969808   # sqrt(2)
+const M_SQRT1_2 = 0.707106781186547524400844362104849039  # 1/sqrt(2)
+const M_SQRTPI = 1.77245385090551602792981
+
 ## ONE FACTOR MODELS ##
 type OneFactorShortRateTree{S <: ShortRateDynamics} <: ShortRateTree
   tree::TrinomialTree
@@ -81,6 +86,7 @@ Base.isequal(A::CachedSwapKey, B::CachedSwapKey) = A.index == B.index && A.fixin
 # Base.hash(A::CachedSwapKey) = hash(A.index + A.fixing + A.tenor)
 
 type GSR{TermStructureConsistentModelType, P <: StochasticProcess1D, PARAM1 <: Parameter, PARAM2 <: Parameter, T <: YieldTermStructure} <: Gaussian1DModel{TermStructureConsistentModelType}
+  lazyMixin::LazyMixin
   modT::TermStructureConsistentModelType
   stateProcess::P
   evaluationDate::Date
@@ -123,7 +129,7 @@ function GSR(ts::YieldTermStructure, volstepdates::Vector{Date}, volatilities::V
 
   # TOOD registration with quotes in reversions and volatilities
 
-  return GSR(TermStructureConsistentModelType(), stateProcess, Date(), true, reversion, sigma, volatilityQuotes, reversions, volstepdates, volsteptimes, volsteptimesArray, ts, swapCache)
+  return GSR(LazyMixin(), TermStructureConsistentModelType(), stateProcess, Date(), true, reversion, sigma, volatilityQuotes, reversions, volstepdates, volsteptimes, volsteptimesArray, ts, swapCache)
 end
 
 function update_times(ts::TermStructure, volstepdates::Vector{Date})
@@ -142,6 +148,24 @@ function update_times(ts::TermStructure, volstepdates::Vector{Date})
   # TODO flush cache for process
 
   return volsteptimes, volsteptimesArray
+end
+
+function update_times!(model::GSR)
+  model.volsteptimes, model.volsteptimesArray = update_times(model.ts, model.volstepdates)
+  flush_cache!(model.stateProcess)
+
+  return model
+end
+
+function update_state!(model::GSR)
+  for i in eachindex(get_data(model.sigma))
+    set_params!(model.sigma, i, model.volatilities[i].value)
+  end
+  for i in eachindex(get_data(model.reversion))
+    set_params!(model.reversion, i, model.reversions[i].value)
+  end
+
+  flush_cache!(model.stateProcess)
 end
 
 ## Dynamics ##
@@ -332,10 +356,139 @@ function discount_bond_option{O <: OptionType}(model::HullWhite, optionType::O, 
    k = discount(model.ts, bondStart) * strike
 
    return black_formula(optionType, k, f, v)
+end
+
+function perform_calculations!(model::GSR)
+  if model.evaluationDate == Date() # not calculated
+   model.evaluationDate = settings.evaluation_date
+  end
+
+  update_times!(model)
+  update_state!(model)
+
+  return model
  end
 
- function y_grid(model::Gaussian1DModel, stdDevs::Float64, gridPoints::Int, T::Float64 = 1.0, t::Float64 = 0.0, y::Float64 = 0.0)
-   result = zeros(2 * gridPoints + 1)
+ function get_params(model::GSR)
+   # res = Vector{Float64}(length(get_data(model.reversion)) + length(get_data(model.sigma)))
+   res = Vector{Float64}()
+   append!(res, get_data(model.reversion))
+   append!(res, get_data(model.sigma))
 
-   stdDev_0_T = std_deviation(model.stateProcess, 0.0, 0.0, T)
+   return res
  end
+
+ function move_volatility(model::GSR, i::Int)
+   res = trues(length(model.reversions) + length(model.volatilities))
+   res[length(model.reversions) + i] = false
+
+   return res
+ end
+
+ function gaussian_polynomial_integral(model::Gaussian1DModel, a::Float64, b::Float64, c::Float64, d::Float64, e::Float64, y0::Float64, y1::Float64)
+   aa = 4.0 * a
+   ba = 2.0 * M_SQRT2 * b
+   ca = 2.0 * c
+   da = M_SQRT2 * d
+
+   x0 = y0 * M_SQRT1_2
+   x1 = y1 * M_SQRT1_2
+
+   return (0.125 * (3.0 * aa + 2.0 * ca + 4.0 * e) * erf(x1) - 1.0 / (4.0 * M_SQRTPI) * exp(-x1 * x1) * (2.0 * aa * x1 * x1 * x1 + 3.0 * aa * x1 +
+                 2.0 * ba * (x1 * x1 + 1.0) + 2.0 * ca * x1 + 2.0 * da)) - (0.125 * (3.0 * aa + 2.0 * ca + 4.0 * e) * erf(x0) - 1.0 / (4.0 * M_SQRTPI) * exp(-x0 * x0) *
+                (2.0 * aa * x0 * x0 * x0 + 3.0 * aa * x0 + 2.0 * ba * (x0 * x0 + 1.0) + 2.0 * ca * x0 + 2.0 * da))
+end
+
+function gaussian_shifted_polynomial_integral(model::Gaussian1DModel, a::Float64, b::Float64, c::Float64, d::Float64, e::Float64, h::Float64, x0::Float64, x1::Float64)
+   return gaussian_polynomial_integral(model, a, -4.0 * a * h + b, 6.0 * a * h * h - 3.0 * b * h + c, -4 * a * h * h * h + 3.0 * b * h * h - 2.0 * c * h + d,
+        a * h * h * h * h - b * h * h * h + c * h * h - d * h + e, x0, x1)
+end
+
+function numeraire_impl(model::GSR, t::Float64, y::Float64, yts::YieldTermStructure)
+  calculate!(model)
+
+  p = model.stateProcess
+
+  if t == 0.0
+    return isa(yts, NullTermStructure) ? discount(model.ts, p.T) : discount(yts, p.T)
+  end
+
+  return zerobond(model, p.T, t, y, yts)
+end
+
+numeraire(model::Gaussian1DModel, t::Float64, y::Float64, yts::YieldTermStructure) = numeraire_impl(model, t, y, yts)
+numeraire(model::Gaussian1DModel, referenceDate::Date, y::Float64, yts::YieldTermStructure) = numeraire(model, time_from_reference(model.ts, referenceDate), y, yts)
+
+function zerobond_impl(model::GSR, T::Float64, t::Float64, y::Float64, yts::YieldTermStructure)
+  calculate!(model)
+
+  if t == 0.0
+   return isa(yts, NullTermStructure) ? discount(model.ts, T) : discount(yts, T)
+  end
+
+  p = model.stateProcess
+
+  x = y * std_deviation(p, 0.0, 0.0, t) + expectation(p, 0.0, 0.0, t)
+  gtT = G!(p, t, T, x)
+
+  d = isa(yts, NullTermStructure) ? discount(model.ts, T) / discount(model.ts, t) : discount(yts, T) / discount(yts, t)
+
+  return d * exp(-x * gtT - 0.5 * y!(p, t) * gtT * gtT)
+end
+
+zerobond(model::Gaussian1DModel, T::Float64, t::Float64, y::Float64, yts::YieldTermStructure) = zerobond_impl(model, T, t, y, yts)
+zerobond(model::Gaussian1DModel, maturity::Date, referenceDate::Date, y::Float64, yts::YieldTermStructure) =
+        zerobond(model, time_from_reference(yts, maturity), referenceDate != Date() ? time_from_reference(yts, referenceDate) : 0.0, y, yts)
+
+function forward_rate(model::Gaussian1DModel, fixing::Date, referenceDate::Date, y::Float64, iborIdx::IborIndex)
+  calculate!(model)
+
+  if fixing <= (model.evaluationDate - Dates.Day(1))
+   return fixing(iborIdx, fixing)
+  end
+
+  yts = iborIdx.ts
+
+  valueDate = value_date(iborIdx, fixing)
+  endDate = advance(iborIdx.tenor.period, iborIdx.fixingCalendar, valueDate, iborIdx.convention)
+
+  dcf = year_fraction(iborIdx.dc, valueDate, endDate)
+
+  return (zerobond(model, valueDate, referenceDate, y, yts) - zerobond(model, endDate, referenceDate, y, yts)) / (dcf * zerobond(model, endDate, referenceDate, y, yts))
+end
+
+function y_grid(model::Gaussian1DModel, stdDevs::Float64, gridPoints::Int, T::Float64 = 1.0, t::Float64 = 0.0, y::Float64 = 0.0)
+  result = zeros(2 * gridPoints + 1)
+
+  stdDev_0_T = std_deviation(model.stateProcess, 0.0, 0.0, T)
+  e_0_T = expectation(model.stateProcess, 0.0, 0.0, T)
+
+  if t < eps()
+   stdDev_t_T = stdDev_0_T
+   e_t_T = e_0_T
+  else
+   stdDev_0_t = std_deviation(model.stateProcess, 0.0, 0.0, t)
+   stdDev_t_T = std_deviation(model.stateProcess, t, 0.0, T - t)
+   e_0_t = expectation(model.stateProcess, 0.0, 0.0, t)
+   x_t = y * stdDev_0_t + e_0_t
+   e_t_T = expecation(model.stateProcess, t, x_t, T - t)
+  end
+
+  h = stdDevs / gridPoints
+
+  for j = -gridPoints:gridPoints
+   result[j + gridPoints + 1] = (e_t_T + stdDev_t_T * j * h - e_0_T) / stdDev_0_T
+  end
+
+  return result
+end
+
+function calibrate_volatilities_iterative!{H <: CalibrationHelper}(model::GSR, helpers::Vector{H}, method::OptimizationMethod, endCriteria::EndCriteria,
+                                          constraint::Constraint = PositiveConstraint(), weights::Vector{Float64} = Vector{Float64}())
+  for i in eachindex(helpers)
+    h = H[helpers[i]]
+    calibrate!(model, h, method, endCriteria, constraint, weights, move_volatility(model, i))
+  end
+
+  return model
+end

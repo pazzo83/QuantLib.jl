@@ -85,7 +85,7 @@ abstract CalibrationErrorType
 abstract CalibrationHelper <: LazyObject
 abstract CalibrationBasketType
 abstract ModelType
-abstract Model{T <: ModelType} <: Observer
+abstract Model{T <: ModelType} <: LazyObject
 abstract ShortRateModel{T} <: Model{T}
 abstract OneFactorModel{T} <: ShortRateModel{T}
 abstract Gaussian1DModel{T} <: OneFactorModel{T}

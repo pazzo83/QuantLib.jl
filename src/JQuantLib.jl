@@ -61,7 +61,7 @@ export
     ContinuousCompounding, SimpleCompounding, CompoundedCompounding, SimpleThenCompounded, ModifiedDuration,
     InterestRate, discount_factor, compound_factor, equivalent_rate, implied_rate,
 
-    # exericise.jl
+    # exercise.jl
     AmericanExercise, BermudanExercise, EuropeanExercise,
 
     # Indexes
@@ -143,7 +143,7 @@ export
     G2,
 
     # models/short_rate/one_factor.jl
-    BlackKarasinski, HullWhite, GSR,
+    BlackKarasinski, HullWhite, GSR, calibrate_volatilities_iterative!,
 
     # methods - finite difference
     FdmG2Solver,FdmHullWhiteSolver,

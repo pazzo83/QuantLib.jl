@@ -74,4 +74,14 @@ function main()
   basket = calibration_basket(swaption, nonstandardSwaptionEngine, swapBase, swaptionVol, NaiveBasketType())
 
   print_calibration_basket(basket)
+
+  for i in eachindex(basket)
+    basket[i] = update_pricing_engine(basket[i], swaptionEngine)
+  end
+
+  method = JQuantLib.Math.LevenbergMarquardt()
+
+  ec = JQuantLib.Math.EndCriteria(1000, 10, 1.0e-8, 1.0e-8, 1.0e-8)
+
+  calibrate_volatilities_iterative!(gsr, basket, method, ec)
 end

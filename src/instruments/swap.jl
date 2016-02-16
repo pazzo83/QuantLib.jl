@@ -137,6 +137,16 @@ function VanillaSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B
                     paymentConvention, legs, payer, pricingEngine, results, VanillaSwapArgs(legs))
 end
 
+# accessor methods #
+get_fixed_reset_dates(swap::VanillaSwap) = swap.args.fixedResetDates
+get_fixed_pay_dates(swap::VanillaSwap) = swap.args.fixedPayDates
+get_floating_reset_dates(swap::VanillaSwap) = swap.args.floatingResetDates
+get_floating_pay_dates(swap::VanillaSwap) = swap.args.floatingPayDates
+get_floating_accrual_times(swap::VanillaSwap) = swap.args.floatingAccrualTimes
+get_floating_spreads(swap::VanillaSwap) = swap.args.floatingSpreads
+get_fixed_coupons(swap::VanillaSwap) = swap.args.fixedCoupons
+get_floating_coupons(swap::VanillaSwap) = swap.args.floatingCoupons
+
 type NonstandardSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, L <: Leg, P <: PricingEngine} <: Swap
   lazyMixin::LazyMixin
   swapT::ST
@@ -186,7 +196,7 @@ get_fixed_reset_dates(swap::NonstandardSwap) = swap.args.vSwapArgs.fixedResetDat
 get_fixed_pay_dates(swap::NonstandardSwap) = swap.args.vSwapArgs.fixedPayDates
 get_floating_reset_dates(swap::NonstandardSwap) = swap.args.vSwapArgs.floatingResetDates
 get_floating_pay_dates(swap::NonstandardSwap) = swap.args.vSwapArgs.floatingPayDates
-get_floating_accrual_dates(swap::NonstandardSwap) = swap.args.vSwapArgs.floatingAccrualDates
+get_floating_accrual_times(swap::NonstandardSwap) = swap.args.vSwapArgs.floatingAccrualTimes
 get_floating_spreads(swap::NonstandardSwap) = swap.args.vSwapArgs.floatingSpreads
 get_fixed_coupons(swap::NonstandardSwap) = swap.args.vSwapArgs.fixedCoupons
 get_floating_coupons(swap::NonstandardSwap) = swap.args.vSwapArgs.floatingCoupons
