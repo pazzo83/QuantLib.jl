@@ -62,12 +62,16 @@ function flush_cache!(gsrP::GsrProcess)
   return gsrP
 end
 
-lower_index(process::GsrProcess, x::Float64) = searchsortedlast(process.times, x) + 1
-upper_index(process::GsrProcess, x::Float64) = searchsortedlast(process.times, x - 1e-15) + 2
+lower_index(process::GsrProcess, x::Float64) = upper_bound(process.times, x)
+upper_index(process::GsrProcess, x::Float64) = upper_bound(process.times, x - 1e-15) + 1
 
 function time2(process::GsrProcess, idx::Int)
   if idx == 1
     return 0.0
+  end
+
+  if idx > length(process.times) + 1
+    return process.T
   end
 
   return process.times[idx - 1]
@@ -77,21 +81,21 @@ vol(process::GsrProcess, x::Int) = x > length(process.vols) ? process.vols[end] 
 rev_zero(process::GsrProcess, x::Int) = x > length(process.revZero) ? process.revZero[end] : process.revZero[x]
 rev(process::GsrProcess, x::Int) = x > length(process.reversions) ? process.reversions[end] : process.reversions[x]
 
-floored_time(process::GsrProcess, x::Int, flr::Float64) = floor != -1.0 ? max(floor, time2(process, index)) : time2(process, index)
-capped_time(process::GsrProcess, x::Int, cap::Float64) = cap != -1.0 ? min(cap, time2(process, index)) : time2(process, index)
+floored_time(process::GsrProcess, x::Int, flr::Float64) = flr != -1.0 ? max(flr, time2(process, x)) : time2(process, x)
+capped_time(process::GsrProcess, x::Int, cap::Float64) = cap != -1.0 ? min(cap, time2(process, x)) : time2(process, x)
 
-function variance!(process::GsrProcess, w::Float64, ::Float64, dt::Float64)
+function variance(process::GsrProcess, w::Float64, ::Float64, dt::Float64)
   t = w + dt
   key = Pair(w, t)
 
-  p = get(cache3, key, typemax(Float64))
+  p = get(process.cache3, key, typemax(Float64))
   if p != typemax(Float64)
     return p
   end
 
   res = 0.0
   for k = lower_index(process, w):upper_index(process, t) - 1
-    res2 = vol(process, k) * process(vol, k)
+    res2 = vol(process, k) * vol(process, k)
     res2 *= rev_zero(process, k) ? -(floored_time(process, k, w) - capped_time(process, k + 1, t)) :
                                   (1.0 - exp(2.0 * rev(process, k) * (floored_time(process, k, w) - capped_time(process, k + 1, t)))) /
                                   (2.0 * rev(process, k))
@@ -126,7 +130,7 @@ function expectationp1(process::GsrProcess, w::Float64, xw::Float64, dt::Float64
 end
 
 function expectationp2(process::GsrProcess, w::Float64, dt::Float64)
-  t = w * dt
+  t = w + dt
   key = Pair(w, t)
 
   p = get(process.cache2, key, typemax(Float64))
@@ -148,7 +152,7 @@ function expectationp2(process::GsrProcess, w::Float64, dt::Float64)
                 (time2(process, l + 1) - time2(process, l))))
       end
       # zeta_i (i > k)
-      for i = k+1:upper_index(i) - 1
+      for i = k+1:upper_index(process, t) - 1
         res2 *= exp(-rev(process, i) * (capped_time(process, i + 1, t) - time2(process, i)))
       end
       # beta_i (j<k)
@@ -209,7 +213,7 @@ function expectationp2(process::GsrProcess, w::Float64, dt::Float64)
       if rev_zero(process, k)
         res3 *= (capped_time(process, k+1, t) - time2(process, k+1) - (2.0 * floored_time(process, k, w) - capped_time(process, k+1, t) - time2(process, k + 1))) / 2.0
       else
-        res3 *= (exp(rev(process, k) * (capped_time(process, k+1, t) - time2(process, k+1))) - exp(rev(process, k) * (2.0 * floored_time(process, k, 2) - capped_time(process, k+1, t) -
+        res3 *= (exp(rev(process, k) * (capped_time(process, k+1, t) - time2(process, k+1))) - exp(rev(process, k) * (2.0 * floored_time(process, k, w) - capped_time(process, k+1, t) -
                 time2(process, k+1)))) / (2.0 * rev(process, k))
       end
 
@@ -219,9 +223,10 @@ function expectationp2(process::GsrProcess, w::Float64, dt::Float64)
     res3 = 1.0
     # eta_k zeta_k
     if rev_zero(process, k)
-      res3 *= (-^(capped_time(process, k+1, t) - capped_time(process, k+1, T), 2.0) - 2.0 * ^(capped_time(process, k+1, t) - floored_time(process, k, w), 2.0)) / 4.0
+      res3 *= (-^(capped_time(process, k+1, t) - capped_time(process, k+1, T), 2.0) - 2.0 * ^(capped_time(process, k+1, t) - floored_time(process, k, w), 2.0) +
+              ^(2.0 * floored_time(process, k, w) - capped_time(process, k+1, T) - capped_time(process, k+1, t), 2.0)) / 4.0
     else
-      res3 *= (2.0 - exp(process(process, k) * (capped_time(process, k+1, t) - capped_time(process, k+1, T))) - (2.0 * exp(-rev(process, k) * (capped_time(process, k+1, t) - floored_time(process, k, w))) -
+      res3 *= (2.0 - exp(rev(process, k) * (capped_time(process, k+1, t) - capped_time(process, k+1, T))) - (2.0 * exp(-rev(process, k) * (capped_time(process, k+1, t) - floored_time(process, k, w))) -
               exp(rev(process, k) * (2.0 * floored_time(process, k, w) - capped_time(process, k+1, T) - capped_time(process, k+1, t))))) / (2.0 * rev(process, k) * rev(process, k))
     end
 
@@ -254,7 +259,8 @@ function G!(process::GsrProcess, t::Float64, w::Float64, ::Float64)
     for j = lower_index(process, t):i - 1
       res2 *= exp(-rev(process, j) * (time2(process, j + 1) - floored_time(process, j, t)))
     end
-    res2 *= rev_zero(process, i) ? capped_time(process, i + 1, w) - floored_time(process, i, t) : (1.0 - exp(-rev(process, i) * (capped_time(process, i + 1, w) - floored_time(process, i, t)))) / rev(process, i)
+    res2 *= rev_zero(process, i) ? capped_time(process, i + 1, w) - floored_time(process, i, t) :
+                                  (1.0 - exp(-rev(process, i) * (capped_time(process, i + 1, w) - floored_time(process, i, t)))) / rev(process, i)
 
     res += res2
   end
@@ -271,10 +277,10 @@ function y!(process::GsrProcess, t::Float64)
   end
 
   res = 0.0
-  for i = 1:upper_index(process, t)
+  for i = 1:upper_index(process, t) - 1
     res2 = 1.0
     for j = i + 1:upper_index(process, t) - 1
-      res2 *= exp(-2.0 * rev(process, j) * (capped_time(process, i + 1, t) - time2(process, j)))
+      res2 *= exp(-2.0 * rev(process, j) * (capped_time(process, j + 1, t) - time2(process, j)))
     end
     res2 *= rev_zero(process, i) ? vol(process, i) * vol(process, i) * (capped_time(process, i+1, t) - time2(process, i)) :
                                    (vol(process, i) * vol(process, i) / (2.0 * rev(process, i)) * (1.0 - exp(-2.0 * rev(process, i) * (capped_time(process, i+1, t) - time2(process, i)))))
@@ -288,6 +294,12 @@ end
 
 function expectation(process::GsrProcess, w::Float64, xw::Float64, dt::Float64)
   # t = w + dt
+
+  # p1 = expectationp1(process, w, xw, dt)
+  # p2 = expectationp2(process, w, dt)
+  # println(p1)
+  # println(p2)
+  # error("DIE")
 
   return expectationp1(process, w, xw, dt) + expectationp2(process, w, dt)
 end

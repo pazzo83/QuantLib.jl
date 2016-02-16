@@ -53,7 +53,7 @@ function operator(solvFunc::SolvingFunction)
 end
 
 function func_values(calibF::CalibrationFunction, params::Vector{Float64})
-  set_params!(calibF.model, params)
+  set_params!(calibF.model, include_params(calibF.projection, params))
   values = zeros(length(calibF.helpers))
   for i = 1:length(values)
     values[i] = calibration_error(calibF.helpers[i].calibCommon.calibrationErrorType, calibF.helpers[i]) * sqrt(calibF.weights[i])
@@ -63,7 +63,7 @@ function func_values(calibF::CalibrationFunction, params::Vector{Float64})
 end
 
 function value(calibF::CalibrationFunction, params::Vector{Float64})
-  set_params!(calibF.model, params)
+  set_params!(calibF.model, include_params(calibF.projection, params))
   _value = 0.0
   for i = 1:length(calibF.helpers)
     diff = calibration_error(calibF.helpers[i].calibCommon.calibrationErrorType, calibF.helpers[i])
@@ -106,6 +106,7 @@ function calibrate!{M <: ShortRateModel, C <: CalibrationHelper, O <: Optimizati
 
   w = length(weights) == 0 ? ones(length(instruments)) : weights
   prms = get_params(model)
+  println("model params: ", prms)
   all = falses(length(prms))
   proj = Projection(prms, length(fixParams) > 0 ? fixParams : all)
   calibFunc = CalibrationFunction(model, instruments, w, proj)

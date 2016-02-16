@@ -354,9 +354,9 @@ end
 function locate{I <: Interpolation}(interp::I, val::Float64)
   if val < interp.x_vals[1]
     return 1
-  elseif val >= interp.x_vals[end]
+  elseif val >= interp.x_vals[end - 1]
     # return interp.x_vals[end] - interp.x_vals[1] - 2
-    return length(interp.x_vals)
+    return length(interp.x_vals) - 1
   else
     # return findfirst(interp.x_vals .> val) - 1 # need to look at this
     return searchsortedlast(interp.x_vals, val)

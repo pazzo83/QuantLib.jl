@@ -70,7 +70,14 @@ end
 type PiecewiseConstantParameter{C <: Constraint} <: Parameter
   times::Vector{Float64}
   constraint::C
+
+  function PiecewiseConstantParameter(times::Vector{Float64}, constraint::C)
+    retTimes = push!(times, 0.0)
+    return new{C}(retTimes, constraint)
+  end
 end
+
+PiecewiseConstantParameter{C <: Constraint}(times::Vector{Float64}, constraint::C) = PiecewiseConstantParameter{C}(times, constraint)
 
 set_params!(param::PiecewiseConstantParameter, i::Int, val::Float64) = param.times[i] = val
 get_data(param::PiecewiseConstantParameter) = param.times

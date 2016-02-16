@@ -423,12 +423,13 @@ function _calculate!(pe::Gaussian1DSwaptionEngine, swaption::Swaption)
     swaption.results.value = 0.0 # swaption is expired
     return swaption
   end
-  idx = length(swaption.dates)
-  minIdxAlive = searchsortedlast(swaption.exercise.dates, settlement) + 1
-  minIdxAlive = minIdxAlive == 1 ? 2 : minIdxAlive
+  idx = length(swaption.exercise.dates)
+  # minIdxAlive = searchsortedlast(swaption.exercise.dates, settlement) + 1
+  # minIdxAlive = minIdxAlive == 1 ? 2 : minIdxAlive
+  minIdxAlive = upper_bound(swaption.exercise.dates, settlement)
 
   swap = swaption.swap
-  optType = isa(swap.swapT, Payer()) ? Call() : Put()
+  optType = isa(swap.swapT, Payer) ? Call() : Put()
   fixedSchedule = swap.fixedSchedule
   floatingSchedule = swap.floatSchedule
 
@@ -461,22 +462,22 @@ function _calculate!(pe::Gaussian1DSwaptionEngine, swaption::Swaption)
     end
 
     expiry0Time = max(time_from_reference(pe.model.ts, expiry0), 0.0)
-    j1 = searchsortedlast(fixedSchedule.dates, expiry0 - Dates.Day(1)) + 1
-    k1 = searchsortedlast(floatingSchedule.dates, expiry0 - Dates.Day(1)) + 1
+    j1 = upper_bound(fixedSchedule.dates, expiry0 - Dates.Day(1))
+    k1 = upper_bound(floatingSchedule.dates, expiry0 - Dates.Day(1))
 
     # for multi-threading / multi-processing, we need to trigger computation here
-    if expiry0 > settlement
-      for l = k1:length(get_floating_coupons(swaption.swap))
-        forward_rate(pe.model, swaption.swap.legs[2].coupons[l].fixingDate, expiry0, 0.0, swaption.swap.iborIndex)
-        zerobond(pe.model, get_floating_pay_dates(swaption.swap)[l], expiry0, 0.0, pe.discountCurve)
-      end
-
-      for l = j1:length(get_fixed_coupons(swaption.swap))
-        zerobond(pe.model, get_fixed_pay_dates(swaption.swap)[l], expiry0, 0.0, pe.discountCurve)
-      end
-
-      numeraire(pe.model, expiry0Time, 0.0, pe.discountCurve)
-    end
+    # if expiry0 > settlement
+    #   for l = k1:length(get_floating_coupons(swaption.swap))
+    #     forward_rate(pe.model, swaption.swap.legs[2].coupons[l].fixingDate, expiry0, 0.0, swaption.swap.iborIndex)
+    #     zerobond(pe.model, get_floating_pay_dates(swaption.swap)[l], expiry0, 0.0, pe.discountCurve)
+    #   end
+    #
+    #   for l = j1:length(get_fixed_coupons(swaption.swap))
+    #     zerobond(pe.model, get_fixed_pay_dates(swaption.swap)[l], expiry0, 0.0, pe.discountCurve)
+    #   end
+    #
+    #   numeraire(pe.model, expiry0Time, 0.0, pe.discountCurve)
+    # end
 
     for k = 1:(expiry0 > settlement ? length(npv0) : 1)
       price = 0.0
@@ -506,6 +507,7 @@ function _calculate!(pe::Gaussian1DSwaptionEngine, swaption::Swaption)
           end
         end
       end
+      # println("k: $k, price: $price")
       npv0[k] = price
       # for probability computation
       if !isa(pe.probabilities, NoneProbabilities)
@@ -547,11 +549,12 @@ function _calculate!(pe::Gaussian1DSwaptionEngine, swaption::Swaption)
             (get_floating_spreads(swaption.swap)[l] + forward_rate(pe.model, swaption.swap.legs[2].coupons[l].fixingDate, expiry0, z[k], swaption.swap.iborIndex)) *
             zerobond(pe.model, get_floating_pay_dates(swaption.swap)[l], expiry0, z[k], pe.discountCurve)
         end
+        # println("floatingLeg: ", floatingLegNPV)
         fixedLegNPV = 0.0
         for l = j1:length(get_fixed_coupons(swaption.swap))
           fixedLegNPV += get_fixed_coupons(swaption.swap)[l] * zerobond(pe.model, get_fixed_pay_dates(swaption.swap)[l], expiry0, z[k], pe.discountCurve)
         end
-
+        # println("fixedLeg: ", fixedLegNPV)
         exerciseValue = (isa(optType, Call) ? 1.0 : -1.0) * (floatingLegNPV - fixedLegNPV) / numeraire(pe.model, expiry0Time, z[k], pe.discountCurve)
         # probability computation
         if !isa(pe.probabilities, NoneProbabilities)
@@ -583,10 +586,11 @@ function _calculate!(pe::Gaussian1DSwaptionEngine, swaption::Swaption)
     expiry1 = expiry0
     expiry1Time = expiry0Time
     idx -= 1
-    if idx < minIdxAlive
+    if idx < minIdxAlive - 1
       break
     end
   end
+  # println("NPV1: ", npv1)
 
   swaption.results.value = npv1[1] * numeraire(pe.model, 0.0, 0.0, pe.discountCurve)
 
@@ -608,7 +612,7 @@ function calibration_basket(swaptionEngine::Gaussian1DNonstandardSwaptionEngine,
                             swaptionVol::SwaptionVolatilityStructure, basketType::NaiveBasketType)
 
   n = length(swaption.exercise.dates)
-  minIdxAlive = searchsortedlast(swaption.exercise.dates, settings.evaluation_date)
+  minIdxAlive = upper_bound(swaption.exercise.dates, settings.evaluation_date)
   minIdxAlive = minIdxAlive == 0 ? 1 : minIdxAlive
   result = Vector{SwaptionHelper}(n - (minIdxAlive - 1))
 

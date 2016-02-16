@@ -100,6 +100,7 @@ type GSR{TermStructureConsistentModelType, P <: StochasticProcess1D, PARAM1 <: P
   volsteptimesArray::Vector{Float64}
   ts::T
   swapCache::Dict{CachedSwapKey, VanillaSwap}
+  common::ModelCommon
 end
 
 function GSR(ts::YieldTermStructure, volstepdates::Vector{Date}, volatilities::Vector{Float64}, reversion::Float64, T::Float64 = 60.0)
@@ -129,7 +130,8 @@ function GSR(ts::YieldTermStructure, volstepdates::Vector{Date}, volatilities::V
 
   # TOOD registration with quotes in reversions and volatilities
 
-  return GSR(LazyMixin(), TermStructureConsistentModelType(), stateProcess, Date(), true, reversion, sigma, volatilityQuotes, reversions, volstepdates, volsteptimes, volsteptimesArray, ts, swapCache)
+  return GSR(LazyMixin(), TermStructureConsistentModelType(), stateProcess, Date(), true, reversion, sigma, volatilityQuotes, reversions, volstepdates,
+        volsteptimes, volsteptimesArray, ts, swapCache, ModelCommon())
 end
 
 function update_times(ts::TermStructure, volstepdates::Vector{Date})
@@ -166,6 +168,32 @@ function update_state!(model::GSR)
   end
 
   flush_cache!(model.stateProcess)
+end
+
+function generate_arguments!(model::GSR)
+  flush_cache!(model.stateProcess)
+  notify_observers!(model)
+
+  return model
+end
+
+function set_params!(model::GSR, params::Vector{Float64})
+  if check_params_equal(model, params)
+    return model
+  end
+  n = length(get_data(model.reversion))
+  # first set reversion
+  for i = 1:n
+    set_params!(model.reversion, i, params[i])
+  end
+  # now set sigma
+  for i = n + 1:length(get_data(model.sigma))+n
+    set_params!(model.sigma, i -n, params[i])
+  end
+
+  generate_arguments!(model)
+
+  return model
 end
 
 ## Dynamics ##
@@ -428,10 +456,21 @@ function zerobond_impl(model::GSR, T::Float64, t::Float64, y::Float64, yts::Yiel
 
   p = model.stateProcess
 
+  # teststDv = std_deviation(p, 0.0, 0.0, t)
+  # testEpxt = expectation(p, 0.0, 0.0, t)
+  #
+  # println(teststDv)
+  # println(testEpxt)
+  # error("DIE")
+
   x = y * std_deviation(p, 0.0, 0.0, t) + expectation(p, 0.0, 0.0, t)
   gtT = G!(p, t, T, x)
 
   d = isa(yts, NullTermStructure) ? discount(model.ts, T) / discount(model.ts, t) : discount(yts, T) / discount(yts, t)
+
+  # println("x: ", x)
+  # println("gtT: ", gtT)
+  # println("d: ", d)
 
   return d * exp(-x * gtT - 0.5 * y!(p, t) * gtT * gtT)
 end

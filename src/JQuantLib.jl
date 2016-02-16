@@ -20,6 +20,15 @@ function findnext(testf::Function, A, start::Integer, val)
   return 0
 end
 
+function upper_bound{T}(vec::Vector{T}, x::T)
+  found = searchsortedlast(vec, x)
+  if found != length(vec)
+    found += 1
+  end
+
+  return found
+end
+
 # Time module
 include("time/Time.jl")
 

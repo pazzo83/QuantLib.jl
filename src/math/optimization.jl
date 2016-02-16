@@ -37,7 +37,6 @@ end
 
 function include_params(proj::Projection, params::Vector{Float64})
   y = copy(proj.fixedParameters)
-
   i = 1
   for j = 1:length(y)
     if !proj.fixParams[j]
@@ -45,7 +44,6 @@ function include_params(proj::Projection, params::Vector{Float64})
       i += 1
     end
   end
-
   return y
 end
 
