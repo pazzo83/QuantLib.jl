@@ -406,6 +406,8 @@ function perform_calculations!(model::GSR)
    return res
  end
 
+ get_volatilities(model::GSR) = get_data(model.sigma)
+
  function move_volatility(model::GSR, i::Int)
    res = trues(length(model.reversions) + length(model.volatilities))
    res[length(model.reversions) + i] = false

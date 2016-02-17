@@ -21,6 +21,9 @@ function findnext(testf::Function, A, start::Integer, val)
 end
 
 function upper_bound{T}(vec::Vector{T}, x::T)
+  if x > vec[end]
+    return length(vec) + 1
+  end
   found = searchsortedlast(vec, x)
   if found != length(vec)
     found += 1
@@ -152,7 +155,7 @@ export
     G2,
 
     # models/short_rate/one_factor.jl
-    BlackKarasinski, HullWhite, GSR, calibrate_volatilities_iterative!,
+    BlackKarasinski, HullWhite, GSR, calibrate_volatilities_iterative!, get_volatilities, 
 
     # methods - finite difference
     FdmG2Solver,FdmHullWhiteSolver,

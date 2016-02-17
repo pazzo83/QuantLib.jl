@@ -16,6 +16,22 @@ function print_calibration_basket(basket::Vector{SwaptionHelper})
   end
 end
 
+function print_model_calibration(basket::Vector{SwaptionHelper}, volatilities::Vector{Float64})
+  println("Expiry   Model Sigma  ModelPx  MktPx     ModelVol  MktVol")
+  println("=========================================================")
+  for i in eachindex(basket)
+    helper = basket[i]
+    expiry = helper.swaption.exercise.dates[1]
+    modelSig = volatilities[i]
+    modelPx = model_value!(helper)
+    mktPx = helper.calibCommon.marketValue
+    modelVol = implied_volatility!(helper, modelPx, 1e-6, 1000, 0.0, 2.0)
+    marketVol = helper.volatility.value
+
+    println(@sprintf("%s  %.6f  %.6f  %.6f  %.2f     %.2f", expiry, modelSig, modelPx, mktPx, modelVol, marketVol))
+  end
+end
+
 function main()
   refDate = Dates.Date(2014, 4, 30)
   set_eval_date!(settings, refDate)
@@ -84,4 +100,6 @@ function main()
   ec = JQuantLib.Math.EndCriteria(1000, 10, 1.0e-8, 1.0e-8, 1.0e-8)
 
   calibrate_volatilities_iterative!(gsr, basket, method, ec)
+
+  print_model_calibration(basket, get_volatilities(gsr))
 end

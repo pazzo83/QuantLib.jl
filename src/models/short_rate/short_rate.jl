@@ -106,7 +106,7 @@ function calibrate!{M <: ShortRateModel, C <: CalibrationHelper, O <: Optimizati
 
   w = length(weights) == 0 ? ones(length(instruments)) : weights
   prms = get_params(model)
-  println("model params: ", prms)
+  # println("model params: ", prms)
   all = falses(length(prms))
   proj = Projection(prms, length(fixParams) > 0 ? fixParams : all)
   calibFunc = CalibrationFunction(model, instruments, w, proj)

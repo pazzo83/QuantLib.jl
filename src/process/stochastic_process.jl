@@ -141,7 +141,9 @@ function expectationp2(process::GsrProcess, w::Float64, dt::Float64)
   T = process.T
 
   res = 0.0
+  # int A(s, t)y(s)
   for k = lower_index(process, w):upper_index(process, t) - 1
+    # l < k
     for l = 1:k - 1
       res2 = 1.0
       # alpha 1
@@ -162,29 +164,31 @@ function expectationp2(process::GsrProcess, w::Float64, dt::Float64)
 
       # zeta_k beta_k
       if rev_zero(process, k)
-        res2 *= 2.0 * time2(process, k) - floored_time(process, k, w) - capped_time(process, k + 1, t) - 2.0 * (time2(process, k) - capped_time(process, k+1, t))
+        res2 *= 2.0 * time2(process, k) - floored_time(process, k, w) - capped_time(process, k + 1, t) -
+                2.0 * (time2(process, k) - capped_time(process, k + 1, t))
       else
-        res2 *= (exp(rev(process, k) * (2.0 * time2(process, k) - floored_time(process, k, w) - capped_time(process, k + 1, t))) - exp(2.0 * rev(process, k) *
-                (time2(process, k) - capped_time(process, k+1, t)))) / rev(process, k)
+        res2 *= (exp(rev(process, k) * (2.0 * time2(process, k) - floored_time(process, k, w) - capped_time(process, k + 1, t))) -
+                exp(2.0 * rev(process, k) * (time2(process, k) - capped_time(process, k + 1, t)))) / rev(process, k)
       end
       res += res2
     end
+    # l = k
     res2 = 1.0
     # alpha_k zeta_k
     if rev_zero(process, k)
-      res2 *= vol(process, k) * vol(process, k) / 4.0 * (4.0 * ^(capped_time(process, k+1, t) - time2(process, k), 2.0) -
-              (^(floored_time(process, k, w) - 2.0 * time2(process, k) + capped_time(process, k+1, t), 2.0) +
-              ^(capped_time(process, k+1, t) - floored_time(process, k, w), 2.0)))
+      res2 *= vol(process, k) * vol(process, k) / 4.0 * (4.0 * ^(capped_time(process, k + 1, t) - time2(process, k), 2.0) -
+              (^(floored_time(process, k, w) - 2.0 * time2(process, k) + capped_time(process, k + 1, t), 2.0) +
+              ^(capped_time(process, k + 1, t) - floored_time(process, k, w), 2.0)))
     else
       res2 *= vol(process, k) * vol(process, k) / (2.0 * rev(process, k) * rev(process, k)) * (exp(-2.0 * rev(process, k) *
-               (capped_time(process, k+1, t) - time2(process, k))) + 1.0 - (exp(-rev(process, k) * (floored_time(process, k, w) -
-               2.0 * time2(process, k) + capped_time(process, k+1, t))) + exp(-rev(process, k) * (capped_time(process, k+1, t) -
-               floored_time(process, k, w)))))
+              (capped_time(process, k + 1, t) - time2(process, k))) + 1.0 - (exp(-rev(process, k) * (floored_time(process, k, w) -
+              2.0 * time2(process, k) + capped_time(process, k + 1, t))) + exp(-rev(process, k) *
+              (capped_time(process, k + 1, t) - floored_time(process, k, w)))))
     end
 
     # zeta_i (i>k)
     for i = k+1:upper_index(process, t) - 1
-      res2 *= exp(-rev(process, i) * (capped_time(process, i+1, t) - time2(process, i)))
+      res2 *= exp(-rev(process, i) * (capped_time(process, i + 1, t) - time2(process, i)))
     end
     # no beta_j in this case
     res += res2
@@ -193,28 +197,31 @@ function expectationp2(process::GsrProcess, w::Float64, dt::Float64)
   # int -A(s, t) sigma^2 G(s, T)
   for k = lower_index(process, w):upper_index(process, t) - 1
     res2 = 0.0
+    # l > k
     for l = k+1:upper_index(process, T) - 1
       res3 = 1.0
       # eta_l
-      res3 *= rev_zero(process, l) ? capped_time(l + 1, T) - time2(process, l) :
-                                     (1.0 - exp(-rev(process, l) * (capped_time(process, l+1, T) - time2(process, l)))) / rev(process, l)
+      res3 *= rev_zero(process, l) ? capped_time(process, l + 1, T) - time2(process, l) :
+                                      (1.0 - exp(-rev(process, l) * (capped_time(process, l + 1, T) - time2(process, l)))) /
+                                      rev(process, l)
 
       # zeta_i (i > k)
       for i = k+1:upper_index(process, t) - 1
-        res3 *= exp(-rev(process, i) * (capped_time(process, i+1, t) - time2(process, i)))
+        res3 *= exp(-rev(process, i) * (capped_time(process, i + 1, t) - time2(process, i)))
       end
 
       # gamma_j (j > k)
       for j = k+1:l-1
-        res3 *= exp(-rev(process, j) * (time2(process, j+1) - time2(process, j)))
+        res3 *= exp(-rev(process, j) * (time2(process, j + 1) - time2(process, j)))
       end
 
       # zeta_k gamma_k
       if rev_zero(process, k)
-        res3 *= (capped_time(process, k+1, t) - time2(process, k+1) - (2.0 * floored_time(process, k, w) - capped_time(process, k+1, t) - time2(process, k + 1))) / 2.0
+        res3 *= (capped_time(process, k + 1, t) - time2(process, k + 1) - (2.0 * floored_time(process, k, w) - capped_time(process, k + 1, t) -
+                time2(process, k + 1))) / 2.0
       else
-        res3 *= (exp(rev(process, k) * (capped_time(process, k+1, t) - time2(process, k+1))) - exp(rev(process, k) * (2.0 * floored_time(process, k, w) - capped_time(process, k+1, t) -
-                time2(process, k+1)))) / (2.0 * rev(process, k))
+        res3 *= (exp(rev(process, k) * (capped_time(process, k + 1, t) - time2(process, k + 1))) - exp(rev(process, k) *
+                (2.0 * floored_time(process, k, w) - capped_time(process, k + 1, t) - time2(process, k + 1)))) / (2.0 * rev(process, k))
       end
 
       res2 += res3
@@ -223,16 +230,18 @@ function expectationp2(process::GsrProcess, w::Float64, dt::Float64)
     res3 = 1.0
     # eta_k zeta_k
     if rev_zero(process, k)
-      res3 *= (-^(capped_time(process, k+1, t) - capped_time(process, k+1, T), 2.0) - 2.0 * ^(capped_time(process, k+1, t) - floored_time(process, k, w), 2.0) +
-              ^(2.0 * floored_time(process, k, w) - capped_time(process, k+1, T) - capped_time(process, k+1, t), 2.0)) / 4.0
+      res3 *= (-^(capped_time(process, k + 1, t) - capped_time(process, k + 1, T), 2.0) - 2.0 * ^(capped_time(process, k + 1, t) - floored_time(process, k, w), 2.0) +
+              ^(2.0 * floored_time(process, k, w) - capped_time(process, k + 1, T) - capped_time(process, k + 1, t), 2.0)) / 4.0
     else
-      res3 *= (2.0 - exp(rev(process, k) * (capped_time(process, k+1, t) - capped_time(process, k+1, T))) - (2.0 * exp(-rev(process, k) * (capped_time(process, k+1, t) - floored_time(process, k, w))) -
-              exp(rev(process, k) * (2.0 * floored_time(process, k, w) - capped_time(process, k+1, T) - capped_time(process, k+1, t))))) / (2.0 * rev(process, k) * rev(process, k))
+      res3 *= (2.0 - exp(rev(process, k) * (capped_time(process, k + 1, t) - capped_time(process, k + 1, T))) -
+              (2.0 * exp(-rev(process, k) * (capped_time(process, k + 1, t) - floored_time(process, k, w))) -
+              exp(rev(process, k) * (2.0 * floored_time(process, k, w) - capped_time(process, k + 1, T) -
+              capped_time(process, k + 1, t))))) / (2.0 * rev(process, k) * rev(process, k))
     end
 
     # zeta_i (i > k)
     for i = k+1:upper_index(process, t) - 1
-      res3 *= exp(-rev(process, i) * (capped_time(process, i+1, t) - time2(process, i)))
+      res3 *= exp(-rev(process, i) * (capped_time(process, i + 1, t) - time2(process, i)))
     end
 
     # no gamma_j in this case
