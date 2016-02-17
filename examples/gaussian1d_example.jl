@@ -102,4 +102,6 @@ function main()
   calibrate_volatilities_iterative!(gsr, basket, method, ec)
 
   print_model_calibration(basket, get_volatilities(gsr))
+
+  println(npv(swaption))
 end

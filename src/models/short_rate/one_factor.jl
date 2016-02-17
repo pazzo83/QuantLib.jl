@@ -512,7 +512,7 @@ function y_grid(model::Gaussian1DModel, stdDevs::Float64, gridPoints::Int, T::Fl
    stdDev_t_T = std_deviation(model.stateProcess, t, 0.0, T - t)
    e_0_t = expectation(model.stateProcess, 0.0, 0.0, t)
    x_t = y * stdDev_0_t + e_0_t
-   e_t_T = expecation(model.stateProcess, t, x_t, T - t)
+   e_t_T = expectation(model.stateProcess, t, x_t, T - t)
   end
 
   h = stdDevs / gridPoints

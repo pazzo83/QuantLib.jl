@@ -53,14 +53,14 @@ end
 NonstandardSwaption{E <: Exercise}(swap::NonstandardSwap, exercise::E) = NonstandardSwaption(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults())
 NonstandardSwaption{E <: Exercise, P <: PricingEngine}(swap::NonstandardSwap, exercise::E, pe::P) = NonstandardSwaption(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults(), pe)
 
-function perform_calculations!(swaption::Swaption)
+function perform_calculations!(swaption::Union{Swaption, NonstandardSwaption})
   reset!(swaption.results)
   _calculate!(swaption.pricingEngine, swaption)
 
   return swaption
 end
 
-function npv(swaption::Swaption)
+function npv(swaption::Union{Swaption, NonstandardSwaption})
   calculate!(swaption)
 
   return swaption.results.value
