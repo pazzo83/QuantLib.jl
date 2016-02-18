@@ -155,7 +155,7 @@ export
     G2,
 
     # models/short_rate/one_factor.jl
-    BlackKarasinski, HullWhite, GSR, calibrate_volatilities_iterative!, get_volatilities, 
+    BlackKarasinski, HullWhite, GSR, calibrate_volatilities_iterative!, get_volatilities,
 
     # methods - finite difference
     FdmG2Solver,FdmHullWhiteSolver,
@@ -166,7 +166,7 @@ export
     # pricing_engines/discretized_asset.jl
     DiscretizedSwaption, DiscretizedSwap,
 
-    # pricing_engines/swaption_engines.jl
+    # pricing_engines/swaption_engines
     G2SwaptionEngine, JamshidianSwaptionEngine, TreeSwaptionEngine, FdG2SwaptionEngine, FdHullWhiteSwaptionEngine, Gaussian1DSwaptionEngine, Gaussian1DNonstandardSwaptionEngine
 
 # abstract types
@@ -257,7 +257,15 @@ include("methods/finite_differences/fd_solvers.jl")
 # Pricing Engines ------------------------
 include("pricing_engines/pricing_engines.jl")
 include("pricing_engines/discretized_asset.jl")
-include("pricing_engines/swaption_engines.jl")
+include("pricing_engines/swaptions/swaption_engine.jl")
+include("pricing_engines/swaptions/black_swaption_engine.jl")
+include("pricing_engines/swaptions/G2_swaption_engine.jl")
+include("pricing_engines/swaptions/fdg2_swaption_engine.jl")
+include("pricing_engines/swaptions/fd_hullwhite_swaption_engine.jl")
+include("pricing_engines/swaptions/jamshidian_swaption_engine.jl")
+include("pricing_engines/swaptions/tree_swaption_engine.jl")
+include("pricing_engines/swaptions/gaussian1d_swaption_engine.jl")
+include("pricing_engines/swaptions/gaussian1d_nonstandard_swaption_engine.jl")
 
 # # Helpers NOW IN TERM STRUCTURE
 # include("helpers/bond_helpers.jl")
