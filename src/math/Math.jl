@@ -100,9 +100,7 @@ export BSpline, spline_oper, N
 # Constants
 const EPS_VAL = eps()
 
-# lmdif.jl
-export lmdif!
-include("lmdif.jl")
+
 
 # lmdif2.jl
 export lmdif2!
@@ -123,17 +121,26 @@ include("tridiagonal_operator.jl")
 # interpolation.jl
 export Interpolation, Spline, Lagrange, LogInterpolation, BicubicSpline, NaturalCubicSpline, CubicInterpolation, BackwardFlatInterpolation, update!, locate, initialize!, value, get_primitive
 
-include("interpolation.jl")
+include("interpolation/interpolation.jl")
+include("interpolation/linear_interpolation.jl")
+include("interpolation/log_interpolation.jl")
+include("interpolation/backward_flat_interpolation.jl")
+include("interpolation/spline_interpolation.jl")
 
 # solvers.jl
 export Solver1D, BrentSolver, NewtonSolver, FiniteDifferenceNewtonSafe, solve
-
-include("solvers.jl")
+include("solvers/solver.jl")
+include("solvers/brent_solver.jl")
+include("solvers/finite_difference.jl")
+include("solvers/newton_solver.jl")
 
 # optimization.jl
-export Projection, CostFunction, Constraint, NoConstraint, PositiveConstraint, BoundaryConstraint, ProjectedConstraint, OptimizationMethod, LevenbergMarquardt, Simplex, Problem, EndCriteria,
+export lmdif!, Projection, CostFunction, Constraint, NoConstraint, PositiveConstraint, BoundaryConstraint, ProjectedConstraint, OptimizationMethod, LevenbergMarquardt, Simplex, Problem, EndCriteria,
 project, minimize!, minimize_2!, include_params
-
-include("optimization.jl")
+include("optimization/lmdif.jl")
+include("optimization/optimization.jl")
+include("optimization/problem.jl")
+include("optimization/simplex.jl")
+include("optimization/levenberg_marquardt.jl")
 
 end
