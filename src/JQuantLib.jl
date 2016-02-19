@@ -242,7 +242,10 @@ include("models/calibration_helpers.jl")
 include("models/models.jl")
 include("models/short_rate/short_rate.jl")
 include("models/short_rate/two_factor.jl")
-include("models/short_rate/one_factor.jl")
+include("models/short_rate/one_factor/one_factor.jl")
+include("models/short_rate/one_factor/black_karasinski.jl")
+include("models/short_rate/one_factor/hull_white.jl")
+include("models/short_rate/one_factor/gsr.jl")
 
 # Finite Difference method
 include("methods/finite_differences/fd_layout.jl")
