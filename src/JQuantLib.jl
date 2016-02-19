@@ -214,27 +214,25 @@ include("instruments/swap.jl")
 include("indexes/swap_index.jl") # need this here because swap index needs to know what a VanillaSwap is
 include("instruments/swaption.jl")
 
-# helpers
-include("termstructures/bond_helpers.jl")
-include("termstructures/rate_helpers.jl")
-
 # Term Structures -----------------------------------
 include("termstructures/TermStructures.jl")
-# yield term structures
-include("termstructures/yield_term_structure.jl")
-# bootstrapping traits
-include("termstructures/bootstrap_traits.jl")
-# Curves
 include("termstructures/curve.jl")
-# volatility
-include("termstructures/vol_term_structure.jl")
-# bootstrapping
-include("termstructures/bootstrap.jl")
-# credit helpers
+# helpers
+include("termstructures/yield/bond_helpers.jl")
+include("termstructures/yield/rate_helpers.jl")
 include("termstructures/credit_helpers.jl")
-
-# nonlinear fitting methods
-include("termstructures/nonlinear_fitting_methods.jl")
+# bootstrapping
+include("termstructures/bootstrap/bootstrap_traits.jl")
+include("termstructures/bootstrap/bootstrap.jl")
+# yield term structures
+include("termstructures/yield/yield_term_structure.jl")
+include("termstructures/yield/piecewise_yield_curve.jl")
+include("termstructures/yield/fitted_bond_curve.jl")
+include("termstructures/yield/nonlinear_fitting_methods.jl")
+# volatility
+include("termstructures/volatility/vol_term_structure.jl")
+# credit
+include("termstructures/credit/piecewise_default_curve.jl")
 
 # Models ---------------------------------
 include("models/parameter.jl")
