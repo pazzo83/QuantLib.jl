@@ -1,8 +1,8 @@
-immutable IborIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
+immutable IborIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
   familyName::S
   tenor::TP
   fixingDays::I
-  currency::Currency
+  currency::CUR
   fixingCalendar::B
   convention::C
   endOfMonth::Bool
@@ -21,8 +21,8 @@ immutable IborIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, B <: B
   #                                                                                           endOfMonth, dc, ts)
 end
 
-IborIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::S, tenor::TP, fixingDays::I, currency::Currency,
-          fixingCalendar::B, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) = IborIndex{S, TP, I, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, convention, endOfMonth, dc, ts)
+IborIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::S, tenor::TP, fixingDays::I, currency::CUR,
+          fixingCalendar::B, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) = IborIndex{S, TP, I, CUR, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, convention, endOfMonth, dc, ts)
 
 
 immutable LiborIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
