@@ -6,7 +6,7 @@ This package aims to provide a pure Julia version of the popular open source lib
 
 The package is essentially contains the main JQuantLib module and two sub-modules for various time-based and math-based operations.  Below is a fairly up-to-date status of what is included.
 
-## Math
+### Math
 Interpolations:
 * Backward Flat
 * Linear
@@ -23,7 +23,7 @@ Solvers:
 * Finite Differences
 * Newton
 
-## Time
+### Time
 Calendars (adopted from BusinessDays.jl and Ito.jl):
 * Target (basically a null calendar with basic holidays)
 * US Settlement Calendar
@@ -42,7 +42,7 @@ Day Counters:
 * ISDA Actual
 * AFBA Actual
 
-## Instruments
+### Instruments
 Bonds:
 * Fixed Rate Bond
 * Floating Rate Bond
@@ -57,26 +57,26 @@ Swaps:
 * Nonstandard Swap (used for Gaussian methods)
 * Credit Default Swap (partial)
 
-## Indexes
+### Indexes
 * Ibor
 * Libor
 * Euribor
 * USD Libor
 * Euribor Swap ISDA
 
-## Methods
+### Methods
 * Finite Differences
 * Trinomial Tree
 * Tree Lattice 1D & 2D
 
-## Models
+### Models
 Short Rate:
 * Black Karasinski
 * Gaussian Short Rate (GSR)
 * Hull White
 * G2
 
-## Pricing Engines
+### Pricing Engines
 Bond:
 * Discounting Bond Engine
 
@@ -102,12 +102,12 @@ Vanilla:
 General:
 * Black Scholes Calculator
 
-## Processes
+### Processes
 * Black Scholes Process
 * Ornstein Uhlenbeck Process
 * Gaussian Short Rate Process
 
-## Term Structures
+### Term Structures
 Credit:
 * Piecewise Default Curve
 * Interpolated Hazard Rate Curve
