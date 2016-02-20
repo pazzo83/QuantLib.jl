@@ -11,3 +11,16 @@ function update_pricing_engine{I <: Instrument, P <: PricingEngine}(inst::I, pe:
 
   return inst
 end
+
+function npv(inst::Instrument)
+  calculate!(inst)
+
+  return inst.results.value
+end
+
+function perform_calculations!(inst::Instrument)
+  reset!(inst.results)
+  _calculate!(inst.pricingEngine, inst)
+
+  return inst
+end

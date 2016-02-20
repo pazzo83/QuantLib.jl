@@ -135,8 +135,8 @@ get_reset_dates{C <: Coupon}(coups::Vector{C}) = Date[accrual_start_date(coup) f
 #   d2 = value_date(coupon.iborIndex, d1)
 #   d3 = maturity_date(coupon.iborIndex, d2)
 #   tau = year_fraction(coupon.iborIndex.dc, d2, d3)
-#   varience = black_varience(cap_vol, d1, fixing)
-#   adjustment = fixing * fixing * varience * tau / (1.0 + fixing * tau)
+#   variance = black_variance(cap_vol, d1, fixing)
+#   adjustment = fixing * fixing * variance * tau / (1.0 + fixing * tau)
 #   return fixing + adjustment
 # end
 #

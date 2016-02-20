@@ -7,6 +7,8 @@ abstract LazyObject <: Observer
 # Process
 abstract StochasticProcess
 abstract StochasticProcess1D <: StochasticProcess
+abstract AbstractBlackScholesProcess <: StochasticProcess1D
+abstract AbstractDiscretization
 
 # Methods
 abstract Lattice
@@ -32,7 +34,9 @@ abstract AbstractRate <: Instrument
 abstract Swap <: Instrument
 abstract AbstractClaim
 abstract SettlementType
-abstract Option <: Instrument
+abstract StrikedTypePayoff
+abstract Option{E} <: Instrument
+abstract OneAssetOption{E} <: Option{E}
 abstract OptionType
 abstract SwapType
 abstract CDSProtectionSide
@@ -52,6 +56,8 @@ abstract InterpolatedDefaultProbabilityCurve{P, T} <: AbstractDefaultProbability
 abstract VolatilityTermStructure <: TermStructure
 abstract OptionletVolatilityStructure <: VolatilityTermStructure
 abstract SwaptionVolatilityStructure <: VolatilityTermStructure
+abstract BlackVolTermStructure <: VolatilityTermStructure
+abstract LocalVolTermStructure <: VolatilityTermStructure
 abstract AbstractSmileSection
 abstract VolatilityType
 abstract BootstrapTrait

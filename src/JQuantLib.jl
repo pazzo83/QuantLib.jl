@@ -43,6 +43,13 @@ using JQuantLib.Math, JQuantLib.Time
 
 # Constants #
 const basisPoint = 0.0001
+const JQ_MAX = 1.79769e308
+const JQ_MIN = 2.22507e-308
+const M_SQRT2 = 1.41421356237309504880168872420969808   # sqrt(2)
+const M_SQRT1_2 = 0.707106781186547524400844362104849039  # 1/sqrt(2)
+const M_SQRTPI = 1.77245385090551602792981
+const M_SQRT_2 = 0.7071067811865475244008443621048490392848359376887
+const M_1_SQRTPI = 0.564189583547756286948
 
 export
     # abstract_types.jl
@@ -54,10 +61,6 @@ export
 
     # lazy.jl
     LazyMixin, calculate!, recalculate!,
-
-    # Process
-    # process/stochastic_process/jl
-    OrnsteinUhlenbeckProcess, GsrProcess, expectation, variance,
 
     # Methods
     # methods/lattice.jl
@@ -95,8 +98,11 @@ export
     # instruments/bond.jl
     BondMixin, FixedRateBond, FloatingRateBond, ZeroCouponBond, value, get_settlement_days, get_settlement_date, notional, accrued_amount, yield, duration, npv, clean_price, dirty_price, accrued_amount,
 
+    # instruments/payoff.jl
+    PlainVanillaPayoff,
+
     # instruments/option.jl
-    Put, Call,
+    Put, Call, VanillaOption,
 
     # instruments/claim.jl
     FaceValueClaim,
@@ -133,6 +139,9 @@ export
     # termstructures/vol_term_structure.jl
     ConstantOptionVolatility, ConstantSwaptionVolatility,
 
+    # termstructures/black_vol_term_structure.jl
+    BlackConstantVol,
+
     # termstructures/bootstrap.jl
     IterativeBootstrap, initialize, quote_error,
 
@@ -141,6 +150,13 @@ export
 
     # termstructures/nonlinear_fitting_methods.jl
     ExponentialSplinesFitting, SimplePolynomialFitting, NelsonSiegelFitting, SvenssonFitting, CubicBSplinesFitting, discount_function, guess_size,
+
+    # Process
+    # process/stochastic_process/jl
+    OrnsteinUhlenbeckProcess, GsrProcess, expectation, variance,
+
+    # process/black_scholes_process.jl
+    BlackScholesMertonProcess,
 
     # models/parameter.jl
     ConstantParameter, G2FittingParameter, HullWhiteFittingParameter,
@@ -167,7 +183,10 @@ export
     DiscretizedSwaption, DiscretizedSwap,
 
     # pricing_engines/swaption_engines
-    G2SwaptionEngine, JamshidianSwaptionEngine, TreeSwaptionEngine, FdG2SwaptionEngine, FdHullWhiteSwaptionEngine, Gaussian1DSwaptionEngine, Gaussian1DNonstandardSwaptionEngine
+    G2SwaptionEngine, JamshidianSwaptionEngine, TreeSwaptionEngine, FdG2SwaptionEngine, FdHullWhiteSwaptionEngine, Gaussian1DSwaptionEngine, Gaussian1DNonstandardSwaptionEngine,
+
+    # pricing_engines/vanilla
+    AnalyticEuropeanEngine
 
 # abstract types
 include("abstract_types.jl")
@@ -177,9 +196,6 @@ include("observer.jl")
 
 # lazy
 include("lazy.jl")
-
-# process
-include("process/stochastic_process.jl")
 
 # methods
 include("methods/lattice.jl")
@@ -208,6 +224,7 @@ include("cash_flows/floating_rate_coupon.jl")
 include("instruments/Instruments.jl")
 # bond
 include("instruments/bond.jl")
+include("instruments/payoff.jl")
 include("instruments/option.jl")
 include("instruments/claim.jl")
 include("instruments/swap.jl")
@@ -220,7 +237,7 @@ include("termstructures/curve.jl")
 # helpers
 include("termstructures/yield/bond_helpers.jl")
 include("termstructures/yield/rate_helpers.jl")
-include("termstructures/credit_helpers.jl")
+include("termstructures/credit/credit_helpers.jl")
 # bootstrapping
 include("termstructures/bootstrap/bootstrap_traits.jl")
 include("termstructures/bootstrap/bootstrap.jl")
@@ -231,8 +248,14 @@ include("termstructures/yield/fitted_bond_curve.jl")
 include("termstructures/yield/nonlinear_fitting_methods.jl")
 # volatility
 include("termstructures/volatility/vol_term_structure.jl")
+include("termstructures/volatility/black_vol_term_structure.jl")
 # credit
 include("termstructures/credit/piecewise_default_curve.jl")
+
+# process
+include("process/discretization.jl")
+include("process/stochastic_process.jl")
+include("process/black_scholes_process.jl")
 
 # Models ---------------------------------
 include("models/parameter.jl")
@@ -258,6 +281,7 @@ include("methods/finite_differences/fd_solvers.jl")
 # Pricing Engines ------------------------
 include("pricing_engines/pricing_engines.jl")
 include("pricing_engines/discretized_asset.jl")
+include("pricing_engines/black_calculator.jl")
 include("pricing_engines/bond/discounting_bond_engine.jl")
 include("pricing_engines/swap/discounting_swap_engine.jl")
 include("pricing_engines/swap/discretized_swap.jl")
@@ -272,6 +296,7 @@ include("pricing_engines/swaptions/jamshidian_swaption_engine.jl")
 include("pricing_engines/swaptions/tree_swaption_engine.jl")
 include("pricing_engines/swaptions/gaussian1d_swaption_engine.jl")
 include("pricing_engines/swaptions/gaussian1d_nonstandard_swaption_engine.jl")
+include("pricing_engines/vanilla/analytic_european_engine.jl")
 
 # # Helpers NOW IN TERM STRUCTURE
 # include("helpers/bond_helpers.jl")

@@ -198,15 +198,15 @@ function adjusted_fixing(pricer::BlackIborCouponPricer, coup::IborCoupon, fixing
   d2 = value_date(idx, d1)
   d3 = maturity_date(idx, d2)
   tau = year_fraction(idx.dc, d2, d3)
-  varience = black_varience(pricer.capletVolatility, d1, fixing)
+  variance = black_variance(pricer.capletVolatility, d1, fixing)
   # println("fixing ", fixing)
   # println("d1 ", d1)
   # println("d2 ", d2)
   # println("d3 ", d3)
   # println("tau ", tau)
-  # println("varience ", varience)
+  # println("variance ", variance)
 
-  adj = fixing * fixing * varience * tau / (1.0 + fixing * tau)
+  adj = fixing * fixing * variance * tau / (1.0 + fixing * tau)
   # println("adj ", adj)
   # error("BREAK")
   return fixing + adj

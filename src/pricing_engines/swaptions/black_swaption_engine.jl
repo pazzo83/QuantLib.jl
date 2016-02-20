@@ -84,7 +84,7 @@ function _calculate!(pe::BlackSwaptionEngine, swaption::Swaption)
   swapLength = swap_length(pe.volStructure, exerciseDate, date(get_latest_coupon(tempSwap.legs[1])))
   swaption.results.additionalResults["swapLength"] = swapLength
 
-  variance = black_varience(pe.volStructure, exerciseDate, swapLength, strike)
+  variance = black_variance(pe.volStructure, exerciseDate, swapLength, strike)
 
   stdDev = sqrt(variance)
   swaption.results.additionalResults["stdDev"] = stdDev

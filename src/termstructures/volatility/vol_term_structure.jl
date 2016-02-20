@@ -54,7 +54,17 @@ end
 ConstantSwaptionVolatility{I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}(settlementDays::I, cal::B, bdc::C, volatility::Quote, dc::DC) =
                           ConstantSwaptionVolatility(settlementDays, Date(), cal, bdc, volatility, dc)
 
-function black_varience(ovs::OptionletVolatilityStructure, option_date::Date, strike::Float64)
+# Local Vol Term Structure #
+type LocalConstantVol{I <: Integer, DC <: DayCount} <: LocalVolTermStructure
+  referenceDate::Date
+  settlementDays::I
+  volatility::Quote
+  dc::DC
+end
+
+LocalConstantVol(refDate::Date, volatility::Float64, dc::DayCount) = LocalConstantVol(refDate, 0, Quote(volatility), dc)
+
+function black_variance(ovs::OptionletVolatilityStructure, option_date::Date, strike::Float64)
   v = calc_volatility(ovs, option_date, strike)
   t = time_from_reference(ovs, option_date)
   return v * v * t
@@ -85,7 +95,7 @@ end
 
 volatility_impl(swapVol::ConstantSwaptionVolatility, ::Float64, ::Float64, ::Float64) = swapVol.volatility.value
 
-function black_varience{V <: SwaptionVolatilityStructure}(swapVol::V, optionDate::Date, swapLength::Float64, strike::Float64)
+function black_variance{V <: SwaptionVolatilityStructure}(swapVol::V, optionDate::Date, swapLength::Float64, strike::Float64)
   v = calc_volatility(swapVol, optionDate, swapLength, strike)
   optionTime = time_from_reference(swapVol, optionDate)
   return v * v * optionTime

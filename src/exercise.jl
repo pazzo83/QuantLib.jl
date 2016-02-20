@@ -11,6 +11,7 @@ type EuropeanExercise <: Exercise
 end
 
 EuropeanExercise(d::Date) = EuropeanExercise([d])
+AmericanExercise(d1::Date, d2::Date) = AmericanExercise(Date[d1, d2])
 
 type RebatedExercise{E <: Exercise, I <: Integer, C <: BusinessCalendar, B <: BusinessDayConvention} <: Exercise
   exercise::E
