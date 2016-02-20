@@ -4,7 +4,7 @@
 
 This package aims to provide a pure Julia version of the popular open source library QuantLib (written in C++ and interfaced with other languages via SWIG).  Right now the package is in an alpha state, but there is quite a bit of functionality already.
 
-The package is essentially contains the main JQuantLib module and two sub-modules for various time-based and math-based operations.  Below is a fairly up-to-date status of what is included.
+The package essentially contains the main JQuantLib module and two sub-modules for various time-based and math-based operations.  Below is a fairly up-to-date status of what is included.
 
 ### Math
 Interpolations:
