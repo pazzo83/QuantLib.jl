@@ -9,6 +9,7 @@ abstract StochasticProcess
 abstract StochasticProcess1D <: StochasticProcess
 abstract AbstractBlackScholesProcess <: StochasticProcess1D
 abstract AbstractDiscretization
+abstract AbstractHestonDiscretization <: AbstractDiscretization
 
 # Methods
 abstract Lattice
@@ -96,6 +97,8 @@ abstract ShortRateModel{T} <: Model{T}
 abstract OneFactorModel{T} <: ShortRateModel{T}
 abstract Gaussian1DModel{T} <: OneFactorModel{T}
 abstract TwoFactorModel{T} <: ShortRateModel{T}
+abstract ComplexLogFormula
+abstract HestonIntegration
 abstract ShortRateDynamics
 abstract ShortRateTree
 

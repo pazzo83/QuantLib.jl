@@ -158,11 +158,17 @@ export
     # process/black_scholes_process.jl
     BlackScholesMertonProcess,
 
+    # process/heston_process.jl
+    HestonProcess,
+
     # models/parameter.jl
     ConstantParameter, G2FittingParameter, HullWhiteFittingParameter,
 
     # models/calibration_helpers.jl
     NaiveBasketType, SwaptionHelper, implied_volatility!, add_times_to!, model_value!, update_pricing_engine!, underlying_swap!, # for swaptionHelper only
+
+    # models/equity/heston_model.jl
+    HestonModel, 
 
     # models/short_rate/short_rate.jl
     PrivateConstraint, test, calibrate!, func_values, value, get_params,
@@ -256,11 +262,13 @@ include("termstructures/credit/piecewise_default_curve.jl")
 include("process/discretization.jl")
 include("process/stochastic_process.jl")
 include("process/black_scholes_process.jl")
+include("process/heston_process.jl")
 
 # Models ---------------------------------
 include("models/parameter.jl")
 include("models/calibration_helpers.jl")
 include("models/models.jl")
+include("models/equity/heston_model.jl")
 include("models/short_rate/short_rate.jl")
 include("models/short_rate/two_factor.jl")
 include("models/short_rate/one_factor/one_factor.jl")

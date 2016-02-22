@@ -40,5 +40,10 @@ function main()
   europeanOption = VanillaOption(payoff, europeanExercise, bsPE)
 
   # black scholes for European
-  npv(europeanOption)
+  println(npv(europeanOption))
+
+  # heston process
+  hestonProcess = HestonProcess(flatTermStructure, flatDividendTS, underlyingH, vol * vol, 1.0, vol * vol, 0.001, 0.0)
+
+  hestonModel = HestonModel(hestonProcess)
 end
