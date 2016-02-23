@@ -46,4 +46,6 @@ function main()
   hestonProcess = HestonProcess(flatTermStructure, flatDividendTS, underlyingH, vol * vol, 1.0, vol * vol, 0.001, 0.0)
 
   hestonModel = HestonModel(hestonProcess)
+
+  hestonPE = AnalyticHestonEngine(hestonModel)
 end

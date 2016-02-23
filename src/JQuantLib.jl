@@ -168,7 +168,7 @@ export
     NaiveBasketType, SwaptionHelper, implied_volatility!, add_times_to!, model_value!, update_pricing_engine!, underlying_swap!, # for swaptionHelper only
 
     # models/equity/heston_model.jl
-    HestonModel, 
+    HestonModel,
 
     # models/short_rate/short_rate.jl
     PrivateConstraint, test, calibrate!, func_values, value, get_params,
@@ -192,7 +192,7 @@ export
     G2SwaptionEngine, JamshidianSwaptionEngine, TreeSwaptionEngine, FdG2SwaptionEngine, FdHullWhiteSwaptionEngine, Gaussian1DSwaptionEngine, Gaussian1DNonstandardSwaptionEngine,
 
     # pricing_engines/vanilla
-    AnalyticEuropeanEngine
+    AnalyticEuropeanEngine, AnalyticHestonEngine
 
 # abstract types
 include("abstract_types.jl")
@@ -305,6 +305,7 @@ include("pricing_engines/swaptions/tree_swaption_engine.jl")
 include("pricing_engines/swaptions/gaussian1d_swaption_engine.jl")
 include("pricing_engines/swaptions/gaussian1d_nonstandard_swaption_engine.jl")
 include("pricing_engines/vanilla/analytic_european_engine.jl")
+include("pricing_engines/vanilla/analytic_heston_engine.jl")
 
 # # Helpers NOW IN TERM STRUCTURE
 # include("helpers/bond_helpers.jl")

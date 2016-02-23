@@ -100,7 +100,8 @@ export BSpline, spline_oper, N
 # Constants
 const EPS_VAL = eps()
 
-
+# utilities.jl
+include("utilities.jl")
 
 # lmdif2.jl
 export lmdif2!
@@ -111,7 +112,7 @@ export distribution_derivative
 include("distributions.jl")
 
 # integral.jl
-export Integrator, SegmentIntegral, operator, integrate
+export Integrator, SegmentIntegral, operator, integrate, GaussLaguerreIntegration
 include("integral.jl")
 
 # tridiagonal_operator.jl
