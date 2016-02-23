@@ -20,3 +20,5 @@ function HestonProcess{Y1 <: YieldTermStructure, Y2 <: YieldTermStructure, D <: 
   disc = EulerDiscretization()
   return HestonProcess{Y1, Y2, EulerDiscretization, D}(s0, riskFreeRate, dividendYield, v0, kappa, theta, sigma, rho, disc, d)
 end
+
+get_time(process::HestonProcess, d::Date) = year_fraction(process.riskFreeRate.dc, reference_date(process.riskFreeRate), d)
