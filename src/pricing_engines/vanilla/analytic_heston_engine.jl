@@ -4,6 +4,8 @@ end
 
 HestonGaussLaguerre(intOrder::Int) = HestonGaussLaguerre(GaussLaguerreIntegration(intOrder))
 
+num_evals(integration::HestonGaussLaguerre) = get_order(integration.integration)
+
 type Gatheral <: ComplexLogFormula end
 
 type AnalyticHestonEngine{I <: Integer, C <: ComplexLogFormula, HI <: HestonIntegration} <: PricingEngine
@@ -24,7 +26,7 @@ end
 add_on_term(engine::AnalyticHestonEngine, ::Real, ::Real, ::Int) = complex(0.0)
 
 # Helper #
-type FJHelper{I <: Integer, C <: ComplexLogFormula}
+type FJHelper{I <: Integer, C <: ComplexLogFormula} <: IntegrationFunction
   j::I
   kappa::Float64
   theta::Float64
@@ -43,22 +45,24 @@ type FJHelper{I <: Integer, C <: ComplexLogFormula}
   engine::AnalyticHestonEngine
 end
 
+call(fjh::FJHelper, phi::Float64) = fjh(phi, fjh.cpxLog)
+
 function call(fjh::FJHelper, phi::Float64, cpxLog::Gatheral)
   rpsig = fjh.rsigma * phi
   t1 = fjh.t0 + complex(0.0, -rpsig)
   d = sqrt(t1 * t1 - fjh.sigma2 * phi * complex(-phi, fjh.j == 1 ? 1.0 : -1.0))
 
   ex = exp(-d * fjh.term)
-  addOnTerm = add_on_term(engine, phi, fjh.term, fjh.j)
+  addOnTerm = add_on_term(fjh.engine, phi, fjh.term, fjh.j)
 
   if phi != 0.0
     if fjh.sigma > 1e-5
       p = (t1 - d) / (t1 + d)
       g = log((1.0 - p * ex) / (1.0 - p))
 
-      return imag(exp(fjh.v0 * (t1 - d) * (1.0 - ex)/ fjh.sigma2 * (1.0 - ex * p)) +
+      return imag(exp(fjh.v0 * (t1 - d) * (1.0 - ex)/ (fjh.sigma2 * (1.0 - ex * p)) +
                   (fjh.kappa * fjh.theta) / fjh.sigma2 * ((t1 - d) * fjh.term - 2.0 * g) +
-                  complex(0.0, phi * (fjh.dd - fjh.sx)) + addOnTerm) / phi
+                  complex(0.0, phi * (fjh.dd - fjh.sx)) + addOnTerm)) / phi
     else
       #
       td = phi / (2.0 * t1) * complex(-phi, fjh.j == 1 ? 1.0 : -1.0)
@@ -95,12 +99,13 @@ function FJHelper(kappa::Float64, theta::Float64, sigma::Float64, v0::Float64, s
 
   x = log(s0)
   dd = x - log(ratio)
-  sig = get_sigma(engine.model)
+  # sig = get_sigma(engine.model)
   t0 = kappa - (j == 1 ? rho * sigma : 0.0)
 
-  FJHelper(j, kappa, theta, sigma, v0, cpxLog, term, x, log(strike), dd, sig * sig, rho * sig, t0, 0, 0.0, engine)
+  FJHelper(j, kappa, theta, sigma, v0, cpxLog, term, x, log(strike), dd, sigma * sigma, rho * sigma, t0, 0, 0.0, engine)
 end
 
+calculate!(integration::HestonGaussLaguerre, ::Float64, f::FJHelper) = integration.integration(f)
 
 function _calculate!(pe::AnalyticHestonEngine, opt::EuropeanOption)
   payoff = opt.payoff
@@ -114,12 +119,19 @@ function _calculate!(pe::AnalyticHestonEngine, opt::EuropeanOption)
 
   term = get_time(process, opt.exercise.dates[end])
 
-  do_calculation!(pe, opt, riskFreeDiscount, dividendYield, spotPrice, strikePrice, term, get_kappa(pe.model),
+  val = do_calculation!(pe, opt, riskFreeDiscount, dividendDiscount, spotPrice, strikePrice, term, get_kappa(pe.model),
                   get_theta(pe.model), get_sigma(pe.model), get_v0(pe.model), get_rho(pe.model), payoff,
                   pe.integration, pe.cpxLog, pe.evaluations)
 
+  opt.results.value = val
   return opt
 end
+
+get_val(::Call, spotPrice::Float64, dividendDiscount::Float64, riskFreeDiscount::Float64, strikePrice::Float64, p1::Float64, p2::Float64) =
+        spotPrice * dividendDiscount * (p1 + 0.5) - strikePrice * riskFreeDiscount * (p2 + 0.5)
+
+get_val(::Put, spotPrice::Float64, dividendDiscount::Float64, riskFreeDiscount::Float64, strikePrice::Float64, p1::Float64, p2::Float64) =
+        spotPrice * dividendDiscount * (p1 - 0.5) - strikePrice * riskFreeDiscount * (p2 - 0.5)
 
 function do_calculation!(pe::AnalyticHestonEngine, opt::EuropeanOption, riskFreeDiscount::Float64, dividendDiscount::Float64,
                         spotPrice::Float64, strikePrice::Float64, term::Float64, kappa::Float64, theta::Float64,
@@ -130,5 +142,13 @@ function do_calculation!(pe::AnalyticHestonEngine, opt::EuropeanOption, riskFree
   c_inf = min(10.0, max(0.0001, sqrt(1.0 - rho^2) / sigma)) * (v0 + kappa * theta * term)
 
   evaluations = 0
+  p1 = calculate!(integration, c_inf, FJHelper(kappa, theta, sigma, v0, spotPrice, rho, pe, cpxLog, term, strikePrice,
+                  ratio, 1)) / pi
+  evaluations += num_evals(integration)
 
+  p2 = calculate!(integration, c_inf, FJHelper(kappa, theta, sigma, v0, spotPrice, rho, pe, cpxLog, term, strikePrice,
+                  ratio, 2)) / pi
+  evaluations += num_evals(integration)
+
+  return get_val(payoff.optionType, spotPrice, dividendDiscount, riskFreeDiscount, strikePrice, p1, p2)
 end

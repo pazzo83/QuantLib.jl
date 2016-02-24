@@ -1,6 +1,7 @@
 abstract Integrator
 abstract GaussianQuadrature
 abstract GaussianOrthogonalPolynomial
+abstract IntegrationFunction
 
 type GaussLaguerrePolynomial <: GaussianOrthogonalPolynomial
   s::Float64
@@ -53,11 +54,22 @@ type GaussLaguerreIntegration <: GaussianQuadrature
   w::Vector{Float64}
 end
 
+function call(gli::GaussLaguerreIntegration, f::IntegrationFunction)
+  sum_ = 0.0
+  @inbounds @simd for i = length(gli.x):-1:1
+    sum_ += gli.w[i] * f(gli.x[i])
+  end
+
+  return sum_
+end
+
 function GaussLaguerreIntegration(n::Int, s::Float64 = 0.0)
   x, w = build_gaussian_quadrature(n, GaussLaguerrePolynomial(s))
 
   return GaussLaguerreIntegration(x, w)
 end
+
+get_order(integration::GaussianQuadrature) = length(integration.x)
 
 function build_gaussian_quadrature(n::Int, poly::GaussianOrthogonalPolynomial)
   x = zeros(n)

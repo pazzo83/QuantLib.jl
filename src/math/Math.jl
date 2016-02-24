@@ -112,7 +112,7 @@ export distribution_derivative
 include("distributions.jl")
 
 # integral.jl
-export Integrator, SegmentIntegral, operator, integrate, GaussLaguerreIntegration
+export Integrator, IntegrationFunction, SegmentIntegral, operator, integrate, GaussLaguerreIntegration, get_order
 include("integral.jl")
 
 # tridiagonal_operator.jl

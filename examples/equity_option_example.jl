@@ -48,4 +48,7 @@ function main()
   hestonModel = HestonModel(hestonProcess)
 
   hestonPE = AnalyticHestonEngine(hestonModel)
+
+  europeanOption = update_pricing_engine(europeanOption, hestonPE)
+  println(npv(europeanOption))
 end
