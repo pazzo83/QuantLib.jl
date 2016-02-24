@@ -8,6 +8,7 @@ abstract LazyObject <: Observer
 abstract StochasticProcess
 abstract StochasticProcess1D <: StochasticProcess
 abstract AbstractBlackScholesProcess <: StochasticProcess1D
+abstract AbstractHestonProcess <: StochasticProcess1D
 abstract AbstractDiscretization
 abstract AbstractHestonDiscretization <: AbstractDiscretization
 
