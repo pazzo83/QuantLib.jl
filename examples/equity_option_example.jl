@@ -51,4 +51,10 @@ function main()
 
   europeanOption = update_pricing_engine(europeanOption, hestonPE)
   println(npv(europeanOption))
+
+  # bates process
+  batesProcess = BatesProcess(flatTermStructure, flatDividendTS, underlyingH, vol * vol, 1.0, vol * vol,
+                              0.001, 0.0, 1e-14, 1e-14, 1e-14)
+
+  batesModel = BatesModel(batesProcess)
 end

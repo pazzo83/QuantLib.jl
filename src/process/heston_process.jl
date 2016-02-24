@@ -1,5 +1,6 @@
 # discretizations
 type QuadraticExponentialMartingale <: AbstractHestonDiscretization end
+type FullTruncation <: AbstractHestonDiscretization end
 
 type HestonProcess{Y1 <: YieldTermStructure, Y2 <: YieldTermStructure, D <: AbstractDiscretization, DH <: AbstractHestonDiscretization} <: AbstractHestonProcess
   s0::Quote

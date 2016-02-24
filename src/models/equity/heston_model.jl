@@ -31,4 +31,4 @@ get_v0(hm::HestonModel) = hm.v0.data[1]
 
 generate_arguments!(hm::HestonModel) =
   hm.process = HestonProcess(hm.process.riskFreeRate, hm.process.dividendYield, hm.process.s0,
-              get_theta(hm), get_kappa(hm), get_sigma(hm), get_rho(hm), get_v0(hm))
+              get_v0(hm), get_kappa(hm), get_theta(hm), get_sigma(hm), get_rho(hm))

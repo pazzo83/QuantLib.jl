@@ -161,6 +161,9 @@ export
     # process/heston_process.jl
     HestonProcess,
 
+    #process/bates_process.jl
+    BatesProcess,
+
     # models/parameter.jl
     ConstantParameter, G2FittingParameter, HullWhiteFittingParameter,
 
@@ -169,6 +172,9 @@ export
 
     # models/equity/heston_model.jl
     HestonModel,
+
+    # models/equity/bates_model.jl
+    BatesModel,
 
     # models/short_rate/short_rate.jl
     PrivateConstraint, test, calibrate!, func_values, value, get_params,
@@ -263,12 +269,14 @@ include("process/discretization.jl")
 include("process/stochastic_process.jl")
 include("process/black_scholes_process.jl")
 include("process/heston_process.jl")
+include("process/bates_process.jl")
 
 # Models ---------------------------------
 include("models/parameter.jl")
 include("models/calibration_helpers.jl")
 include("models/models.jl")
 include("models/equity/heston_model.jl")
+include("models/equity/bates_model.jl")
 include("models/short_rate/short_rate.jl")
 include("models/short_rate/two_factor.jl")
 include("models/short_rate/one_factor/one_factor.jl")

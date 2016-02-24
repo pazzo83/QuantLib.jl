@@ -1,16 +1,28 @@
-type BatesProcess <: AbstractHestonProcess
-  s0::Quote
-  riskFreeRate::Y1
-  dividendYield::Y2
-  v0::Float64
-  kappa::Float64
-  theta::Float64
-  sigma::Float64
-  rho::Float64
+type BatesProcess<: AbstractHestonProcess
+  hestonProcess::HestonProcess
   lambda::Float64
   nu::Float64
   delta::Float64
   m::Float64
-  disc::D
-  hestonDisc::DH
 end
+
+function BatesProcess(riskFreeRate::YieldTermStructure, dividendYield::YieldTermStructure, s0::Quote, v0::Float64,
+                      kappa::Float64, theta::Float64, sigma::Float64, rho::Float64, lambda::Float64, nu::Float64,
+                      delta::Float64, d::AbstractHestonDiscretization = FullTruncation())
+
+  hp = HestonProcess(riskFreeRate, dividendYield, s0, v0, kappa, theta, sigma, rho, d)
+  return BatesProcess(hp, lambda, nu, delta, exp(nu + 0.5 * delta * delta) - 1)
+end
+
+get_risk_free_rate(bp::BatesProcess) = bp.hestonProcess.riskFreeRate
+get_dividend_yield(bp::BatesProcess) = bp.hestonProcess.dividendYield
+get_s0(bp::BatesProcess) = bp.hestonProcess.s0
+get_v0(bp::BatesProcess) = bp.hestonProcess.v0
+get_kappa(bp::BatesProcess) = bp.hestonProcess.kappa
+get_theta(bp::BatesProcess) = bp.hestonProcess.theta
+get_sigma(bp::BatesProcess) = bp.hestonProcess.sigma
+get_rho(bp::BatesProcess) = bp.hestonProcess.rho
+get_nu(bp::BatesProcess) = bp.nu
+get_lambda(bp::BatesProcess) = bp.lambda
+get_delta(bp::BatesProcess) = bp.delta
+get_m(bp::BatesProcess) = bp.m
