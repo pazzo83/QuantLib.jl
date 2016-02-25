@@ -22,4 +22,13 @@ function HestonProcess{Y1 <: YieldTermStructure, Y2 <: YieldTermStructure, D <: 
   return HestonProcess{Y1, Y2, EulerDiscretization, D}(s0, riskFreeRate, dividendYield, v0, kappa, theta, sigma, rho, disc, d)
 end
 
-get_time(process::HestonProcess, d::Date) = year_fraction(process.riskFreeRate.dc, reference_date(process.riskFreeRate), d)
+get_time(process::AbstractHestonProcess, d::Date) = year_fraction(get_risk_free_rate(process).dc, reference_date(get_risk_free_rate(process)), d)
+
+get_risk_free_rate(hp::HestonProcess) = hp.riskFreeRate
+get_dividend_yield(hp::HestonProcess) = hp.dividendYield
+get_s0(hp::HestonProcess) = hp.s0
+get_v0(hp::HestonProcess) = hp.v0
+get_kappa(hp::HestonProcess) = hp.kappa
+get_theta(hp::HestonProcess) = hp.theta
+get_sigma(hp::HestonProcess) = hp.sigma
+get_rho(hp::HestonProcess) = hp.rho

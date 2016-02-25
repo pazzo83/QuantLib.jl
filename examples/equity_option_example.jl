@@ -57,4 +57,9 @@ function main()
                               0.001, 0.0, 1e-14, 1e-14, 1e-14)
 
   batesModel = BatesModel(batesProcess)
+
+  batesPE = BatesEngine(batesModel)
+
+  europeanOption = update_pricing_engine(europeanOption, batesPE)
+  println(npv(europeanOption))
 end

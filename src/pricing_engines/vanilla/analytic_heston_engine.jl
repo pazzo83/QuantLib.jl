@@ -8,7 +8,7 @@ num_evals(integration::HestonGaussLaguerre) = get_order(integration.integration)
 
 type Gatheral <: ComplexLogFormula end
 
-type AnalyticHestonEngine{I <: Integer, C <: ComplexLogFormula, HI <: HestonIntegration} <: PricingEngine
+type AnalyticHestonEngine{I <: Integer, C <: ComplexLogFormula, HI <: HestonIntegration} <: AbstractHestonEngine
   model::HestonModel
   evaluations::I
   cpxLog::C
@@ -26,7 +26,7 @@ end
 add_on_term(engine::AnalyticHestonEngine, ::Real, ::Real, ::Int) = complex(0.0)
 
 # Helper #
-type FJHelper{I <: Integer, C <: ComplexLogFormula} <: IntegrationFunction
+type FJHelper{I <: Integer, C <: ComplexLogFormula, A <: AbstractHestonEngine} <: IntegrationFunction
   j::I
   kappa::Float64
   theta::Float64
@@ -42,7 +42,7 @@ type FJHelper{I <: Integer, C <: ComplexLogFormula} <: IntegrationFunction
   t0::Float64
   b::I
   g_km1::Float64
-  engine::AnalyticHestonEngine
+  engine::A
 end
 
 call(fjh::FJHelper, phi::Float64) = fjh(phi, fjh.cpxLog)
@@ -94,7 +94,7 @@ end
 
 
 function FJHelper(kappa::Float64, theta::Float64, sigma::Float64, v0::Float64, s0::Float64, rho::Float64,
-          engine::AnalyticHestonEngine, cpxLog::ComplexLogFormula, term::Float64, strike::Float64,
+          engine::AbstractHestonEngine, cpxLog::ComplexLogFormula, term::Float64, strike::Float64,
           ratio::Float64, j::Int)
 
   x = log(s0)
@@ -107,14 +107,14 @@ end
 
 calculate!(integration::HestonGaussLaguerre, ::Float64, f::FJHelper) = integration.integration(f)
 
-function _calculate!(pe::AnalyticHestonEngine, opt::EuropeanOption)
+function _calculate!(pe::AbstractHestonEngine, opt::EuropeanOption)
   payoff = opt.payoff
   process = pe.model.process
 
-  riskFreeDiscount = discount(process.riskFreeRate, opt.exercise.dates[end])
-  dividendDiscount = discount(process.dividendYield, opt.exercise.dates[end])
+  riskFreeDiscount = discount(get_risk_free_rate(process), opt.exercise.dates[end])
+  dividendDiscount = discount(get_dividend_yield(process), opt.exercise.dates[end])
 
-  spotPrice = process.s0.value
+  spotPrice = get_s0(process).value
   strikePrice = payoff.strike
 
   term = get_time(process, opt.exercise.dates[end])
@@ -133,7 +133,7 @@ get_val(::Call, spotPrice::Float64, dividendDiscount::Float64, riskFreeDiscount:
 get_val(::Put, spotPrice::Float64, dividendDiscount::Float64, riskFreeDiscount::Float64, strikePrice::Float64, p1::Float64, p2::Float64) =
         spotPrice * dividendDiscount * (p1 - 0.5) - strikePrice * riskFreeDiscount * (p2 - 0.5)
 
-function do_calculation!(pe::AnalyticHestonEngine, opt::EuropeanOption, riskFreeDiscount::Float64, dividendDiscount::Float64,
+function do_calculation!(pe::AbstractHestonEngine, opt::EuropeanOption, riskFreeDiscount::Float64, dividendDiscount::Float64,
                         spotPrice::Float64, strikePrice::Float64, term::Float64, kappa::Float64, theta::Float64,
                         sigma::Float64, v0::Float64, rho::Float64, payoff::PlainVanillaPayoff, integration::HestonIntegration,
                         cpxLog::ComplexLogFormula, evaluations::Int)

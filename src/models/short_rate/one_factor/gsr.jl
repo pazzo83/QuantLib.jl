@@ -1,8 +1,3 @@
-## Consts (might move these to MATH)
-const M_SQRT2 = 1.41421356237309504880168872420969808   # sqrt(2)
-const M_SQRT1_2 = 0.707106781186547524400844362104849039  # 1/sqrt(2)
-const M_SQRTPI = 1.77245385090551602792981
-
 immutable CachedSwapKey
   index::SwapIndex
   fixing::Date

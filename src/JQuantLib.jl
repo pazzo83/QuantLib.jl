@@ -198,7 +198,7 @@ export
     G2SwaptionEngine, JamshidianSwaptionEngine, TreeSwaptionEngine, FdG2SwaptionEngine, FdHullWhiteSwaptionEngine, Gaussian1DSwaptionEngine, Gaussian1DNonstandardSwaptionEngine,
 
     # pricing_engines/vanilla
-    AnalyticEuropeanEngine, AnalyticHestonEngine
+    AnalyticEuropeanEngine, AnalyticHestonEngine, BatesEngine
 
 # abstract types
 include("abstract_types.jl")
@@ -314,6 +314,7 @@ include("pricing_engines/swaptions/gaussian1d_swaption_engine.jl")
 include("pricing_engines/swaptions/gaussian1d_nonstandard_swaption_engine.jl")
 include("pricing_engines/vanilla/analytic_european_engine.jl")
 include("pricing_engines/vanilla/analytic_heston_engine.jl")
+include("pricing_engines/vanilla/bates_engine.jl")
 
 # # Helpers NOW IN TERM STRUCTURE
 # include("helpers/bond_helpers.jl")
