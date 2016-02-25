@@ -1,5 +1,3 @@
-using Distributions
-
 type BlackSwaptionEngine{Y <: YieldTermStructure, S <: SwaptionVolatilityStructure, DC <: DayCount} <: PricingEngine
   yts::Y
   vol::Quote

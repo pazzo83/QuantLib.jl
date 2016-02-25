@@ -1,5 +1,3 @@
-using Distributions
-
 type TwoFactorShortRateTree{S <: ShortRateDynamics} <: ShortRateTree
   tree1::TrinomialTree
   tree2::TrinomialTree

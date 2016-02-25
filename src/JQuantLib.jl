@@ -40,6 +40,7 @@ include("math/Math.jl")
 
 # MAIN MODULE CODE
 using JQuantLib.Math, JQuantLib.Time
+using Distributions
 
 # Constants #
 const basisPoint = 0.0001
@@ -198,7 +199,7 @@ export
     G2SwaptionEngine, JamshidianSwaptionEngine, TreeSwaptionEngine, FdG2SwaptionEngine, FdHullWhiteSwaptionEngine, Gaussian1DSwaptionEngine, Gaussian1DNonstandardSwaptionEngine,
 
     # pricing_engines/vanilla
-    AnalyticEuropeanEngine, AnalyticHestonEngine, BatesEngine
+    AnalyticEuropeanEngine, AnalyticHestonEngine, BatesEngine, BaroneAdesiWhaleyApproximationEngine
 
 # abstract types
 include("abstract_types.jl")
@@ -298,6 +299,7 @@ include("methods/finite_differences/fd_solvers.jl")
 include("pricing_engines/pricing_engines.jl")
 include("pricing_engines/discretized_asset.jl")
 include("pricing_engines/black_calculator.jl")
+include("pricing_engines/black_formula.jl")
 include("pricing_engines/bond/discounting_bond_engine.jl")
 include("pricing_engines/swap/discounting_swap_engine.jl")
 include("pricing_engines/swap/discretized_swap.jl")
@@ -315,6 +317,7 @@ include("pricing_engines/swaptions/gaussian1d_nonstandard_swaption_engine.jl")
 include("pricing_engines/vanilla/analytic_european_engine.jl")
 include("pricing_engines/vanilla/analytic_heston_engine.jl")
 include("pricing_engines/vanilla/bates_engine.jl")
+include("pricing_engines/vanilla/barone_adesi_whaley_engine.jl")
 
 # # Helpers NOW IN TERM STRUCTURE
 # include("helpers/bond_helpers.jl")

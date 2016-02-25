@@ -1,5 +1,3 @@
-using Distributions
-
 type BlackCalculator{S <: StrikedTypePayoff}
   payoff::S
   strike::Float64
@@ -101,7 +99,7 @@ function initialize!(calc::BlackCalculator, p::StrikedTypePayoff)
   calc.DxDs = 0.0
 
   gen_addl_black_vars!(calc, p.optionType)
-  
+
   return calc
 end
 
