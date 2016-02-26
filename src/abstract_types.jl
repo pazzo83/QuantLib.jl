@@ -77,6 +77,7 @@ abstract DiscretizedAsset
 abstract DiscretizedOption <: DiscretizedAsset
 abstract LatticeShortRateModelEngine{S, Y} <: PricingEngine
 abstract AbstractHestonEngine <: PricingEngine
+abstract AbstractFDVanillaEngine <: PricingEngine
 
 # Cash Flows
 abstract CashFlows

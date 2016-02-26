@@ -7,6 +7,7 @@ type TridiagonalOperator{I <: Integer}
 end
 
 TridiagonalOperator(n::Int) = TridiagonalOperator(zeros(n), zeros(n - 1), zeros(n - 1), zeros(n), n)
+TridiagonalOperator() = TridiagonalOperator(Vector{Float64}(), Vector{Float64}(), Vector{Float64}(), Vector{Float64}(), 0)
 TridiagIdentity(n::Int) = TridiagonalOperator(ones(n), zeros(n - 1), zeros(n - 1), n)
 
 function set_first_row!(L::TridiagonalOperator, valB::Float64, valC::Float64)

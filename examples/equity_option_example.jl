@@ -77,4 +77,8 @@ function main()
   integralPE = IntegralEngine(bsmProcess)
   europeanOption = update_pricing_engine(europeanOption, integralPE)
   println(npv(europeanOption))
+
+  # FD Engines
+  timeSteps = 801
+  fdEuroPE = FDEuropeanEngine(bsmProcess, CrankNelson, timeSteps, timeSteps - 1)
 end

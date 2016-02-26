@@ -187,7 +187,7 @@ export
     BlackKarasinski, HullWhite, GSR, calibrate_volatilities_iterative!, get_volatilities,
 
     # methods - finite difference
-    FdmG2Solver,FdmHullWhiteSolver,
+    FdmG2Solver,FdmHullWhiteSolver, CrankNelson,
 
     # pricing_engines/pricing_engines.jl
     DiscountingBondEngine, DiscountingSwapEngine, MidPointCdsEngine,
@@ -199,7 +199,8 @@ export
     G2SwaptionEngine, JamshidianSwaptionEngine, TreeSwaptionEngine, FdG2SwaptionEngine, FdHullWhiteSwaptionEngine, Gaussian1DSwaptionEngine, Gaussian1DNonstandardSwaptionEngine,
 
     # pricing_engines/vanilla
-    AnalyticEuropeanEngine, AnalyticHestonEngine, BatesEngine, BaroneAdesiWhaleyApproximationEngine, BjerksundStenslandApproximationEngine, IntegralEngine
+    AnalyticEuropeanEngine, AnalyticHestonEngine, BatesEngine, BaroneAdesiWhaleyApproximationEngine, BjerksundStenslandApproximationEngine, IntegralEngine,
+    FDEuropeanEngine
 
 # abstract types
 include("abstract_types.jl")
@@ -321,6 +322,7 @@ include("pricing_engines/vanilla/bates_engine.jl")
 include("pricing_engines/vanilla/barone_adesi_whaley_engine.jl")
 include("pricing_engines/vanilla/bjerksund_stensland_engine.jl")
 include("pricing_engines/vanilla/integral_engine.jl")
+include("pricing_engines/vanilla/fd_vanilla_engine.jl")
 
 # # Helpers NOW IN TERM STRUCTURE
 # include("helpers/bond_helpers.jl")

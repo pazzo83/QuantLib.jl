@@ -119,6 +119,10 @@ include("integral.jl")
 export TridiagonalOperator
 include("tridiagonal_operator.jl")
 
+# sampled_curve.jl
+export SampledCurve
+include("sampled_curve.jl")
+
 # interpolation.jl
 export Interpolation, Spline, Lagrange, LogInterpolation, BicubicSpline, NaturalCubicSpline, CubicInterpolation, BackwardFlatInterpolation, update!, locate, initialize!, value, get_primitive
 
