@@ -62,4 +62,19 @@ function main()
 
   europeanOption = update_pricing_engine(europeanOption, batesPE)
   println(npv(europeanOption))
+
+  # American Option
+  baroneAdesiPE = BaroneAdesiWhaleyApproximationEngine(bsmProcess)
+  americanOption = VanillaOption(payoff, americanExercise, baroneAdesiPE)
+  println(npv(americanOption))
+
+  # Bjerksund Stensland engine
+  bjerksundStenslandPE = BjerksundStenslandApproximationEngine(bsmProcess)
+  americanOption = update_pricing_engine(americanOption, bjerksundStenslandPE)
+  println(npv(americanOption))
+
+  # Integral Engine
+  integralPE = IntegralEngine(bsmProcess)
+  europeanOption = update_pricing_engine(europeanOption, integralPE)
+  println(npv(europeanOption))
 end

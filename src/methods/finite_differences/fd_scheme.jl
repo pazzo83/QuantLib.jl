@@ -30,6 +30,38 @@ end
 
 DouglasScheme(theta::Float64, map::FdmLinearOpComposite, bcSet::FdmBoundaryConditionSet) = DouglasScheme(theta, map, bcSet, 0.0)
 
+type MixedScheme <: FdScheme
+  L::TridiagonalOperator
+  Ident::TridiagonalOperator
+  dt::Float64
+  theta::Float64
+  bcSet::FdmBoundaryConditionSet
+  explicitPart::TridiagonalOperator
+  implicitPart::TridiagonalOperator
+
+  function MixedScheme(L::TridiagonalOperator, theta::Float64, bcSet::FdmBoundaryConditionSet)
+    Ident = TridiagIdentity(L.n)
+    dt = 0.0
+    return MixedScheme(L, Ident, dt, theta, bcSet)
+  end
+end
+
+# add'l constructors
+CrankNelson(L::TridiagonalOperator, bcs::FdmBoundaryConditionSet) = MixedScheme(L, 0.5, bcs)
+
+function set_step!(evolver::MixedScheme, dt::Float64)
+  evolver.dt = dt
+  if evolver.theta != 1.0 # there is an explicit part
+    evolver.explicitPart = evolver.Ident - ((1.0 - evolver.theta) * evolver.dt) * evolver.L
+  end
+
+  if evolver.theta != 0.0 # there is an implicit part
+    evolver.implicitPart = evolver.Ident + (evolver.theta * evolver.dt) * evolver.L
+  end
+
+  return evolver
+end    
+
 set_step!(evolver::FdScheme, dt::Float64) = evolver.dt = dt
 
 function step!(evolver::HundsdorferScheme, a::Vector{Float64}, t::Float64)

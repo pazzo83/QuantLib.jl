@@ -100,10 +100,10 @@ export
     BondMixin, FixedRateBond, FloatingRateBond, ZeroCouponBond, value, get_settlement_days, get_settlement_date, notional, accrued_amount, yield, duration, npv, clean_price, dirty_price, accrued_amount,
 
     # instruments/payoff.jl
-    PlainVanillaPayoff,
+    Put, Call, PlainVanillaPayoff,
 
     # instruments/option.jl
-    Put, Call, VanillaOption,
+    VanillaOption,
 
     # instruments/claim.jl
     FaceValueClaim,
@@ -199,7 +199,7 @@ export
     G2SwaptionEngine, JamshidianSwaptionEngine, TreeSwaptionEngine, FdG2SwaptionEngine, FdHullWhiteSwaptionEngine, Gaussian1DSwaptionEngine, Gaussian1DNonstandardSwaptionEngine,
 
     # pricing_engines/vanilla
-    AnalyticEuropeanEngine, AnalyticHestonEngine, BatesEngine, BaroneAdesiWhaleyApproximationEngine
+    AnalyticEuropeanEngine, AnalyticHestonEngine, BatesEngine, BaroneAdesiWhaleyApproximationEngine, BjerksundStenslandApproximationEngine, IntegralEngine
 
 # abstract types
 include("abstract_types.jl")
@@ -286,6 +286,7 @@ include("models/short_rate/one_factor/hull_white.jl")
 include("models/short_rate/one_factor/gsr.jl")
 
 # Finite Difference method
+include("methods/finite_differences/fd_boundary_condition.jl")
 include("methods/finite_differences/fd_layout.jl")
 include("methods/finite_differences/fd_step_condition.jl")
 include("methods/finite_differences/fd_mesher.jl")
@@ -318,6 +319,8 @@ include("pricing_engines/vanilla/analytic_european_engine.jl")
 include("pricing_engines/vanilla/analytic_heston_engine.jl")
 include("pricing_engines/vanilla/bates_engine.jl")
 include("pricing_engines/vanilla/barone_adesi_whaley_engine.jl")
+include("pricing_engines/vanilla/bjerksund_stensland_engine.jl")
+include("pricing_engines/vanilla/integral_engine.jl")
 
 # # Helpers NOW IN TERM STRUCTURE
 # include("helpers/bond_helpers.jl")

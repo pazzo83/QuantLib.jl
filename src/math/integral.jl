@@ -36,7 +36,20 @@ function operator{I <: Integrator}(integrator::I, f::Function, a::Float64, b::Fl
   end
 end
 
-function Math.integrate(integrator::SegmentIntegral, f::Function, a::Float64, b::Float64)
+function call{I <: Integrator}(integrator::I, f::IntegrationFunction, a::Float64, b::Float64)
+  integrator.evals = 0
+  if a == b
+    return 0.0
+  end
+
+  if (b > a)
+    return integrate(integrator, f, a, b)
+  else
+    return -integrate(integrator, f, b, a)
+  end
+end
+
+function Math.integrate(integrator::SegmentIntegral, f::Union{Function, IntegrationFunction}, a::Float64, b::Float64)
   dx = (b - a) / integrator.intervals
   sum_ = 0.5 * (f(a) + f(b))
   end_ = b - 0.5 * dx

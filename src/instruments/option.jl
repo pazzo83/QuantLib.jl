@@ -1,9 +1,3 @@
-type Put <: OptionType end
-type Call <: OptionType end
-
-value(::Put) = -1
-value(::Call) = 1
-
 # type aliases
 typealias EuropeanOption Option{EuropeanExercise}
 typealias AmericanOption Option{AmericanExercise}

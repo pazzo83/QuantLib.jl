@@ -7,6 +7,7 @@ type TridiagonalOperator{I <: Integer}
 end
 
 TridiagonalOperator(n::Int) = TridiagonalOperator(zeros(n), zeros(n - 1), zeros(n - 1), zeros(n), n)
+TridiagIdentity(n::Int) = TridiagonalOperator(ones(n), zeros(n - 1), zeros(n - 1), n)
 
 function set_first_row!(L::TridiagonalOperator, valB::Float64, valC::Float64)
   L.diagonal[1] = valB
@@ -59,4 +60,57 @@ function solve_for!(L::TridiagonalOperator, rhs::Vector{Float64}, result::Vector
   result[1] -= L.temp[2] * result[2]
 
   return L, result
+end
+
+# basic operators
+import Base.+, Base.-, Base.*, Base./
+
+function -(D::TridiagonalOperator)
+  low = -D.lowerDiagonal
+  mid = -D.diagonal
+  high = -D.upperDiagonal
+
+  return TridiagonalOperator(mid, low, high, D.temp, D.n)
+end
+
+function +(D1::TridiagonalOperator, D2::TridiagonalOperator)
+  D1.n == D2.n || error("Dimension mismatch")
+  low = D1.lowerDiagonal + D2.lowerDiagonal
+  mid = D1.diagonal + D2.diagonal
+  high = D1.upperDiagonal + D2.upperDiagonal
+
+  return TridiagonalOperator(mid, low, high, D1.temp, D1.n)
+end
+
+function -(D1::TridiagonalOperator, D2::TridiagonalOperator)
+  D1.n == D2.n || error("Dimension mismatch")
+  low = D1.lowerDiagonal - D2.lowerDiagonal
+  mid = D1.diagonal - D2.diagonal
+  high = D1.upperDiagonal - D2.upperDiagonal
+
+  return TridiagonalOperator(mid, low, high, D1.temp, D1.n)
+end
+
+function *(a::Number, D::TridiagonalOperator)
+  low = D.lowerDiagonal * a
+  mid = D.diagonal * a
+  high = D.upperDiagonal * a
+
+  return TridiagonalOperator(mid, low, high, D.temp, D.n)
+end
+
+function *(D::TridiagonalOperator, a::Number)
+  low = D.lowerDiagonal * a
+  mid = D.diagonal * a
+  high = D.upperDiagonal * a
+
+  return TridiagonalOperator(mid, low, high, D.temp, D.n)
+end
+
+function /(D::TridiagonalOperator, a::Number)
+  low = D.lowerDiagonal / a
+  mid = D.diagonal / a
+  high = D.upperDiagonal / a
+
+  return TridiagonalOperator(mid, low, high, D.temp, D.n)
 end
