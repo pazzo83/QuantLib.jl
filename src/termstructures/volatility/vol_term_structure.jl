@@ -64,6 +64,13 @@ end
 
 LocalConstantVol(refDate::Date, volatility::Float64, dc::DayCount) = LocalConstantVol(refDate, 0, Quote(volatility), dc)
 
+local_vol_impl(volTS::LocalConstantVol, ::Float64, ::Float64) = volTS.volatility.value
+
+function local_vol(volTS::LocalVolTermStructure, t::Float64, underlyingLevel::Float64)
+  # TODO check stuff
+  return local_vol_impl(volTS, t, underlyingLevel)
+end
+
 function black_variance(ovs::OptionletVolatilityStructure, option_date::Date, strike::Float64)
   v = calc_volatility(ovs, option_date, strike)
   t = time_from_reference(ovs, option_date)

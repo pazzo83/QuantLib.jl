@@ -19,8 +19,8 @@ function drift(process::BlackScholesMertonProcess, t::Float64, x::Float64)
   sigma = diffusion(process, t, x)
   t1 = t + 0.0001
 
-  return forward_rate(process.riskFreeRate, t, t1, ContinuousCompounding(), NoFrequency()) -
-          forward_rate(process.dividendYield, t, t1, ContinuousCompounding(), NoFrequency()) -
+  return forward_rate(process.riskFreeRate, t, t1, ContinuousCompounding(), NoFrequency()).rate -
+          forward_rate(process.dividendYield, t, t1, ContinuousCompounding(), NoFrequency()).rate -
           0.5 * sigma * sigma
 end
 
@@ -44,3 +44,5 @@ function evolve(process::BlackScholesMertonProcess, t0::Float64, x0::Float64, dt
 end
 
 state_variable(process::AbstractBlackScholesProcess) = process.x0
+
+get_time(process::AbstractBlackScholesProcess, d::Date) = year_fraction(process.riskFreeRate.dc, reference_date(process.riskFreeRate), d)

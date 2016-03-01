@@ -8,7 +8,7 @@ end
 
 TridiagonalOperator(n::Int) = TridiagonalOperator(zeros(n), zeros(n - 1), zeros(n - 1), zeros(n), n)
 TridiagonalOperator() = TridiagonalOperator(Vector{Float64}(), Vector{Float64}(), Vector{Float64}(), Vector{Float64}(), 0)
-TridiagIdentity(n::Int) = TridiagonalOperator(ones(n), zeros(n - 1), zeros(n - 1), n)
+TridiagIdentity(n::Int) = TridiagonalOperator(ones(n), zeros(n - 1), zeros(n - 1), zeros(n), n)
 
 function set_first_row!(L::TridiagonalOperator, valB::Float64, valC::Float64)
   L.diagonal[1] = valB

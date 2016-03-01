@@ -24,6 +24,7 @@ abstract FdmInnerValueCalculator
 abstract FdmLinearOpComposite
 abstract NinePointLinearOp
 abstract BoundaryConditionType
+abstract BC_Side
 # abstract BoundaryCondition
 
 # Exercise

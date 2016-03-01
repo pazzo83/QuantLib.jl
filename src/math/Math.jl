@@ -103,6 +103,10 @@ const EPS_VAL = eps()
 # utilities.jl
 include("utilities.jl")
 
+# grid.jl
+export bounded_log_grid
+include("grid.jl")
+
 # lmdif2.jl
 export lmdif2!
 include("lmdif2.jl")
@@ -116,11 +120,15 @@ export Integrator, IntegrationFunction, SegmentIntegral, operator, integrate, Ga
 include("integral.jl")
 
 # tridiagonal_operator.jl
-export TridiagonalOperator
+export TridiagonalOperator, TridiagIdentity, set_mid_row!, set_last_row!, set_first_row!
 include("tridiagonal_operator.jl")
 
+# transformed_grid.jl
+export TransformedGrid, LogGrid
+include("transformed_grid.jl")
+
 # sampled_curve.jl
-export SampledCurve
+export SampledCurve, get_size, set_log_grid!, set_grid!, sample!
 include("sampled_curve.jl")
 
 # interpolation.jl

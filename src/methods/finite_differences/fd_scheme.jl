@@ -42,7 +42,7 @@ type MixedScheme <: FdScheme
   function MixedScheme(L::TridiagonalOperator, theta::Float64, bcSet::FdmBoundaryConditionSet)
     Ident = TridiagIdentity(L.n)
     dt = 0.0
-    return MixedScheme(L, Ident, dt, theta, bcSet)
+    return new(L, Ident, dt, theta, bcSet)
   end
 end
 
@@ -60,7 +60,7 @@ function set_step!(evolver::MixedScheme, dt::Float64)
   end
 
   return evolver
-end    
+end
 
 set_step!(evolver::FdScheme, dt::Float64) = evolver.dt = dt
 

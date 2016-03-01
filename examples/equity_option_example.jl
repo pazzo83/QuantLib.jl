@@ -81,4 +81,7 @@ function main()
   # FD Engines
   timeSteps = 801
   fdEuroPE = FDEuropeanEngine(bsmProcess, CrankNelson, timeSteps, timeSteps - 1)
+  europeanOption = update_pricing_engine(europeanOption, fdEuroPE)
+  println(npv(europeanOption))
+  europeanOption
 end

@@ -6,6 +6,11 @@ type FiniteDifferenceModel{T}
   FiniteDifferenceModel{T}(evolver::T, stoppingTimes::Vector{Float64}) = new(evolver, sort(unique(stoppingTimes)))
 end
 
+function FiniteDifferenceModel(L::TridiagonalOperator, BCs::Vector{BoundaryCondition}, evolverFunc::Function)
+  evolver = evolverFunc(L, FdmBoundaryConditionSet(BCs))
+  return FiniteDifferenceModel{typeof(evolver)}(evolver, Vector{Float64}())
+end
+
 function rollback_impl!(model::FiniteDifferenceModel, a::Vector{Float64}, from::Float64, to::Float64, steps::Int, condition::StepCondition)
   dt = (from - to) / steps
   t = from

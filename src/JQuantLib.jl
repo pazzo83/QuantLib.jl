@@ -288,6 +288,8 @@ include("models/short_rate/one_factor/gsr.jl")
 
 # Finite Difference method
 include("methods/finite_differences/fd_boundary_condition.jl")
+include("methods/finite_differences/fd_pde.jl")
+include("methods/finite_differences/fd_bsm_operator.jl")
 include("methods/finite_differences/fd_layout.jl")
 include("methods/finite_differences/fd_step_condition.jl")
 include("methods/finite_differences/fd_mesher.jl")
