@@ -62,6 +62,36 @@ function set_step!(evolver::MixedScheme, dt::Float64)
   return evolver
 end
 
+function step!(evolver::MixedScheme, a::Vector{Float64}, t::Float64)
+  for i in eachindex(evolver.bcSet.conditions)
+    set_time!(evolver.bcSet.conditions[i], t)
+  end
+
+  if evolver.theta != 1.0 # there is an explicit part
+    # TODO Tridiagonal time dependent
+    for i in eachindex(evolver.bcSet.conditions)
+      apply_before_applying!(evolver.bcSet.conditions[i], evolver.explicitPart)
+    end
+    a[:] = apply_to(evolver.explicitPart, a)
+    for i in eachindex(evolver.bcSet.conditions)
+      apply_after_applying!(evolver.bcSet.conditions[i], a)
+    end
+  end
+
+  if evolver.theta != 0.0 # there is an implicit part
+    # TODO Tridiagonal time dependent
+    for i in eachindex(evolver.bcSet.conditions)
+      apply_before_solving!(evolver.bcSet.conditions[i], evolver.implicitPart, a)
+    end
+    solve_for!(evolver.implicitPart, a, a)
+    for i in eachindex(evolver.bcSet.conditions)
+      apply_after_solving!(evolver.bcSet.conditions[i], a)
+    end
+  end
+
+  return a, evolver
+end
+
 set_step!(evolver::FdScheme, dt::Float64) = evolver.dt = dt
 
 function step!(evolver::HundsdorferScheme, a::Vector{Float64}, t::Float64)

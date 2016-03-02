@@ -18,3 +18,40 @@ function Math.sample!{T}(curve::SampledCurve, f::T)
 
   return curve
 end
+
+function value_at_center(curve::SampledCurve)
+  n = get_size(curve)
+  jmid = round(Int, floor(n / 2)) + 1
+  if n % 2 == 1
+    return curve.values[jmid]
+  else
+    return (curve.values[jmid] + curve.values[jmid-1]) / 2.0
+  end
+end
+
+function first_derivative_at_center(curve::SampledCurve)
+  n = get_size(curve)
+  n >= 3 || error("the size of the curve must be at least 3")
+  jmid = round(Int, floor(n / 2)) + 1
+  if n % 2 == 1
+    return (curve.values[jmid+1] - curve.values[jmid-1]) / (curve.grid[jmid+1] - curve.grid[jmid-1])
+  else
+    return (curve.values[jmid] - curve.values[jmid-1]) / (curve.grid[jmid] - curve.grid[jmid-1])
+  end
+end
+
+function second_derivative_at_center(curve::SampledCurve)
+  n = get_size(curve)
+  n >= 4 || error("the size of the curve must be at least 4")
+  jmid = round(Int, floor(n / 2)) + 1
+  if n % 2 == 1
+    deltaPlus = (curve.values[jmid+1] - curve.values[jmid]) / (curve.grid[jmid+1] - curve.grid[jmid])
+    deltaMinus = (curve.values[jmid] - curve.values[jmid-1]) / (curve.grid[jmid] - curve.grid[jmid-1])
+    dS = (curve.grid[jmid + 1] - curve.grid[jmid-1]) / 2.0
+    return (deltaPlus - deltaMinus) / dS
+  else
+    deltaPlus = (curve.values[jmid+1] - curve.values[jmid-1]) / (curve.grid[jmid+1] - curve.grid[jmid-1])
+    deltaMinus = (curve.values[jmid] - curve.values[jmid-2]) / (curve.grid[jmid] - curve.grid[jmid-2])
+    return (deltaPlus - deltaMinus) / (curve.grid[jmid] - curve.grid[jmid-1])
+  end
+end

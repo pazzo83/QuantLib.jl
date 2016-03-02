@@ -63,6 +63,21 @@ function solve_for!(L::TridiagonalOperator, rhs::Vector{Float64}, result::Vector
   return L, result
 end
 
+function apply_to(L::TridiagonalOperator, v::Vector{Float64})
+  L.n == length(v) || error("v of incorrect length")
+
+  res = L.diagonal .* v
+
+  res[1] = L.upperDiagonal[1] * v[2]
+  for j = 2:L.n - 1
+    res[j] += L.lowerDiagonal[j-1] * v[j-1] + L.upperDiagonal[j] * v[j+1]
+  end
+
+  res[end] += L.lowerDiagonal[end-1] * v[end-1]
+
+  return res
+end
+
 # basic operators
 import Base.+, Base.-, Base.*, Base./
 

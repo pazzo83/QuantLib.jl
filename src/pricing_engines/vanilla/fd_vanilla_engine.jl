@@ -98,8 +98,8 @@ function initialize_initial_condition!(pe::AbstractFDVanillaEngine, opt::Vanilla
 end
 
 function initialize_boundary_conditions!(pe::AbstractFDVanillaEngine)
-  pe.BCs[1] = NeumannBC(pe.intrinsicValues.values[2] - pe.intrinsicValues.values[1], LowerSide())
-  pe.BCs[2] = NeumannBC(pe.intrinsicValues.values[end] - pe.intrinsicValues.values[end - 1], UpperSide())
+  pe.BCs[1] = build_NeumannBC(pe.intrinsicValues.values[2] - pe.intrinsicValues.values[1], LowerSide())
+  pe.BCs[2] = build_NeumannBC(pe.intrinsicValues.values[end] - pe.intrinsicValues.values[end - 1], UpperSide())
 
   return pe
 end
@@ -116,5 +116,12 @@ function _calculate!(pe::FDEuropeanEngine, opt::EuropeanOption)
   initialize_boundary_conditions!(pe)
 
   model = FiniteDifferenceModel(pe.finiteDifferenceOperator, pe.BCs, pe.fdEvolverFunc)
+
+  pe.prices = pe.intrinsicValues
+
+  rollback!(model, pe.prices.values, get_residual_time(pe), 0.0, pe.timeSteps)
+  opt.results.value = value_at_center(pe.prices)
+  opt.results.delta = first_derivative_at_center(pe.prices)
+  opt.results.gamma = second_derivative_at_center(pe.prices)
   return pe, opt
 end

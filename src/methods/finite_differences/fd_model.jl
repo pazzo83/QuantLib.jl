@@ -62,4 +62,4 @@ function rollback_impl!(model::FiniteDifferenceModel, a::Vector{Float64}, from::
   return model, a
 end
 
-rollback!(model::FiniteDifferenceModel, a::Vector{Float64}, from::Float64, to::Float64, steps::Int, condition::StepCondition) = rollback_impl!(model, a, from, to, steps, condition)
+rollback!(model::FiniteDifferenceModel, a::Vector{Float64}, from::Float64, to::Float64, steps::Int, condition::StepCondition = FdmNullStepCondition()) = rollback_impl!(model, a, from, to, steps, condition)

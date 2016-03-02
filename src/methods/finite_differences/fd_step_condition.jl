@@ -1,3 +1,8 @@
+# Null
+type FdmNullStepCondition <: StepCondition end
+
+apply_to!(cond::FdmNullStepCondition, ::Vector{Float64}, ::Float64) = cond
+
 type FdmDividendHandler{F <: FdmMesher, I <: Integer} <: StepCondition
   x::Vector{Float64}
   dividendTimes::Vector{Float64}

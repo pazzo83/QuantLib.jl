@@ -120,7 +120,7 @@ export Integrator, IntegrationFunction, SegmentIntegral, operator, integrate, Ga
 include("integral.jl")
 
 # tridiagonal_operator.jl
-export TridiagonalOperator, TridiagIdentity, set_mid_row!, set_last_row!, set_first_row!
+export TridiagonalOperator, TridiagIdentity, set_mid_row!, set_last_row!, set_first_row!, apply_to, solve_for!
 include("tridiagonal_operator.jl")
 
 # transformed_grid.jl
@@ -128,7 +128,7 @@ export TransformedGrid, LogGrid
 include("transformed_grid.jl")
 
 # sampled_curve.jl
-export SampledCurve, get_size, set_log_grid!, set_grid!, sample!
+export SampledCurve, get_size, set_log_grid!, set_grid!, sample!, value_at_center, first_derivative_at_center, second_derivative_at_center
 include("sampled_curve.jl")
 
 # interpolation.jl
