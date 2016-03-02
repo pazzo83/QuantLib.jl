@@ -407,22 +407,22 @@ function main()
   end
 end
 
-function main2()
-  settlement_date = Date(2008, 9, 18)
-  calendar = QuantLib.Time.USGovernmentBondCalendar()
-  set_eval_date!(settings, settlement_date - Base.Dates.Day(3))
-
-  yts = generate_discounting_ts(settlement_date)
-  pe = DiscountingBondEngine(yts)
-
-  # build zero coupon bond
-  zcb = ZeroCouponBond(3, calendar, 100.0, Date(2013, 8, 15), QuantLib.Time.Following(), 116.92, Date(2003, 8, 15), pe)
-
-  # println(npv(zcb, pricing_engine, yts))
-  # println(clean_price(zcb))
-  # println(dirty_price(zcb))
-  return npv(zcb, zcb.pricingEngine), clean_price(zcb), dirty_price(zcb)
-end
+# function main2()
+#   settlement_date = Date(2008, 9, 18)
+#   calendar = QuantLib.Time.USGovernmentBondCalendar()
+#   set_eval_date!(settings, settlement_date - Base.Dates.Day(3))
+#
+#   yts = generate_discounting_ts(settlement_date)
+#   pe = DiscountingBondEngine(yts)
+#
+#   # build zero coupon bond
+#   zcb = ZeroCouponBond(3, calendar, 100.0, Date(2013, 8, 15), QuantLib.Time.Following(), 116.92, Date(2003, 8, 15), pe)
+#
+#   # println(npv(zcb, pricing_engine, yts))
+#   # println(clean_price(zcb))
+#   # println(dirty_price(zcb))
+#   return npv(zcb, zcb.pricingEngine), clean_price(zcb), dirty_price(zcb)
+# end
 
 function main3()
   settlement_date = Date(2008, 9, 18)
