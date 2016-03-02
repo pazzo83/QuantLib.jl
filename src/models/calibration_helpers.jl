@@ -105,8 +105,8 @@ function perform_calculations!(swaptionHelper::SwaptionHelper)
 
   endDate = swaptionHelper.endDate == Date() ? advance(swaptionHelper.swapLength, calendar, startDate, convention) : swaptionHelper.endDate
 
-  fixedSchedule = JQuantLib.Time.Schedule(startDate, endDate, swaptionHelper.fixedLegTenor, convention, convention, JQuantLib.Time.DateGenerationForwards(), false, calendar)
-  floatSchedule = JQuantLib.Time.Schedule(startDate, endDate, swaptionHelper.iborIndex.tenor, convention, convention, JQuantLib.Time.DateGenerationForwards(), false, calendar)
+  fixedSchedule = QuantLib.Time.Schedule(startDate, endDate, swaptionHelper.fixedLegTenor, convention, convention, QuantLib.Time.DateGenerationForwards(), false, calendar)
+  floatSchedule = QuantLib.Time.Schedule(startDate, endDate, swaptionHelper.iborIndex.tenor, convention, convention, QuantLib.Time.DateGenerationForwards(), false, calendar)
 
   swapEngine = DiscountingSwapEngine(swaptionHelper.yts, false)
 

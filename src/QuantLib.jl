@@ -1,5 +1,5 @@
-# JQuantLib
-module JQuantLib
+# QuantLib
+module QuantLib
 
 # functions overridden from based
 import Base.findprev, Base.findnext
@@ -39,7 +39,7 @@ include("time/Time.jl")
 include("math/Math.jl")
 
 # MAIN MODULE CODE
-using JQuantLib.Math, JQuantLib.Time
+using QuantLib.Math, QuantLib.Time
 using Distributions
 
 # Constants #

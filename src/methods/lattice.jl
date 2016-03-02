@@ -217,7 +217,7 @@ end
 function partial_rollback!(lattice::TreeLattice, asset::DiscretizedAsset, t::Float64)
   from = asset.common.time
 
-  if JQuantLib.Math.is_close(from, t)
+  if QuantLib.Math.is_close(from, t)
     return
   end
 

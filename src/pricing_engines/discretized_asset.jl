@@ -29,7 +29,7 @@ function adjust_values!(dAsset::DiscretizedAsset)
 end
 
 function pre_adjust_values!(dAsset::DiscretizedAsset)
-  if ~JQuantLib.Math.close_enough(dAsset.common.time, dAsset.common.latestPreAdjustment)
+  if ~QuantLib.Math.close_enough(dAsset.common.time, dAsset.common.latestPreAdjustment)
     pre_adjust_values_impl!(dAsset)
     dAsset.common.latestPreAdjustment = dAsset.common.time
   end
@@ -38,7 +38,7 @@ function pre_adjust_values!(dAsset::DiscretizedAsset)
 end
 
 function post_adjust_values!(dAsset::DiscretizedAsset)
-  if ~JQuantLib.Math.close_enough(dAsset.common.time, dAsset.common.latestPostAdjustment)
+  if ~QuantLib.Math.close_enough(dAsset.common.time, dAsset.common.latestPostAdjustment)
     post_adjust_values_impl!(dAsset)
     dAsset.common.latestPostAdjustment = dAsset.common.time
   end
@@ -53,7 +53,7 @@ end
 
 function is_on_time(dAsset::DiscretizedAsset, t::Float64)
   grid = dAsset.common.method.tg
-  return JQuantLib.Math.close_enough(grid.times[findfirst(grid.times .>= t)], dAsset.common.time)
+  return QuantLib.Math.close_enough(grid.times[findfirst(grid.times .>= t)], dAsset.common.time)
 end
 
 function rollback!(dAsset::DiscretizedAsset, t::Float64)

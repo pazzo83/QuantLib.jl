@@ -33,7 +33,7 @@ end
 
 # private methods to calculate compound factor based on compounding type
 _compound_factor{F <: Frequency}(::SimpleCompounding, rate::Float64, time_frac::Float64, ::F) = 1.0 + rate * time_frac
-_compound_factor{F <: Frequency}(::CompoundedCompounding, rate::Float64, time_frac::Float64, freq::F) = (1.0 + rate / JQuantLib.Time.value(freq)) ^ (JQuantLib.Time.value(freq) * time_frac)
+_compound_factor{F <: Frequency}(::CompoundedCompounding, rate::Float64, time_frac::Float64, freq::F) = (1.0 + rate / QuantLib.Time.value(freq)) ^ (QuantLib.Time.value(freq) * time_frac)
 _compound_factor{F <: Frequency}(::ContinuousCompounding, rate::Float64, time_frac::Float64, ::F) = exp(rate * time_frac)
 _compound_factor{F <: Frequency}(::SimpleThenCompounded, rate::Float64, time_frac::Float64, freq::F) =
   time_frac <= 1.0 ? _compound_factor(SimpleCompounding(), rate, time_frac, freq) : _compound_factor(CompoundedCompounding(), rate, time_frac, freq)
@@ -63,7 +63,7 @@ end
 
 # methods to calcualte the implied rate based on compounding type
 _implied_rate{F <: Frequency}(::SimpleCompounding, compound::Float64, time_frac::Float64, ::F) = (compound - 1.0) / time_frac
-_implied_rate{F <: Frequency}(::CompoundedCompounding, compound::Float64, time_frac::Float64, freq::F) = (compound ^ (1.0 / JQuantLib.Time.value(freq) * time_frac) - 1.0) * JQuantLib.Time.value(freq)
+_implied_rate{F <: Frequency}(::CompoundedCompounding, compound::Float64, time_frac::Float64, freq::F) = (compound ^ (1.0 / QuantLib.Time.value(freq) * time_frac) - 1.0) * QuantLib.Time.value(freq)
 _implied_rate{F <: Frequency}(::ContinuousCompounding, compound::Float64, time_frac::Float64, ::F) = log(compound) / time_frac
 _implied_rate{F <: Frequency}(::SimpleThenCompounded, compound::Float64, time_frac::Float64, freq::F) =
   time_frac <= 1.0 ? _implied_rate(SimpleCompounding(), compound, time_frac, freq) : _implied_rate(CompoundedCompounding(), compound, time_frac, freq)

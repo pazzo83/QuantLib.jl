@@ -12,7 +12,7 @@ function SwapRateHelper{PrT <: Dates.Period, C <: BusinessCalendar, F <: Frequen
   fixedCal = cal
   floatingCal = cal
   floatTenor = iborIndex.tenor
-  fixedTenor = JQuantLib.Time.TenorPeriod(fixedFrequency)
+  fixedTenor = QuantLib.Time.TenorPeriod(fixedFrequency)
   fixedTermConvention = fixedConvention
   floatConvention = iborIndex.convention
   floatTermConvention = iborIndex.convention

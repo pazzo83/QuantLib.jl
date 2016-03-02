@@ -1,4 +1,4 @@
-# JQuantLib Time module
+# QuantLib Time module
 module Time
 
 # Date helper funcs

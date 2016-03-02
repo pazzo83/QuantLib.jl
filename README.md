@@ -1,10 +1,10 @@
-# JQuantLib
+# QuantLib
 
-[![Build Status](https://travis-ci.org/pazzo83/JQuantLib.jl.svg?branch=master)](https://travis-ci.org/pazzo83/JQuantLib.jl)
+[![Build Status](https://travis-ci.org/pazzo83/QuantLib.jl.svg?branch=master)](https://travis-ci.org/pazzo83/QuantLib.jl)
 
 This package aims to provide a pure Julia version of the popular open source library QuantLib (written in C++ and interfaced with other languages via SWIG).  Right now the package is in an alpha state, but there is quite a bit of functionality already.
 
-The package essentially contains the main JQuantLib module and two sub-modules for various time-based and math-based operations.  Below is a fairly up-to-date status of what is included.
+The package essentially contains the main QuantLib module and two sub-modules for various time-based and math-based operations.  Below is a fairly up-to-date status of what is included.
 
 ### Math
 Interpolations:
@@ -126,22 +126,22 @@ Yield:
 ## Example
 ### Price a fixed rate Bond
 ```julia
-using JQuantLib
+using QuantLib
 
 settlement_date = Date(2008, 9, 18) # construct settlement date
 # settings is a global singleton that contains global settings
 set_eval_date!(settings, settlement_date - Dates.Day(3))
 
 # settings that we will need to construct the yield curve
-freq = JQuantLib.Time.Semiannual()
-tenor = JQuantLib.Time.TenorPeriod(freq)
-conv = JQuantLib.Time.Unadjusted()
-conv_depo = JQuantLib.Time.ModifiedFollowing()
-rule = JQuantLib.Time.DateGenerationBackwards()
-calendar = JQuantLib.Time.USGovernmentBondCalendar()
-dc_depo = JQuantLib.Time.Actual365()
-dc = JQuantLib.Time.ISDAActualActual()
-dc_bond = JQuantLib.Time.ISMAActualActual()
+freq = QuantLib.Time.Semiannual()
+tenor = QuantLib.Time.TenorPeriod(freq)
+conv = QuantLib.Time.Unadjusted()
+conv_depo = QuantLib.Time.ModifiedFollowing()
+rule = QuantLib.Time.DateGenerationBackwards()
+calendar = QuantLib.Time.USGovernmentBondCalendar()
+dc_depo = QuantLib.Time.Actual365()
+dc = QuantLib.Time.ISDAActualActual()
+dc_bond = QuantLib.Time.ISMAActualActual()
 fixing_days = 3
 
 # build depos
@@ -161,7 +161,7 @@ market_quotes = [100.390625, 106.21875, 100.59375, 101.6875, 102.140625]
 insts = Vector{BootstrapHelper}(length(depo_rates) + length(issue_dates))
 for i = 1:length(depo_rates)
   depo_quote = Quote(depo_rates[i])
-  depo_tenor = JQuantLib.Time.TenorPeriod(depo_tens[i])
+  depo_tenor = QuantLib.Time.TenorPeriod(depo_tens[i])
   depo = DepositRateHelper(depo_quote, depo_tenor, fixing_days, calendar, conv_depo, true, dc_depo)
   insts[i] = depo
 end
@@ -171,14 +171,14 @@ for i =1:length(coupon_rates)
   rate = coupon_rates[i]
   issue_date = issue_dates[i]
   market_quote = market_quotes[i]
-  sched = JQuantLib.Time.Schedule(issue_date, term_date, tenor, conv, conv, rule, true)
+  sched = QuantLib.Time.Schedule(issue_date, term_date, tenor, conv, conv, rule, true)
   bond = FixedRateBondHelper(Quote(market_quote), FixedRateBond(3, 100.0, sched, rate, dc_bond, conv,
                             100.0, issue_date, calendar, DiscountingBondEngine()))
   insts[i + length(depo_rates)] = bond
 end
 
 # Construct the Yield Curve
-interp = JQuantLib.Math.LogInterpolation()
+interp = QuantLib.Math.LogInterpolation()
 trait = Discount()
 bootstrap = IterativeBootstrap()
 yts = PiecewiseYieldCurve(settlement_date, insts, dc, interp, trait, 0.00000000001, bootstrap)
@@ -190,15 +190,15 @@ calculate!(yts)
 settlement_days = 3
 face_amount = 100.0
 
-fixed_schedule = JQuantLib.Time.Schedule(Date(2007, 5, 15), Date(2017, 5, 15),
-                JQuantLib.Time.TenorPeriod(JQuantLib.Time.Semiannual()), JQuantLib.Time.Unadjusted(),
-                JQuantLib.Time.Unadjusted(), JQuantLib.Time.DateGenerationBackwards(), false,
-                JQuantLib.Time.USGovernmentBondCalendar())
+fixed_schedule = QuantLib.Time.Schedule(Date(2007, 5, 15), Date(2017, 5, 15),
+                QuantLib.Time.TenorPeriod(QuantLib.Time.Semiannual()), QuantLib.Time.Unadjusted(),
+                QuantLib.Time.Unadjusted(), QuantLib.Time.DateGenerationBackwards(), false,
+                QuantLib.Time.USGovernmentBondCalendar())
 
 pe = DiscountingBondEngine(yts)
 
 fixedrate_bond = FixedRateBond(settlement_days, face_amount, fixed_schedule, 0.045,
-                  JQuantLib.Time.ISMAActualActual(), JQuantLib.Time.ModifiedFollowing(), 100.0,
+                  QuantLib.Time.ISMAActualActual(), QuantLib.Time.ModifiedFollowing(), 100.0,
                   Date(2007, 5, 15), fixed_schedule.cal, pe)
 
 # Calculate NPV

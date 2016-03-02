@@ -1,7 +1,7 @@
 # cash_flows.jl
 # module CF
 
-using JQuantLib.Time, JQuantLib.Math
+using QuantLib.Time, QuantLib.Math
 
 # BlackIborCouponPricer() = BlackIborCouponPricer(0.0, 0.0, false)
 
@@ -286,7 +286,7 @@ end
 
 ## Duration Calculations ##
 modified_duration_calc{F <: Frequency}(::SimpleCompounding, c::Float64, B::Float64, t::Float64, ::Float64, ::F) = c * B * B * t
-modified_duration_calc{F <: Frequency}(::CompoundedCompounding, c::Float64, B::Float64, t::Float64, r::Float64, N::F) = c * t * B / (1 + r / JQuantLib.Time.value(N))
+modified_duration_calc{F <: Frequency}(::CompoundedCompounding, c::Float64, B::Float64, t::Float64, r::Float64, N::F) = c * t * B / (1 + r / QuantLib.Time.value(N))
 modified_duration_calc{F <: Frequency}(::ContinuousCompounding, c::Float64, B::Float64, t::Float64, ::Float64, ::F) = c * B * t
 modified_duration_calc{F <: Frequency}(::SimpleThenCompounded, c::Float64, B::Float64, t::Float64, r::Float64, N::F) =
   t <= 1.0 / N ? modified_duration_calc(Simple(), c, B, t, r, N) : modified_duration_calc(CompoundedCompounding(), c, B, t, r, N)
@@ -490,7 +490,7 @@ function yield{L <: Leg, DC <: DayCount, C <: CompoundingType, F <: Frequency, I
   solver = NewtonSolver(max_iter)
   obj_fun = IRRFinder(leg, npv, dc, compounding, freq, include_settlement_cf, settlement_date, npv_date)
 
-  return solve(solver, JQuantLib.operator(obj_fun), accuracy, guess, guess / 10.0)
+  return solve(solver, QuantLib.operator(obj_fun), accuracy, guess, guess / 10.0)
 end
 
 ## ITERATORS ##

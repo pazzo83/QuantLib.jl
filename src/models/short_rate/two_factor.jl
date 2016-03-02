@@ -212,7 +212,7 @@ function gen_swaption{I <: Integer}(model::G2, swaption::Swaption, fixedRate::Fl
   lower = func.mux - range * func.sigmax
 
   integrator = SegmentIntegral(intervals)
-  return swaption.swap.nominal * w * discount(model.ts, startTime) * JQuantLib.Math.operator(integrator, JQuantLib.operator(func), lower, upper)
+  return swaption.swap.nominal * w * discount(model.ts, startTime) * QuantLib.Math.operator(integrator, QuantLib.operator(func), lower, upper)
 end
 
 discount_bond(model::G2, t::Float64, T::Float64, x::Float64, y::Float64) = A(model, t, T) * exp(-B(model, get_a(model), (T - t)) * x - B(model, get_b(model), (T - t)) * y)

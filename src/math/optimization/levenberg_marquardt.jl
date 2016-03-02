@@ -73,7 +73,7 @@ function minimize!(lm::LevenbergMarquardt, p::Problem, endCriteria::EndCriteria)
   # res = lmfit(fcn2, xx, endCriteria.maxIterations)
 
   # current value is already set
-  p.functionValue = JQuantLib.value(p.costFunction, x)
+  p.functionValue = QuantLib.value(p.costFunction, x)
 
   return p
 end

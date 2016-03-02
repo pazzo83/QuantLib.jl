@@ -28,7 +28,7 @@ build_script:
 # Need to convert from shallow to complete for Pkg.clone to work
   - IF EXIST .git\shallow (git fetch --unshallow)
   - C:\projects\julia\bin\julia -e "versioninfo();
-      Pkg.clone(pwd(), \"JQuantLib\"); Pkg.build(\"JQuantLib\")"
+      Pkg.clone(pwd(), \"QuantLib\"); Pkg.build(\"QuantLib\")"
 
 test_script:
-  - C:\projects\julia\bin\julia --check-bounds=yes -e "Pkg.test(\"JQuantLib\")"
+  - C:\projects\julia\bin\julia --check-bounds=yes -e "Pkg.test(\"QuantLib\")"

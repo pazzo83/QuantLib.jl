@@ -1,21 +1,21 @@
-using JQuantLib
+using QuantLib
 
 const numRows = 5
 const numCols = 5
 const swaptionVols = [0.1490, 0.1340, 0.1228, 0.1189, 0.1148, 0.1290, 0.1201, 0.1146, 0.1108, 0.1040, 0.1149, 0.1112, 0.1070, 0.1010, 0.0957, 0.1047, 0.1021, 0.0980, 0.0951, 0.1270, 0.1000, 0.0950, 0.0900, 0.1230, 0.1160]
 const swaptionLengths = [Dates.Year(1), Dates.Year(2), Dates.Year(3), Dates.Year(4), Dates.Year(5)]
 
-function generate_flatforward_ts{C <: JQuantLib.Time.BusinessCalendar}(cal::C, settlementDate::Date)
+function generate_flatforward_ts{C <: QuantLib.Time.BusinessCalendar}(cal::C, settlementDate::Date)
   flat_rate = Quote(0.04875825)
 
-  ffts = FlatForwardTermStructure(settlementDate, cal, flat_rate, JQuantLib.Time.Actual365())
+  ffts = FlatForwardTermStructure(settlementDate, cal, flat_rate, QuantLib.Time.Actual365())
 
   return ffts
 end
 
 function calibrate_model{M <: ShortRateModel}(model::M, helpers::Vector{SwaptionHelper})
-  om = JQuantLib.Math.LevenbergMarquardt()
-  calibrate!(model, helpers, om, JQuantLib.Math.EndCriteria(400, 100, 1.0e-8, 1.0e-8, 1.0e-8))
+  om = QuantLib.Math.LevenbergMarquardt()
+  calibrate!(model, helpers, om, QuantLib.Math.EndCriteria(400, 100, 1.0e-8, 1.0e-8, 1.0e-8))
 
   for i=1:numRows
     j = numCols - (i - 1)
@@ -31,7 +31,7 @@ end
 
 
 function main()
-  cal = JQuantLib.Time.TargetCalendar()
+  cal = QuantLib.Time.TargetCalendar()
   settlementDate = Date(2002, 2, 19)
   todays_date = Date(2002, 2, 15)
   set_eval_date!(settings, todays_date)
@@ -42,21 +42,21 @@ function main()
   rhTermStructure = generate_flatforward_ts(cal, settlementDate)
 
   # Define the ATM/OTM/ITM swaps
-  fixedLegFrequency = JQuantLib.Time.Annual()
-  fixedLegConvention = JQuantLib.Time.Unadjusted()
-  floatingLegConvention = JQuantLib.Time.ModifiedFollowing()
-  fixedLegDayCounter = JQuantLib.Time.EuroThirty360()
-  floatingLegFrequency = JQuantLib.Time.Semiannual()
+  fixedLegFrequency = QuantLib.Time.Annual()
+  fixedLegConvention = QuantLib.Time.Unadjusted()
+  floatingLegConvention = QuantLib.Time.ModifiedFollowing()
+  fixedLegDayCounter = QuantLib.Time.EuroThirty360()
+  floatingLegFrequency = QuantLib.Time.Semiannual()
 
   swapType = Payer()
   dummyFixedRate = 0.03
-  indexSixMonths = euribor_index(JQuantLib.Time.TenorPeriod(Dates.Month(6)), rhTermStructure)
+  indexSixMonths = euribor_index(QuantLib.Time.TenorPeriod(Dates.Month(6)), rhTermStructure)
 
-  startDate = JQuantLib.Time.advance(Dates.Year(1), cal, settlementDate, floatingLegConvention)
-  maturity = JQuantLib.Time.advance(Dates.Year(5), cal, startDate, floatingLegConvention)
+  startDate = QuantLib.Time.advance(Dates.Year(1), cal, settlementDate, floatingLegConvention)
+  maturity = QuantLib.Time.advance(Dates.Year(5), cal, startDate, floatingLegConvention)
 
-  fixedSchedule = JQuantLib.Time.Schedule(startDate, maturity, JQuantLib.Time.TenorPeriod(fixedLegFrequency), fixedLegConvention, fixedLegConvention, JQuantLib.Time.DateGenerationForwards(), false, cal)
-  floatSchedule = JQuantLib.Time.Schedule(startDate, maturity, JQuantLib.Time.TenorPeriod(floatingLegFrequency), floatingLegConvention, floatingLegConvention, JQuantLib.Time.DateGenerationForwards(), false, cal)
+  fixedSchedule = QuantLib.Time.Schedule(startDate, maturity, QuantLib.Time.TenorPeriod(fixedLegFrequency), fixedLegConvention, fixedLegConvention, QuantLib.Time.DateGenerationForwards(), false, cal)
+  floatSchedule = QuantLib.Time.Schedule(startDate, maturity, QuantLib.Time.TenorPeriod(floatingLegFrequency), floatingLegConvention, floatingLegConvention, QuantLib.Time.DateGenerationForwards(), false, cal)
 
   swap = VanillaSwap(swapType, 1000.0, fixedSchedule, dummyFixedRate, fixedLegDayCounter, indexSixMonths, 0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine(rhTermStructure))
 
@@ -88,7 +88,7 @@ function main()
     swaptions[i] = sh
   end
 
-  tg = JQuantLib.Time.TimeGrid(times, 30)
+  tg = QuantLib.Time.TimeGrid(times, 30)
 
   # models
   # modelG2 = G2(rhTermStructure)

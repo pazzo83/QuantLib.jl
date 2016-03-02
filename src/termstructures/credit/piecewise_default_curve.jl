@@ -90,7 +90,7 @@ default_density_impl(ts::InterpolatedHazardRateCurve, t::Float64) = _default_den
 function _default_density_impl(ts::InterpolatedHazardRateCurve, t::Float64)
   calculate!(ts)
   if t <= ts.times[end]
-    return JQuantLib.Math.value(ts.interp, t)
+    return QuantLib.Math.value(ts.interp, t)
   end
 
   return ts.data[end]

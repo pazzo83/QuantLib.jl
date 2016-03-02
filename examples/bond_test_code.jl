@@ -1,8 +1,8 @@
 # building fixed rate bonds
-using JQuantLib
+using QuantLib
 
-function build_bonds(bond_mats::Vector{Date}, bond_rates::Vector{Float64}, tenor::JQuantLib.Time.TenorPeriod, conv::JQuantLib.Time.BusinessDayConvention,
-                    rule::JQuantLib.Time.DateGenerationRule, calendar::JQuantLib.Time.BusinessCalendar, dc::JQuantLib.Time.DayCount, freq::JQuantLib.Time.Frequency, issue_date::Date)
+function build_bonds(bond_mats::Vector{Date}, bond_rates::Vector{Float64}, tenor::QuantLib.Time.TenorPeriod, conv::QuantLib.Time.BusinessDayConvention,
+                    rule::QuantLib.Time.DateGenerationRule, calendar::QuantLib.Time.BusinessCalendar, dc::QuantLib.Time.DayCount, freq::QuantLib.Time.Frequency, issue_date::Date)
   bonds = Vector{FixedRateBondHelper}(length(bond_mats))
   pricing_engine = DiscountingBondEngine()
 
@@ -10,7 +10,7 @@ function build_bonds(bond_mats::Vector{Date}, bond_rates::Vector{Float64}, tenor
     term_date = bond_mats[i]
     # rate = bond_rates[i] / 100
     rate = bond_rates[i]
-    sched = JQuantLib.Time.Schedule(issue_date, term_date, tenor, conv, conv, rule, true)
+    sched = QuantLib.Time.Schedule(issue_date, term_date, tenor, conv, conv, rule, true)
     bond_help = FixedRateBondHelper(Quote(100.0), FixedRateBond(0, 100.0, sched, rate, dc, conv, 100.0, issue_date, calendar, pricing_engine))
     bonds[i] = bond_help
   end
@@ -18,12 +18,12 @@ function build_bonds(bond_mats::Vector{Date}, bond_rates::Vector{Float64}, tenor
   return bonds
 end
 
-function build_depos{P <: Dates.Period, DC <: JQuantLib.Time.DayCount, B <: JQuantLib.Time.BusinessDayConvention, C <: JQuantLib.Time.BusinessCalendar, I <: Integer}(depo_quotes::Vector{Float64}, depo_tenors::Vector{P},
+function build_depos{P <: Dates.Period, DC <: QuantLib.Time.DayCount, B <: QuantLib.Time.BusinessDayConvention, C <: QuantLib.Time.BusinessCalendar, I <: Integer}(depo_quotes::Vector{Float64}, depo_tenors::Vector{P},
                     dc::DC, conv::B, calendar::C, fixing_days::I)
   depos = Vector{DepositRateHelper}(length(depo_quotes))
   for i = 1:length(depo_quotes)
     depo_quote = Quote(depo_quotes[i])
-    depo_tenor = JQuantLib.Time.TenorPeriod(depo_tenors[i])
+    depo_tenor = QuantLib.Time.TenorPeriod(depo_tenors[i])
     depo = DepositRateHelper(depo_quote, depo_tenor, fixing_days, calendar, conv, true, dc)
     depos[i] = depo
   end
@@ -31,7 +31,7 @@ function build_depos{P <: Dates.Period, DC <: JQuantLib.Time.DayCount, B <: JQua
   return depos
 end
 
-function build_swaps{P <: Dates.Period, DC <: JQuantLib.Time.DayCount, B <: JQuantLib.Time.BusinessDayConvention, C <: JQuantLib.Time.BusinessCalendar, F <: JQuantLib.Time.Frequency, I <: Integer}(swap_quotes::Vector{Float64},
+function build_swaps{P <: Dates.Period, DC <: QuantLib.Time.DayCount, B <: QuantLib.Time.BusinessDayConvention, C <: QuantLib.Time.BusinessCalendar, F <: QuantLib.Time.Frequency, I <: Integer}(swap_quotes::Vector{Float64},
                     swap_tenors::Vector{P}, fixed_dc::DC, fixed_conv::B, calendar::C, fixed_freq::F, float_index::IborIndex, forward_start::I)
   forward_start_period = Dates.Day(forward_start)
   swaps = Vector{SwapRateHelper}(length(swap_quotes))
@@ -57,10 +57,10 @@ function get_npvs(bonds, issue_date, calendar, dc, freq)
   return npvs
 end
 
-function par_rate(yts::YieldTermStructure, dates::Vector{Date}, dc::JQuantLib.Time.DayCount)
+function par_rate(yts::YieldTermStructure, dates::Vector{Date}, dc::QuantLib.Time.DayCount)
   sum = 0.0
   for i = 2:length(dates)
-    dt = JQuantLib.Time.year_fraction(dc, dates[i - 1], dates[i])
+    dt = QuantLib.Time.year_fraction(dc, dates[i - 1], dates[i])
     sum += discount(yts, dates[i]) * dt
   end
 
@@ -76,12 +76,12 @@ function setup()
   bond_rates = [0.0200, 0.0225, 0.0250, 0.0275, 0.0300, 0.0325, 0.0350, 0.0375, 0.0400, 0.0425, 0.0450, 0.0475, 0.0500, 0.0525, 0.0550]
   set_eval_date!(settings, issue_date)
 
-  freq = JQuantLib.Time.Annual()
-  tenor = JQuantLib.Time.TenorPeriod(freq)
-  conv = JQuantLib.Time.Unadjusted()
-  rule = JQuantLib.Time.DateGenerationBackwards()
-  calendar = JQuantLib.Time.USGovernmentBondCalendar()
-  dc = JQuantLib.Time.SimpleDayCount()
+  freq = QuantLib.Time.Annual()
+  tenor = QuantLib.Time.TenorPeriod(freq)
+  conv = QuantLib.Time.Unadjusted()
+  rule = QuantLib.Time.DateGenerationBackwards()
+  calendar = QuantLib.Time.USGovernmentBondCalendar()
+  dc = QuantLib.Time.SimpleDayCount()
   bonds = build_bonds(bond_mats, bond_rates, tenor, conv, rule, calendar, dc, freq, issue_date)
 
   return issue_date, bonds, dc, calendar
@@ -90,14 +90,14 @@ end
 function piecewise_yld_curve()
   issue_date, bonds, dc, calendar = setup()
 
-  interp = JQuantLib.Math.LogInterpolation()
+  interp = QuantLib.Math.LogInterpolation()
   trait = Discount()
   bootstrap = IterativeBootstrap()
 
   yts = PiecewiseYieldCurve(issue_date, bonds, dc, interp, trait, 0.00000000001, bootstrap)
 
-  solver = JQuantLib.Math.BrentSolver()
-  solver2 = JQuantLib.Math.FiniteDifferenceNewtonSafe()
+  solver = QuantLib.Math.BrentSolver()
+  solver2 = QuantLib.Math.FiniteDifferenceNewtonSafe()
   calculate!(IterativeBootstrap(), yts, solver2, solver)
 
   # println(yts.data)
@@ -237,16 +237,16 @@ function generate_floatingrate_bond(yts::YieldTermStructure, disc_yts::YieldTerm
   face_amount = 100.0
   fb_issue_date = Date(2005, 10, 21)
   bond_engine = DiscountingBondEngine(disc_yts)
-  fb_dc = JQuantLib.Time.Actual360()
-  conv = JQuantLib.Time.ModifiedFollowing()
-  fb_schedule = JQuantLib.Time.Schedule(Date(2005, 10, 21), Date(2010, 10, 21), JQuantLib.Time.TenorPeriod(JQuantLib.Time.Quarterly()),
-                                        JQuantLib.Time.Unadjusted(), JQuantLib.Time.Unadjusted(), JQuantLib.Time.DateGenerationBackwards(), false,
-                                        JQuantLib.Time.USNYSECalendar())
+  fb_dc = QuantLib.Time.Actual360()
+  conv = QuantLib.Time.ModifiedFollowing()
+  fb_schedule = QuantLib.Time.Schedule(Date(2005, 10, 21), Date(2010, 10, 21), QuantLib.Time.TenorPeriod(QuantLib.Time.Quarterly()),
+                                        QuantLib.Time.Unadjusted(), QuantLib.Time.Unadjusted(), QuantLib.Time.DateGenerationBackwards(), false,
+                                        QuantLib.Time.USNYSECalendar())
   fixing_days = 2
   in_arrears = true
   gearings = ones(length(fb_schedule.dates) - 1)
   spreads = fill(0.001, length(fb_schedule.dates) - 1)
-  libor_3m = usd_libor_index(JQuantLib.Time.TenorPeriod(Base.Dates.Month(3)), yts)
+  libor_3m = usd_libor_index(QuantLib.Time.TenorPeriod(Base.Dates.Month(3)), yts)
   floating_bond = FloatingRateBond(settlement_days, face_amount, fb_schedule, libor_3m, fb_dc, conv, fixing_days, fb_issue_date, bond_engine, in_arrears, 100.0, gearings, spreads)
 
   return floating_bond
@@ -256,13 +256,13 @@ function generate_fixedrate_bond(yts::YieldTermStructure)
   settlement_days = 3
   face_amount = 100.0
 
-  fx_schedule = JQuantLib.Time.Schedule(Date(2007, 5, 15), Date(2017, 5, 15), JQuantLib.Time.TenorPeriod(JQuantLib.Time.Semiannual()),
-                                        JQuantLib.Time.Unadjusted(), JQuantLib.Time.Unadjusted(), JQuantLib.Time.DateGenerationBackwards(), false,
-                                        JQuantLib.Time.USGovernmentBondCalendar())
+  fx_schedule = QuantLib.Time.Schedule(Date(2007, 5, 15), Date(2017, 5, 15), QuantLib.Time.TenorPeriod(QuantLib.Time.Semiannual()),
+                                        QuantLib.Time.Unadjusted(), QuantLib.Time.Unadjusted(), QuantLib.Time.DateGenerationBackwards(), false,
+                                        QuantLib.Time.USGovernmentBondCalendar())
 
   pe = DiscountingBondEngine(yts)
 
-  fixedrate_bond = FixedRateBond(settlement_days, face_amount, fx_schedule, 0.045, JQuantLib.Time.ISMAActualActual(), JQuantLib.Time.ModifiedFollowing(),
+  fixedrate_bond = FixedRateBond(settlement_days, face_amount, fx_schedule, 0.045, QuantLib.Time.ISMAActualActual(), QuantLib.Time.ModifiedFollowing(),
                                 100.0, Date(2007, 5, 15), fx_schedule.cal, pe)
 
   return fixedrate_bond
@@ -270,15 +270,15 @@ end
 
 function generate_discounting_ts(sett::Date)
   settlement_date = sett
-  freq = JQuantLib.Time.Semiannual()
-  tenor = JQuantLib.Time.TenorPeriod(freq)
-  conv = JQuantLib.Time.Unadjusted()
-  conv_depo = JQuantLib.Time.ModifiedFollowing()
-  rule = JQuantLib.Time.DateGenerationBackwards()
-  calendar = JQuantLib.Time.USGovernmentBondCalendar()
-  dc_depo = JQuantLib.Time.Actual365()
-  dc = JQuantLib.Time.ISDAActualActual()
-  dc_bond = JQuantLib.Time.ISMAActualActual()
+  freq = QuantLib.Time.Semiannual()
+  tenor = QuantLib.Time.TenorPeriod(freq)
+  conv = QuantLib.Time.Unadjusted()
+  conv_depo = QuantLib.Time.ModifiedFollowing()
+  rule = QuantLib.Time.DateGenerationBackwards()
+  calendar = QuantLib.Time.USGovernmentBondCalendar()
+  dc_depo = QuantLib.Time.Actual365()
+  dc = QuantLib.Time.ISDAActualActual()
+  dc_bond = QuantLib.Time.ISMAActualActual()
   fixing_days = 3
 
   # build depos
@@ -295,7 +295,7 @@ function generate_discounting_ts(sett::Date)
   insts = Vector{BootstrapHelper}(length(depo_rates) + length(issue_dates))
   for i = 1:length(depo_rates)
     depo_quote = Quote(depo_rates[i])
-    depo_tenor = JQuantLib.Time.TenorPeriod(depo_tens[i])
+    depo_tenor = QuantLib.Time.TenorPeriod(depo_tens[i])
     depo = DepositRateHelper(depo_quote, depo_tenor, fixing_days, calendar, conv_depo, true, dc_depo)
     insts[i] = depo
   end
@@ -308,19 +308,19 @@ function generate_discounting_ts(sett::Date)
     rate = coupon_rates[i]
     issue_date = issue_dates[i]
     market_quote = market_quotes[i]
-    sched = JQuantLib.Time.Schedule(issue_date, term_date, tenor, conv, conv, rule, true)
+    sched = QuantLib.Time.Schedule(issue_date, term_date, tenor, conv, conv, rule, true)
     bond = FixedRateBondHelper(Quote(market_quote), FixedRateBond(3, 100.0, sched, rate, dc_bond, conv, 100.0, issue_date, calendar, pricing_engine))
     insts[i + length(depo_rates)] = bond
   end
 
-  interp = JQuantLib.Math.LogInterpolation()
+  interp = QuantLib.Math.LogInterpolation()
   trait = Discount()
   bootstrap = IterativeBootstrap()
 
   yts = PiecewiseYieldCurve(settlement_date, insts, dc, interp, trait, 0.00000000001, bootstrap)
 
-  # solver = JQuantLib.Math.BrentSolver()
-  # solver2 = JQuantLib.Math.FiniteDifferenceNewtonSafe()
+  # solver = QuantLib.Math.BrentSolver()
+  # solver2 = QuantLib.Math.FiniteDifferenceNewtonSafe()
   calculate!(yts)
 
   return yts
@@ -332,14 +332,14 @@ function main()
   println("Today's date: $issue_date")
   println("Calculating fit for 15 bonds....")
 
-  interp = JQuantLib.Math.LogInterpolation()
+  interp = QuantLib.Math.LogInterpolation()
   trait = Discount()
   bootstrap = IterativeBootstrap()
 
   yts = PiecewiseYieldCurve(issue_date, bonds, dc, interp, trait, 0.00000000001, bootstrap)
 
-  # solver = JQuantLib.Math.BrentSolver()
-  # solver2 = JQuantLib.Math.FiniteDifferenceNewtonSafe()
+  # solver = QuantLib.Math.BrentSolver()
+  # solver2 = QuantLib.Math.FiniteDifferenceNewtonSafe()
   calculate!(yts)
 
   esf = ExponentialSplinesFitting(true, length(bonds))
@@ -400,7 +400,7 @@ function main()
       date_vec[i+1] = date(cf)
     end
 
-    tenor = JQuantLib.Time.year_fraction(dc, issue_date, date(bond.cashflows.coupons[end]))
+    tenor = QuantLib.Time.year_fraction(dc, issue_date, date(bond.cashflows.coupons[end]))
     println(@sprintf(" %.2f  | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f ",
             tenor, 100.0 * bond.cashflows.coupons[end-1].rate.rate, 100.0 * par_rate(yts, date_vec, dc), 100.0 * par_rate(esf_fitted_curve, date_vec, dc), 100.0 * par_rate(spf_fitted_curve, date_vec, dc),
             100.0 * par_rate(nsf_fitted_curve, date_vec, dc), 100.0 * par_rate(cbsf_fitted_curve, date_vec, dc), 100.0 * par_rate(sf_fitted_curve, date_vec, dc)))
@@ -409,14 +409,14 @@ end
 
 function main2()
   settlement_date = Date(2008, 9, 18)
-  calendar = JQuantLib.Time.USGovernmentBondCalendar()
+  calendar = QuantLib.Time.USGovernmentBondCalendar()
   set_eval_date!(settings, settlement_date - Base.Dates.Day(3))
 
   yts = generate_discounting_ts(settlement_date)
   pe = DiscountingBondEngine(yts)
 
   # build zero coupon bond
-  zcb = ZeroCouponBond(3, calendar, 100.0, Date(2013, 8, 15), JQuantLib.Time.Following(), 116.92, Date(2003, 8, 15), pe)
+  zcb = ZeroCouponBond(3, calendar, 100.0, Date(2013, 8, 15), QuantLib.Time.Following(), 116.92, Date(2003, 8, 15), pe)
 
   # println(npv(zcb, pricing_engine, yts))
   # println(clean_price(zcb))
@@ -427,23 +427,23 @@ end
 function main3()
   settlement_date = Date(2008, 9, 18)
   set_eval_date!(settings, settlement_date - Dates.Day(3))
-  cal = JQuantLib.Time.TargetCalendar()
-  dc = JQuantLib.Time.ISDAActualActual()
+  cal = QuantLib.Time.TargetCalendar()
+  dc = QuantLib.Time.ISDAActualActual()
 
   # Build deposits
   depo_quotes = [0.043375, 0.031875, 0.0320375, 0.03385, 0.0338125, 0.0335125]
   depo_tenors = [Dates.Week(1), Dates.Month(1), Dates.Month(3), Dates.Month(6), Dates.Month(9), Dates.Year(1)]
-  deposit_dc = JQuantLib.Time.Actual360()
+  deposit_dc = QuantLib.Time.Actual360()
   fixing_days = 3
-  biz_conv = JQuantLib.Time.ModifiedFollowing()
+  biz_conv = QuantLib.Time.ModifiedFollowing()
 
   depos = build_depos(depo_quotes, depo_tenors, deposit_dc, biz_conv, cal, fixing_days)
 
   # build swaps
-  fixedLegFreq = JQuantLib.Time.Annual()
-  fixedLegConv = JQuantLib.Time.Unadjusted()
-  fixedLegDC = JQuantLib.Time.EuroThirty360()
-  floatingLegIndex = euribor_index(JQuantLib.Time.TenorPeriod(Base.Dates.Month(6)))
+  fixedLegFreq = QuantLib.Time.Annual()
+  fixedLegConv = QuantLib.Time.Unadjusted()
+  fixedLegDC = QuantLib.Time.EuroThirty360()
+  floatingLegIndex = euribor_index(QuantLib.Time.TenorPeriod(Base.Dates.Month(6)))
   forwardStart = 1
 
   swap_quotes = [0.0295, 0.0323, 0.0359, 0.0412, 0.0433]
@@ -456,14 +456,14 @@ function main3()
   insts[1:length(depo_quotes)] = depos
   insts[length(depo_quotes) + 1: end] = swaps
 
-  interp = JQuantLib.Math.LogInterpolation()
+  interp = QuantLib.Math.LogInterpolation()
   trait = Discount()
   bootstrap = IterativeBootstrap()
 
   yts = PiecewiseYieldCurve(settlement_date, insts, dc, interp, trait, 1e-15, bootstrap)
 
-  # solver = JQuantLib.Math.BrentSolver()
-  # solver2 = JQuantLib.Math.FiniteDifferenceNewtonSafe()
+  # solver = QuantLib.Math.BrentSolver()
+  # solver2 = QuantLib.Math.FiniteDifferenceNewtonSafe()
   calculate!(yts)
 
   disc_yts = generate_discounting_ts(settlement_date)
@@ -471,7 +471,7 @@ function main3()
   # Floating Rate Bond
   fb = generate_floatingrate_bond(yts, disc_yts)
 
-  cap_vol = ConstantOptionVolatility(3, cal, JQuantLib.Time.ModifiedFollowing(), 0.0, JQuantLib.Time.Actual365())
+  cap_vol = ConstantOptionVolatility(3, cal, QuantLib.Time.ModifiedFollowing(), 0.0, QuantLib.Time.Actual365())
   update_pricer!(fb.cashflows, cap_vol)
 
   # fb.iborIndex.ts = yts
@@ -479,10 +479,10 @@ function main3()
 
   # Zero Coupon Bond
   zcb_pe = DiscountingBondEngine(disc_yts)
-  zcb_cal = JQuantLib.Time.USGovernmentBondCalendar()
+  zcb_cal = QuantLib.Time.USGovernmentBondCalendar()
 
   # build zero coupon bond
-  zcb = ZeroCouponBond(3, zcb_cal, 100.0, Date(2013, 8, 15), JQuantLib.Time.Following(), 116.92, Date(2003, 8, 15), zcb_pe)
+  zcb = ZeroCouponBond(3, zcb_cal, 100.0, Date(2013, 8, 15), QuantLib.Time.Following(), 116.92, Date(2003, 8, 15), zcb_pe)
 
   # fixed rate bond
   fxb = generate_fixedrate_bond(disc_yts)
@@ -499,9 +499,9 @@ function main3()
   println(@sprintf("accrued      %.2f     %.2f     %.2f", accrued_amount(zcb, settlement_date), accrued_amount(fxb, settlement_date), accrued_amount(fb, settlement_date)))
   println(@sprintf(" Next C      N/A      %.2f%%    %.2f%%", next_coupon_rate(fxb.cashflows, settlement_date) * 100.0, next_coupon_rate(fb.cashflows, settlement_date) * 100.0))
   println(@sprintf(" Yield      %.2f%%    %.2f%%    %.2f%%",
-          JQuantLib.yield(zcb, clean_price(zcb), JQuantLib.Time.Actual360(), CompoundedCompounding(), JQuantLib.Time.Annual(), settlement_date) * 100.0,
-          JQuantLib.yield(fxb, clean_price(fxb), JQuantLib.Time.Actual360(), CompoundedCompounding(), JQuantLib.Time.Annual(), settlement_date) * 100.0,
-          JQuantLib.yield(fb, clean_price(fb), JQuantLib.Time.Actual360(), CompoundedCompounding(), JQuantLib.Time.Annual(), settlement_date) * 100.0))
+          QuantLib.yield(zcb, clean_price(zcb), QuantLib.Time.Actual360(), CompoundedCompounding(), QuantLib.Time.Annual(), settlement_date) * 100.0,
+          QuantLib.yield(fxb, clean_price(fxb), QuantLib.Time.Actual360(), CompoundedCompounding(), QuantLib.Time.Annual(), settlement_date) * 100.0,
+          QuantLib.yield(fb, clean_price(fb), QuantLib.Time.Actual360(), CompoundedCompounding(), QuantLib.Time.Annual(), settlement_date) * 100.0))
 
-  # return npv(fb, fb.pricingEngine), clean_price(fb), dirty_price(fb), JQuantLib.yield(fb, clean_price(fb), JQuantLib.Time.Actual360(), CompoundedCompounding(), JQuantLib.Time.Annual(), settlement_date), next_coupon_rate(fb.cashflows, settlement_date)
+  # return npv(fb, fb.pricingEngine), clean_price(fb), dirty_price(fb), QuantLib.yield(fb, clean_price(fb), QuantLib.Time.Actual360(), CompoundedCompounding(), QuantLib.Time.Annual(), settlement_date), next_coupon_rate(fb.cashflows, settlement_date)
 end

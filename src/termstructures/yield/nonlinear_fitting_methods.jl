@@ -109,7 +109,7 @@ type CubicBSplinesFitting{I <: Integer} <: FittingMethod
       gsize = basis_functions - 1
 
       N = 2
-      abs(spline_oper(splines, N, 0.0) > JQuantLib.Math.EPS_VAL) || error("N_th cubic B-spline must be nonzero at t=0")
+      abs(spline_oper(splines, N, 0.0) > QuantLib.Math.EPS_VAL) || error("N_th cubic B-spline must be nonzero at t=0")
     else
       gsize = basis_functions
       N = 1
@@ -186,7 +186,7 @@ end
 
 function discount_function{T}(method::NelsonSiegelFitting, x::Vector{T}, t::Float64)
   kappa = x[method.size]
-  @inbounds zero_rate = x[1] + (x[2] + x[3]) * (1.0 - exp(-kappa * t)) / ((kappa + JQuantLib.Math.EPS_VAL) * (t + JQuantLib.Math.EPS_VAL)) - (x[3]) * exp(-kappa * t)
+  @inbounds zero_rate = x[1] + (x[2] + x[3]) * (1.0 - exp(-kappa * t)) / ((kappa + QuantLib.Math.EPS_VAL) * (t + QuantLib.Math.EPS_VAL)) - (x[3]) * exp(-kappa * t)
   d = exp(-zero_rate * t)
 
   return d
@@ -195,7 +195,7 @@ end
 function discount_function{T}(method::SvenssonFitting, x::Vector{T}, t::Float64)
   kappa = x[method.size - 1]
   kappa_1 = x[method.size]
-  eps_v = JQuantLib.Math.EPS_VAL
+  eps_v = QuantLib.Math.EPS_VAL
 
   zero_rate = x[1] + (x[2] + x[3]) * (1.0 - exp(-kappa * t)) / ((kappa + eps_v) * (t + eps_v)) - (x[3]) * exp(-kappa * t) + x[4] * (((1.0 - exp(-kappa_1 * t)) / ((kappa_1 + eps_v) * (t + eps_v))) - exp(-kappa_1 * t))
 

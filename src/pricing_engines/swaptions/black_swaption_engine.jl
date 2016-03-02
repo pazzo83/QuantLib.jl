@@ -7,12 +7,12 @@ type BlackSwaptionEngine{Y <: YieldTermStructure, S <: SwaptionVolatilityStructu
 end
 
 BlackSwaptionEngine{Y <: YieldTermStructure, DC <: DayCount}(yts::Y, vol::Quote, dc::DC, displacement::Float64 = 0.0) =
-                    BlackSwaptionEngine(yts, vol, ConstantSwaptionVolatility(0, JQuantLib.Time.NullCalendar(), JQuantLib.Time.Following(), vol, dc), dc, displacement)
+                    BlackSwaptionEngine(yts, vol, ConstantSwaptionVolatility(0, QuantLib.Time.NullCalendar(), QuantLib.Time.Following(), vol, dc), dc, displacement)
 
 # pricing methods #
 function black_formula{T <: OptionType}(optionType::T, strike::Float64, forward::Float64, stdDev::Float64, discount::Float64 = 1.0, displacement::Float64 = 0.0)
   # TODO check requirements (see cpp)
-  opt_type = JQuantLib.value(optionType)
+  opt_type = QuantLib.value(optionType)
   if stdDev == 0.0
     return max((forward - strike) * opt_type, 0.0 * discount)
   end

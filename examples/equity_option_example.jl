@@ -1,10 +1,10 @@
 # Equity Option example
 # various pricing methods
 
-using JQuantLib
+using QuantLib
 
 function main()
-  cal = JQuantLib.Time.TargetCalendar()
+  cal = QuantLib.Time.TargetCalendar()
   todaysDate = Date(1998, 5, 15)
   settlementDate = Date(1998, 5, 17)
 
@@ -17,7 +17,7 @@ function main()
   riskFreeRate = 0.06
   vol = 0.20
   mat = Date(1999, 5, 17)
-  dc = JQuantLib.Time.Actual365()
+  dc = QuantLib.Time.Actual365()
 
   exerciseDates = Date[settlementDate + Dates.Month(3 * i) for i = 1:4]
 

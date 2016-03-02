@@ -84,4 +84,4 @@ get_data(param::PiecewiseConstantParameter) = param.times
 
 NullParameter{P <: DataType}(_type::P) = _type([0.0], NoConstraint())
 
-test_params(c::ConstantParameter, params::Vector{Float64}) = JQuantLib.Math.test(c.constraint, params)
+test_params(c::ConstantParameter, params::Vector{Float64}) = QuantLib.Math.test(c.constraint, params)

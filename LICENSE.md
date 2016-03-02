@@ -1,4 +1,4 @@
-The JQuantLib.jl package is licensed under the MIT "Expat" License:
+The QuantLib.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2016: Christopher Alexander.
 >

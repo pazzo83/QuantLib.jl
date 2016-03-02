@@ -11,7 +11,7 @@ end
 #
 # ShortRateModelCommon() = ShortRateModelCommon([])
 
-function JQuantLib.Math.test(c::PrivateConstraint, x::Vector{Float64})
+function QuantLib.Math.test(c::PrivateConstraint, x::Vector{Float64})
   k = 1
   for i = 1:length(c.arguments)
     sz = length(c.arguments[i].data)

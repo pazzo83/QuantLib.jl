@@ -1,4 +1,4 @@
-using JQuantLib.Time, JQuantLib.Math
+using QuantLib.Time, QuantLib.Math
 
 const BASIS_POINT = 0.0001
 
@@ -67,7 +67,7 @@ get_reset_dates(coups::Vector{Union{IborCoupon, SimpleCashFlow}}) = Date[accrual
 get_gearings(coups::Vector{Union{IborCoupon, SimpleCashFlow}}) = Float64[coup.gearing for coup in filter(check_coupon, coups)]
 
 function calc_rate(coup::IborCoupon)
-  JQuantLib.initialize!(coup.pricer, coup)
+  QuantLib.initialize!(coup.pricer, coup)
   # if coup.isInArrears
   #   println("sr ", sr)
   #   error("BREAK")

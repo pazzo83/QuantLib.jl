@@ -98,15 +98,15 @@ type FlatForwardTermStructure{I <: Integer, B <: BusinessCalendar, DC <: DayCoun
 end
 
 function FlatForwardTermStructure{I <: Integer, B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency}(settlement_days::I, referenceDate::Date, calendar::B, forward::Quote, dc::DC,
-                                  comp::C = ContinuousCompounding(), freq::F = JQuantLib.Time.Annual())
+                                  comp::C = ContinuousCompounding(), freq::F = QuantLib.Time.Annual())
   rate = InterestRate(forward.value, dc, comp, freq)
   FlatForwardTermStructure(settlement_days, referenceDate, calendar, forward, dc, comp, freq, rate, Vector{JumpTime}(0), Vector{JumpDate}(0))
 end
 
-FlatForwardTermStructure{B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency}(referenceDate::Date, calendar::B, forward::Quote, dc::DC, comp::C = ContinuousCompounding(), freq::F = JQuantLib.Time.Annual()) =
+FlatForwardTermStructure{B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency}(referenceDate::Date, calendar::B, forward::Quote, dc::DC, comp::C = ContinuousCompounding(), freq::F = QuantLib.Time.Annual()) =
                         FlatForwardTermStructure(0, referenceDate, calendar, forward, dc, comp, freq)
 
-FlatForwardTermStructure{B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency}(settlementDays::Int, calendar::B, forward::Quote, dc::DC, comp::C = ContinuousCompounding(), freq::F = JQuantLib.Time.Annual()) =
+FlatForwardTermStructure{B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency}(settlementDays::Int, calendar::B, forward::Quote, dc::DC, comp::C = ContinuousCompounding(), freq::F = QuantLib.Time.Annual()) =
                         FlatForwardTermStructure(settlementDays, Date(), calendar, forward, dc, comp, freq)
 
 discount_impl(ffts::FlatForwardTermStructure, time_frac::Float64) = discount_factor(ffts.rate, time_frac)

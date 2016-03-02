@@ -1,4 +1,4 @@
-using JQuantLib
+using QuantLib
 
 type Problem{F <: CostFunction, C <: Constraint, T, I <: Integer}
   costFunction::F
@@ -31,12 +31,12 @@ end
 
 function value!{T}(p::Problem, x::Vector{T})
   p.functionEvaluation += 1
-  return JQuantLib.value(p.costFunction, x)
+  return QuantLib.value(p.costFunction, x)
 end
 
 function values!(p::Problem, x::Vector{Float64})
   p.functionEvaluation += 1
-  return JQuantLib.func_values(p.costFunction, x)
+  return QuantLib.func_values(p.costFunction, x)
 end
 
 function extrapolate!{I <: Integer, T}(p::Problem, i_highest::I, factor::Float64, values::Vector{T}, sum_array::Vector{T},

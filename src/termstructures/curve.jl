@@ -26,7 +26,7 @@ end
 
 function discount_impl{C <: InterpolatedCurve}(curve::C, t::Float64)
   if t <= curve.times[end]
-    return JQuantLib.Math.value(curve.interp, t)
+    return QuantLib.Math.value(curve.interp, t)
   end
 
   # println("outside")

@@ -1,4 +1,4 @@
-using JQuantLib
+using QuantLib
 using Base.Test
 
 # write your own tests here

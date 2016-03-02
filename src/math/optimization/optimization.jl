@@ -1,4 +1,4 @@
-using JQuantLib
+using QuantLib
 
 abstract OptimizationMethod
 abstract CostFunction
@@ -121,9 +121,9 @@ function get_jacobin!{C <: CostFunction}(cf::C, jac::Matrix{Float64}, x::Vector{
   xx = zeros(length(x))
   for i = 1:length(x)
     xx[i] += eps_
-    fp = JQuantLib.func_values(cf, xx)
+    fp = QuantLib.func_values(cf, xx)
     xx[i] -= 2.0 * eps_
-    fm = JQuantLib.func_values(cf, xx)
+    fm = QuantLib.func_values(cf, xx)
     for j = 1:length(fp)
       jac[j,i] = 0.5 * (fp[j] - fm[j]) / eps_
     end

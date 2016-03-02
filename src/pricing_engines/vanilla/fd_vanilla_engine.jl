@@ -47,7 +47,7 @@ function set_grid_limits!(pe::AbstractFDVanillaEngine, center::Float64, t::Float
 
   pe.center = center
   newGridPoints = safe_grid_points(pe.gridPoints, t)
-  if newGridPoints > JQuantLib.Math.get_size(pe.intrinsicValues)
+  if newGridPoints > QuantLib.Math.get_size(pe.intrinsicValues)
     pe.intrinsicValues = SampledCurve(newGridPoints)
   end
 

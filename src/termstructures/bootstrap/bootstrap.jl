@@ -60,7 +60,7 @@ function initialize{T <: TermStructure}(::IterativeBootstrap, ts::T)
   end
 
   # initialize interpolation
-  JQuantLib.Math.initialize!(ts.interp, ts.times, ts.data)
+  QuantLib.Math.initialize!(ts.interp, ts.times, ts.data)
 end
 
 function _calculate!{T <: TermStructure}(boot::IterativeBootstrap, ts::T)
@@ -87,7 +87,7 @@ function _calculate!{T <: TermStructure}(boot::IterativeBootstrap, ts::T)
 
       if !valid_data
         update_idx = i == length(ts.data) ? 1 : i + 1
-        JQuantLib.Math.update!(ts.interp, update_idx, ts.data[1])
+        QuantLib.Math.update!(ts.interp, update_idx, ts.data[1])
       end
 
       # put this in a try / catch
@@ -121,7 +121,7 @@ function bootstrap_error{I <: Integer, T <: BootstrapHelper, Y <: TermStructure}
   function bootstrap_error_inner(g::Float64)
     # update trait
     update_guess!(ts.trait, i, ts, g)
-    JQuantLib.Math.update!(ts.interp, i, g)
+    QuantLib.Math.update!(ts.interp, i, g)
     # qe =
     # if i > 7
     #   println("GUESS: $i : $g")
@@ -133,6 +133,6 @@ function bootstrap_error{I <: Integer, T <: BootstrapHelper, Y <: TermStructure}
   return bootstrap_error_inner
 end
 
-quote_error{B <: BondHelper}(inst::B) = JQuantLib.value(inst) - implied_quote(inst) # recalculate
-quote_error{R <: RateHelper}(rate::R) = JQuantLib.value(rate) - implied_quote(rate)
-quote_error(rate::AbstractCDSHelper) = JQuantLib.value(rate) - implied_quote(rate)
+quote_error{B <: BondHelper}(inst::B) = QuantLib.value(inst) - implied_quote(inst) # recalculate
+quote_error{R <: RateHelper}(rate::R) = QuantLib.value(rate) - implied_quote(rate)
+quote_error(rate::AbstractCDSHelper) = QuantLib.value(rate) - implied_quote(rate)

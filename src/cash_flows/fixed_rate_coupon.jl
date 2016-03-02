@@ -1,4 +1,4 @@
-using JQuantLib.Time
+using QuantLib.Time
 
 type FixedRateCoupon{DC <: DayCount} <: Coupon
   couponMixin::CouponMixin{DC}
