@@ -1,4 +1,4 @@
-# QuantLib
+# QuantLib.jl
 
 [![Build Status](https://travis-ci.org/pazzo83/QuantLib.jl.svg?branch=master)](https://travis-ci.org/pazzo83/QuantLib.jl)
 
