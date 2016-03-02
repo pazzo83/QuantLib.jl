@@ -25,6 +25,37 @@ function FDEuropeanEngine(process::AbstractBlackScholesProcess, fdEvolverFunc::F
                           intrinsicValues, BCs, sMin, center, sMax, prices, fdEvolverFunc)
 end
 
+type FDBermudanEngine{B <: AbstractBlackScholesProcess, I <: Integer} <: FDMultiPeriodEngine
+  process::B
+  timeSteps::I
+  gridPoints::I
+  timeDependent::Bool
+  exerciseDate::Date
+  finiteDifferenceOperator::TridiagonalOperator
+  intrinsicValues::SampledCurve
+  BCs::Vector{BoundaryCondition}
+  sMin::Float64
+  center::Float64
+  sMax::Float64
+  prices::SampledCurve
+  stoppingTimes::Vector{Float64}
+  timeStepPerPeriod::I
+  fdEvolverFunc::Function
+end
+
+function FDBermudanEngine(process::AbstractBlackScholesProcess, fdEvolverFunc::Function, timeSteps::Int = 100,
+                          gridPoints::Int = 100, timeDependent::Bool = false)
+  prices = SampledCurve(gridPoints)
+  finiteDifferenceOperator, intrinsicValues, BCs = gen_fd_vanilla_engine_params(gridPoints)
+  sMin = center = sMax = 0.0
+  exerciseDate = Date()
+  stoppingTimes = Vector{Float64}()
+  timeStepPerPeriod = timeSteps
+
+  return FDBermudanEngine(process, timeSteps, gridPoints, timeDependent, exerciseDate, finiteDifferenceOperator,
+                          intrinsicValues, BCs, sMin, center, sMax, prices, stoppingTimes, timeStepPerPeriod, fdEvolverFunc)
+end
+
 function gen_fd_vanilla_engine_params(gridPoints::Int)
   finiteDifferenceOperator = TridiagonalOperator()
   intrinsicValues = SampledCurve(gridPoints)
@@ -123,5 +154,6 @@ function _calculate!(pe::FDEuropeanEngine, opt::EuropeanOption)
   opt.results.value = value_at_center(pe.prices)
   opt.results.delta = first_derivative_at_center(pe.prices)
   opt.results.gamma = second_derivative_at_center(pe.prices)
+  opt.results.theta = black_scholes_theta(pe.process, opt.results.value, opt.results.delta, opt.results.gamma)
   return pe, opt
 end

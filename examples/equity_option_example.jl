@@ -83,5 +83,6 @@ function main()
   fdEuroPE = FDEuropeanEngine(bsmProcess, CrankNelson, timeSteps, timeSteps - 1)
   europeanOption = update_pricing_engine(europeanOption, fdEuroPE)
   println(npv(europeanOption))
-  europeanOption
+
+  fdBermudanPE = FDBermudanEngine(bsmProcess, CrankNelson, timeSteps, timeSteps - 1)
 end

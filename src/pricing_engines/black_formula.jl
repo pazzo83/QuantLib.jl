@@ -22,3 +22,12 @@ function black_formula(optType::OptionType, strike::Float64, forward::Float64, s
 
   return result
 end
+
+function black_scholes_theta(process::AbstractBlackScholesProcess, val::Float64, delta_::Float64, gamma_::Float64)
+  u = state_variable(process).value
+  r = zero_rate(process.riskFreeRate, 0.0, ContinuousCompounding()).rate
+  q = zero_rate(process.dividendYield, 0.0, ContinuousCompounding()).rate
+  v = local_vol(process.localVolatility, 0.0, u)
+
+  return r * val - (r - q) * u * delta_ - 0.5 * v * v * u * u * gamma_
+end

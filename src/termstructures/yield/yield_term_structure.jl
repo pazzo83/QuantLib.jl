@@ -44,7 +44,7 @@ function discount{T <: YieldTermStructure}(yts::T, time_frac::Float64)
   end
 end
 
-function zero_rate{T <: YieldTermStructure, C <: CompoundingType, F <: Frequency}(yts::T, date::Date, dc::DayCount, comp::C, freq::F)
+function zero_rate{T <: YieldTermStructure, C <: CompoundingType, F <: Frequency}(yts::T, date::Date, dc::DayCount, comp::C, freq::F = Annual())
   if date == yts.referenceDate
     return implied_rate(1.0 / discount(yts, 0.0001), dc, comp, 0.0001, freq)
   else
@@ -52,9 +52,9 @@ function zero_rate{T <: YieldTermStructure, C <: CompoundingType, F <: Frequency
   end
 end
 
-function zero_rate{T <: YieldTermStructure, C <: CompoundingType, F <: Frequency}(yts::T, time_frac::Float64, comp::C, freq::F)
+function zero_rate{T <: YieldTermStructure, C <: CompoundingType, F <: Frequency}(yts::T, time_frac::Float64, comp::C, freq::F = Annual())
   t = time_frac == 0.0 ? 0.0001 : time_frac
-  return implied_rate(1.0 / discount(yts, t), comp, t, freq)
+  return implied_rate(1.0 / discount(yts, t), yts.dc, comp, t, freq)
 end
 
 function forward_rate{T <: YieldTermStructure, DC <: DayCount, C <: CompoundingType, F <: Frequency}(yts::T, date1::Date, date2::Date, dc::DC, comp::C, freq::F)
