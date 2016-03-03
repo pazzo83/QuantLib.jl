@@ -88,4 +88,7 @@ function main()
   fdBermudanPE = FDBermudanEngine(bsmProcess, CrankNelson, timeSteps, timeSteps - 1)
   bermudanOption = VanillaOption(payoff, bermudanExercise, fdBermudanPE)
   println(npv(bermudanOption))
+
+  fdAmericanPE = FDAmericanEngine(bsmProcess, CrankNelson, timeSteps, timeSteps - 1)
+  americanOption = update_pricing_engine(americanOption, fdAmericanPE)
 end

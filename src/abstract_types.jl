@@ -80,6 +80,7 @@ abstract LatticeShortRateModelEngine{S, Y} <: PricingEngine
 abstract AbstractHestonEngine <: PricingEngine
 abstract AbstractFDVanillaEngine <: PricingEngine
 abstract FDMultiPeriodEngine <: AbstractFDVanillaEngine
+abstract FDStepConditionEngine <: AbstractFDVanillaEngine
 
 # Cash Flows
 abstract CashFlows

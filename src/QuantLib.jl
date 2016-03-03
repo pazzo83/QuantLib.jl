@@ -200,7 +200,7 @@ export
 
     # pricing_engines/vanilla
     AnalyticEuropeanEngine, AnalyticHestonEngine, BatesEngine, BaroneAdesiWhaleyApproximationEngine, BjerksundStenslandApproximationEngine, IntegralEngine,
-    FDEuropeanEngine, FDBermudanEngine
+    FDEuropeanEngine, FDBermudanEngine, FDAmericanEngine
 
 # abstract types
 include("abstract_types.jl")

@@ -6,6 +6,7 @@ type SampledCurve
 end
 
 SampledCurve(gridSize::Int) = SampledCurve(zeros(gridSize), zeros(gridSize))
+SampledCurve() = SampledCurve(Vector{Float64}(), Vector{Float64}())
 
 get_size(curve::SampledCurve) = length(curve.grid)
 

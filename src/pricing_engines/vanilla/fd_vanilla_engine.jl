@@ -56,6 +56,41 @@ function FDBermudanEngine(process::AbstractBlackScholesProcess, fdEvolverFunc::F
                           intrinsicValues, BCs, sMin, center, sMax, prices, stoppingTimes, timeStepPerPeriod, fdEvolverFunc)
 end
 
+type FDAmericanEngine{B <: AbstractBlackScholesProcess, I <: Integer} <: FDStepConditionEngine
+  process::B
+  timeSteps::I
+  gridPoints::I
+  timeDependent::Bool
+  exerciseDate::Date
+  finiteDifferenceOperator::TridiagonalOperator
+  intrinsicValues::SampledCurve
+  BCs::Vector{BoundaryCondition}
+  sMin::Float64
+  center::Float64
+  sMax::Float64
+  prices::SampledCurve
+  controlPrices::SampledCurve
+  controlBCs::Vector{BoundaryCondition}
+  controlOperator::TridiagonalOperator
+  fdEvolverFunc::Function
+end
+
+function FDAmericanEngine(process::AbstractBlackScholesProcess, fdEvolverFunc::Function, timeSteps::Int = 100,
+                          gridPoints::Int = 100, timeDependent::Bool = false)
+  # build engine
+  prices = SampledCurve()
+  controlPrices = SampledCurve(gridPoints)
+  finiteDifferenceOperator, intrinsicValues, BCs = gen_fd_vanilla_engine_params(gridPoints)
+  sMin = center = sMax = 0.0
+  exerciseDate = Date()
+  controlBCs = Vector{BoundaryCondition}(2)
+  controlOperator = TridiagonalOperator()
+
+  return FDAmericanEngine(process, timeSteps, gridPoints, timeDependent, exerciseDate, finiteDifferenceOperator,
+                          intrinsicValues, BCs, sMin, center, sMax, prices, controlPrices, controlBCs,
+                          controlOperator, fdEvolverFunc)
+end
+
 function gen_fd_vanilla_engine_params(gridPoints::Int)
   finiteDifferenceOperator = TridiagonalOperator()
   intrinsicValues = SampledCurve(gridPoints)
