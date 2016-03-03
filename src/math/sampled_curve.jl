@@ -1,3 +1,5 @@
+import Base.copy
+
 type SampledCurve
   grid::Vector{Float64}
   values::Vector{Float64}
@@ -55,3 +57,5 @@ function second_derivative_at_center(curve::SampledCurve)
     return (deltaPlus - deltaMinus) / (curve.grid[jmid] - curve.grid[jmid-1])
   end
 end
+
+copy(curve::SampledCurve) = SampledCurve(copy(curve.grid), copy(curve.values))

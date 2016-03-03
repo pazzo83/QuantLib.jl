@@ -148,12 +148,131 @@ function _calculate!(pe::FDEuropeanEngine, opt::EuropeanOption)
 
   model = FiniteDifferenceModel(pe.finiteDifferenceOperator, pe.BCs, pe.fdEvolverFunc)
 
-  pe.prices = pe.intrinsicValues
+  pe.prices = copy(pe.intrinsicValues)
 
   rollback!(model, pe.prices.values, get_residual_time(pe), 0.0, pe.timeSteps)
   opt.results.value = value_at_center(pe.prices)
   opt.results.delta = first_derivative_at_center(pe.prices)
   opt.results.gamma = second_derivative_at_center(pe.prices)
   opt.results.theta = black_scholes_theta(pe.process, opt.results.value, opt.results.delta, opt.results.gamma)
+  return pe, opt
+end
+
+function setup_args!(pe::FDMultiPeriodEngine, opt::VanillaOption)
+  n = length(opt.exercise.dates)
+
+  pe.stoppingTimes = zeros(n)
+  for i in eachindex(pe.stoppingTimes)
+    pe.stoppingTimes[i] = get_time(pe.process, opt.exercise.dates[i])
+  end
+
+  return pe
+end
+
+get_dividend_time(pe::FDMultiPeriodEngine, idx::Int) = pe.stoppingTimes[idx]
+
+function execute_intermediate_step!(pe::FDBermudanEngine, ::Int)
+  for i in eachindex(pe.intrinsicValues.grid)
+    pe.prices.values[i] = max(pe.prices.values[i], pe.intrinsicValues.values[i])
+  end
+
+  return pe
+end
+
+function _calculate!(pe::FDMultiPeriodEngine, opt::VanillaOption)
+  setup_args!(pe, opt)
+  pe.exerciseDate = opt.exercise.dates[end]
+  payoff = opt.payoff
+
+  dateNumber = length(pe.stoppingTimes)
+  lastDateIsResTime = false
+  firstIndex = 0
+  lastIndex = dateNumber
+  firstDateIsZero = false
+  firstNonZeroDate = get_residual_time(pe)
+
+  dateTolerance = 1e-6
+
+  resid_time = get_residual_time(pe)
+
+  if dateNumber > 0
+    get_dividend_time(pe, 1) >= 0 || error("first date cannot be negative")
+    if get_dividend_time(pe, 1) < resid_time * dateTolerance
+      firstDateIsZero = true
+      firstIndex = 1
+      if dateNumber >= 2
+        firstNonZeroDate = get_dividend_time(pe, 2)
+      end
+    end
+
+    if abs(get_dividend_time(pe, lastIndex) - resid_time) < dateTolerance
+      lastDateIsResTime = true
+      lastIndex = dateNumber - 1
+    end
+
+    if ~firstDateIsZero
+      firstNonZeroDate = get_dividend_time(pe, 1)
+    end
+
+    if dateNumber >= 2
+      issorted(pe.stoppingTimes) || error("dates must be in increasing order")
+    end
+  end
+
+  dt = resid_time / (pe.timeStepPerPeriod * (dateNumber + 1.0))
+
+  # ensure that dt is always smaller than the first non-zero date
+  if firstNonZeroDate <= dt
+    dt = firstNonZeroDate / 2.0
+  end
+
+  set_grid_limits!(pe, opt)
+  initialize_initial_condition!(pe, opt)
+  initialize_operator!(pe)
+  initialize_boundary_conditions!(pe)
+  model = FiniteDifferenceModel(pe.finiteDifferenceOperator, pe.BCs, pe.fdEvolverFunc)
+
+  pe.prices = copy(pe.intrinsicValues)
+
+  if lastDateIsResTime
+    execute_intermediate_step!(pe, dateNumber - 1)
+  end
+
+  j = lastIndex
+  while true
+    if j == dateNumber
+      beginDate = get_residual_time(pe)
+    else
+      beginDate = get_dividend_time(pe, j+1)
+    end
+
+    if j >= 1
+      endDate = get_dividend_time(pe, j)
+    else
+      endDate = dt
+    end
+
+    rollback!(model, pe.prices.values, beginDate, endDate, pe.timeStepPerPeriod)
+
+    if j >= 1
+      execute_intermediate_step!(pe, j)
+    end
+
+    j -= 1
+    if j < firstIndex
+      break
+    end
+  end
+
+  rollback!(model, pe.prices.values, dt, 0.0, 1)
+
+  if firstDateIsZero
+    execute_intermediate_step!(pe, 0)
+  end
+
+  opt.results.value = value_at_center(pe.prices)
+  opt.results.delta = first_derivative_at_center(pe.prices)
+  opt.results.gamma = second_derivative_at_center(pe.prices)
+
   return pe, opt
 end
