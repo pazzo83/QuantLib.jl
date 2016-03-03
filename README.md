@@ -4,6 +4,11 @@
 
 This package aims to provide a pure Julia version of the popular open source library QuantLib (written in C++ and interfaced with other languages via SWIG).  Right now the package is in an alpha state, but there is quite a bit of functionality already.
 
+### Install
+```julia
+Pkg.clone("https://github.com/pazzo83/QuantLib.jl.git")
+```
+
 The package essentially contains the main QuantLib module and two sub-modules for various time-based and math-based operations.  Below is a fairly up-to-date status of what is included.
 
 ### Math
