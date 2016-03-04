@@ -8,6 +8,7 @@ type OrnsteinUhlenbeckProcess <: StochasticProcess1D
 end
 
 expectation(process::OrnsteinUhlenbeckProcess, ::Float64, x0::Float64, dt::Float64) = process.level + (x0 - process.level) * exp(-process.speed * dt)
+get_x0(process::OrnsteinUhlenbeckProcess) = process.x0
 
 function variance(process::OrnsteinUhlenbeckProcess, ::Float64, ::Float64, dt::Float64)
   v = process.vol
@@ -44,6 +45,8 @@ function GsrProcess(times::Vector{Float64}, vols::Vector{Float64}, reversions::V
 
   return GsrProcess(times, vols, reversions, T, revZero, cache1, cache2, cache3, cache4, cache5)
 end
+
+get_x0(::GsrProcess) = 0.0
 
 function flush_cache!(gsrP::GsrProcess)
   for i in eachindex(gsrP.reversions)

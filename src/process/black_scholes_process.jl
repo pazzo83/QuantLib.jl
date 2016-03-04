@@ -30,6 +30,8 @@ apply(process::BlackScholesMertonProcess, x0::Float64, dx::Float64) = x0 * exp(d
 
 expectation(process::BlackScholesMertonProcess, ::Float64, ::Float64, ::Float64) = error("not implemented")
 
+get_x0(process::AbstractBlackScholesProcess) = process.x0.value
+
 function evolve(process::BlackScholesMertonProcess, t0::Float64, x0::Float64, dt::Float64, dw::Float64)
   if process.isStrikeDependent
     var = black_variance(process.blackVolatility, t0 + dt, 0.01) - black_variance(process.blackVolatility, t0, 0.01)

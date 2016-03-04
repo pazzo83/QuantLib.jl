@@ -15,6 +15,10 @@ abstract AbstractHestonDiscretization <: AbstractDiscretization
 # Methods
 abstract Lattice
 abstract TreeLattice <: Lattice
+abstract AbstractBinomialTree
+abstract BinomialTreeType
+abstract EqualProbabilitiesBinomialTreeType <: BinomialTreeType
+abstract EqualJumpsBinomialTreeType <: BinomialTreeType
 abstract FdmSchemeDescType
 abstract FdScheme
 abstract FdmMesher
@@ -83,6 +87,7 @@ abstract AbstractHestonEngine <: PricingEngine
 abstract AbstractFDVanillaEngine <: PricingEngine
 abstract FDMultiPeriodEngine <: AbstractFDVanillaEngine
 abstract FDStepConditionEngine <: AbstractFDVanillaEngine
+abstract AbstractVanillaEngine
 
 # Cash Flows
 abstract CashFlows

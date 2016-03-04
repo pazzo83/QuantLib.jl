@@ -67,6 +67,9 @@ export
     # methods/lattice.jl
     TreeLattice1D, Branching, TrinomialTree,
 
+    # methods/binomial_tree.jl
+    JarrowRudd,
+
     # quotes/Quotes.jl
     Quote,
 
@@ -200,7 +203,7 @@ export
 
     # pricing_engines/vanilla
     AnalyticEuropeanEngine, AnalyticHestonEngine, BatesEngine, BaroneAdesiWhaleyApproximationEngine, BjerksundStenslandApproximationEngine, IntegralEngine,
-    FDEuropeanEngine, FDBermudanEngine, FDAmericanEngine
+    FDEuropeanEngine, FDBermudanEngine, FDAmericanEngine, BinomialVanillaEngine
 
 # abstract types
 include("abstract_types.jl")
@@ -213,6 +216,7 @@ include("lazy.jl")
 
 # methods
 include("methods/lattice.jl")
+include("methods/binomial_tree.jl")
 
 # Quotes ----------------------------
 include("quotes/Quotes.jl")
@@ -325,6 +329,7 @@ include("pricing_engines/vanilla/barone_adesi_whaley_engine.jl")
 include("pricing_engines/vanilla/bjerksund_stensland_engine.jl")
 include("pricing_engines/vanilla/integral_engine.jl")
 include("pricing_engines/vanilla/fd_vanilla_engine.jl")
+include("pricing_engines/vanilla/binomial_engine.jl")
 
 # # Helpers NOW IN TERM STRUCTURE
 # include("helpers/bond_helpers.jl")
