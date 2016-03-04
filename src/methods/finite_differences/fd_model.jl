@@ -11,7 +11,12 @@ function FiniteDifferenceModel(L::TridiagonalOperator, BCs::Vector{BoundaryCondi
   return FiniteDifferenceModel{typeof(evolver)}(evolver, Vector{Float64}())
 end
 
-function rollback_impl!(model::FiniteDifferenceModel, a::Vector{Float64}, from::Float64, to::Float64, steps::Int, condition::StepCondition)
+function FiniteDifferenceModel(L::Vector{TridiagonalOperator}, BCs::Matrix{BoundaryCondition}, evolverFunc::Function)
+  evolver = ParallelEvolver(L, BCs, evolverFunc)
+  return FiniteDifferenceModel{ParallelEvolver}(evolver, Vector{Float64}())
+end
+
+function rollback_impl!(model::FiniteDifferenceModel, a::Vector, from::Float64, to::Float64, steps::Int, condition::StepCondition)
   dt = (from - to) / steps
   t = from
   set_step!(model.evolver, dt)
@@ -62,4 +67,4 @@ function rollback_impl!(model::FiniteDifferenceModel, a::Vector{Float64}, from::
   return model, a
 end
 
-rollback!(model::FiniteDifferenceModel, a::Vector{Float64}, from::Float64, to::Float64, steps::Int, condition::StepCondition = FdmNullStepCondition()) = rollback_impl!(model, a, from, to, steps, condition)
+rollback!(model::FiniteDifferenceModel, a::Vector, from::Float64, to::Float64, steps::Int, condition::StepCondition = FdmNullStepCondition()) = rollback_impl!(model, a, from, to, steps, condition)

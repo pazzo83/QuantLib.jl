@@ -20,6 +20,8 @@ abstract FdScheme
 abstract FdmMesher
 abstract Fdm1DMesher
 abstract StepCondition
+abstract CurveWrapper
+abstract StepType
 abstract FdmInnerValueCalculator
 abstract FdmLinearOpComposite
 abstract NinePointLinearOp

@@ -311,3 +311,51 @@ function _calculate!(pe::FDMultiPeriodEngine, opt::VanillaOption)
 
   return pe, opt
 end
+
+initialize_step_condition(pe::FDAmericanEngine) = build_AmericanStepCondition(pe.intrinsicValues.values)
+
+function _calculate!(pe::FDStepConditionEngine, opt::VanillaOption)
+  pe.exerciseDate = opt.exercise.dates[end]
+  payoff = opt.payoff
+
+  set_grid_limits!(pe, opt)
+  initialize_initial_condition!(pe, opt)
+  initialize_operator!(pe)
+  initialize_boundary_conditions!(pe)
+  stepCond = initialize_step_condition(pe)
+
+  pe.prices = copy(pe.intrinsicValues)
+  pe.controlPrices = copy(pe.intrinsicValues)
+  pe.controlOperator = copy(pe.finiteDifferenceOperator)
+  pe.controlBCs[1] = pe.BCs[1]
+  pe.controlBCs[2] = pe.BCs[2]
+
+  operatorSet = TridiagonalOperator[pe.finiteDifferenceOperator, pe.controlOperator]
+  arraySet = Vector{Float64}[x for x in (pe.prices.values, pe.controlPrices.values)]
+  bcSet = hcat(pe.BCs, pe.controlBCs)
+  conditionSet = StepConditionSet(StepCondition[stepCond, FdmNullStepCondition()])
+
+  model = FiniteDifferenceModel(operatorSet, bcSet, pe.fdEvolverFunc)
+
+  rollback!(model, arraySet, get_residual_time(pe), 0.0, pe.timeSteps, conditionSet)
+
+  pe.prices.values = arraySet[1]
+  pe.controlPrices.values = arraySet[2]
+
+  variance = black_variance(pe.process.blackVolatility, opt.exercise.dates[end], payoff.strike)
+
+  dividendDiscount = discount(pe.process.dividendYield, opt.exercise.dates[end])
+
+  riskFreeDiscount = discount(pe.process.riskFreeRate, opt.exercise.dates[end])
+
+  spot = state_variable(pe.process).value
+  forwardPrice = spot *  dividendDiscount / riskFreeDiscount
+
+  black = BlackCalculator(payoff, forwardPrice, sqrt(variance), riskFreeDiscount)
+
+  opt.results.value = value_at_center(pe.prices) - value_at_center(pe.controlPrices) + value(black)
+  opt.results.delta = first_derivative_at_center(pe.prices) - first_derivative_at_center(pe.controlPrices) + delta(black, spot)
+  opt.results.gamma = second_derivative_at_center(pe.prices) - second_derivative_at_center(pe.prices) + gamma(black, spot)
+
+  return pe, opt
+end

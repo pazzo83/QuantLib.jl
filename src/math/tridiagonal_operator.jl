@@ -79,7 +79,7 @@ function apply_to(L::TridiagonalOperator, v::Vector{Float64})
 end
 
 # basic operators
-import Base.+, Base.-, Base.*, Base./
+import Base.+, Base.-, Base.*, Base./, Base.copy
 
 function -(D::TridiagonalOperator)
   low = -D.lowerDiagonal
@@ -130,3 +130,5 @@ function /(D::TridiagonalOperator, a::Number)
 
   return TridiagonalOperator(mid, low, high, D.temp, D.n)
 end
+
+copy(L::TridiagonalOperator) = TridiagonalOperator(L.diagonal, L.lowerDiagonal, L.upperDiagonal, L.temp, L.n)

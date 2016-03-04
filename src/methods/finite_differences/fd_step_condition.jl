@@ -1,7 +1,7 @@
 # Null
 type FdmNullStepCondition <: StepCondition end
 
-apply_to!(cond::FdmNullStepCondition, ::Vector{Float64}, ::Float64) = cond
+apply_to!(cond::FdmNullStepCondition, a::Vector{Float64}, ::Float64) = cond, a
 
 type FdmDividendHandler{F <: FdmMesher, I <: Integer} <: StepCondition
   x::Vector{Float64}
@@ -93,7 +93,7 @@ function apply_to!(cond::FdmSnapshotCondition, a::Vector{Float64}, t::Float64)
     cond.a = a
   end
 
-  return cond
+  return cond, a
 end
 
 type FdmStepConditionComposite{C <: StepCondition} <: StepCondition
@@ -138,6 +138,51 @@ end
 function apply_to!(cond::FdmStepConditionComposite, a::Vector{Float64}, t::Float64)
   for c in cond.conditions
     apply_to!(c, a, t)
+  end
+
+  return cond, a
+end
+
+type ArrayWrapper <: CurveWrapper
+  value::Vector{Float64}
+end
+
+get_value(wrapper::ArrayWrapper, ::Vector{Float64}, idx::Int) = wrapper.value[idx]
+
+type PayoffWrapper{P <: StrikedTypePayoff} <: CurveWrapper
+  payoff::P
+end
+
+type AmericanStepConditionType <: StepType end
+
+type CurveDependentStepCondition{T <: StepType, C <: CurveWrapper} <: StepCondition
+  stepType::T
+  curveItem::C
+end
+
+typealias AmericanStepCondition{C} CurveDependentStepCondition{AmericanStepConditionType, C}
+
+build_AmericanStepCondition(intrinsicValues::Vector{Float64}) = CurveDependentStepCondition(AmericanStepConditionType(), ArrayWrapper(intrinsicValues))
+
+apply_to_value(::AmericanStepCondition, current::Float64, intrinsic::Float64) = max(current, intrinsic)
+
+function apply_to!(cond::CurveDependentStepCondition, a::Vector{Float64}, ::Float64)
+  for i in eachindex(a)
+    a[i] = apply_to_value(cond, a[i], get_value(cond, a, i))
+  end
+
+  return cond, a
+end
+
+get_value(cond::CurveDependentStepCondition, a::Vector{Float64}, idx::Int) = get_value(cond.curveItem, a, idx)
+
+type StepConditionSet{C <: StepCondition} <: StepCondition
+  conditions::Vector{C}
+end
+
+function apply_to!(cond::StepConditionSet, a::Vector{Vector{Float64}}, t::Float64)
+  for i in eachindex(cond.conditions)
+    apply_to!(cond.conditions[i], a[i], t)
   end
 
   return cond, a

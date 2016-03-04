@@ -91,4 +91,5 @@ function main()
 
   fdAmericanPE = FDAmericanEngine(bsmProcess, CrankNelson, timeSteps, timeSteps - 1)
   americanOption = update_pricing_engine(americanOption, fdAmericanPE)
+  println(npv(americanOption))
 end

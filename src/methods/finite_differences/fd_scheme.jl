@@ -92,6 +92,39 @@ function step!(evolver::MixedScheme, a::Vector{Float64}, t::Float64)
   return a, evolver
 end
 
+type ParallelEvolver{E <: FdScheme} <: FdScheme
+  evolvers::Vector{E}
+end
+
+function ParallelEvolver(L::Vector{TridiagonalOperator}, bcs::Matrix{BoundaryCondition}, evolverFunc::Function)
+  # build first for Vector
+  evolv1 = evolverFunc(L[1], FdmBoundaryConditionSet(bcs[:, 1]))
+  evolvers = Vector{typeof(evolv1)}(length(L))
+  evolvers[1] = evolv1
+
+  for i = 2:length(L)
+    evolvers[i] = evolverFunc(L[i], FdmBoundaryConditionSet(bcs[:, i]))
+  end
+
+  return ParallelEvolver(evolvers)
+end
+
+function step!(evolver::ParallelEvolver, a::Vector{Vector{Float64}}, t::Float64)
+  for i in eachindex(evolver.evolvers)
+    step!(evolver.evolvers[i], a[i], t)
+  end
+
+  return a, evolver
+end
+
+function set_step!(evolver::ParallelEvolver, dt::Float64)
+  for i in eachindex(evolver.evolvers)
+    set_step!(evolver.evolvers[i], dt)
+  end
+
+  return evolver
+end
+
 set_step!(evolver::FdScheme, dt::Float64) = evolver.dt = dt
 
 function step!(evolver::HundsdorferScheme, a::Vector{Float64}, t::Float64)
