@@ -70,14 +70,14 @@ end
 typealias CoxRossRubinsteinBinomialTree EqualJumpsBinomialTree{CoxRossRubinstein}
 typealias TrigeorgisBinomialTree EqualJumpsBinomialTree{Trigeorgis}
 
-get_size(tree::AbstractBinomialTree, idx::Int) = idx + 1
+get_size(tree::AbstractBinomialTree, idx::Int) = idx
 
-descendant(tree::AbstractBinomialTree, ::Int, idx::Int, branch::Int) = idx + branch
+descendant(tree::AbstractBinomialTree, ::Int, idx::Int, branch::Int) = (idx - 1) + (branch - 1) + 1
 
 function get_underlying(tree::EqualProbabilitiesBinomialTree, i::Int, idx::Int)
-  j = 2 * idx - i
+  j = 2 * (idx - 1) - (i - 1)
   # exploiting the forward value tree centering
-  return get_x0(tree) * exp(i * get_drift_per_step(tree) + j * tree.up)
+  return get_x0(tree) * exp((i-1) * get_drift_per_step(tree) + j * tree.up)
 end
 function get_underlying(tree::EqualJumpsBinomialTree, i::Int, idx::Int)
   j = 2 * idx - i

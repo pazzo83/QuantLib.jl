@@ -48,7 +48,7 @@ function zero_rate{T <: YieldTermStructure, C <: CompoundingType, F <: Frequency
   if date == yts.referenceDate
     return implied_rate(1.0 / discount(yts, 0.0001), dc, comp, 0.0001, freq)
   else
-    return implied_rate(1.0 / discount(yts, date), dc, comp, date, freq)
+    return implied_rate(1.0 / discount(yts, date), dc, comp, reference_date(yts), date, freq)
   end
 end
 
@@ -108,6 +108,9 @@ FlatForwardTermStructure{B <: BusinessCalendar, DC <: DayCount, C <: Compounding
 
 FlatForwardTermStructure{B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency}(settlementDays::Int, calendar::B, forward::Quote, dc::DC, comp::C = ContinuousCompounding(), freq::F = QuantLib.Time.Annual()) =
                         FlatForwardTermStructure(settlementDays, Date(), calendar, forward, dc, comp, freq)
+
+FlatForwardTermStructure(referenceDate::Date, forward::Float64, dc::DayCount) =
+                        FlatForwardTermStructure(0, referenceDate, TargetCalendar(), Quote(forward), dc, ContinuousCompounding(), Annual())
 
 discount_impl(ffts::FlatForwardTermStructure, time_frac::Float64) = discount_factor(ffts.rate, time_frac)
 

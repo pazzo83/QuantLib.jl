@@ -93,7 +93,14 @@ function TreeLattice1D{I <: Integer, T <: TreeLattice}(tg::TimeGrid, n::I, impl:
 end
 
 function get_grid(lat::TreeLattice1D, t::Float64)
-  # do stuff
+  i = return_index(lat.tg, t)
+  grid = zeros(get_size(lat.impl, i))
+
+  for j in eachindex(grid)
+    grid[j] = get_underlying(lat.impl, i, j)
+  end
+
+  return grid
 end
 
 type TreeLattice2D{T <: TreeLattice, I <: Integer} <: TreeLattice
@@ -208,7 +215,8 @@ function compute_state_prices!(t::TreeLattice, until::Int)
 end
 
 function initialize!(lattice::TreeLattice, asset::DiscretizedAsset, t::Float64)
-  i = findfirst(lattice.tg.times .>= t)
+  #i = findfirst(lattice.tg.times .>= t)
+  i = return_index(lattice.tg, t)
   set_time!(asset, t)
   reset!(asset, get_size(lattice.impl, i))
 end
@@ -227,17 +235,21 @@ function partial_rollback!(lattice::TreeLattice, asset::DiscretizedAsset, t::Flo
     return
   end
 
-  iFrom = findfirst(lattice.tg.times .>= from)
-  iTo = findfirst(lattice.tg.times .>= t)
+  # iFrom = findfirst(lattice.tg.times .>= from)
+  # iTo = findfirst(lattice.tg.times .>= t)
+  iFrom = return_index(lattice.tg, from)
+  iTo = return_index(lattice.tg, t)
 
   @simd for i = iFrom-1:-1:iTo
     newVals = zeros(get_size(lattice.impl, i))
     step_back!(lattice, i, asset.common.values, newVals)
     @inbounds asset.common.time = lattice.tg.times[i]
     asset.common.values = newVals
+    # println("newVals before: ", newVals)
     if i != iTo
       adjust_values!(asset)
     end
+    # println("newVals after: ", newVals)
   end
 
   return asset

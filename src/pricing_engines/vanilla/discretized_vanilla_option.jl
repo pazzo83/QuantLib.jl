@@ -7,11 +7,11 @@ end
 function DiscretizedVanillaOption(vanillaOption::VanillaOption, process::StochasticProcess, grid::TimeGrid)
   stoppingTimes = zeros(length(vanillaOption.exercise.dates))
   for i in eachindex(stoppingTimes)
-    stoppingTimes[i] = get_time(process, vanillaOption.exercise.daets[i])
+    stoppingTimes[i] = get_time(process, vanillaOption.exercise.dates[i])
 
-    if ~is_empty(tg)
+    if ~is_empty(grid)
       # stuff
-      stoppingTimes[i] = closest_time(tg, stoppingTimes[i])
+      stoppingTimes[i] = closest_time(grid, stoppingTimes[i])
     end
   end
 
@@ -51,5 +51,10 @@ function post_adjust_values_impl!(dvo::DiscretizedVanillaOption, ::BermudanExerc
 end
 
 function apply_specific_condition!(dvo::DiscretizedVanillaOption)
-  # do stuff
+  grid = get_grid(dvo.common.method, dvo.common.time)
+  for j in eachindex(dvo.common.values)
+    dvo.common.values[j] = max(dvo.common.values[j], dvo.args.payoff(grid[j]))
+  end
+
+  return dvo
 end

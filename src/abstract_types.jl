@@ -11,6 +11,7 @@ abstract AbstractBlackScholesProcess <: StochasticProcess1D
 abstract AbstractHestonProcess <: StochasticProcess1D
 abstract AbstractDiscretization
 abstract AbstractHestonDiscretization <: AbstractDiscretization
+abstract BlackScholesType
 
 # Methods
 abstract Lattice
@@ -88,7 +89,7 @@ abstract AbstractHestonEngine <: PricingEngine
 abstract AbstractFDVanillaEngine <: PricingEngine
 abstract FDMultiPeriodEngine <: AbstractFDVanillaEngine
 abstract FDStepConditionEngine <: AbstractFDVanillaEngine
-abstract AbstractVanillaEngine
+abstract AbstractVanillaEngine <: PricingEngine
 
 # Cash Flows
 abstract CashFlows

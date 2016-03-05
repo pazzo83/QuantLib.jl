@@ -32,11 +32,11 @@ function upper_bound{T}(vec::Vector{T}, x::T)
   return found
 end
 
-# Time module
-include("time/Time.jl")
-
 # Math module
 include("math/Math.jl")
+
+# Time module
+include("time/Time.jl")
 
 # MAIN MODULE CODE
 using QuantLib.Math, QuantLib.Time
@@ -216,6 +216,7 @@ include("lazy.jl")
 
 # methods
 include("methods/lattice.jl")
+include("methods/bsm_lattice.jl")
 include("methods/binomial_tree.jl")
 
 # Quotes ----------------------------
@@ -322,6 +323,7 @@ include("pricing_engines/swaptions/jamshidian_swaption_engine.jl")
 include("pricing_engines/swaptions/tree_swaption_engine.jl")
 include("pricing_engines/swaptions/gaussian1d_swaption_engine.jl")
 include("pricing_engines/swaptions/gaussian1d_nonstandard_swaption_engine.jl")
+include("pricing_engines/vanilla/discretized_vanilla_option.jl")
 include("pricing_engines/vanilla/analytic_european_engine.jl")
 include("pricing_engines/vanilla/analytic_heston_engine.jl")
 include("pricing_engines/vanilla/bates_engine.jl")

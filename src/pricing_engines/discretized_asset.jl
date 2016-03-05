@@ -63,7 +63,7 @@ end
 
 function is_on_time(dAsset::DiscretizedAsset, t::Float64)
   grid = dAsset.common.method.tg
-  return QuantLib.Math.close_enough(grid.times[findfirst(grid.times .>= t)], dAsset.common.time)
+  return QuantLib.Math.close_enough(grid.times[return_index(grid, t)], dAsset.common.time)
 end
 
 function rollback!(dAsset::DiscretizedAsset, t::Float64)

@@ -1,3 +1,7 @@
+using QuantLib
+
+import Base.getindex
+
 type TimeGrid
   times::Vector{Float64}
   dt::Vector{Float64}
@@ -35,7 +39,24 @@ function TimeGrid{I <: Integer}(times::Vector{Float64}, steps::I)
   return TimeGrid(times, dt, sortedUniqueTimes)
 end
 
-is_empty(tg::TimeGrid) = length(tg.times) > 0
+function TimeGrid(endTime::Float64, steps::Int)
+  endTime > 0.0 || error("negative times not allowed")
+  dt = endTime / steps
+  times = zeros(steps + 1)
+  for i in eachindex(times)
+    times[i] = dt * (i - 1)
+  end
+
+  mandatoryTimes = [endTime]
+
+  dtVec = fill(dt, steps)
+
+  return TimeGrid(times, dtVec, mandatoryTimes)
+end
+
+getindex(tg::TimeGrid, i::Int) = tg.times[i]
+
+is_empty(tg::TimeGrid) = length(tg.times) == 0
 
 function closest_index(tg::TimeGrid, t::Float64)
   # stuff
@@ -56,3 +77,12 @@ function closest_index(tg::TimeGrid, t::Float64)
 end
 
 closest_time(tg::TimeGrid, t::Float64) = tg.times[closest_index(tg, t)]
+
+function return_index(tg::TimeGrid, t::Float64)
+  i = closest_index(tg, t)
+  if QuantLib.Math.close_enough(t, tg.times[i])
+    return i
+  else
+    error("this time grid is wrong, $i $t $(tg.times[i]) $(tg.times[i-1]) $(tg.times[i+1])")
+  end
+end

@@ -22,6 +22,8 @@ type BlackScholesLattice{T <: AbstractBinomialTree} <: TreeLattice
   end
 end
 
+BlackScholesLattice{T <: AbstractBinomialTree}(tree::T, riskFreeRate::Float64, endTime::Float64, steps::Int) = BlackScholesLattice{T}(tree, riskFreeRate, endTime, steps)
+
 get_underlying(bsm::BlackScholesLattice, i::Int, idx::Int) = get_underlying(bsm.tree, i, idx)
 
 descendant(bsm::BlackScholesLattice, i::Int, idx::Int, branch::Int) = descendant(bsm.tree, i, idx, branch)

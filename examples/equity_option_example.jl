@@ -92,4 +92,17 @@ function main()
   fdAmericanPE = FDAmericanEngine(bsmProcess, CrankNelson, timeSteps, timeSteps - 1)
   americanOption = update_pricing_engine(americanOption, fdAmericanPE)
   println(npv(americanOption))
+
+  # Binomial Tree engines
+  btJarrowRuddEuro = BinomialVanillaEngine(bsmProcess, timeSteps, JarrowRudd)
+  europeanOption = update_pricing_engine(europeanOption, btJarrowRuddEuro)
+  println(npv(europeanOption))
+
+  btJarrowRuddBermudan = BinomialVanillaEngine(bsmProcess, timeSteps, JarrowRudd)
+  bermudanOption = update_pricing_engine(bermudanOption, btJarrowRuddBermudan)
+  println(npv(bermudanOption))
+
+  btJarrowRuddAmerican = BinomialVanillaEngine(bsmProcess, timeSteps, JarrowRudd)
+  americanOption = update_pricing_engine(americanOption, btJarrowRuddAmerican)
+  println(npv(americanOption))
 end
