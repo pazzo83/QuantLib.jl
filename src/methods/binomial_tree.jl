@@ -70,7 +70,7 @@ end
 typealias CoxRossRubinsteinBinomialTree EqualJumpsBinomialTree{CoxRossRubinstein}
 typealias TrigeorgisBinomialTree EqualJumpsBinomialTree{Trigeorgis}
 
-get_size(tree::AbstractBinomialTree, idx::Int) = return idx + 1
+get_size(tree::AbstractBinomialTree, idx::Int) = idx + 1
 
 descendant(tree::AbstractBinomialTree, ::Int, idx::Int, branch::Int) = idx + branch
 

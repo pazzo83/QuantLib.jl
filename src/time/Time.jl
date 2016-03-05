@@ -28,7 +28,7 @@ export TenorPeriod
 export DateGenerationRule, DateGenerationForwards, DateGenerationBackwards, DateGenerationTwentieth, Schedule
 
 # time_grid.jl
-export TimeGrid
+export TimeGrid, is_empty, closest_time
 
 
 include("Frequency.jl")

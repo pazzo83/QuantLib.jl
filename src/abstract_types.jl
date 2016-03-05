@@ -15,7 +15,8 @@ abstract AbstractHestonDiscretization <: AbstractDiscretization
 # Methods
 abstract Lattice
 abstract TreeLattice <: Lattice
-abstract AbstractBinomialTree
+abstract AbstractTree
+abstract AbstractBinomialTree <: AbstractTree
 abstract BinomialTreeType
 abstract EqualProbabilitiesBinomialTreeType <: BinomialTreeType
 abstract EqualJumpsBinomialTreeType <: BinomialTreeType
@@ -114,7 +115,7 @@ abstract TwoFactorModel{T} <: ShortRateModel{T}
 abstract ComplexLogFormula
 abstract HestonIntegration
 abstract ShortRateDynamics
-abstract ShortRateTree
+abstract ShortRateTree <: TreeLattice
 
 # Currencies
 abstract AbstractCurrency

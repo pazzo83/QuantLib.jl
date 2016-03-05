@@ -20,6 +20,11 @@ end
 
 OptionResults() = OptionResults(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 
+type VanillaOptionArgs{P <: StrikedTypePayoff, E <: Exercise}
+  payoff::P
+  exercise::E
+end
+
 function reset!(res::OptionResults)
   res.delta = 0.0
   res.gamma = 0.0

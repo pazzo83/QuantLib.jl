@@ -6,14 +6,24 @@ type DiscretizedAssetCommon{L <: Lattice}
   latestPostAdjustment::Float64
   method::L
 
-  call(::Type{DiscretizedAssetCommon}, t::Float64, v::Vector{Float64}, lpa::Float64, lpoa::Float64) =
-      new{Lattice}(t, v, lpa, lpoa)
+  # call(::Type{DiscretizedAssetCommon}, t::Float64, v::Vector{Float64}, lpa::Float64, lpoa::Float64) =
+  #     new{Lattice}(t, v, lpa, lpoa)
 end
 
-DiscretizedAssetCommon() = DiscretizedAssetCommon(0.0, zeros(0), eps(), eps())
+DiscretizedAssetCommon() = DiscretizedAssetCommon{NullLattice}(0.0, zeros(0), eps(), eps(), NullLattice())
+
+clone(das::DiscretizedAssetCommon, method::Lattice = das.method) = DiscretizedAssetCommon{typeof(method)}(das.time, das.values, das.latestPreAdjustment, das.latestPostAdjustment, method)
 
 set_time!(a::DiscretizedAsset, t::Float64) = a.common.time = t
-set_method!(a::DiscretizedAsset, method::Lattice) = a.common.method = method
+
+get_values(a::DiscretizedAsset) = a.common.values
+
+function set_method!(a::DiscretizedAsset, method::Lattice)
+  new_common = clone(a.common, method)
+  a.common = new_common
+
+  return a
+end
 
 type DiscretizedDiscountBond <: DiscretizedAsset
   common::DiscretizedAssetCommon
