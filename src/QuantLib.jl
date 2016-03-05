@@ -68,7 +68,7 @@ export
     TreeLattice1D, Branching, TrinomialTree,
 
     # methods/binomial_tree.jl
-    JarrowRudd,
+    JarrowRudd, CoxRossRubinstein, AdditiveEQP, Trigeorgis, Tian, 
 
     # quotes/Quotes.jl
     Quote,

@@ -94,6 +94,7 @@ function main()
   println(npv(americanOption))
 
   # Binomial Tree engines
+  # Jarrow Rudd
   btJarrowRuddEuro = BinomialVanillaEngine(bsmProcess, timeSteps, JarrowRudd)
   europeanOption = update_pricing_engine(europeanOption, btJarrowRuddEuro)
   println(npv(europeanOption))
@@ -104,5 +105,57 @@ function main()
 
   btJarrowRuddAmerican = BinomialVanillaEngine(bsmProcess, timeSteps, JarrowRudd)
   americanOption = update_pricing_engine(americanOption, btJarrowRuddAmerican)
+  println(npv(americanOption))
+
+  # CoxRossRubinstein
+  btCoxRubinsteinEuro = BinomialVanillaEngine(bsmProcess, timeSteps, CoxRossRubinstein)
+  europeanOption = update_pricing_engine(europeanOption, btCoxRubinsteinEuro)
+  println(npv(europeanOption))
+
+  btCoxRubinsteinBermudan = BinomialVanillaEngine(bsmProcess, timeSteps, CoxRossRubinstein)
+  bermudanOption = update_pricing_engine(bermudanOption, btCoxRubinsteinBermudan)
+  println(npv(bermudanOption))
+
+  btCoxRubinsteinAmerican = BinomialVanillaEngine(bsmProcess, timeSteps, CoxRossRubinstein)
+  americanOption = update_pricing_engine(americanOption, btCoxRubinsteinAmerican)
+  println(npv(americanOption))
+
+  # AdditiveEQP
+  btAdditiveEQPEuro = BinomialVanillaEngine(bsmProcess, timeSteps, AdditiveEQP)
+  europeanOption = update_pricing_engine(europeanOption, btAdditiveEQPEuro)
+  println(npv(europeanOption))
+
+  btAdditiveEQPBermudan = BinomialVanillaEngine(bsmProcess, timeSteps, AdditiveEQP)
+  bermudanOption = update_pricing_engine(bermudanOption, btAdditiveEQPBermudan)
+  println(npv(bermudanOption))
+
+  btAdditiveEQPAmerican = BinomialVanillaEngine(bsmProcess, timeSteps, AdditiveEQP)
+  americanOption = update_pricing_engine(americanOption, btAdditiveEQPAmerican)
+  println(npv(americanOption))
+
+  # Trigeorgis
+  btTrigeorgisEuro = BinomialVanillaEngine(bsmProcess, timeSteps, Trigeorgis)
+  europeanOption = update_pricing_engine(europeanOption, btTrigeorgisEuro)
+  println(npv(europeanOption))
+
+  btTrigeorgisBermudan = BinomialVanillaEngine(bsmProcess, timeSteps, Trigeorgis)
+  bermudanOption = update_pricing_engine(bermudanOption, btTrigeorgisBermudan)
+  println(npv(bermudanOption))
+
+  btTrigeorgisAmerican = BinomialVanillaEngine(bsmProcess, timeSteps, Trigeorgis)
+  americanOption = update_pricing_engine(americanOption, btTrigeorgisAmerican)
+  println(npv(americanOption))
+
+  # Tian
+  btTianEuro = BinomialVanillaEngine(bsmProcess, timeSteps, Tian)
+  europeanOption = update_pricing_engine(europeanOption, btTianEuro)
+  println(npv(europeanOption))
+
+  btTianBermudan = BinomialVanillaEngine(bsmProcess, timeSteps, Tian)
+  bermudanOption = update_pricing_engine(bermudanOption, btTianBermudan)
+  println(npv(bermudanOption))
+
+  btTianAmerican = BinomialVanillaEngine(bsmProcess, timeSteps, Tian)
+  americanOption = update_pricing_engine(americanOption, btTianAmerican)
   println(npv(americanOption))
 end
