@@ -112,7 +112,7 @@ export lmdif2!
 include("lmdif2.jl")
 
 # distribution.jl
-export distribution_derivative
+export distribution_derivative, peizer_pratt_method_2_inversion
 include("distributions.jl")
 
 # integral.jl

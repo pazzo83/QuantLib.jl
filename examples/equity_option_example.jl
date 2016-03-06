@@ -158,4 +158,30 @@ function main()
   btTianAmerican = BinomialVanillaEngine(bsmProcess, timeSteps, Tian)
   americanOption = update_pricing_engine(americanOption, btTianAmerican)
   println(npv(americanOption))
+
+  # LeisenReimer
+  btLeisenReimerEuro = BinomialVanillaEngine(bsmProcess, timeSteps, LeisenReimer)
+  europeanOption = update_pricing_engine(europeanOption, btLeisenReimerEuro)
+  println(npv(europeanOption))
+
+  btLeisenReimerBermudan = BinomialVanillaEngine(bsmProcess, timeSteps, LeisenReimer)
+  bermudanOption = update_pricing_engine(bermudanOption, btLeisenReimerBermudan)
+  println(npv(bermudanOption))
+
+  btLeisenReimerAmerican = BinomialVanillaEngine(bsmProcess, timeSteps, LeisenReimer)
+  americanOption = update_pricing_engine(americanOption, btLeisenReimerAmerican)
+  println(npv(americanOption))
+
+  # Joshi4
+  btJoshi4Euro = BinomialVanillaEngine(bsmProcess, timeSteps, Joshi4)
+  europeanOption = update_pricing_engine(europeanOption, btJoshi4Euro)
+  println(npv(europeanOption))
+
+  btJoshi4Bermudan = BinomialVanillaEngine(bsmProcess, timeSteps, Joshi4)
+  bermudanOption = update_pricing_engine(bermudanOption, btJoshi4Bermudan)
+  println(npv(bermudanOption))
+
+  btJoshi4American = BinomialVanillaEngine(bsmProcess, timeSteps, Joshi4)
+  americanOption = update_pricing_engine(americanOption, btJoshi4American)
+  println(npv(americanOption))
 end

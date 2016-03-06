@@ -53,6 +53,61 @@ function Tian(process::StochasticProcess1D, endTime::Float64, steps::Int, ::Floa
   return BinomialTree{Tian}(up, down, pu, pd, common, Tian())
 end
 
+function LeisenReimer(process::StochasticProcess1D, endTime::Float64, steps::Int, strike::Float64)
+  common = BinomialTreeCommon(process, endTime, steps)
+  strike > 0.0 || error("strike must be positive")
+  oddSteps = isodd(steps) ? steps : steps + 1
+  variance_ = variance(process, 0.0, common.x0, endTime)
+  ermqdt = exp(common.driftPerStep + 0.5 * variance_ / oddSteps)
+  d2 = (log(common.x0 / strike) + common.driftPerStep * oddSteps) / sqrt(variance_)
+
+  pu = peizer_pratt_method_2_inversion(d2, oddSteps)
+  pd = 1.0 - pu
+  pdash = peizer_pratt_method_2_inversion(d2 + sqrt(variance_), oddSteps)
+
+  up = ermqdt * pdash / pu
+  down = (ermqdt - pu * up) / (1.0 - pu)
+
+  return BinomialTree{LeisenReimer}(up, down, pu, pd, common, LeisenReimer())
+end
+
+function compute_up_prob(k::Float64, dj::Float64)
+  alpha = dj / sqrt(8.0)
+  # alpha2 = alpha * alpha
+  alpha3 = alpha ^ 3
+  alpha5 = alpha ^ 5
+  alpha7 = alpha ^ 7
+  beta = -0.375 * alpha - alpha3
+  gamma = (5.0 / 6.0) * alpha5 + (13.0/12.0) * alpha3 + (25.0 / 128.0) * alpha
+  delta = -0.1025 * alpha - 0.9285 * alpha3 - 1.43 * alpha5 - 0.5 * alpha7
+  p = 0.5
+  rootk = sqrt(k)
+  p += alpha / rootk
+  p += beta / (k * rootk)
+  p += gamma / (k * k * rootk)
+  # delete next line to get results for j-three tree
+  p += delta / (k * k * k * rootk)
+  return p
+end
+
+function Joshi4(process::StochasticProcess1D, endTime::Float64, steps::Int, strike::Float64)
+  common = BinomialTreeCommon(process, endTime, steps)
+  strike > 0.0 || error("strike must be positive")
+  oddSteps = isodd(steps) ? steps : steps + 1
+  variance_ = variance(process, 0.0, common.x0, endTime)
+  ermqdt = exp(common.driftPerStep + 0.5 * variance_ / oddSteps)
+  d2 = (log(common.x0 / strike) + common.driftPerStep * oddSteps) / sqrt(variance_)
+
+  pu = compute_up_prob((oddSteps - 1.0) / 2.0, d2)
+  pd = 1.0 - pu
+  pdash = compute_up_prob((oddSteps - 1.0) / 2.0, d2 + sqrt(variance_))
+
+  up = ermqdt * pdash / pu
+  down = (ermqdt - pu * up) / (1.0 - pu)
+
+  return BinomialTree{Joshi4}(up, down, pu, pd, common, Joshi4())
+end
+
 type JarrowRudd <: EqualProbabilitiesBinomialTreeType end
 type AdditiveEQP <: EqualProbabilitiesBinomialTreeType end
 
