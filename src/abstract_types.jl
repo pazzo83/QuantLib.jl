@@ -33,6 +33,8 @@ abstract FdmLinearOpComposite
 abstract NinePointLinearOp
 abstract BoundaryConditionType
 abstract BC_Side
+# Monte Carlo
+abstract MCTrait
 # abstract BoundaryCondition
 
 # Exercise
@@ -90,6 +92,7 @@ abstract AbstractFDVanillaEngine <: PricingEngine
 abstract FDMultiPeriodEngine <: AbstractFDVanillaEngine
 abstract FDStepConditionEngine <: AbstractFDVanillaEngine
 abstract AbstractVanillaEngine <: PricingEngine
+abstract MCVanillaEngine <: PricingEngine
 
 # Cash Flows
 abstract CashFlows
