@@ -68,7 +68,7 @@ export
     TreeLattice1D, Branching, TrinomialTree,
 
     # methods/binomial_tree.jl
-    JarrowRudd, CoxRossRubinstein, AdditiveEQP, Trigeorgis, Tian, LeisenReimer, Joshi4, 
+    JarrowRudd, CoxRossRubinstein, AdditiveEQP, Trigeorgis, Tian, LeisenReimer, Joshi4,
 
     # quotes/Quotes.jl
     Quote,
@@ -203,7 +203,7 @@ export
 
     # pricing_engines/vanilla
     AnalyticEuropeanEngine, AnalyticHestonEngine, BatesEngine, BaroneAdesiWhaleyApproximationEngine, BjerksundStenslandApproximationEngine, IntegralEngine,
-    FDEuropeanEngine, FDBermudanEngine, FDAmericanEngine, BinomialVanillaEngine
+    FDEuropeanEngine, FDBermudanEngine, FDAmericanEngine, BinomialVanillaEngine, MCEuropeanEngine
 
 # abstract types
 include("abstract_types.jl")
@@ -304,11 +304,19 @@ include("methods/finite_differences/fd_scheme.jl")
 include("methods/finite_differences/fd_model.jl")
 include("methods/finite_differences/fd_solvers.jl")
 
+# Monte Carlo method
+include("methods/monte_carlo/path.jl")
+include("methods/monte_carlo/sample.jl")
+include("methods/monte_carlo/brownian_bridge.jl")
+include("methods/monte_carlo/path_generator.jl")
+include("methods/monte_carlo/monte_carlo_model.jl")
+
 # Pricing Engines ------------------------
 include("pricing_engines/pricing_engines.jl")
 include("pricing_engines/discretized_asset.jl")
 include("pricing_engines/black_calculator.jl")
 include("pricing_engines/black_formula.jl")
+include("pricing_engines/mc_simulation.jl")
 include("pricing_engines/bond/discounting_bond_engine.jl")
 include("pricing_engines/swap/discounting_swap_engine.jl")
 include("pricing_engines/swap/discretized_swap.jl")
@@ -332,6 +340,7 @@ include("pricing_engines/vanilla/bjerksund_stensland_engine.jl")
 include("pricing_engines/vanilla/integral_engine.jl")
 include("pricing_engines/vanilla/fd_vanilla_engine.jl")
 include("pricing_engines/vanilla/binomial_engine.jl")
+include("pricing_engines/vanilla/mc_european_engine.jl")
 
 # # Helpers NOW IN TERM STRUCTURE
 # include("helpers/bond_helpers.jl")

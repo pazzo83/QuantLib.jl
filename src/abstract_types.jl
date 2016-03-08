@@ -34,7 +34,9 @@ abstract NinePointLinearOp
 abstract BoundaryConditionType
 abstract BC_Side
 # Monte Carlo
+abstract AbstractMonteCarloModel
 abstract MCTrait
+abstract AbstractPathPricer
 # abstract BoundaryCondition
 
 # Exercise

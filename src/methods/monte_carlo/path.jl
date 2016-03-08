@@ -1,4 +1,4 @@
-import Base.getindex, Base.setindex!, Base.length
+import Base.getindex, Base.setindex!, Base.length, Base.endof
 
 type Path
   tg::TimeGrid
@@ -10,4 +10,5 @@ Path(tg::TimeGrid) = Path(tg, Vector{Float64}(length(tg.times)))
 
 getindex(p::Path, i::Int) = p.values[i]
 setindex!(p::Path, x::Float64, i::Int) = p.values[i] = x
-length(p::Path) = length(tg.times)
+length(p::Path) = length(p.tg.times)
+endof(p::Path) = endof(p.values)

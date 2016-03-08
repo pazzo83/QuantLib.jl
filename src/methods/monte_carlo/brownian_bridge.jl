@@ -43,7 +43,7 @@ function initialize!(bb::BrownianBridge)
   bb.leftWeight[1] = bb.rightWeight[1] = 0.0
 
   j = 1
-  for i = 1:bb.size_
+  for i = 2:bb.size_
     # find the next unpopulated entry in the map
     while mapVec[j] != 0
       j += 1

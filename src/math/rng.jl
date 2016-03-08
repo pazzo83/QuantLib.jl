@@ -14,7 +14,7 @@ function next_sequence!(rsg::InverseCumulativeRSG)
   # we can probably use map here with the norminvcdf
   # like this: map!(norminvcdf, rsg.values, rand(rsg, length(rsg.values)))
   for i in eachindex(rsg.values)
-    x = rand(rsg) # get random number
+    x = rand(rsg.rng) # get random number
     rsg.values[i] = norminvcdf(x)
   end
 
@@ -22,3 +22,10 @@ function next_sequence!(rsg::InverseCumulativeRSG)
 end
 
 last_sequence(rsg::InverseCumulativeRSG) = rsg.values, rsg.weight
+
+function init_sequence_generator!(rsg::InverseCumulativeRSG, dimension::Int)
+  rsg.dimension = dimension
+  rsg.values = zeros(dimension)
+
+  return rsg
+end

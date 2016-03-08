@@ -184,4 +184,12 @@ function main()
   btJoshi4American = BinomialVanillaEngine(bsmProcess, timeSteps, Joshi4)
   americanOption = update_pricing_engine(americanOption, btJoshi4American)
   println(npv(americanOption))
+
+  ## MONTE CARLO ##
+  timeSteps = 1
+  mcSeed = 42
+  mcengine1 = MCEuropeanEngine(bsmProcess; timeSteps = timeSteps, requiredTolerance = 0.02, seed = mcSeed)
+  europeanOption = update_pricing_engine(europeanOption, mcengine1)
+  println(npv(europeanOption))
+  # europeanOption
 end

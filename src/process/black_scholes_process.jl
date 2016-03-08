@@ -56,11 +56,11 @@ get_x0(process::AbstractBlackScholesProcess) = process.x0.value
 function evolve(process::GeneralizedBlackScholesProcess, t0::Float64, x0::Float64, dt::Float64, dw::Float64)
   if process.isStrikeDependent
     var = black_variance(process.blackVolatility, t0 + dt, 0.01) - black_variance(process.blackVolatility, t0, 0.01)
-    drift_ = (forward_rate(process.riskFreeRate, t0, t0 + dt, ContinuousCompounding(), NoFrequency()) -
-              forward_rate(process.dividendYield, t0, t0 + dt, ContinuousCompounding(), NoFrequency())) *
+    drift_ = (forward_rate(process.riskFreeRate, t0, t0 + dt, ContinuousCompounding(), NoFrequency()).rate -
+              forward_rate(process.dividendYield, t0, t0 + dt, ContinuousCompounding(), NoFrequency()).rate) *
               dt - 0.5 * var
 
-    return x0 * exp(sqrt(var) * dw + drift)
+    return x0 * exp(sqrt(var) * dw + drift_)
   else
     return apply(process, x0, drift(process.disc, process, t0, x0, dt) + std_deviation(process, t0, x0, dt) * dw)
   end

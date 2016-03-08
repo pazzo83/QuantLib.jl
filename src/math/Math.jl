@@ -127,6 +127,14 @@ include("tridiagonal_operator.jl")
 export TransformedGrid, LogGrid
 include("transformed_grid.jl")
 
+# rng.jl
+export AbstractRandomSequenceGenerator, InverseCumulativeRSG, next_sequence!, last_sequence, init_sequence_generator!
+include("rng.jl")
+
+# statistics.jl
+export GenericRiskStatistics, RiskStatistics, gen_RiskStatistics, add_sample!, adding_data!
+include("statistics.jl")
+
 # sampled_curve.jl
 export SampledCurve, get_size, set_log_grid!, set_grid!, sample!, value_at_center, first_derivative_at_center, second_derivative_at_center
 include("sampled_curve.jl")

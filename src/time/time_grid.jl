@@ -1,6 +1,6 @@
 using QuantLib
 
-import Base.getindex
+import Base.getindex, Base.endof
 
 type TimeGrid
   times::Vector{Float64}
@@ -55,6 +55,7 @@ function TimeGrid(endTime::Float64, steps::Int)
 end
 
 getindex(tg::TimeGrid, i::Int) = tg.times[i]
+endof(tg::TimeGrid) = endof(tg.times)
 
 is_empty(tg::TimeGrid) = length(tg.times) == 0
 
