@@ -21,6 +21,7 @@ function add_sample!(stat::AbstractStatistics, price::Float64, weight::Float64, 
   # stat.samplesMatrix[idx, 1] = price
   # stat.samplesMatrix[idx, 2] = weight
   stat.samplesMatrix[idx, :] = [price weight]
+  stat.isSorted = false
   return stat
 end
 
@@ -30,6 +31,26 @@ function adding_data!(stat::AbstractStatistics, sz::Int)
   # add to samples and sample weights
   append!(stat.samples, zeros(sz))
   stat.sampleWeights = weights(vcat(values(stat.sampleWeights), zeros(sz)))
-
+  stat.isSorted = false
   return stat
+end
+
+function sort_samples!(stat::AbstractStatistics)
+  if ~stat.isSorted
+    stat.samplesMatrix = sortrows(stat.samplesMatrix)
+    stat.samples = stat.samplesMatrix[:, 1]
+    stat.sampleWeights = weights(stat.samplesMatrix[:, 2])
+    stat.isSorted = true
+  end
+  return stat
+end
+
+function error_estimate(stat::AbstractStatistics)
+  sort_samples!(stat)
+  return sqrt(var(stat.samples)/ length(stat.samples))
+end
+
+function stats_mean(stat::AbstractStatistics)
+  sort_samples!(stat)
+  return mean(stat.samples)
 end

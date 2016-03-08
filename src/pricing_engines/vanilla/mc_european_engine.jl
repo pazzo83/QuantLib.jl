@@ -57,5 +57,6 @@ end
 
 function _calculate!(pe::MCVanillaEngine, opt::VanillaOption)
   _calculate!(pe.mcSimulation, pe, opt, pe.requiredTolerance, pe.requiredSamples, pe.maxSamples)
+  opt.results.value = stats_mean(pe.mcSimulation.mcModel.sampleAccumulator)
   return pe, opt
 end

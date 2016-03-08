@@ -1,4 +1,5 @@
 using StatsFuns
+using Sobol
 
 abstract AbstractRandomSequenceGenerator
 type InverseCumulativeRSG{I <: Integer} <: AbstractRandomSequenceGenerator
@@ -9,6 +10,15 @@ type InverseCumulativeRSG{I <: Integer} <: AbstractRandomSequenceGenerator
 end
 
 InverseCumulativeRSG(seed::Int, dimension::Int = 1, weight::Float64 = 1.0) = InverseCumulativeRSG(MersenneTwister(seed), dimension, zeros(dimension), weight)
+
+type SobolRSG{I <: Integer} <: AbstractRandomSequenceGenerator
+  rng::Sobol.SobolSeq
+  dimension::I
+  values::Vector{Float64}
+  weight::Float64
+end
+
+SobolRSG(dimension::Int = 1, weight::Float64 = 1.0) = SobolRSG(SobolSeq(dimension), dimension, zeros(dimension), weight)
 
 function next_sequence!(rsg::InverseCumulativeRSG)
   # we can probably use map here with the norminvcdf
@@ -21,11 +31,30 @@ function next_sequence!(rsg::InverseCumulativeRSG)
   return rsg.values, rsg.weight
 end
 
-last_sequence(rsg::InverseCumulativeRSG) = rsg.values, rsg.weight
+function next_sequence!(rsg::SobolRSG)
+  # we can probably use map here with the norminvcdf
+  # like this: map!(norminvcdf, rsg.values, rand(rsg, length(rsg.values)))
+  for i in eachindex(rsg.values)
+    x = next(rsg.rng) # get random number
+    rsg.values[i] = x
+  end
+
+  return rsg.values, rsg.weight
+end
+
+last_sequence(rsg::AbstractRandomSequenceGenerator) = rsg.values, rsg.weight
 
 function init_sequence_generator!(rsg::InverseCumulativeRSG, dimension::Int)
   rsg.dimension = dimension
   rsg.values = zeros(dimension)
+
+  return rsg
+end
+
+function init_sequence_generator!(rsg::SobolRSG, dimension::Int)
+  rsg.dimension = dimension
+  rsg.values = zeros(dimension)
+  rsg.rng = SobolSeq(dimension)
 
   return rsg
 end

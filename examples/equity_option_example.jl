@@ -191,5 +191,10 @@ function main()
   mcengine1 = MCEuropeanEngine(bsmProcess; timeSteps = timeSteps, requiredTolerance = 0.02, seed = mcSeed)
   europeanOption = update_pricing_engine(europeanOption, mcengine1)
   println(npv(europeanOption))
+
+  nSamples = 32768
+  mcengine2 = MCEuropeanEngine(bsmProcess; timeSteps = timeSteps, requiredSamples = nSamples)
+  europeanOption = update_pricing_engine(europeanOption, mcengine2)
+  println(npv(europeanOption))
   # europeanOption
 end
