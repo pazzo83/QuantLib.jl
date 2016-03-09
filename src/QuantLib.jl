@@ -203,7 +203,7 @@ export
 
     # pricing_engines/vanilla
     AnalyticEuropeanEngine, AnalyticHestonEngine, BatesEngine, BaroneAdesiWhaleyApproximationEngine, BjerksundStenslandApproximationEngine, IntegralEngine,
-    FDEuropeanEngine, FDBermudanEngine, FDAmericanEngine, BinomialVanillaEngine, MCEuropeanEngine
+    FDEuropeanEngine, FDBermudanEngine, FDAmericanEngine, BinomialVanillaEngine, MCEuropeanEngine, MCAmericanEngine
 
 # abstract types
 include("abstract_types.jl")
@@ -309,6 +309,7 @@ include("methods/monte_carlo/path.jl")
 include("methods/monte_carlo/sample.jl")
 include("methods/monte_carlo/brownian_bridge.jl")
 include("methods/monte_carlo/path_generator.jl")
+include("methods/monte_carlo/lsm_basis_system.jl")
 include("methods/monte_carlo/monte_carlo_model.jl")
 
 # Pricing Engines ------------------------
@@ -341,6 +342,7 @@ include("pricing_engines/vanilla/integral_engine.jl")
 include("pricing_engines/vanilla/fd_vanilla_engine.jl")
 include("pricing_engines/vanilla/binomial_engine.jl")
 include("pricing_engines/vanilla/mc_european_engine.jl")
+include("pricing_engines/vanilla/mc_american_engine.jl")
 
 # # Helpers NOW IN TERM STRUCTURE
 # include("helpers/bond_helpers.jl")

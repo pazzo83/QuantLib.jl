@@ -37,6 +37,7 @@ abstract BC_Side
 abstract AbstractMonteCarloModel
 abstract MCTrait
 abstract AbstractPathPricer
+abstract LsmBasisSystemPolynomType
 # abstract BoundaryCondition
 
 # Exercise
@@ -95,6 +96,7 @@ abstract FDMultiPeriodEngine <: AbstractFDVanillaEngine
 abstract FDStepConditionEngine <: AbstractFDVanillaEngine
 abstract AbstractVanillaEngine <: PricingEngine
 abstract MCVanillaEngine <: PricingEngine
+abstract MCLongstaffSchwartzEngine <: PricingEngine
 
 # Cash Flows
 abstract CashFlows

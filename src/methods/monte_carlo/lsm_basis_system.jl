@@ -1,0 +1,1 @@
+type Monomial <: LsmBasisSystemPolynomType end
