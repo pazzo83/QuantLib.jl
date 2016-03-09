@@ -37,7 +37,9 @@ abstract BC_Side
 abstract AbstractMonteCarloModel
 abstract MCTrait
 abstract AbstractPathPricer
+abstract EarlyExercisePathPricer <: AbstractPathPricer
 abstract LsmBasisSystemPolynomType
+abstract LSMBasisSystemFunction
 # abstract BoundaryCondition
 
 # Exercise
