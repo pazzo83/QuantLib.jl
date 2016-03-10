@@ -13,7 +13,7 @@ end
 function MCEuropeanEngine{RSG <: AbstractRandomSequenceGenerator}(process::AbstractBlackScholesProcess; timeSteps::Int = -1, timeStepsPerYear::Int = -1, brownianBridge::Bool = false,
                           antitheticVariate::Bool = false, requiredSamples::Int = -1, requiredTolerance::Float64 = -1.0, maxSamples::Int = typemax(Int), seed::Int = 1, rsg::RSG = InverseCumulativeRSG(seed))
   # build mc sim
-  mcSim = MCSimulation{RSG, SingleVariate}(antitheticVariate, false, rsg, gen_RiskStatistics(), SingleVariate())
+  mcSim = MCSimulation{RSG, SingleVariate}(antitheticVariate, false, rsg, SingleVariate())
 
   return MCEuropeanEngine(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed, mcSim)
 end

@@ -5,6 +5,13 @@ abstract AbstractStatistics
 abstract StatsType
 type GaussianStatsType <: StatsType end
 
+type NonWeightedStatistics <: AbstractStatistics
+  samples::Vector{Float64}
+  isSorted::Bool
+end
+
+NonWeightedStatistics() = NonWeightedStatistics(Vector{Float64}(), false)
+
 type GenericRiskStatistics{S <: StatsType} <: AbstractStatistics
   statsType::S
   samples::Vector{Float64}
@@ -17,7 +24,7 @@ gen_RiskStatistics() = GenericRiskStatistics(GaussianStatsType(), Vector{Float64
 
 typealias RiskStatistics GenericRiskStatistics{GaussianStatsType}
 
-function add_sample!(stat::AbstractStatistics, price::Float64, weight::Float64, idx::Int)
+function add_sample!(stat::GenericRiskStatistics, price::Float64, weight::Float64, idx::Int)
   # stat.samplesMatrix[idx, 1] = price
   # stat.samplesMatrix[idx, 2] = weight
   stat.samplesMatrix[idx, :] = [price weight]
@@ -25,7 +32,13 @@ function add_sample!(stat::AbstractStatistics, price::Float64, weight::Float64, 
   return stat
 end
 
-function adding_data!(stat::AbstractStatistics, sz::Int)
+function add_sample!(stat::NonWeightedStatistics, price::Float64)
+  push!(stat.samples, price)
+  stat.isSorted = false
+  return stat
+end
+
+function adding_data!(stat::GenericRiskStatistics, sz::Int)
   # add to matrix
   stat.samplesMatrix = vcat(stat.samplesMatrix, zeros(sz, 2))
   # add to samples and sample weights
@@ -35,7 +48,7 @@ function adding_data!(stat::AbstractStatistics, sz::Int)
   return stat
 end
 
-function sort_samples!(stat::AbstractStatistics)
+function sort_samples!(stat::GenericRiskStatistics)
   if ~stat.isSorted
     stat.samplesMatrix = sortrows(stat.samplesMatrix)
     stat.samples = stat.samplesMatrix[:, 1]
@@ -43,6 +56,11 @@ function sort_samples!(stat::AbstractStatistics)
     stat.isSorted = true
   end
   return stat
+end
+
+function sort_samples!(stat::NonWeightedStatistics)
+  sort!(stat.samples)
+  stat.isSorted = true
 end
 
 function error_estimate(stat::AbstractStatistics)

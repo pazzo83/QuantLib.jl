@@ -36,44 +36,44 @@ function initialize!(bb::BrownianBridge)
   # the first point in the construction is the global step
   mapVec[bb.size_] = 1
   # the global step is constructed from the first variate
-  bb.bridgeIndex[1] = bb.size_
+  bb.bridgeIndex[1] = bb.size_ - 1
   # the variance of the global step
   bb.stdDev[1] = sqrt(bb.t[bb.size_])
   # the global step to the last point in time is special
   bb.leftWeight[1] = bb.rightWeight[1] = 0.0
 
-  j = 1
-  for i = 2:bb.size_
+  j = 0
+  for i = 1:bb.size_ - 1
     # find the next unpopulated entry in the map
-    while mapVec[j] != 0
+    while mapVec[j+1] != 0
       j += 1
     end
     k = j
     # find the next populated entry from there
-    while mapVec[j] == 0
+    while mapVec[k+1] == 0
       k += 1
     end
     # l - 1 is now the index of the point to be constructed next
     l = j + ((k - 1 - j) >> 1)
-    mapVec[l] = i
+    mapVec[l+1] = i
     # the i-th Gaussian variate will be used to set point l - 1
-    bb.bridgeIndex[i] = l
-    bb.leftIndex[i] = j
-    bb.rightIndex[i] = k
+    bb.bridgeIndex[i+1] = l
+    bb.leftIndex[i+1] = j
+    bb.rightIndex[i+1] = k
 
-    if j != 1
-      bb.leftWeight[i] = (bb.t[k] - bb.t[l]) / (bb.t[k] - bb.t[j - 1])
-      bb.rightWeight[i] = (bb.t[l] - bb.t[j-1]) / (bb.t[k] - bb.t[j - 1])
-      bb.stdDev[i] = sqrt(((bb.t[l] - bb.t[j - 1]) * (bb.t[k] - bb.t[l])) / (bb.t[k] - bb.t[j-1]))
+    if j != 0
+      bb.leftWeight[i+1] = (bb.t[k+1] - bb.t[l+1]) / (bb.t[k+1] - bb.t[j])
+      bb.rightWeight[i+1] = (bb.t[l+1] - bb.t[j]) / (bb.t[k+1] - bb.t[j])
+      bb.stdDev[i+1] = sqrt(((bb.t[l+1] - bb.t[j]) * (bb.t[k+1] - bb.t[l+1])) / (bb.t[k+1] - bb.t[j]))
     else
-      bb.leftWeight[i] = (bb.t[k] - bb.t[l]) / bb.t[k]
-      bb.rightWeight[i] = bb.t[l] / bb.t[k]
-      bb.stdDev[i] = sqrt(bb.t[l] * (bb.t[k] - bb.t[l]) / bb.t[k])
+      bb.leftWeight[i+1] = (bb.t[k+1] - bb.t[l+1]) / bb.t[k+1]
+      bb.rightWeight[i+1] = bb.t[l+1] / bb.t[k+1]
+      bb.stdDev[i+1] = sqrt(bb.t[l+1] * (bb.t[k+1] - bb.t[l+1]) / bb.t[k+1])
     end
     j = k + 1
-    if j > bb.size_
+    if j >= bb.size_
       # wrap around
-      j = 1
+      j = 0
     end
   end
 

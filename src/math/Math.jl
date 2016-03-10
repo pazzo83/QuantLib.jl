@@ -132,7 +132,7 @@ export AbstractRandomSequenceGenerator, InverseCumulativeRSG, SobolRSG, next_seq
 include("rng.jl")
 
 # statistics.jl
-export GenericRiskStatistics, RiskStatistics, gen_RiskStatistics, add_sample!, adding_data!, error_estimate, stats_mean
+export NonWeightedStatistics, GenericRiskStatistics, RiskStatistics, gen_RiskStatistics, add_sample!, adding_data!, error_estimate, stats_mean
 include("statistics.jl")
 
 # sampled_curve.jl

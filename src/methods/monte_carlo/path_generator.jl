@@ -16,6 +16,7 @@ function PathGenerator(process::StochasticProcess, tg::TimeGrid, generator::Abst
 end
 
 get_next!(pg::PathGenerator) = get_next!(pg, false)
+get_antithetic!(pg::PathGenerator) = get_next!(pg, true)
 
 function get_next!(pg::PathGenerator, antithetic::Bool)
   sequenceVals, sequenceWeight = antithetic ? last_sequence(pg.generator) : next_sequence!(pg.generator)

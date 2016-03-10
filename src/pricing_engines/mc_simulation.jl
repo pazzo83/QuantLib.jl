@@ -2,12 +2,11 @@ type MCSimulation{RSG <: AbstractRandomSequenceGenerator, T <: MCTrait}
   antitheticVariate::Bool
   controlVariate::Bool
   rsg::RSG
-  stats::RiskStatistics
   mcTrait::T
   mcModel::MonteCarloModel
 
-  MCSimulation{RSG, T}(antitheticVariate::Bool, controlVariate::Bool, rsg::RSG, stats::RiskStatistics, mcTrait::T) =
-              new{RSG, T}(antitheticVariate, controlVariate, rsg, stats, mcTrait)
+  MCSimulation{RSG, T}(antitheticVariate::Bool, controlVariate::Bool, rsg::RSG, mcTrait::T) =
+              new{RSG, T}(antitheticVariate, controlVariate, rsg, mcTrait)
 end
 
 max_error(err::Float64) = err
@@ -48,7 +47,7 @@ end
 
 function _calculate!(mcsim::MCSimulation, pe::PricingEngine, inst::Instrument, requiredTolerance::Float64, requiredSamples::Int, maxSamples::Int)
   # TODO check if control variate
-  mcsim.mcModel = MonteCarloModel(path_generator(pe, inst), path_pricer(pe, inst), mcsim.stats, mcsim.antitheticVariate)
+  mcsim.mcModel = MonteCarloModel(path_generator(pe, inst), path_pricer(pe, inst), gen_RiskStatistics(), mcsim.antitheticVariate)
 
   if requiredTolerance != -1.0
     if maxSamples != -1
