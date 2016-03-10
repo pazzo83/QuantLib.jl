@@ -200,5 +200,5 @@ function main()
   mcengine3 = MCAmericanEngine(bsmProcess; timeSteps = 100, antitheticVariate=true, requiredTolerance=0.02, seed=mcSeed, nCalibrationSamples=4096)
   americanOption = update_pricing_engine(americanOption, mcengine3)
   println(npv(americanOption))
-  # americanOption
+  americanOption
 end
