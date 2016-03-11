@@ -7,7 +7,7 @@ function get_critical_price_params(::Call, payoff::StrikedTypePayoff, n::Float64
   qu = (-(n - 1.0) + sqrt(((n - 1.0) * (n - 1.0)) + 4.0 * m)) / 2.0
   Su = payoff.strike / (1.0 - 1.0 / qu)
   h = -(bT + 2.0 * sqrt(variance)) * payoff.strike / (Su - payoff.strike)
-  Si = payoff.strike + (Su - payoff.strike) * (1.0 - exp(h))
+  Si = payoff.strike + (Su - payoff.strike) * (-expm1(h))
 
   return qu, Su, h, Si
 end

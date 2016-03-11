@@ -20,7 +20,7 @@ function american_call_approximation(S::Float64, X::Float64, rfD::Float64, dD::F
   ht = -(bT + 2.0 * sqrt(variance)) * B0 / (BInfinity - B0)
 
   # investigate what happens to I for db -> 0.0
-  I = B0 + (BInfinity - B0) * (1.0 - exp(ht))
+  I = B0 + (BInfinity - B0) * (-expm1(ht))
   I >= X || error("Bjerksund - Stensland approximation not applicable to this set of params")
 
   if S >= I

@@ -90,7 +90,7 @@ end
 function piecewise_yld_curve()
   issue_date, bonds, dc, calendar = setup()
 
-  interp = QuantLib.Math.LogInterpolation()
+  interp = QuantLib.Math.LogLinear()
   trait = Discount()
   bootstrap = IterativeBootstrap()
 
@@ -313,7 +313,7 @@ function generate_discounting_ts(sett::Date)
     insts[i + length(depo_rates)] = bond
   end
 
-  interp = QuantLib.Math.LogInterpolation()
+  interp = QuantLib.Math.LogLinear()
   trait = Discount()
   bootstrap = IterativeBootstrap()
 
@@ -332,7 +332,7 @@ function main()
   println("Today's date: $issue_date")
   println("Calculating fit for 15 bonds....")
 
-  interp = QuantLib.Math.LogInterpolation()
+  interp = QuantLib.Math.LogLinear()
   trait = Discount()
   bootstrap = IterativeBootstrap()
 
@@ -456,7 +456,7 @@ function main3()
   insts[1:length(depo_quotes)] = depos
   insts[length(depo_quotes) + 1: end] = swaps
 
-  interp = QuantLib.Math.LogInterpolation()
+  interp = QuantLib.Math.LogLinear()
   trait = Discount()
   bootstrap = IterativeBootstrap()
 

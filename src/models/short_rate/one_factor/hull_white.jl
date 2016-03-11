@@ -72,7 +72,7 @@ function B(model::HullWhite, t::Float64, T::Float64)
   if _a < sqrt(eps())
     return T - t
   else
-    return (1.0 - exp(-_a * (T - t))) / _a
+    return (-expm1(-_a * (T - t))) / _a
   end
 end
 

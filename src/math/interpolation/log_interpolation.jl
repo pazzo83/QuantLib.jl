@@ -1,10 +1,12 @@
-type LogInterpolation <: Interpolation
+type LogInterpolation{IN <: Interpolation} <: Interpolation
   x_vals::Vector{Float64}
   y_vals::Vector{Float64}
-  interpolator::LinearInterpolation
+  interpolator::IN
 end
 
-function LogInterpolation(x_vals::Vector{Float64}, y_vals::Vector{Float64})
+typealias LogLinearInterpolation LogInterpolation{LinearInterpolation}
+
+function LogLinear(x_vals::Vector{Float64}, y_vals::Vector{Float64})
   # build log of y values, defaulting to 0 for initial state
   n = length(x_vals)
   log_y_vals = zeros(n)
@@ -17,7 +19,7 @@ function LogInterpolation(x_vals::Vector{Float64}, y_vals::Vector{Float64})
 end
 
 # if no values are provided
-function LogInterpolation()
+function LogLinear()
   x_vals = Vector{Float64}()
   y_vals = Vector{Float64}()
   s = Vector{Float64}()

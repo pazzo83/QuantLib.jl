@@ -11,7 +11,7 @@ function BatesProcess(riskFreeRate::YieldTermStructure, dividendYield::YieldTerm
                       delta::Float64, d::AbstractHestonDiscretization = FullTruncation())
 
   hp = HestonProcess(riskFreeRate, dividendYield, s0, v0, kappa, theta, sigma, rho, d)
-  return BatesProcess(hp, lambda, nu, delta, exp(nu + 0.5 * delta * delta) - 1)
+  return BatesProcess(hp, lambda, nu, delta, expm1(nu + 0.5 * delta * delta))
 end
 
 get_risk_free_rate(bp::BatesProcess) = bp.hestonProcess.riskFreeRate

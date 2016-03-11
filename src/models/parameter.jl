@@ -19,8 +19,8 @@ end
 
 function value(param::G2FittingParameter, t::Float64)
   forward = forward_rate(param.ts, t, t, ContinuousCompounding(), NoFrequency()).rate
-  temp1 = param.sigma * (1.0 - exp(-param.a * t)) / param.a
-  temp2 = param.eta * (1.0 - exp(-param.b * t)) / param.b
+  temp1 = param.sigma * (-expm1(-param.a * t)) / param.a
+  temp2 = param.eta * (-expm1(-param.b * t)) / param.b
 
   val = 0.5 * temp1 * temp1 + 0.5 * temp2 * temp2 + param.rho * temp1 * temp2 + forward
 
@@ -35,7 +35,7 @@ end
 
 function value(param::HullWhiteFittingParameter, t::Float64)
   forward = forward_rate(param.ts, t, t, ContinuousCompounding(), NoFrequency()).rate
-  temp = param.a < sqrt(eps()) ? param.sigma * t : param.sigma * (1.0 - exp(-param.a * t)) / param.a
+  temp = param.a < sqrt(eps()) ? param.sigma * t : param.sigma * (-expm1(-param.a * t)) / param.a
 
   return forward + 0.5 * temp * temp
 end

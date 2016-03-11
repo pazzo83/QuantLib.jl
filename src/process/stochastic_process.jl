@@ -16,7 +16,7 @@ function variance(process::OrnsteinUhlenbeckProcess, ::Float64, ::Float64, dt::F
     # algebraic limits for small speed
     return v * v * dt
   else
-    return 0.5 * v * v / process.speed * (1.0 - exp(-2.0 * process.speed * dt))
+    return 0.5 * v * v / process.speed * (-expm1(-2.0 * process.speed * dt))
   end
 end
 
@@ -100,7 +100,7 @@ function variance(process::GsrProcess, w::Float64, ::Float64, dt::Float64)
   for k = lower_index(process, w):upper_index(process, t) - 1
     res2 = vol(process, k) * vol(process, k)
     res2 *= rev_zero(process, k) ? -(floored_time(process, k, w) - capped_time(process, k + 1, t)) :
-                                  (1.0 - exp(2.0 * rev(process, k) * (floored_time(process, k, w) - capped_time(process, k + 1, t)))) /
+                                  (-expm1(2.0 * rev(process, k) * (floored_time(process, k, w) - capped_time(process, k + 1, t)))) /
                                   (2.0 * rev(process, k))
 
     for i = k + 1:upper_index(process, t) - 1
