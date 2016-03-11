@@ -27,24 +27,32 @@ function calculate!{T}(glls::GeneralLinearLeastSquares, x::Vector{Float64}, y::V
   for i in eachindex(v)
     A[:, i] = map(v[i], x)
   end
-
+  # println(A[:, 2])
+  # println("-----------------")
+  # println(A[:, 3])
+  # println("-----------------")
+  # println(A[:, 4])
+  # error("DIE")
   svdA = svdfact(A)
-  V = svdA[:V]
-  U = svdA[:U]
+  V = svdA[:Vt] * -1.0
+  U = svdA[:U] * -1.0
   w = svdA[:S]
+  # svdA = SVD(A)
+  # V = svdA.V
+  # U = svdA.U
+  # w = svdA.s
   threshold = n * eps()
-  # println("U: ", U)
   for i in eachindex(w)
     if w[i] > threshold
       u = dot(U[:, i], y) / w[i]
-      # println("u: ", u)
-
       for j in eachindex(glls.a)
         glls.a[j] += u * V[j, i]
         glls.err[j] += V[j, i] * V[j, i] / (w[i] * w[i])
       end
     end
   end
+  # println(glls.a)
+  # error("DIE")
   glls.err = sqrt(glls.err)
   tmp = A * glls.a
   glls.residuals = tmp - y

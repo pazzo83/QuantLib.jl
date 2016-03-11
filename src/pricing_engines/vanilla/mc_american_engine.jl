@@ -12,7 +12,7 @@ end
 function LongstaffSchwartzPathPricer(tg::TimeGrid, ep::EarlyExercisePathPricer, yts::YieldTermStructure)
   v = basis_system(ep)
   len = length(tg.times)
-  coeff = Vector{Vector{Float64}}(len - 1)
+  coeff = Vector{Vector{Float64}}(len - 2)
   dF = zeros(len - 1)
   paths = Vector{Path}()
 
@@ -96,9 +96,7 @@ function call(lpp::LongstaffSchwartzPathPricer, path::Path)
     update_paths!(lpp, path)
     return 0.0
   end
-
   price = lpp.pathPricer(path, lpp.len)
-
   # initialize with exercise on last date
   exercised = price != 0.0
 
@@ -149,14 +147,11 @@ function calibrate!(lpp::LongstaffSchwartzPathPricer)
     end
 
     if length(lpp.v) <= length(x)
-      blah = get_coefficients(GeneralLinearLeastSquares(x, y, lpp.v))
-      println("a: ", blah)
-      error("DIE")
-      lpp.coeff[i - 1] = get_coefficients(GeneralLinearLeastSquares(x, y, lpp.v))
+      lpp.coeff[i-1] = get_coefficients(GeneralLinearLeastSquares(x, y, lpp.v))
     else
       # if number of itm paths is smaller than the number of calibration functions
       # then early exercise if earlyExercise > 0
-      lpp.coeff[i] = zeros(length(lpp.v))
+      lpp.coeff[i-1] = zeros(length(lpp.v))
     end
 
     k = 1

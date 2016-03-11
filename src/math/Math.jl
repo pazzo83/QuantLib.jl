@@ -119,6 +119,10 @@ include("distributions.jl")
 export Integrator, IntegrationFunction, SegmentIntegral, operator, integrate, GaussLaguerreIntegration, get_order
 include("integral.jl")
 
+# svd.jl
+export SVD
+include("svd.jl")
+
 # tridiagonal_operator.jl
 export TridiagonalOperator, TridiagIdentity, set_mid_row!, set_last_row!, set_first_row!, apply_to, solve_for!
 include("tridiagonal_operator.jl")
