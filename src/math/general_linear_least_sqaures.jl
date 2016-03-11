@@ -24,7 +24,7 @@ function calculate!{T}(glls::GeneralLinearLeastSquares, x::Vector{Float64}, y::V
 
   A = zeros(n, m)
 
-  for i in eachindex(v)
+  @inbounds @simd for i in eachindex(v)
     A[:, i] = map(v[i], x)
   end
   # println(A[:, 2])
@@ -34,18 +34,18 @@ function calculate!{T}(glls::GeneralLinearLeastSquares, x::Vector{Float64}, y::V
   # println(A[:, 4])
   # error("DIE")
   svdA = svdfact(A)
-  V = svdA[:Vt] * -1.0
-  U = svdA[:U] * -1.0
+  V = svdA[:V]
+  U = svdA[:U]
   w = svdA[:S]
   # svdA = SVD(A)
   # V = svdA.V
   # U = svdA.U
   # w = svdA.s
   threshold = n * eps()
-  for i in eachindex(w)
+  @inbounds @simd for i in eachindex(w)
     if w[i] > threshold
       u = dot(U[:, i], y) / w[i]
-      for j in eachindex(glls.a)
+      @inbounds for j in eachindex(glls.a)
         glls.a[j] += u * V[j, i]
         glls.err[j] += V[j, i] * V[j, i] / (w[i] * w[i])
       end

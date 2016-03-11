@@ -169,7 +169,7 @@ function calibrate!(lpp::LongstaffSchwartzPathPricer)
       end
     end
   end
-
+  
   # remove calibration paths & release memory
   lpp.paths = Path[]
   # entering calculation phase
