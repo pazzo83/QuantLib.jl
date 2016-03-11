@@ -60,15 +60,25 @@ type AmericanPathPricer{P <: StrikedTypePayoff, T, T1} <: EarlyExercisePathPrice
   v::Vector{Union{T, T1}}
 end
 
+function get_payoff(app::AmericanPathPricer)
+  function _get_payoff(x::Float64)
+    return app.payoff(x / app.scalingValue)
+  end
+
+  return _get_payoff
+end
+
 function AmericanPathPricer{P <: StrikedTypePayoff, L <: LsmBasisSystemPolynomType}(payoff::P, polynomOrder::Int, polynomType::L)
   T = get_type(polynomType)
-  v = Vector{Union{T, P}}(polynomOrder + 2)
+  v = Vector{Union{T, P}}(polynomOrder + 1)
   path_basis_system!(polynomType, polynomOrder, v)
-  v[end] = payoff
 
   scalingVal = 1.0 / payoff.strike
 
-  return AmericanPathPricer{P, T, P}(scalingVal, payoff, v)
+  app = AmericanPathPricer{P, T, Function}(scalingVal, payoff, v)
+
+  push!(app.v, get_payoff(app))
+  return app
 end
 
 basis_system(p::AmericanPathPricer) = p.v
@@ -76,18 +86,23 @@ get_state(p::AmericanPathPricer, path::Path, t::Int) = path[t] * p.scalingValue
 get_payoff(p::AmericanPathPricer, st::Float64) = p.payoff(st / p.scalingValue)
 call(p::AmericanPathPricer, path::Path, t::Int) = get_payoff(p, get_state(p, path, t))
 
+function update_paths!(lpp::LongstaffSchwartzPathPricer, path::Path)
+  push!(lpp.paths, copy(path))
+  return lpp
+end
+
 function call(lpp::LongstaffSchwartzPathPricer, path::Path)
   if lpp.calibrationPhase
-    push!(lpp.paths, path)
+    update_paths!(lpp, path)
     return 0.0
   end
 
-  price = lpp.pathPricer(path, len)
+  price = lpp.pathPricer(path, lpp.len)
 
   # initialize with exercise on last date
   exercised = price != 0.0
 
-  for i = len-1:-1:2
+  for i = lpp.len-1:-1:2
     price *= lpp.dF[i]
     exercise = lpp.pathPricer(path, i)
     if exercise > 0.0
@@ -133,10 +148,16 @@ function calibrate!(lpp::LongstaffSchwartzPathPricer)
       end
     end
 
-    # TODO v functions
-    # if number of itm paths is smaller than the number of calibration functions
-    # then early exercise if earlyExercise > 0
-    lpp.coeff[i] = zeros(length(lpp.v))
+    if length(lpp.v) <= length(x)
+      blah = get_coefficients(GeneralLinearLeastSquares(x, y, lpp.v))
+      println("a: ", blah)
+      error("DIE")
+      lpp.coeff[i - 1] = get_coefficients(GeneralLinearLeastSquares(x, y, lpp.v))
+    else
+      # if number of itm paths is smaller than the number of calibration functions
+      # then early exercise if earlyExercise > 0
+      lpp.coeff[i] = zeros(length(lpp.v))
+    end
 
     k = 1
     for j in eachindex(prices)
@@ -144,7 +165,7 @@ function calibrate!(lpp::LongstaffSchwartzPathPricer)
       if exercise[j] > 0.0
         continuationValue = 0.0
         for l in eachindex(lpp.v)
-          continuationValue += lpp.coeff[i][l] * lpp.v[l](x[k])
+          continuationValue += lpp.coeff[i-1][l] * lpp.v[l](x[k])
         end
         if continuationValue < exercise[j]
           prices[j] = exercise[j]
@@ -192,12 +213,16 @@ function path_generator(pe::MCLongstaffSchwartzEngine, opt::VanillaOption)
   return PathGenerator(pe.process, grid, pe.mcSimulation.rsg, pe.brownianBridge)
 end
 
+path_pricer(pe::MCLongstaffSchwartzEngine, ::VanillaOption) = pe.pathPricer
+
 function _calculate!(pe::MCLongstaffSchwartzEngine, opt::VanillaOption)
   pe.pathPricer = lsm_path_pricer(pe, opt)
   pe.mcSimulation.mcModel = MonteCarloModel(path_generator(pe, opt), pe.pathPricer, gen_RiskStatistics(), pe.mcSimulation.antitheticVariate)
   add_samples!(pe.mcSimulation.mcModel, pe.nCalibrationSamples, 1)
   # calibration
   calibrate!(pe.pathPricer)
+  _calculate!(pe.mcSimulation, pe, opt, pe.requiredTolerance, pe.requiredSamples, pe.maxSamples)
 
+  opt.results.value = stats_mean(pe.mcSimulation.mcModel.sampleAccumulator)
   return pe, opt
 end

@@ -25,14 +25,14 @@ function get_next!(pg::PathGenerator, antithetic::Bool)
   pg.temp = copy(sequenceVals)
 
   pg.nextSample.weight = sequenceWeight
-  path = pg.nextSample.value # TODO check to see if this is just a pass by reference
+  # path = pg.nextSample.value # TODO check to see if this is just a pass by reference
 
-  path[1] = get_x0(pg.process)
+  pg.nextSample.value[1] = get_x0(pg.process)
 
-  for i = 2:length(path)
+  for i = 2:length(pg.nextSample.value)
     t = pg.timeGrid[i-1]
     dt = pg.timeGrid.dt[i - 1]
-    path[i] = evolve(pg.process, t, path[i-1], dt, antithetic ? -pg.temp[i-1] : pg.temp[i-1])
+    pg.nextSample.value[i] = evolve(pg.process, t, pg.nextSample.value[i-1], dt, antithetic ? -pg.temp[i-1] : pg.temp[i-1])
   end
 
   return pg.nextSample

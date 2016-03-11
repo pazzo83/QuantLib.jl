@@ -139,6 +139,10 @@ include("statistics.jl")
 export SampledCurve, get_size, set_log_grid!, set_grid!, sample!, value_at_center, first_derivative_at_center, second_derivative_at_center
 include("sampled_curve.jl")
 
+# general_linear_least_squares.jl
+export GeneralLinearLeastSquares, get_coefficients
+include("general_linear_least_sqaures.jl")
+
 # interpolation.jl
 export Interpolation, Spline, Lagrange, LogInterpolation, BicubicSpline, NaturalCubicSpline, CubicInterpolation, BackwardFlatInterpolation, update!, locate, initialize!, value, get_primitive
 

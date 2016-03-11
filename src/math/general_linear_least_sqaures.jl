@@ -33,4 +33,27 @@ function calculate!{T}(glls::GeneralLinearLeastSquares, x::Vector{Float64}, y::V
   U = svdA[:U]
   w = svdA[:S]
   threshold = n * eps()
+  # println("U: ", U)
+  for i in eachindex(w)
+    if w[i] > threshold
+      u = dot(U[:, i], y) / w[i]
+      # println("u: ", u)
+
+      for j in eachindex(glls.a)
+        glls.a[j] += u * V[j, i]
+        glls.err[j] += V[j, i] * V[j, i] / (w[i] * w[i])
+      end
+    end
+  end
+  glls.err = sqrt(glls.err)
+  tmp = A * glls.a
+  glls.residuals = tmp - y
+
+  chiSq = dot(glls.residuals, glls.residuals)
+
+  glls.standardErrors = glls.err * sqrt(chiSq / (n - 2))
+
+  return glls
 end
+
+get_coefficients(glls::GeneralLinearLeastSquares) = glls.a

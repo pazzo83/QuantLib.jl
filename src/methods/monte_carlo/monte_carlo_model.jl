@@ -16,8 +16,8 @@ function add_samples!(mcmodel::MonteCarloModel, samples::Int, idx::Int)
 
     # TODO Control Variate
     if mcmodel.isAntitheticVariate
-      path = get_antithetic!(mcmodel.pathGenerator)
-      price2 = mcmodel.pathPricer(path.value)
+      path2 = get_antithetic!(mcmodel.pathGenerator)
+      price2 = mcmodel.pathPricer(path2.value)
       add_sample!(mcmodel.sampleAccumulator, price+price2/2.0, path.weight, idx)
     else
       add_sample!(mcmodel.sampleAccumulator, price, path.weight, idx)

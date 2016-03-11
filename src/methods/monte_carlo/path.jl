@@ -1,4 +1,4 @@
-import Base.getindex, Base.setindex!, Base.length, Base.endof
+import Base.getindex, Base.setindex!, Base.length, Base.endof, Base.copy
 
 type Path
   tg::TimeGrid
@@ -12,3 +12,5 @@ getindex(p::Path, i::Int) = p.values[i]
 setindex!(p::Path, x::Float64, i::Int) = p.values[i] = x
 length(p::Path) = length(p.tg.times)
 endof(p::Path) = endof(p.values)
+
+copy(p::Path) = Path(p.tg, copy(p.values))
