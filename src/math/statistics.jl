@@ -72,3 +72,18 @@ function stats_mean(stat::AbstractStatistics)
   sort_samples!(stat)
   return mean(stat.samples)
 end
+
+function stats_std_deviation(stat::AbstractStatistics)
+  sort_samples!(stat)
+  return std(stat.samples)
+end
+
+function stats_skewness(stat::AbstractStatistics)
+  sort_samples!(stat)
+  return skewness(stat.samples)
+end
+
+function stats_kurtosis(stat::AbstractStatistics)
+  sort_samples!(stat)
+  return kurtosis(stat.samples)
+end

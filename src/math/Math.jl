@@ -136,7 +136,8 @@ export AbstractRandomSequenceGenerator, PseudoRandomRSG, InverseCumulativeRSG, S
 include("rng.jl")
 
 # statistics.jl
-export NonWeightedStatistics, GenericRiskStatistics, RiskStatistics, gen_RiskStatistics, add_sample!, adding_data!, error_estimate, stats_mean
+export NonWeightedStatistics, GenericRiskStatistics, RiskStatistics, gen_RiskStatistics, add_sample!, adding_data!, error_estimate, stats_mean, stats_std_deviation,
+stats_skewness, stats_kurtosis
 include("statistics.jl")
 
 # sampled_curve.jl

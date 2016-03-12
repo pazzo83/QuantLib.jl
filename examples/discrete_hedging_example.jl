@@ -125,8 +125,14 @@ function compute(rp::ReplicationError, nTimeSteps::Int, nSamples::Int)
   add_samples!(mcSim, nSamples)
 
   PLMean = QuantLib.Math.stats_mean(mcSim.sampleAccumulator)
+  PLStdDev = QuantLib.Math.stats_std_deviation(mcSim.sampleAccumulator)
+  PLSkew = QuantLib.Math.stats_skewness(mcSim.sampleAccumulator)
+  PLKurtosis = QuantLib.Math.stats_kurtosis(mcSim.sampleAccumulator)
 
-  println(PLMean)
+  println("P&L Mean: ", PLMean)
+  println("P&L Standard Deviation: ", PLStdDev)
+  println("P&L Skew: ", PLSkew)
+  println("P&L Kurtosis: ", PLKurtosis)
 end
 
 function main()
