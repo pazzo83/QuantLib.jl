@@ -2,6 +2,15 @@ using StatsFuns
 using Sobol
 
 abstract AbstractRandomSequenceGenerator
+type PseudoRandomRSG{I <: Integer} <: AbstractRandomSequenceGenerator
+  rng::MersenneTwister
+  dimension::I
+  values::Vector{Float64}
+  weight::Float64
+end
+
+PseudoRandomRSG(seed::Int, dimension::Int = 1, weight::Float64 = 1.0) = PseudoRandomRSG(MersenneTwister(seed), dimension, zeros(dimension), weight)
+
 type InverseCumulativeRSG{I <: Integer} <: AbstractRandomSequenceGenerator
   rng::MersenneTwister
   dimension::I
@@ -42,19 +51,25 @@ function next_sequence!(rsg::SobolRSG)
   return rsg.values, rsg.weight
 end
 
-last_sequence(rsg::AbstractRandomSequenceGenerator) = rsg.values, rsg.weight
-
-function init_sequence_generator!(rsg::InverseCumulativeRSG, dimension::Int)
-  rsg.dimension = dimension
-  rsg.values = zeros(dimension)
-
-  return rsg
+function next_sequence!(rsg::PseudoRandomRSG)
+  rsg.values = rand(rsg.rng, rsg.dimension)
+  return rsg.values, rsg.weight
 end
+
+last_sequence(rsg::AbstractRandomSequenceGenerator) = rsg.values, rsg.weight
 
 function init_sequence_generator!(rsg::SobolRSG, dimension::Int)
   rsg.dimension = dimension
   rsg.values = zeros(dimension)
   rsg.rng = SobolSeq(dimension)
+
+  return rsg
+end
+
+function init_sequence_generator!(rsg::AbstractRandomSequenceGenerator, dimension::Int)
+  # MersenneTwister already init-ed
+  rsg.dimension = dimension
+  rsg.values = zeros(dimension)
 
   return rsg
 end

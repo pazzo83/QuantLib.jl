@@ -58,7 +58,7 @@ export
 
     Exercise, EarlyExercise, CompoundingType, TermStructure, YieldTermStructure, InterpolatedCurve, BootstrapTrait, Bootstrap, BootstrapHelper, BondHelper, RateHelper,
     FittingMethod, CashFlows, CashFlow, Coupon, CouponPricer, IborCouponPricer, Instrument, Bond, Swap, SwapType, PricingEngine, Duration, AbstractRate, Results,
-    InterestRateIndex, AbstractCurrency, Parameter, CalibrationHelper, ShortRateModel, FdmMesher,
+    InterestRateIndex, AbstractCurrency, Parameter, CalibrationHelper, ShortRateModel, FdmMesher, OptionType,
 
     # lazy.jl
     LazyMixin, calculate!, recalculate!,
@@ -192,8 +192,14 @@ export
     # methods - finite difference
     FdmG2Solver,FdmHullWhiteSolver, CrankNelson,
 
+    # methods - monte carlo
+    MonteCarloModel, PathGenerator, add_samples!, Path,
+
     # pricing_engines/pricing_engines.jl
     DiscountingBondEngine, DiscountingSwapEngine, MidPointCdsEngine,
+
+    # pricing_engines/black_calculator.jl
+    BlackCalculator, value, delta, vega, 
 
     # pricing_engines/discretized_asset.jl
     DiscretizedSwaption, DiscretizedSwap,

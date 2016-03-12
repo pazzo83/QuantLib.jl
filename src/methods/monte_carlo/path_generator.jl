@@ -15,6 +15,15 @@ function PathGenerator(process::StochasticProcess, tg::TimeGrid, generator::Abst
   return PathGenerator(brownianBridge, generator, generator.dimension, tg, process, Sample(Path(tg), 1.0), zeros(generator.dimension), BrownianBridge(tg))
 end
 
+function PathGenerator(process::StochasticProcess, len::Float64, timeSteps::Int, generator::AbstractRandomSequenceGenerator, brownianBridge::Bool)
+  dims = generator.dimension
+  timeSteps == dims || error("sequence generator dimensionality error")
+
+  tg = TimeGrid(len, timeSteps)
+
+  return PathGenerator(brownianBridge, generator, dims, tg, process, Sample(Path(tg), 1.0), zeros(dims), BrownianBridge(tg))
+end
+
 get_next!(pg::PathGenerator) = get_next!(pg, false)
 get_antithetic!(pg::PathGenerator) = get_next!(pg, true)
 

@@ -7,7 +7,7 @@ type MonteCarloModel{P <: AbstractPathPricer} <: AbstractMonteCarloModel
   isAntitheticVariate::Bool
 end
 
-function add_samples!(mcmodel::MonteCarloModel, samples::Int, idx::Int)
+function add_samples!(mcmodel::MonteCarloModel, samples::Int, idx::Int=1)
   # re-init the risk data
   adding_data!(mcmodel.sampleAccumulator, samples)
   for j = 1:samples

@@ -132,7 +132,7 @@ export TransformedGrid, LogGrid
 include("transformed_grid.jl")
 
 # rng.jl
-export AbstractRandomSequenceGenerator, InverseCumulativeRSG, SobolRSG, next_sequence!, last_sequence, init_sequence_generator!
+export AbstractRandomSequenceGenerator, PseudoRandomRSG, InverseCumulativeRSG, SobolRSG, next_sequence!, last_sequence, init_sequence_generator!
 include("rng.jl")
 
 # statistics.jl
@@ -145,7 +145,7 @@ include("sampled_curve.jl")
 
 # general_linear_least_squares.jl
 export GeneralLinearLeastSquares, get_coefficients
-include("general_linear_least_sqaures.jl")
+include("general_linear_least_squares.jl")
 
 # interpolation.jl
 export Interpolation, Spline, Lagrange, LogInterpolation, LogLinear, BicubicSpline, NaturalCubicSpline, CubicInterpolation, BackwardFlatInterpolation, update!, locate, initialize!, value, get_primitive
