@@ -112,6 +112,9 @@ FlatForwardTermStructure{B <: BusinessCalendar, DC <: DayCount, C <: Compounding
 FlatForwardTermStructure(referenceDate::Date, forward::Float64, dc::DayCount) =
                         FlatForwardTermStructure(0, referenceDate, TargetCalendar(), Quote(forward), dc, ContinuousCompounding(), Annual())
 
+FlatForwardTermStructure(referenceDate::Date, forward::Float64, dc::DayCount, compounding::CompoundingType, freq::Frequency) =
+                        FlatForwardTermStructure(0, referenceDate, TargetCalendar(), Quote(forward), dc, compounding, freq)
+
 discount_impl(ffts::FlatForwardTermStructure, time_frac::Float64) = discount_factor(ffts.rate, time_frac)
 
 # discount_impl(ffts::FlatForwardTermStructure, time_frac::Float64) = discount_factor(ffts.rate, time_frac)

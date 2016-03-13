@@ -1,14 +1,14 @@
-type JamshidianSwaptionEngine{S <: ShortRateModel, Y <: YieldTermStructure} <: PricingEngine
+type JamshidianSwaptionEngine{S <: ShortRateModel} <: PricingEngine
   model::S
-  ts::Y
+  # ts::Y
 
-  function call{S}(::Type{JamshidianSwaptionEngine}, model::S)
-    new{S, YieldTermStructure}(model)
-  end
-
-  function call{S, Y}(::Type{JamshidianSwaptionEngine}, model::S, yts::Y)
-    new{S, Y}(model, yts)
-  end
+  # function call{S}(::Type{JamshidianSwaptionEngine}, model::S)
+  #   new{S, YieldTermStructure}(model)
+  # end
+  #
+  # function call{S, Y}(::Type{JamshidianSwaptionEngine}, model::S, yts::Y)
+  #   new{S, Y}(model, yts)
+  # end
 end
 
 # methods #

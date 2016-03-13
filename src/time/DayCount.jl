@@ -20,6 +20,8 @@ type ISMAActualActual <: ActualActual; end
 type ISDAActualActual <: ActualActual; end
 type AFBActualActual <: ActualActual; end
 
+typealias ActualActualBond ISMAActualActual
+
 type SimpleDayCount <: DayCount end
 
 # Day Counting

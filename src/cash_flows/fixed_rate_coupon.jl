@@ -19,37 +19,75 @@ calc_rate(coup::FixedRateCoupon) = coup.rate.rate
 type FixedRateLeg <: Leg
   coupons::Vector{Union{FixedRateCoupon, SimpleCashFlow}}
   # redemption::SimpleCashFlow
+end
 
-  function FixedRateLeg{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}(schedule::Schedule, faceAmount::Float64, rate::Float64, calendar::B, paymentConvention::C, dc::DC; add_redemption::Bool = true)
-    n = add_redemption ? length(schedule.dates) : length(schedule.dates) - 1
-    coups = Vector{Union{FixedRateCoupon, SimpleCashFlow}}(n)
+function FixedRateLeg{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}(schedule::Schedule, faceAmount::Float64, rate::Float64, calendar::B, paymentConvention::C, dc::DC; add_redemption::Bool = true)
+  # n = add_redemption ? length(schedule.dates) : length(schedule.dates) - 1
+  # coups = Vector{Union{FixedRateCoupon, SimpleCashFlow}}(n)
+  #
+  # start_date = schedule.dates[1]
+  # end_date = schedule.dates[2]
+  # payment_date = adjust(calendar, paymentConvention, end_date)
+  # #TODO: setup payment adjustments and the like
+  # coups[1] = FixedRateCoupon(payment_date, faceAmount, InterestRate(rate, dc, SimpleCompounding(), schedule.tenor.freq), start_date, end_date, start_date, end_date, dc, -1.0)
+  #
+  # # build coupons
+  # count = 2
+  # start_date = end_date
+  # end_date = count == length(schedule.dates) ? schedule.dates[end] : schedule.dates[count + 1]
+  # payment_date = adjust(calendar, paymentConvention, end_date)
+  # while start_date < schedule.dates[end]
+  #   @inbounds coups[count] = FixedRateCoupon(payment_date, faceAmount, InterestRate(rate, dc, SimpleCompounding(), schedule.tenor.freq), start_date, end_date, start_date, end_date, dc, -1.0)
+  #
+  #   count += 1
+  #   start_date = end_date
+  #   end_date = count == length(schedule.dates) ? schedule.dates[end] : schedule.dates[count + 1]
+  #   payment_date = adjust(calendar, paymentConvention, end_date)
+  # end
+  #
+  # if add_redemption
+  #   @inbounds coups[end] = SimpleCashFlow(faceAmount, end_date)
+  # end
 
-    start_date = schedule.dates[1]
-    end_date = schedule.dates[2]
-    payment_date = adjust(calendar, paymentConvention, end_date)
-    #TODO: setup payment adjustments and the like
-    coups[1] = FixedRateCoupon(payment_date, faceAmount, InterestRate(rate, dc, SimpleCompounding(), schedule.tenor.freq), start_date, end_date, start_date, end_date, dc, -1.0)
+  ratesLen = length(schedule.dates) - 1
 
-    # build coupons
-    count = 2
+  ratesVec = fill(rate, ratesLen)
+
+  FixedRateLeg(schedule, faceAmount, ratesVec, calendar, paymentConvention, dc; add_redemption = add_redemption)
+end
+
+function FixedRateLeg(schedule::Schedule, faceAmount::Float64, rates::Vector{Float64}, calendar::BusinessCalendar, paymentConvention::BusinessDayConvention, dc::DayCount;
+                      add_redemption::Bool = false)
+  n = add_redemption ? length(schedule.dates) : length(schedule.dates) - 1
+  length(rates) == length(schedule.dates) - 1 || error("mismatch in coupon rates")
+
+  coups = Vector{Union{FixedRateCoupon, SimpleCashFlow}}(n)
+
+  start_date = schedule.dates[1]
+  end_date = schedule.dates[2]
+  payment_date = adjust(calendar, paymentConvention, end_date)
+  #TODO: setup payment adjustments and the like
+  coups[1] = FixedRateCoupon(payment_date, faceAmount, InterestRate(rates[1], dc, SimpleCompounding(), schedule.tenor.freq), start_date, end_date, start_date, end_date, dc, -1.0)
+
+  # build coupons
+  count = 2
+  start_date = end_date
+  end_date = count == length(schedule.dates) ? schedule.dates[end] : schedule.dates[count + 1]
+  payment_date = adjust(calendar, paymentConvention, end_date)
+  while start_date < schedule.dates[end]
+    @inbounds coups[count] = FixedRateCoupon(payment_date, faceAmount, InterestRate(rates[count], dc, SimpleCompounding(), schedule.tenor.freq), start_date, end_date, start_date, end_date, dc, -1.0)
+
+    count += 1
     start_date = end_date
     end_date = count == length(schedule.dates) ? schedule.dates[end] : schedule.dates[count + 1]
     payment_date = adjust(calendar, paymentConvention, end_date)
-    while start_date < schedule.dates[end]
-      @inbounds coups[count] = FixedRateCoupon(payment_date, faceAmount, InterestRate(rate, dc, SimpleCompounding(), schedule.tenor.freq), start_date, end_date, start_date, end_date, dc, -1.0)
-
-      count += 1
-      start_date = end_date
-      end_date = count == length(schedule.dates) ? schedule.dates[end] : schedule.dates[count + 1]
-      payment_date = adjust(calendar, paymentConvention, end_date)
-    end
-
-    if add_redemption
-      @inbounds coups[end] = SimpleCashFlow(faceAmount, end_date)
-    end
-
-    new(coups)
   end
+
+  if add_redemption
+    @inbounds coups[end] = SimpleCashFlow(faceAmount, end_date)
+  end
+
+  FixedRateLeg(coups)
 end
 
 # Coupon methods

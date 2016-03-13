@@ -108,6 +108,12 @@ export
     # instruments/option.jl
     VanillaOption,
 
+    # instruments/callability_schedule.jl
+    DirtyCall, CleanCall, Price, Callability, CallabilitySchedule,
+
+    # instruments/callable_bond.jl
+    CallableFixedRateBond,
+
     # instruments/claim.jl
     FaceValueClaim,
 
@@ -196,10 +202,10 @@ export
     MonteCarloModel, PathGenerator, add_samples!, Path,
 
     # pricing_engines/pricing_engines.jl
-    DiscountingBondEngine, DiscountingSwapEngine, MidPointCdsEngine,
+    DiscountingBondEngine, DiscountingSwapEngine, MidPointCdsEngine, TreeCallibleFixedRateEngine, 
 
     # pricing_engines/black_calculator.jl
-    BlackCalculator, value, delta, vega, 
+    BlackCalculator, value, delta, vega,
 
     # pricing_engines/discretized_asset.jl
     DiscretizedSwaption, DiscretizedSwap,
@@ -251,6 +257,8 @@ include("instruments/Instruments.jl")
 include("instruments/bond.jl")
 include("instruments/payoff.jl")
 include("instruments/option.jl")
+include("instruments/callability_schedule.jl")
+include("instruments/callable_bond.jl")
 include("instruments/claim.jl")
 include("instruments/swap.jl")
 include("indexes/swap_index.jl") # need this here because swap index needs to know what a VanillaSwap is
@@ -274,6 +282,7 @@ include("termstructures/yield/nonlinear_fitting_methods.jl")
 # volatility
 include("termstructures/volatility/vol_term_structure.jl")
 include("termstructures/volatility/black_vol_term_structure.jl")
+include("termstructures/volatility/callable_bond_vol_structure.jl")
 # credit
 include("termstructures/credit/piecewise_default_curve.jl")
 
@@ -324,7 +333,10 @@ include("pricing_engines/discretized_asset.jl")
 include("pricing_engines/black_calculator.jl")
 include("pricing_engines/black_formula.jl")
 include("pricing_engines/mc_simulation.jl")
+include("pricing_engines/lattice_shortrate_model_engine.jl")
 include("pricing_engines/bond/discounting_bond_engine.jl")
+include("pricing_engines/bond/black_callable_bond_engine.jl")
+include("pricing_engines/bond/tree_callable_bond_engine.jl")
 include("pricing_engines/swap/discounting_swap_engine.jl")
 include("pricing_engines/swap/discretized_swap.jl")
 include("pricing_engines/credit/midpoint_cds_engine.jl")

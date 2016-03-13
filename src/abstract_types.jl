@@ -49,6 +49,7 @@ abstract EarlyExercise <: Exercise
 # Instruments
 abstract Instrument <: LazyObject
 abstract Bond <: Instrument
+abstract AbstractCallableBond <: Bond
 abstract AbstractRate <: Instrument
 abstract Swap <: Instrument
 abstract AbstractClaim
@@ -60,6 +61,7 @@ abstract OptionType
 abstract SwapType
 abstract CDSProtectionSide
 abstract Results
+abstract CallType
 
 # Term Structures
 abstract TermStructure <: LazyObject
@@ -77,6 +79,7 @@ abstract OptionletVolatilityStructure <: VolatilityTermStructure
 abstract SwaptionVolatilityStructure <: VolatilityTermStructure
 abstract BlackVolTermStructure <: VolatilityTermStructure
 abstract LocalVolTermStructure <: VolatilityTermStructure
+abstract CallableBondVolatilityStructure <: TermStructure
 abstract AbstractSmileSection
 abstract VolatilityType
 abstract BootstrapTrait
@@ -91,7 +94,7 @@ abstract AbstractCDSHelper <: BootstrapHelper
 abstract PricingEngine
 abstract DiscretizedAsset
 abstract DiscretizedOption <: DiscretizedAsset
-abstract LatticeShortRateModelEngine{S, Y} <: PricingEngine
+abstract LatticeShortRateModelEngine{S} <: PricingEngine
 abstract AbstractHestonEngine <: PricingEngine
 abstract AbstractFDVanillaEngine <: PricingEngine
 abstract FDMultiPeriodEngine <: AbstractFDVanillaEngine
