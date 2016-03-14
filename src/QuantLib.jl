@@ -202,7 +202,7 @@ export
     MonteCarloModel, PathGenerator, add_samples!, Path,
 
     # pricing_engines/pricing_engines.jl
-    DiscountingBondEngine, DiscountingSwapEngine, MidPointCdsEngine, TreeCallibleFixedRateEngine, 
+    DiscountingBondEngine, DiscountingSwapEngine, MidPointCdsEngine, TreeCallibleFixedRateEngine,
 
     # pricing_engines/black_calculator.jl
     BlackCalculator, value, delta, vega,
@@ -334,6 +334,7 @@ include("pricing_engines/black_calculator.jl")
 include("pricing_engines/black_formula.jl")
 include("pricing_engines/mc_simulation.jl")
 include("pricing_engines/lattice_shortrate_model_engine.jl")
+include("pricing_engines/bond/discretized_bond.jl")
 include("pricing_engines/bond/discounting_bond_engine.jl")
 include("pricing_engines/bond/black_callable_bond_engine.jl")
 include("pricing_engines/bond/tree_callable_bond_engine.jl")

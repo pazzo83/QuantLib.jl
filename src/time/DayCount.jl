@@ -66,7 +66,7 @@ function year_fraction(::SimpleDayCount, d_start::Date, d_end::Date, ::Date, ::D
   end
 end
 
-function year_fraction(dc::ISDAActualActual, d1::Date, d2::Date, ::Date, ::Date)
+function year_fraction(dc::ISDAActualActual, d1::Date, d2::Date, ::Date = Date(), ::Date = Date())
   if d1 == d2
     return 0.0
   end
@@ -94,13 +94,13 @@ function year_fraction(dc::ISDAActualActual, d1::Date, d2::Date, ::Date, ::Date)
   return sum
 end
 
-function year_fraction(dc::ISMAActualActual, d1::Date, d2::Date, d3::Date, d4::Date)
+function year_fraction(dc::ISMAActualActual, d1::Date, d2::Date, d3::Date = Date(), d4::Date = Date())
   if d1 == d2
     return 0.0
   end
 
   if d1 > d2
-    return -year_fraction(d2, d1, d3, d4)
+    return -year_fraction(dc, d2, d1, d3, d4)
   end
 
   ref_period_start = d3 != Date() ? d3 : d1

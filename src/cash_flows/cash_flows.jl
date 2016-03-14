@@ -510,4 +510,6 @@ Base.start{L <: Leg}(f::L) = 1
 Base.next{L <: Leg}(f::L, state) = f.coupons[state], state + 1
 Base.done{L <: Leg}(f::L, state) = length(f.coupons) == state - 1
 
+Base.getindex(f::Leg, i::Int) = f.coupons[i]
+Base.endof(f::Leg) = endof(f.coupons)
 # end

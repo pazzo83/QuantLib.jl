@@ -3,6 +3,7 @@ module Time
 
 # Date helper funcs
 within_next_week(d1::Date, d2::Date) = d2 >= d1 && d2 <= d1 + Dates.Day(7)
+within_next_week(t1::Float64, t2::Float64) = t1 <= t2 && t2 <= t1 + (1.0/52.0)
 within_previous_week(d1::Date, d2::Date) = d2 >= d1 - Dates.Day(7) && d2 <= d1
 
 export within_next_week, within_previous_week

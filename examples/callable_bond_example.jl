@@ -6,7 +6,7 @@ function main()
 
   bbCurveRate = 0.055
   bbDayCount = QuantLib.Time.ActualActualBond()
-  bbIR = InterestRate(bbCurveRate, bbDayCount, ContinuousCompounding(), QuantLib.Time.Semiannual())
+  bbIR = InterestRate(bbCurveRate, bbDayCount, CompoundedCompounding(), QuantLib.Time.Semiannual())
   ts = FlatForwardTermStructure(todaysDate, bbIR.rate, bbIR.dc, bbIR.comp, bbIR.freq)
 
   # set up call schedule
@@ -50,4 +50,7 @@ function main()
   engine0 = TreeCallibleFixedRateEngine(hw0, gridIntervals)
 
   callableBond = CallableFixedRateBond(settlementDays, faceAmount, schedule, coupon, bondDayCount, paymentConvention, redemption, issue, callSchedule, engine0)
+
+  println(clean_price(callableBond))
+  println(QuantLib.yield(callableBond, bondDayCount, CompoundedCompounding(), freq, accuracy, maxIter))
 end

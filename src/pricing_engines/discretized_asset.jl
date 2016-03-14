@@ -25,12 +25,6 @@ function set_method!(a::DiscretizedAsset, method::Lattice)
   return a
 end
 
-type DiscretizedDiscountBond <: DiscretizedAsset
-  common::DiscretizedAssetCommon
-end
-
-DiscretizedDiscountBond() = DiscretizedDiscountBond(DiscretizedAssetCommon())
-
 function adjust_values!(dAsset::DiscretizedAsset)
   pre_adjust_values!(dAsset)
   post_adjust_values!(dAsset)
@@ -118,10 +112,4 @@ function initialize!(asset::DiscretizedAsset, lattice::Lattice, t::Float64)
   set_method!(asset, lattice)
   initialize!(lattice, asset, t)
   return asset
-end
-
-function reset!(dBond::DiscretizedDiscountBond, sz::Int)
-  dBond.common.values = ones(sz)
-
-  return dBond
 end
