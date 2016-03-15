@@ -69,10 +69,6 @@ maturity_date{R <: RateHelper}(rate::R) = rate.maturityDate
 
 value{R <: RateHelper}(rate::R) = rate.rate.value
 
-function implied_quote(depo::DepositRateHelper)
-  return fixing(depo.iborIndex, depo.iborIndex.ts, depo.fixingDate, true)
-end
-
 function implied_quote(swap_helper::SwapRateHelper)
   swap = swap_helper.swap
   recalculate!(swap)
@@ -90,6 +86,35 @@ function implied_quote(swap_helper::SwapRateHelper)
   return totNPV / (fixed_leg_BPS(swap) / basisPoint)
 end
 
+function implied_quote(rh::RateHelper)
+  return fixing(rh.iborIndex, rh.iborIndex.ts, rh.fixingDate, true)
+end
+
+type FraRateHelper{D <: Dates.Period} <: RateHelper
+  rate::Quote
+  evaluationDate::Date
+  periodToStart::D
+  iborIndex::IborIndex
+  fixingDate::Date
+  earliestDate::Date
+  latestDate::Date
+end
+
+function FraRateHelper(rate::Quote, monthsToStart::Int, monthsToEnd::Int, fixingDays::Int, calendar::BusinessCalendar, convention::BusinessDayConvention, endOfMonth::Bool, dc::DayCount)
+  periodToStart = Dates.Month(monthsToStart)
+  iborIndex = IborIndex("no-fix", TenorPeriod(Dates.Month(monthsToEnd - monthsToStart)), fixingDays, NullCurrency(), calendar, convention, endOfMonth, dc)
+  evaluationDate = settings.evaluation_date
+
+  # initialize dates
+  refDate = adjust(iborIndex.fixingCalendar, evaluationDate)
+  spotDate = advance(Dates.Day(iborIndex.fixingDays), calendar, refDate)
+  earliestDate = advance(periodToStart, calendar, spotDate, convention)
+  latestDate = maturity_date(iborIndex, earliestDate)
+  fixingDate = fixing_date(iborIndex, earliestDate)
+
+  return FraRateHelper(rate, evaluationDate, periodToStart, iborIndex, fixingDate, earliestDate, latestDate)
+end
+
 # Clone functions #
 function clone(depo::DepositRateHelper, ts::TermStructure = depo.iborIndex.ts)
   # first we have to clone a new index
@@ -97,6 +122,14 @@ function clone(depo::DepositRateHelper, ts::TermStructure = depo.iborIndex.ts)
   #now we build a new depo helper
   return DepositRateHelper(depo.rate, depo.tenor, depo.fixingDays, depo.calendar, depo.convention, depo.endOfMonth, depo.dc, newIdx, depo.evaluationDate, depo.referenceDate,
                           depo.earliestDate, depo.maturityDate, depo.fixingDate)
+end
+
+function clone(fra::FraRateHelper, ts::TermStructure = depo.iborIndex.ts)
+  # clone new index
+  newIdx = clone(depo.iborIndex, ts)
+
+  # build new fra helper
+  return FraRateHelper(fra.rate, fra.evaluationDate, fra.periodToStart, newIdx, fra.fixingDate, fra.earliestDate, fra.latestDate)
 end
 
 function clone(swapHelper::SwapRateHelper, ts::TermStructure = swapHelper.swap.iborIndex.ts)

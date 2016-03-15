@@ -130,7 +130,7 @@ export
     FixedRateBondHelper, implied_quote,
 
     # termstructures/rate_helpers.jl
-    SwapRateHelper, DepositRateHelper, implied_quote,
+    SwapRateHelper, DepositRateHelper, FraRateHelper, implied_quote,
 
     # termstructures/TermStructures.jl
     check_range, max_date, time_from_reference,

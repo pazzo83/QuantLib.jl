@@ -394,3 +394,5 @@ function adjust{B <: BusinessCalendar}(cal::B, ::Union{ModifiedFollowing, Follow
 
   return d
 end
+
+adjust(cal::BusinessCalendar, d::Date) = adjust(cal, Following(), d)
