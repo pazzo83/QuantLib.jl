@@ -48,13 +48,15 @@ abstract EarlyExercise <: Exercise
 
 # Instruments
 abstract Instrument <: LazyObject
+abstract PositionType
 abstract Bond <: Instrument
 abstract AbstractCallableBond <: Bond
 abstract AbstractRate <: Instrument
 abstract Swap <: Instrument
 abstract AbstractClaim
 abstract SettlementType
-abstract StrikedTypePayoff
+abstract AbstractPayoff
+abstract StrikedTypePayoff <: AbstractPayoff
 abstract Option{E} <: Instrument
 abstract OneAssetOption{E} <: Option{E}
 abstract OptionType

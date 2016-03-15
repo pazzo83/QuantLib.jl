@@ -25,6 +25,7 @@ function discount{C <: Curve}(curve::C, t::Float64)
 end
 
 function discount_impl{C <: InterpolatedCurve}(curve::C, t::Float64)
+  calculate!(curve)
   if t <= curve.times[end]
     return QuantLib.Math.value(curve.interp, t)
   end

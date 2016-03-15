@@ -29,8 +29,14 @@ function main()
   endOfMonth = euribor3m.endOfMonth
 
   fra1x4 = FraRateHelper(h1x4, 1, 4, fixingDays, calendar, convention, endOfMonth, fraDayCount)
-  # fra2x5 = FraRateHelper(h2x5, 2, 5, fixingDays, calendar, convention, endOfMonth, fraDayCount)
-  # fra3x6 = FraRateHelper(h3x6, 3, 6, fixingDays, calendar, convention, endOfMonth, fraDayCount)
-  # fra6x9 = FraRateHelper(h6x9, 6, 9, fixingDays, calendar, convention, endOfMonth, fraDayCount)
-  # fra9x12 = FraRateHelper(h9x12, 9, 12, fixingDays, calendar, convention, endOfMonth, fraDayCount)
+  fra2x5 = FraRateHelper(h2x5, 2, 5, fixingDays, calendar, convention, endOfMonth, fraDayCount)
+  fra3x6 = FraRateHelper(h3x6, 3, 6, fixingDays, calendar, convention, endOfMonth, fraDayCount)
+  fra6x9 = FraRateHelper(h6x9, 6, 9, fixingDays, calendar, convention, endOfMonth, fraDayCount)
+  fra9x12 = FraRateHelper(h9x12, 9, 12, fixingDays, calendar, convention, endOfMonth, fraDayCount)
+
+  fraInstruments = FraRateHelper[fra1x4, fra2x5, fra3x6, fra6x9, fra9x12]
+  termStructureDC = QuantLib.Time.ISDAActualActual()
+  tol = 1.0e-15
+
+  fraTermStructure = PiecewiseYieldCurve(settlementDate, fraInstruments, termStructureDC, QuantLib.Math.LogLinear(), Discount(), tol, IterativeBootstrap())
 end

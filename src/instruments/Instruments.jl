@@ -24,3 +24,7 @@ function perform_calculations!(inst::Instrument)
 
   return inst
 end
+
+## MISC TYPES ##
+type LongPosition <: PositionType end
+type ShortPosition <: PositionType end

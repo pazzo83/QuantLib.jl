@@ -115,6 +115,8 @@ function FraRateHelper(rate::Quote, monthsToStart::Int, monthsToEnd::Int, fixing
   return FraRateHelper(rate, evaluationDate, periodToStart, iborIndex, fixingDate, earliestDate, latestDate)
 end
 
+maturity_date(fra::FraRateHelper) = fra.latestDate
+
 # Clone functions #
 function clone(depo::DepositRateHelper, ts::TermStructure = depo.iborIndex.ts)
   # first we have to clone a new index
@@ -124,9 +126,9 @@ function clone(depo::DepositRateHelper, ts::TermStructure = depo.iborIndex.ts)
                           depo.earliestDate, depo.maturityDate, depo.fixingDate)
 end
 
-function clone(fra::FraRateHelper, ts::TermStructure = depo.iborIndex.ts)
+function clone(fra::FraRateHelper, ts::TermStructure = fra.iborIndex.ts)
   # clone new index
-  newIdx = clone(depo.iborIndex, ts)
+  newIdx = clone(fra.iborIndex, ts)
 
   # build new fra helper
   return FraRateHelper(fra.rate, fra.evaluationDate, fra.periodToStart, newIdx, fra.fixingDate, fra.earliestDate, fra.latestDate)
