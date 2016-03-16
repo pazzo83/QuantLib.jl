@@ -84,7 +84,7 @@ export
     AmericanExercise, BermudanExercise, EuropeanExercise,
 
     # Indexes
-    IborIndex, LiborIndex, fixing_date, maturity_date, fixing, forecast_fixing, euribor_index, usd_libor_index,
+    IborIndex, LiborIndex, fixing_date, maturity_date, fixing, forecast_fixing, euribor_index, usd_libor_index, update_termstructure,
 
     # cash_flows/cash_flows.jl
     CouponMixin, accrual_start_date, accrual_end_date, ref_period_start, ref_period_end, SimpleCashFlow, Leg, ZeroCouponLeg, IRRFinder, operator, amount, date, duration, yield, previous_cashflow_date,
@@ -97,7 +97,7 @@ export
     BlackIborCouponPricer, IborCoupon, IborLeg, update_pricer!,
 
     # instruments/Instruments.jl
-    update_pricing_engine,
+    update_pricing_engine, LongPosition, ShortPosition,
 
     # instruments/bond.jl
     BondMixin, FixedRateBond, FloatingRateBond, ZeroCouponBond, value, get_settlement_days, get_settlement_date, notional, accrued_amount, yield, duration, npv, clean_price, dirty_price, accrued_amount,
@@ -107,6 +107,9 @@ export
 
     # instruments/option.jl
     VanillaOption,
+
+    # instruments/forward.jl
+    ForwardRateAgreement, forward_rate, spot_value, forward_value, implied_yield,
 
     # instruments/callability_schedule.jl
     DirtyCall, CleanCall, Price, Callability, CallabilitySchedule,
@@ -257,6 +260,7 @@ include("instruments/Instruments.jl")
 include("instruments/bond.jl")
 include("instruments/payoff.jl")
 include("instruments/option.jl")
+include("instruments/forward.jl")
 include("instruments/callability_schedule.jl")
 include("instruments/callable_bond.jl")
 include("instruments/claim.jl")

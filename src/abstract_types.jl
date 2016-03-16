@@ -64,6 +64,7 @@ abstract SwapType
 abstract CDSProtectionSide
 abstract Results
 abstract CallType
+abstract AbstractForward <: Instrument
 
 # Term Structures
 abstract TermStructure <: LazyObject

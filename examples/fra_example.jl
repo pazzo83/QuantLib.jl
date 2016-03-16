@@ -39,4 +39,22 @@ function main()
   tol = 1.0e-15
 
   fraTermStructure = PiecewiseYieldCurve(settlementDate, fraInstruments, termStructureDC, QuantLib.Math.LogLinear(), Discount(), tol, IterativeBootstrap())
+
+  euribor3m = update_termstructure(euribor3m, fraTermStructure)
+
+  fraCalendar = euribor3m.fixingCalendar
+  fraBusinessDayConvention = euribor3m.convention
+  fraFwdType = LongPosition()
+  fraNotional = 100.0
+  monthsToStart = [1, 2, 3, 6, 9]
+  fraTermMonths = 3
+  fraValueDate = QuantLib.Time.advance(Dates.Month(monthsToStart[1]), fraCalendar, settlementDate, fraBusinessDayConvention)
+  fraMaturityDate = QuantLib.Time.advance(Dates.Month(fraTermMonths), fraCalendar, fraValueDate, fraBusinessDayConvention)
+  fraStrikeRate = threeMonthFraQuote[monthsToStart[1] + 1]
+  myFRA = ForwardRateAgreement(fraValueDate, fraMaturityDate, fraFwdType, fraStrikeRate, fraNotional, euribor3m, fraTermStructure)
+
+  println(forward_rate(myFRA).rate)
+  println(spot_value(myFRA))
+  println(forward_value(myFRA))
+  println(implied_yield(myFRA, spot_value(myFRA), forward_value(myFRA), settlementDate, SimpleCompounding(), fraDayCount).rate)
 end
