@@ -41,3 +41,6 @@ function EvolutionDescription(rateTimes::Vector{Float64},
 
   return EvolutionDescription(numberOfRates, rateTimes, evolutionTimes, relevanceRates, rateTaus, firstAliveRate)
 end
+
+clone(ed::EvolutionDescription) = EvolutionDescription(ed.numberOfRates, copy(ed.rateTimes), copy(ed.evolutionTimes), copy(ed.relevanceRates),
+                                  copy(ed.rateTaus), copy(ed.firstAliveRate))

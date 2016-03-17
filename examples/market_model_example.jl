@@ -35,6 +35,14 @@ function InverseFloater(rateLevel::Float64)
 
   # control that does nothing, need it because some control is required
   control = NothingExerciseValue(rateTimes)
+
+  basisSystem = SwapForwardBasisSystem(rateTimes, exerciseTimes)
+
+  # rebate that does nothing, need it because some rebate is expected
+  # when you break a swap, nothing happens
+  nullRebate = NothingExerciseValue(rateTimes)
+
+  dummyProduct = CallSpecifiedMultiProduct(inverseFloater, naifStrategy, ExerciseAdapter(nullRebate))
 end
 
 function main()

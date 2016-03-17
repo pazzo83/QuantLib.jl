@@ -1,4 +1,4 @@
-type NothingExerciseValue
+type NothingExerciseValue <: MarketModelExerciseValue
   numberOfExercises::Int
   rateTimes::Vector{Float64}
   isExerciseTime::BitArray{1}
@@ -31,3 +31,8 @@ function NothingExerciseValue(rateTimes::Vector{Float64}, isExerciseTime::BitArr
 
   return NothingExerciseValue(numberOfExercises, rateTimes, isExerciseTime, evolution, currentIndex, cf)
 end
+
+possible_cash_flow_times(nev::NothingExerciseValue) = nev.rateTimes
+
+clone(nev::NothingExerciseValue) = NothingExerciseValue(nev.numberOfExercises, copy(nev.rateTimes), copy(nev.isExerciseTime), clone(nev.evolution),
+                                    nev.currentIndex, clone(nev.cf))

@@ -201,14 +201,20 @@ export
     # models/short_rate/one_factor.jl
     BlackKarasinski, HullWhite, GSR, calibrate_volatilities_iterative!, get_volatilities,
 
-    # models/market_models/products/multistep.jl
-    MultiStepInverseFloater,
+    # models/market_models/products/multistep/multiproduct_multistep.jl
+    MultiStepInverseFloater, ExerciseAdapter,
+
+    # models/market_models/products/multistep/call_specified_multiproduct.jl
+    CallSpecifiedMultiProduct,
 
     # models/market_models/callability/swap_rate_trigger.jl
     SwapRateTrigger,
 
     # models/market_models/exercise_value.jl
     NothingExerciseValue,
+
+    # models/market_models/callability/market_model_basis_system.jl
+    SwapForwardBasisSystem,
 
     # methods - finite difference
     FdmG2Solver,FdmHullWhiteSolver, CrankNelson,
@@ -324,9 +330,11 @@ include("models/short_rate/one_factor/hull_white.jl")
 include("models/short_rate/one_factor/gsr.jl")
 include("models/market_models/utilities.jl")
 include("models/market_models/evolution_description.jl")
-include("models/market_models/products/multistep.jl")
+include("models/market_models/products/multistep/multiproduct_multistep.jl")
+include("models/market_models/products/multistep/call_specified_multiproduct.jl")
 include("models/market_models/callability/swap_rate_trigger.jl")
 include("models/market_models/callability/exercise_value.jl")
+include("models/market_models/callability/market_model_basis_system.jl")
 
 # Finite Difference method
 include("methods/finite_differences/fd_boundary_condition.jl")

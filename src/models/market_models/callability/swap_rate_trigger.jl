@@ -1,4 +1,4 @@
-type SwapRateTrigger
+type SwapRateTrigger <: ExerciseStrategy
   rateTimes::Vector{Float64}
   swapTriggers::Vector{Float64}
   exerciseTimes::Vector{Float64}
@@ -25,3 +25,7 @@ function SwapRateTrigger(rateTimes::Vector{Float64}, swapTriggers::Vector{Float6
 
   return SwapRateTrigger(rateTimes, swapTriggers, exerciseTimes, -1, rateIndex)
 end
+
+relevant_times(srt::SwapRateTrigger) = srt.exerciseTimes
+
+clone(srt::SwapRateTrigger) = SwapRateTrigger(copy(srt.rateTimes), copy(srt.swapTriggers), copy(srt.exerciseTimes), srt.currentIndex, copy(srt.rateIndex))

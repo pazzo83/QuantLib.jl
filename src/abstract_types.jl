@@ -132,6 +132,10 @@ abstract ComplexLogFormula
 abstract HestonIntegration
 abstract ShortRateDynamics
 abstract ShortRateTree <: TreeLattice
+abstract ExerciseStrategy
+abstract MarketModelMultiProduct
+abstract MultiProductMultiStep <: MarketModelMultiProduct
+abstract MarketModelExerciseValue
 
 # Currencies
 abstract AbstractCurrency
