@@ -70,6 +70,9 @@ export
     # methods/binomial_tree.jl
     JarrowRudd, CoxRossRubinstein, AdditiveEQP, Trigeorgis, Tian, LeisenReimer, Joshi4,
 
+    # methods/monte_carlo/utilities.jl
+    NodeData,
+
     # quotes/Quotes.jl
     Quote,
 
@@ -198,6 +201,15 @@ export
     # models/short_rate/one_factor.jl
     BlackKarasinski, HullWhite, GSR, calibrate_volatilities_iterative!, get_volatilities,
 
+    # models/market_models/products/multistep.jl
+    MultiStepInverseFloater,
+
+    # models/market_models/callability/swap_rate_trigger.jl
+    SwapRateTrigger,
+
+    # models/market_models/exercise_value.jl
+    NothingExerciseValue,
+
     # methods - finite difference
     FdmG2Solver,FdmHullWhiteSolver, CrankNelson,
 
@@ -233,6 +245,7 @@ include("lazy.jl")
 include("methods/lattice.jl")
 include("methods/bsm_lattice.jl")
 include("methods/binomial_tree.jl")
+include("methods/monte_carlo/utilities.jl")
 
 # Quotes ----------------------------
 include("quotes/Quotes.jl")
@@ -309,6 +322,11 @@ include("models/short_rate/one_factor/one_factor.jl")
 include("models/short_rate/one_factor/black_karasinski.jl")
 include("models/short_rate/one_factor/hull_white.jl")
 include("models/short_rate/one_factor/gsr.jl")
+include("models/market_models/utilities.jl")
+include("models/market_models/evolution_description.jl")
+include("models/market_models/products/multistep.jl")
+include("models/market_models/callability/swap_rate_trigger.jl")
+include("models/market_models/callability/exercise_value.jl")
 
 # Finite Difference method
 include("methods/finite_differences/fd_boundary_condition.jl")
