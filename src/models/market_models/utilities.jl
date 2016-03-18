@@ -5,6 +5,34 @@ end
 
 clone(mmcf::MarketModelCashFlow) = MarketModelCashFlow(mmcf.timeIndex, mmcf.amount)
 
+## Discounter ##
+type MarketModelDiscounter
+  beforeSize::Int
+  beforeWeight::Float64
+end
+
+function MarketModelDiscounter(paymentTime::Float64, rateTimes::Vector{Float64})
+  check_increasing_times(rateTimes)
+  beforeTime = findfirst(rateTimes, paymentTime)
+
+  # handle the case where the payment is in the last period or after the last period
+  if beforeTime > length(rateTimes) - 1
+    beforeTime = length(rateTimes) - 1
+  end
+
+  if beforeTime == 0
+    if paymentTime > rateTimes[end]
+      beforeTime = length(rateTimes) - 1
+    else
+      beforeTime = 1
+    end
+  end
+
+  beforeWeight = 1.0 - (paymentTime - rateTimes[beforeTime]) / (rateTimes[beforeTime + 1] - rateTimes[beforeTime])
+
+  return MarketModelDiscounter(beforeTime, beforeWeight)
+end
+
 function check_increasing_times(times::Vector{Float64})
   length(times) > 0 || error("at least one time is required")
   times[1] > 0.0 || error("first time must be greater than zero")
@@ -46,4 +74,44 @@ function merge_times(times::Vector{Vector{Float64}})
   end
 
   return allTimes, isPresent
+end
+
+function is_in_subset(mainSet::Vector{Float64}, subSet::Vector{Float64})
+  result = falses(length(mainSet))
+  dimsubSet = length(subSet)
+  if dimsubSet == 0
+    return result
+  end
+  dimSet = length(mainSet)
+
+  setElement = subSetElement = 0.0
+
+  dimSet >= dimsubSet || error("set is required to be larger or equal than subset")
+
+  for i in eachindex(mainSet) # loop in set
+    j = 1
+    setElement = mainSet[i]
+    while true # loop in subset
+      subSetElement = subSet[j]
+      result[i] = false
+      # if smaller no hope, leave false and go to next i
+      if setElement < subSetElement
+        break
+      end
+      # match!
+      if setElement == subSetElement
+        result[i] = true
+        break
+      end
+
+      # if larger, leave false if at end or go to next j
+      if j == dimsubSet
+        break
+      end
+
+      j += 1
+    end
+  end
+
+  return result
 end

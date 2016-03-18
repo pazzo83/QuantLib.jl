@@ -127,12 +127,16 @@ include("svd.jl")
 export TridiagonalOperator, TridiagIdentity, set_mid_row!, set_last_row!, set_first_row!, apply_to, solve_for!
 include("tridiagonal_operator.jl")
 
+# matrix.jl
+export NoneSalvagingAlgo, rank_reduced_sqrt
+include("matrix.jl")
+
 # transformed_grid.jl
 export TransformedGrid, LogGrid
 include("transformed_grid.jl")
 
 # rng.jl
-export AbstractRandomSequenceGenerator, PseudoRandomRSG, InverseCumulativeRSG, SobolRSG, next_sequence!, last_sequence, init_sequence_generator!
+export AbstractRandomSequenceGenerator, PseudoRandomRSG, InverseCumulativeRSG, SobolRSG, SobolInverseCumulativeRSG, next_sequence!, last_sequence, init_sequence_generator!
 include("rng.jl")
 
 # statistics.jl

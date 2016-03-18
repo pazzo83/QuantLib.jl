@@ -1,4 +1,4 @@
-type SwapForwardBasisSystem
+type SwapForwardBasisSystem <: MarketModelBasisSystem
   rateTimes::Vector{Float64}
   exerciseTimes::Vector{Float64}
   currentIndex::Int

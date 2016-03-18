@@ -43,6 +43,48 @@ function InverseFloater(rateLevel::Float64)
   nullRebate = NothingExerciseValue(rateTimes)
 
   dummyProduct = CallSpecifiedMultiProduct(inverseFloater, naifStrategy, ExerciseAdapter(nullRebate))
+
+  evolution = dummyProduct.evolution
+
+  # params for models
+  seed = 12332
+  trainingPaths = 65536
+  paths = 65536
+  vegaPaths = 16384
+
+  println("inverse floater")
+  println("fixed strikes: ", strike)
+  println("number rates: ", numberOfRates)
+  println("training paths: ", trainingPaths)
+  println("paths: ", paths)
+  println("vega paths: ", vegaPaths)
+
+  # set up a callibration, this would typically be done by using a callibrator
+  println("rate level: ", rateLevel)
+
+  initialNumeraireValue = 0.95
+  volLevel = 0.11
+  beta = 0.2
+  gamma = 1.0
+  numberOfFactors = min(5, numberOfRates)
+  displacementLevel = 0.02
+
+  # set up vectors
+  initialRates = fill(rateLevel, numberOfRates)
+  volatilities = fill(volLevel, numberOfRates)
+  displacements = fill(displacementLevel, numberOfRates)
+
+  correlations = ExponentialForwardCorrelation(rateTimes, volLevel, beta, gamma)
+
+  calibration = FlatVol(volatilities, QuantLib.clone(correlations), evolution, numberOfFactors, initialRates, displacements)
+  marketModel = QuantLib.clone(calibration)
+
+  # use a factory
+  generatorFactory = SobolBrownianGeneratorFactory(SobolDiagonalOrdering(), seed)
+
+  numeraires = money_market_measure(evolution)
+  println(numeraires)
+  evolver = LogNormalFwdRatePc(marketModel, generatorFactory, numeraires)
 end
 
 function main()

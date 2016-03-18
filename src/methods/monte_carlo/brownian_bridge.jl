@@ -22,6 +22,18 @@ function BrownianBridge(tg::TimeGrid)
   return bb
 end
 
+function BrownianBridge(steps::Int)
+  t = Vector{Float64}(steps)
+  for i in eachindex(t)
+    t[i] = float(i)
+  end
+
+  bb = BrownianBridge(steps, t, Vector{Float64}(steps), Vector{Int}(steps), Vector{Int}(steps), Vector{Int}(steps), Vector{Float64}(steps), Vector{Float64}(steps), Vector{Float64}(steps))
+  initialize!(bb)
+
+  return bb
+end
+
 function initialize!(bb::BrownianBridge)
   bb.sqrtdt[1] = sqrt(bb.t[1])
   for i = 2:bb.size_

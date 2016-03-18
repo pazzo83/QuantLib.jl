@@ -132,10 +132,18 @@ abstract ComplexLogFormula
 abstract HestonIntegration
 abstract ShortRateDynamics
 abstract ShortRateTree <: TreeLattice
+abstract AbstractMarketModel
+abstract AbstractMarketModelEvolver
 abstract ExerciseStrategy
 abstract MarketModelMultiProduct
+abstract MarketModelBasisSystem
 abstract MultiProductMultiStep <: MarketModelMultiProduct
 abstract MarketModelExerciseValue
+abstract PiecewiseConstantCorrelation
+abstract BrownianGeneratorFactory
+abstract BrownianGenerator
+abstract SobolOrdering
+abstract CurveState
 
 # Currencies
 abstract AbstractCurrency

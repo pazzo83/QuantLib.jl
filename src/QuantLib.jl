@@ -201,20 +201,35 @@ export
     # models/short_rate/one_factor.jl
     BlackKarasinski, HullWhite, GSR, calibrate_volatilities_iterative!, get_volatilities,
 
+    # models/market_models/exercise_value.jl
+    NothingExerciseValue,
+
+    # models/market_models/brownian_generators.jl
+    SobolDiagonalOrdering, SobolBrownianGeneratorFactory,
+
+    # models/market_models/evolution_description.jl
+    money_market_measure,
+
     # models/market_models/products/multistep/multiproduct_multistep.jl
     MultiStepInverseFloater, ExerciseAdapter,
 
     # models/market_models/products/multistep/call_specified_multiproduct.jl
     CallSpecifiedMultiProduct,
 
+    # models/market_models/correlations/exponential_correlation.jl
+    ExponentialForwardCorrelation,
+
+    # models/market_models/correlations/time_homogeneous_forward_correlation.jl
+    FlatVol,
+
     # models/market_models/callability/swap_rate_trigger.jl
     SwapRateTrigger,
 
-    # models/market_models/exercise_value.jl
-    NothingExerciseValue,
-
     # models/market_models/callability/market_model_basis_system.jl
     SwapForwardBasisSystem,
+
+    # models/market_models/market_models.jl
+    LogNormalFwdRatePc,
 
     # methods - finite difference
     FdmG2Solver,FdmHullWhiteSolver, CrankNelson,
@@ -252,6 +267,7 @@ include("methods/lattice.jl")
 include("methods/bsm_lattice.jl")
 include("methods/binomial_tree.jl")
 include("methods/monte_carlo/utilities.jl")
+include("methods/monte_carlo/brownian_bridge.jl")
 
 # Quotes ----------------------------
 include("quotes/Quotes.jl")
@@ -330,11 +346,17 @@ include("models/short_rate/one_factor/hull_white.jl")
 include("models/short_rate/one_factor/gsr.jl")
 include("models/market_models/utilities.jl")
 include("models/market_models/evolution_description.jl")
+include("models/market_models/brownian_generators.jl")
 include("models/market_models/products/multistep/multiproduct_multistep.jl")
 include("models/market_models/products/multistep/call_specified_multiproduct.jl")
+include("models/market_models/correlations/time_homogeneous_forward_correlation.jl")
+include("models/market_models/correlations/exponential_correlation.jl")
 include("models/market_models/callability/swap_rate_trigger.jl")
 include("models/market_models/callability/exercise_value.jl")
 include("models/market_models/callability/market_model_basis_system.jl")
+include("models/market_models/curve_state.jl")
+include("models/market_models/drift_computation.jl")
+include("models/market_models/market_models.jl")
 
 # Finite Difference method
 include("methods/finite_differences/fd_boundary_condition.jl")
@@ -352,7 +374,6 @@ include("methods/finite_differences/fd_solvers.jl")
 # Monte Carlo method
 include("methods/monte_carlo/path.jl")
 include("methods/monte_carlo/sample.jl")
-include("methods/monte_carlo/brownian_bridge.jl")
 include("methods/monte_carlo/path_generator.jl")
 include("methods/monte_carlo/lsm_basis_system.jl")
 include("methods/monte_carlo/monte_carlo_model.jl")

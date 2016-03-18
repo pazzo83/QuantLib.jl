@@ -29,6 +29,15 @@ end
 
 SobolRSG(dimension::Int = 1, weight::Float64 = 1.0) = SobolRSG(SobolSeq(dimension), dimension, zeros(dimension), weight)
 
+type SobolInverseCumulativeRSG <: AbstractRandomSequenceGenerator
+  rng::Sobol.SobolSeq
+  dimension::Int
+  values::Vector{Float64}
+  weight::Float64
+end
+
+SobolInverseCumulativeRSG(dimension::Int = 1, weight::Float64 = 1.0) = SobolInverseCumulativeRSG(SobolSeq(dimension), dimension, zeros(dimension), weight)
+
 function next_sequence!(rsg::InverseCumulativeRSG)
   # we can probably use map here with the norminvcdf
   # like this: map!(norminvcdf, rsg.values, rand(rsg, length(rsg.values)))

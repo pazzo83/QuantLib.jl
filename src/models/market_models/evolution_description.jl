@@ -42,5 +42,42 @@ function EvolutionDescription(rateTimes::Vector{Float64},
   return EvolutionDescription(numberOfRates, rateTimes, evolutionTimes, relevanceRates, rateTaus, firstAliveRate)
 end
 
+number_of_steps(evol::EvolutionDescription) = length(evol.evolutionTimes)
+
 clone(ed::EvolutionDescription) = EvolutionDescription(ed.numberOfRates, copy(ed.rateTimes), copy(ed.evolutionTimes), copy(ed.relevanceRates),
                                   copy(ed.rateTaus), copy(ed.firstAliveRate))
+
+## Misc functions ##
+function money_market_plus_measure(ev::EvolutionDescription, offset::Int)
+  rateTimes = ev.rateTimes
+  maxNumeraire = length(rateTimes)
+
+  offset <= maxNumeraire || error("offset is greater than the max allowed value for numeraire")
+  evolutionTimes = ev.evolutionTimes
+  n = length(evolutionTimes)
+  numeraires = Vector{Int}(n)
+  j = 1
+  for i = 1:n
+    while rateTimes[j] < evolutionTimes[i]
+      j += 1
+    end
+    numeraires[i] = min(j + offset, maxNumeraire)
+  end
+
+  return numeraires
+end
+
+money_market_measure(evol::EvolutionDescription) = money_market_plus_measure(evol, 0)
+
+function check_compatibility(evol::EvolutionDescription, numeraires::Vector{Int})
+  evolutionTimes = evol.evolutionTimes
+  n = length(evolutionTimes)
+
+  length(numeraires) == n || error("size mismatch between numeraires and evolution times")
+
+  rateTimes = evolution.rateTimes
+  for i = 1:n-1
+    rateTimes[numeraires[i]] >= evolutionTimes[i] || error("$(i+1) step, evolution time $(evolutionTimes[i]): the numeraire ($(numeraires[i]))
+                                                        corresponding to the rate time $(rateTimes[numeraires[i]]) is expired")
+  end
+end
