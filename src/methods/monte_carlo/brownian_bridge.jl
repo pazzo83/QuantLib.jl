@@ -28,7 +28,7 @@ function BrownianBridge(steps::Int)
     t[i] = float(i)
   end
 
-  bb = BrownianBridge(steps, t, Vector{Float64}(steps), Vector{Int}(steps), Vector{Int}(steps), Vector{Int}(steps), Vector{Float64}(steps), Vector{Float64}(steps), Vector{Float64}(steps))
+  bb = BrownianBridge(steps, t, Vector{Float64}(steps), ones(Int, steps), ones(Int, steps), ones(Int, steps), Vector{Float64}(steps), Vector{Float64}(steps), Vector{Float64}(steps))
   initialize!(bb)
 
   return bb
@@ -48,7 +48,7 @@ function initialize!(bb::BrownianBridge)
   # the first point in the construction is the global step
   mapVec[bb.size_] = 1
   # the global step is constructed from the first variate
-  bb.bridgeIndex[1] = bb.size_ - 1
+  bb.bridgeIndex[1] = bb.size_
   # the variance of the global step
   bb.stdDev[1] = sqrt(bb.t[bb.size_])
   # the global step to the last point in time is special
@@ -69,9 +69,9 @@ function initialize!(bb::BrownianBridge)
     l = j + ((k - 1 - j) >> 1)
     mapVec[l+1] = i
     # the i-th Gaussian variate will be used to set point l - 1
-    bb.bridgeIndex[i+1] = l
-    bb.leftIndex[i+1] = j
-    bb.rightIndex[i+1] = k
+    bb.bridgeIndex[i+1] = l + 1
+    bb.leftIndex[i+1] = j + 1
+    bb.rightIndex[i+1] = k + 1
 
     if j != 0
       bb.leftWeight[i+1] = (bb.t[k+1] - bb.t[l+1]) / (bb.t[k+1] - bb.t[j])
@@ -90,4 +90,32 @@ function initialize!(bb::BrownianBridge)
   end
 
   return bb
+end
+
+function transform!(bb::BrownianBridge, randomVec::Vector{Float64}, output::Vector{Float64})
+  length(randomVec) == bb.size_ || error("size mismatch $(bb.size_) $(length(randomVec))")
+  # we use the output to store the path
+  output[bb.size_] = bb.stdDev[1] * randomVec[1]
+
+  for i = 2:bb.size_
+    j = bb.leftIndex[i]
+    k = bb.rightIndex[i]
+    l = bb.bridgeIndex[i]
+
+    if j != 1
+      output[l] = bb.leftWeight[i] * output[j-1] + bb.rightWeight[i] * output[k] + bb.stdDev[i] * randomVec[i]
+    else
+      output[l] = bb.rightWeight[i] * output[k] + bb.stdDev[i] * randomVec[i]
+    end
+  end
+
+  # after which we calculate the variations and normalize to unit times
+  for i = bb.size_:-1:2
+    output[i] -= output[i-1]
+    output[i] /= bb.sqrtdt[i]
+  end
+
+  output[1] /= bb.sqrtdt[1]
+
+  return output
 end

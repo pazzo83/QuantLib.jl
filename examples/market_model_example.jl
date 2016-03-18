@@ -30,7 +30,7 @@ function InverseFloater(rateLevel::Float64)
   naifStrategy = SwapRateTrigger(rateTimes, swapTriggers, exerciseTimes)
 
   # Longstaff-Schwartz exercise strategy
-  collectedData = Vector{NodeData}()
+  collectedData = Vector{Vector{NodeData}}()
   basisCoefficients = Vector{Float64}()
 
   # control that does nothing, need it because some control is required
@@ -83,8 +83,9 @@ function InverseFloater(rateLevel::Float64)
   generatorFactory = SobolBrownianGeneratorFactory(SobolDiagonalOrdering(), seed)
 
   numeraires = money_market_measure(evolution)
-  println(numeraires)
   evolver = LogNormalFwdRatePc(marketModel, generatorFactory, numeraires)
+
+  collect_node_data!(evolver, inverseFloater, basisSystem, nullRebate, control, trainingPaths, collectedData)
 end
 
 function main()

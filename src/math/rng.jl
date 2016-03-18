@@ -52,9 +52,20 @@ end
 function next_sequence!(rsg::SobolRSG)
   # we can probably use map here with the norminvcdf
   # like this: map!(norminvcdf, rsg.values, rand(rsg, length(rsg.values)))
+  rsg.values = next(rsg.rng)
+  # for i in eachindex(rsg.values)
+  #   x = next(rsg.rng) # get random number
+  #   rsg.values[i] = x
+  # end
+
+  return rsg.values, rsg.weight
+end
+
+function next_sequence!(rsg::SobolInverseCumulativeRSG)
+  seq = next(rsg.rng)
+
   for i in eachindex(rsg.values)
-    x = next(rsg.rng) # get random number
-    rsg.values[i] = x
+    rsg.values[i] = norminvcdf(seq[i])
   end
 
   return rsg.values, rsg.weight

@@ -228,6 +228,9 @@ export
     # models/market_models/callability/market_model_basis_system.jl
     SwapForwardBasisSystem,
 
+    # models/market_models/callability/collect_node_data.jl
+    collect_node_data!, 
+
     # models/market_models/market_models.jl
     LogNormalFwdRatePc,
 
@@ -354,6 +357,7 @@ include("models/market_models/correlations/exponential_correlation.jl")
 include("models/market_models/callability/swap_rate_trigger.jl")
 include("models/market_models/callability/exercise_value.jl")
 include("models/market_models/callability/market_model_basis_system.jl")
+include("models/market_models/callability/collect_node_data.jl")
 include("models/market_models/curve_state.jl")
 include("models/market_models/drift_computation.jl")
 include("models/market_models/market_models.jl")

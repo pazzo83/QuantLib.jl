@@ -75,6 +75,7 @@ possible_cash_flow_times(msif::MultiStepInverseFloater) = msif.paymentTimes
 possible_cash_flow_times(ea::ExerciseAdapter) = possible_cash_flow_times(ea.exercise)
 
 max_number_of_cashflows_per_step(::ExerciseAdapter) = 1
+max_number_of_cashflows_per_step(::MultiStepInverseFloater) = 1
 
 ## Clone ##
 clone(msif::MultiStepInverseFloater) = MultiStepInverseFloater(clone(msif.common), copy(msif.fixedAccruals), copy(msif.floatingAccruals), copy(msif.fixedStrikes),

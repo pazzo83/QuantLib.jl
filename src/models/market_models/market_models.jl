@@ -38,7 +38,7 @@ function LogNormalFwdRatePc(marketModel::AbstractMarketModel, factory::BrownianG
 
   steps = number_of_steps(marketModel.evolution)
 
-  generator = create(factory, numberOfFactors, steps - initialStep)
+  generator = create(factory, numberOfFactors, steps - (initialStep-1))
 
   currentStep = initialStep
 
@@ -75,4 +75,11 @@ function set_forwards!(lognorm::LogNormalFwdRatePc, forwards::Vector{Float64})
   compute!(lognorm.calculators[lognorm.initialStep], forwards, lognorm.initialDrifts)
 
   return lognorm
+end
+
+function start_new_path!(lognorm::LogNormalFwdRatePc)
+  lognorm.currentStep = lognorm.initialStep
+  lognorm.logForwards = copy(lognorm.initialLogForwards)
+
+  return next_path!(lognorm.generator)
 end
