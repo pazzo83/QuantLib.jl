@@ -32,7 +32,7 @@ function LogNormalFwdRatePc(marketModel::AbstractMarketModel, factory::BrownianG
   drifts1 = Vector{Float64}(numberOfRates)
   drifts2 = Vector{Float64}(numberOfRates)
   initialDrifts = Vector{Float64}(numberOfRates)
-  brownians = Vector{Float64}(numberOfRates)
+  brownians = Vector{Float64}(numberOfFactors)
   correlatedBrownians = Vector{Float64}(numberOfRates)
   alive = marketModel.evolution.firstAliveRate
 
@@ -66,6 +66,8 @@ function LogNormalFwdRatePc(marketModel::AbstractMarketModel, factory::BrownianG
   return lognorm
 end
 
+current_state(lognorm::LogNormalFwdRatePc) = lognorm.curveState
+
 function set_forwards!(lognorm::LogNormalFwdRatePc, forwards::Vector{Float64})
   length(forwards) == lognorm.numberOfRates || error("mismatch between forwards and rate times")
   for i in eachindex(lognorm.initialLogForwards)
@@ -82,4 +84,42 @@ function start_new_path!(lognorm::LogNormalFwdRatePc)
   lognorm.logForwards = copy(lognorm.initialLogForwards)
 
   return next_path!(lognorm.generator)
+end
+
+function advance_step!(lognorm::LogNormalFwdRatePc)
+  # we're going from T1 to T2
+
+  # a) compute drifts D1 at T1
+  if lognorm.currentStep > lognorm.initialStep
+    compute!(lognorm.calculators[lognorm.currentStep], lognorm.forwards, lognorm.drifts1)
+  else
+    lognorm.drifts1 = copy(lognorm.initialDrifts)
+  end
+
+  # b) evolve forwards up to T2 using D1
+  weight = next_step!(lognorm.generator, lognorm.brownians)
+  A = lognorm.marketModel.pseudoRoots[lognorm.currentStep]
+  fixedDrift = lognorm.fixedDrifts[lognorm.currentStep]
+
+  alive = lognorm.alive[lognorm.currentStep]
+  for i = alive:lognorm.numberOfRates
+    lognorm.logForwards[i] += lognorm.drifts1[i] + fixedDrift[i]
+    lognorm.logForwards[i] += vecdot(A[i, :], lognorm.brownians)
+    lognorm.forwards[i] = exp(lognorm.logForwards[i]) - lognorm.displacement[i]
+  end
+
+  # c) recompute drifts D2 using the predicted forwards
+  compute!(lognorm.calculators[lognorm.currentStep], lognorm.forwards, lognorm.drifts2)
+
+  # d) correct forwards using both drifts
+  for i = alive:lognorm.numberOfRates
+    lognorm.logForwards[i] += (lognorm.drifts2[i] - lognorm.drifts1[i]) / 2.0
+    lognorm.forwards[i] = exp(lognorm.logForwards[i]) - lognorm.displacement[i]
+  end
+
+  # e) update curve state
+  set_on_forward_rates!(lognorm.curveState, lognorm.forwards)
+  lognorm.currentStep += 1
+
+  return weight
 end

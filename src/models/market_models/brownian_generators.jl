@@ -68,6 +68,15 @@ function next_path!(sob::SobolBrownianGenerator)
   return wgt
 end
 
+function next_step!(sob::SobolBrownianGenerator, output::Vector{Float64})
+  for i = 1:sob.factors
+    output[i] = sob.bridgedVariates[i][sob.lastStep]
+  end
+  sob.lastStep += 1
+
+  return 1.0
+end
+
 type SobolBrownianGeneratorFactory{O <: SobolOrdering} <: BrownianGeneratorFactory
   ordering::O
   seed::Int

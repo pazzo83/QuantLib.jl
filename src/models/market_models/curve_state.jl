@@ -23,6 +23,74 @@ function LMMCurveState(rateTimes::Vector{Float64})
   cotSwapRates = Vector{Float64}(numberOfRates)
   cotAnnuities = fill(rateTaus[numberOfRates], numberOfRates)
 
-  return LMMCurveState(numberOfRates, rateTimes, rateTaus, numberOfRates, discRatios, forwardRates, cmSwapRates, cmSwapAnnuties, cotSwapRates,
-                      cotAnnuities, numberOfRates)
+  return LMMCurveState(numberOfRates, rateTimes, rateTaus, numberOfRates+1, discRatios, forwardRates, cmSwapRates, cmSwapAnnuties, cotSwapRates,
+                      cotAnnuities, numberOfRates+1)
+end
+
+function set_on_forward_rates!(lmm::LMMCurveState, rates::Vector{Float64}, firstValidIndex::Int=1)
+  length(rates) == lmm.numberOfRates || error("rates mismatch")
+  firstValidIndex <= lmm.numberOfRates || error("first valid index must be less than or equal to numberOfRates")
+
+  # first copy input
+  lmm.firstIdx = firstValidIndex
+  lmm.forwardRates[lmm.firstIdx:end] = rates[lmm.firstIdx:end]
+
+  # then calculate the discount ratios
+  # taken care at constructor time discRatios[numberOfRates] = 1.0
+  for i = lmm.firstIdx:lmm.numberOfRates
+    lmm.discRatios[i+1] = lmm.discRatios[i] / (1.0 + lmm.forwardRates[i] * lmm.rateTaus[i])
+  end
+
+  # lazy evaluation of :
+  # - coterminal swap rates/annuities
+  # - constant maturity swap rates/annuities
+
+  lmm.firstCotAnnuityComped = lmm.numberOfRates+1
+end
+
+function discount_ratio(lmm::LMMCurveState, i::Int, j::Int)
+  lmm.firstIdx <= lmm.numberOfRates || error("curve state not initialized yet")
+  min(i, j) >= lmm.firstIdx || error("invalid index")
+  max(i, j) <= lmm.numberOfRates + 1 || error("invalid index")
+
+  return lmm.discRatios[i] / lmm.discRatios[j]
+end
+
+function forward_rate(lmm::LMMCurveState, i::Int)
+  lmm.firstIdx <= lmm.numberOfRates || error("curve state not initialized yet")
+  (i >= lmm.firstIdx && i <= lmm.numberOfRates) || error("invalid index")
+
+  return lmm.forwardRates[i]
+end
+
+function coterminal_swap_annuity(lmm::LMMCurveState, numeraire::Int, i::Int)
+  lmm.firstIdx <= lmm.numberOfRates || error("curve state not initialized yet")
+  (numeraire >= lmm.firstIdx && numeraire <= lmm.numberOfRates + 1) || error("invalid numeraire")
+  (i >= lmm.firstIdx && i <= lmm.numberOfRates) || error("invalid index")
+
+  if lmm.firstCotAnnuityComped <= i
+    return lmm.cotAnnuities[i] / lmm.discRatios[numeraire]
+  end
+
+  if lmm.firstCotAnnuityComped == lmm.numberOfRates+1
+    lmm.cotAnnuities[lmm.numberOfRates] = lmm.rateTaus[lmm.numberOfRates] * lmm.discRatios[lmm.numberOfRates + 1]
+    lmm.firstCotAnnuityComped -= 1
+  end
+
+  for j = lmm.firstCotAnnuityComped-1:-1:i
+    lmm.cotAnnuities[j] = lmm.cotAnnuities[j+1] + lmm.rateTaus[j] * lmm.discRatios[j+1]
+  end
+
+  lmm.firstCotAnnuityComped = i
+
+  return lmm.cotAnnuities[i] / lmm.discRatios[numeraire]
+end
+
+function coterminal_swap_rate(lmm::LMMCurveState, i::Int)
+  lmm.firstIdx <= lmm.numberOfRates || error("curve state not initialized yet")
+  (i >= lmm.firstIdx && i <= lmm.numberOfRates) || error("invalid index")
+
+  res = (lmm.discRatios[i] / lmm.discRatios[lmm.numberOfRates+1] - 1.0) / coterminal_swap_annuity(lmm, lmm.numberOfRates+1, i)
+
+  return res
 end

@@ -31,7 +31,7 @@ type MultiStepInverseFloater <: MultiProductMultiStep
   floatingSpreads::Vector{Float64}
   paymentTimes::Vector{Float64}
   payer::Bool
-  multipler::Float64
+  multiplier::Float64
   lastIndex::Int
   currentIndex::Int
 end
@@ -46,10 +46,10 @@ function MultiStepInverseFloater(rateTimes::Vector{Float64},
                                 payer::Bool = true)
 
   common = MultiProductMultiStepCommon(rateTimes)
-  multipler = payer ? -1.0 : 1.0
+  multiplier = payer ? -1.0 : 1.0
 
   return MultiStepInverseFloater(common, fixedAccruals, floatingAccruals, fixedStrikes, fixedMultipliers, floatingSpreads, paymentTimes,
-                                payer, multipler, length(rateTimes), -1)
+                                payer, multiplier, length(rateTimes), -1)
 end
 
 type ExerciseAdapter{M <: MarketModelExerciseValue} <: MultiProductMultiStep
@@ -77,9 +77,25 @@ possible_cash_flow_times(ea::ExerciseAdapter) = possible_cash_flow_times(ea.exer
 max_number_of_cashflows_per_step(::ExerciseAdapter) = 1
 max_number_of_cashflows_per_step(::MultiStepInverseFloater) = 1
 
+reset!(msif::MultiStepInverseFloater) = msif.currentIndex = 1
+
+function next_time_step!(msif::MultiStepInverseFloater, currentState::CurveState, numberCashFlowsThisStep::Vector{Int}, genCashFlows::Vector{Vector{MarketModelCashFlow}})
+  liborRate = forward_rate(currentState, msif.currentIndex)
+  inverseFloatingCoupon = max((msif.fixedStrikes[msif.currentIndex] - msif.fixedMultipliers[msif.currentIndex] * liborRate), 0.0) * msif.fixedAccruals[msif.currentIndex]
+  floatingCoupon = (liborRate + msif.floatingSpreads[msif.currentIndex]) * msif.floatingAccruals[msif.currentIndex]
+
+  genCashFlows[1][1].timeIndex = msif.currentIndex
+  genCashFlows[1][1].amount = msif.multiplier * (inverseFloatingCoupon - floatingCoupon)
+
+  numberCashFlowsThisStep[1] = 1
+  msif.currentIndex += 1
+
+  return (msif.currentIndex == msif.lastIndex)
+end
+
 ## Clone ##
 clone(msif::MultiStepInverseFloater) = MultiStepInverseFloater(clone(msif.common), copy(msif.fixedAccruals), copy(msif.floatingAccruals), copy(msif.fixedStrikes),
-                                        copy(msif.fixedMultipliers), copy(msif.floatingSpreads), copy(msif.paymentTimes), msif.payer, msif.multipler,
+                                        copy(msif.fixedMultipliers), copy(msif.floatingSpreads), copy(msif.paymentTimes), msif.payer, msif.multiplier,
                                         msif.lastIndex, msif.currentIndex)
 
 clone(ea::ExerciseAdapter) = ExerciseAdapter{typeof(ea.exercise)}(clone(ea.common), clone(ea.exercise), ea.numberOfProducts, ea.isExerciseTime, ea.currentIndex)

@@ -20,3 +20,53 @@ function SwapForwardBasisSystem(rateTimes::Vector{Float64}, exerciseTimes::Vecto
 
   return SwapForwardBasisSystem(rateTimes, exerciseTimes, -1, rateIndex, evolution)
 end
+
+reset!(swbs::SwapForwardBasisSystem) = swbs.currentIndex = 1
+
+next_step!(swbs::SwapForwardBasisSystem, ::CurveState) = swbs.currentIndex += 1
+
+function set_values!(bs::SwapForwardBasisSystem, currentState::CurveState, results::Vector{Float64})
+  rateIndex = bs.rateIndex[bs.currentIndex - 1]
+
+  if rateIndex < length(bs.rateTimes) - 2
+    resize!(results, 10)
+
+    x = forward_rate(currentState, rateIndex)
+    y = coterminal_swap_rate(currentState, rateIndex + 1)
+    z = discount_ratio(currentState, rateIndex, length(bs.rateTimes))
+
+    results[1] = 1.0
+    results[2] = x
+    results[3] = y
+    results[4] = z
+    results[5] = x*y
+    results[6] = y*z
+    results[7] = z*x
+    results[8] = x*x
+    results[9] = y*y
+    results[10] = z*z
+  else
+    if rateIndex == length(bs.rateTimes) - 2
+      x = forward_rate(currentState, rateIndex)
+      y = forward_rate(currentState, rateIndex + 1)
+
+      resize!(results, 6)
+
+      results[1] = 1.0
+      results[2] = x
+      results[3] = y
+      results[4] = x*x
+      results[5] = x*y
+      results[6] = y*y
+    else
+      x = forward_rate(currentState, rateIndex)
+
+      resize!(results, 3)
+      results[1] = 1.0
+      results[2] = x
+      results[3] = x*x
+    end
+  end
+
+  return results
+end

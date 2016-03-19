@@ -73,6 +73,9 @@ export
     # methods/monte_carlo/utilities.jl
     NodeData,
 
+    # methods/monte_carlo/generic_ls_regression.jl
+    generic_longstaff_schwartz_regression!,
+
     # quotes/Quotes.jl
     Quote,
 
@@ -229,7 +232,7 @@ export
     SwapForwardBasisSystem,
 
     # models/market_models/callability/collect_node_data.jl
-    collect_node_data!, 
+    collect_node_data!,
 
     # models/market_models/market_models.jl
     LogNormalFwdRatePc,
@@ -271,6 +274,7 @@ include("methods/bsm_lattice.jl")
 include("methods/binomial_tree.jl")
 include("methods/monte_carlo/utilities.jl")
 include("methods/monte_carlo/brownian_bridge.jl")
+include("methods/monte_carlo/generic_ls_regression.jl")
 
 # Quotes ----------------------------
 include("quotes/Quotes.jl")

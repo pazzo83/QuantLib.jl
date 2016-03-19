@@ -3,6 +3,7 @@ type MarketModelCashFlow
   amount::Float64
 end
 
+MarketModelCashFlow() = MarketModelCashFlow(-1, 0.0)
 clone(mmcf::MarketModelCashFlow) = MarketModelCashFlow(mmcf.timeIndex, mmcf.amount)
 
 ## Discounter ##
@@ -31,6 +32,20 @@ function MarketModelDiscounter(paymentTime::Float64, rateTimes::Vector{Float64})
   beforeWeight = 1.0 - (paymentTime - rateTimes[beforeTime]) / (rateTimes[beforeTime + 1] - rateTimes[beforeTime])
 
   return MarketModelDiscounter(beforeTime, beforeWeight)
+end
+
+function numeraire_bonds(mmd::MarketModelDiscounter, curveState::CurveState, numeraire::Int)
+  preDF = discount_ratio(curveState, mmd.beforeSize, numeraire)
+  if mmd.beforeWeight == 1.0
+    return preDF
+  end
+
+  postDF = discount_ratio(curveState, mmd.beforeSize+1, numeraire)
+  if mmd.beforeWeight == 0.0
+    return postDF
+  end
+
+  return ^(preDF, mmd.beforeWeight) * ^(postDF, 1.0 - mmd.beforeWeight)
 end
 
 function check_increasing_times(times::Vector{Float64})

@@ -31,7 +31,7 @@ function InverseFloater(rateLevel::Float64)
 
   # Longstaff-Schwartz exercise strategy
   collectedData = Vector{Vector{NodeData}}()
-  basisCoefficients = Vector{Float64}()
+  basisCoefficients = Vector{Vector{Float64}}()
 
   # control that does nothing, need it because some control is required
   control = NothingExerciseValue(rateTimes)
@@ -86,6 +86,7 @@ function InverseFloater(rateLevel::Float64)
   evolver = LogNormalFwdRatePc(marketModel, generatorFactory, numeraires)
 
   collect_node_data!(evolver, inverseFloater, basisSystem, nullRebate, control, trainingPaths, collectedData)
+  generic_longstaff_schwartz_regression!(collectedData, basisCoefficients)
 end
 
 function main()
