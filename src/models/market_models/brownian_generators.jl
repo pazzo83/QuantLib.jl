@@ -83,3 +83,7 @@ type SobolBrownianGeneratorFactory{O <: SobolOrdering} <: BrownianGeneratorFacto
 end
 
 create(sob::SobolBrownianGeneratorFactory, factors::Int, steps::Int) = SobolBrownianGenerator(factors, steps, sob.ordering, sob.seed)
+
+# Clone #
+clone(sob::SobolBrownianGenerator) = SobolBrownianGenerator(sob.factors, sob.steps, sob.ordering, sob.generator,
+                                                          sob.bridge, sob.lastStep, deepcopy(sob.orderedIndices), deepcopy(sob.bridgedVariates))

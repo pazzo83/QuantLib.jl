@@ -23,7 +23,7 @@ function SwapRateTrigger(rateTimes::Vector{Float64}, swapTriggers::Vector{Float6
     rateIndex[i] = j
   end
 
-  return SwapRateTrigger(rateTimes, swapTriggers, exerciseTimes, -1, rateIndex)
+  return SwapRateTrigger(rateTimes, swapTriggers, exerciseTimes, 1, rateIndex)
 end
 
 relevant_times(srt::SwapRateTrigger) = srt.exerciseTimes

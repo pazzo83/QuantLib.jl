@@ -141,7 +141,7 @@ include("rng.jl")
 
 # statistics.jl
 export NonWeightedStatistics, GenericRiskStatistics, RiskStatistics, gen_RiskStatistics, GenericSequenceStats, reset!, add_sample!, adding_data!, error_estimate, stats_mean, stats_std_deviation,
-stats_skewness, stats_kurtosis
+stats_skewness, stats_kurtosis, stats_covariance
 include("statistics.jl")
 
 # sampled_curve.jl

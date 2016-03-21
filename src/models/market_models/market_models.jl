@@ -97,7 +97,9 @@ function advance_step!(lognorm::LogNormalFwdRatePc)
   end
 
   # b) evolve forwards up to T2 using D1
+
   weight = next_step!(lognorm.generator, lognorm.brownians)
+
   A = lognorm.marketModel.pseudoRoots[lognorm.currentStep]
   fixedDrift = lognorm.fixedDrifts[lognorm.currentStep]
 
@@ -123,3 +125,9 @@ function advance_step!(lognorm::LogNormalFwdRatePc)
 
   return weight
 end
+
+clone(lognorm::LogNormalFwdRatePc) = LogNormalFwdRatePc(clone(lognorm.marketModel), copy(lognorm.numeraires), lognorm.initialStep, clone(lognorm.generator),
+                                      deepcopy(lognorm.fixedDrifts), lognorm.numberOfRates, lognorm.numberOfFactors, clone(lognorm.curveState),
+                                      lognorm.currentStep, copy(lognorm.forwards), copy(lognorm.displacement), copy(lognorm.logForwards), copy(lognorm.initialLogForwards),
+                                      copy(lognorm.drifts1), copy(lognorm.drifts2), copy(lognorm.initialDrifts), copy(lognorm.brownians), copy(lognorm.correlatedBrownians),
+                                      copy(lognorm.alive), deepcopy(lognorm.calculators))

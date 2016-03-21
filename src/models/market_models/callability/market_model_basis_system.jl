@@ -21,9 +21,22 @@ function SwapForwardBasisSystem(rateTimes::Vector{Float64}, exerciseTimes::Vecto
   return SwapForwardBasisSystem(rateTimes, exerciseTimes, -1, rateIndex, evolution)
 end
 
-reset!(swbs::SwapForwardBasisSystem) = swbs.currentIndex = 1
+reset!(bs::SwapForwardBasisSystem) = bs.currentIndex = 1
 
-next_step!(swbs::SwapForwardBasisSystem, ::CurveState) = swbs.currentIndex += 1
+next_step!(bs::SwapForwardBasisSystem, ::CurveState) = bs.currentIndex += 1
+
+function number_of_functions(bs::SwapForwardBasisSystem)
+  n = length(bs.exerciseTimes)
+  sizes = fill(10, n)
+  if bs.rateIndex[n] == length(bs.rateIndex) - 3
+    sizes[end] = 6
+  end
+  if bs.rateIndex[n] == length(bs.rateIndex) - 2
+    sizes[end] = 3
+  end
+
+  return sizes
+end
 
 function set_values!(bs::SwapForwardBasisSystem, currentState::CurveState, results::Vector{Float64})
   rateIndex = bs.rateIndex[bs.currentIndex - 1]
@@ -70,3 +83,5 @@ function set_values!(bs::SwapForwardBasisSystem, currentState::CurveState, resul
 
   return results
 end
+
+clone(bs::SwapForwardBasisSystem) = SwapForwardBasisSystem(copy(bs.rateTimes), copy(bs.exerciseTimes), bs.currentIndex, copy(bs.rateIndex), clone(bs.evolution))

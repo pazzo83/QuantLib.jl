@@ -1,4 +1,4 @@
-type CallSpecifiedMultiProduct{M <: MarketModelMultiProduct, E <: ExerciseStrategy, M2 <: MarketModelMultiProduct}
+type CallSpecifiedMultiProduct{M <: MarketModelMultiProduct, E <: ExerciseStrategy, M2 <: MarketModelMultiProduct} <: MarketModelMultiProduct
   underlying::M
   strategy::E
   rebate::M2
@@ -47,10 +47,69 @@ function CallSpecifiedMultiProduct(underlying::MarketModelMultiProduct,
   cashFlowTimes = vcat(cashFlowTimes, rebateTimes)
 
   dummyCashFlowsThisStep = zeros(Int, products)
-  n = max_number_of_cashflows_per_step(rebate)
+  n = max_number_of_cashflows_per_product_per_step(rebate)
 
   dummyCashFlowsGenerated = fill(Vector{MarketModelCashFlow}(n), products)
 
   return CallSpecifiedMultiProduct(underlying, strategy, rebate, evolution, isPresent, cashFlowTimes, rebateOffset, false, dummyCashFlowsThisStep,
-                                  dummyCashFlowsGenerated, -1, true)
+                                  dummyCashFlowsGenerated, 1, true)
 end
+
+get_evolution(cs::CallSpecifiedMultiProduct) = cs.evolution
+number_of_products(cs::CallSpecifiedMultiProduct) = number_of_products(cs.underlying)
+possible_cash_flow_times(cs::CallSpecifiedMultiProduct) = cs.cashFlowTimes
+function reset!(cs::CallSpecifiedMultiProduct)
+  reset!(cs.underlying)
+  reset!(cs.rebate)
+  reset!(cs.strategy)
+  cs.currentIndex = 1
+  cs.wasCalled = false
+
+  return cs
+end
+
+max_number_of_cashflows_per_product_per_step(cs::CallSpecifiedMultiProduct) =
+              max(max_number_of_cashflows_per_product_per_step(cs.underlying), max_number_of_cashflows_per_product_per_step(cs.rebate))
+
+function next_time_step!(cs::CallSpecifiedMultiProduct, currentState::CurveState, numberCashFlowsThisStep::Vector{Int}, genCashFlows::Vector{Vector{MarketModelCashFlow}})
+  isUnderlyingTime = cs.isPresent[1][cs.currentIndex]
+  isExerciseTime = cs.isPresent[2][cs.currentIndex]
+  isRebateTime = cs.isPresent[3][cs.currentIndex]
+  isStrategyRelevantTime = cs.isPresent[4][cs.currentIndex]
+
+  isDone = false
+
+  if ~cs.wasCalled && isStrategyRelevantTime
+    next_step!(cs.strategy, currentState)
+  end
+
+  if ~cs.wasCalled && isExerciseTime && cs.callable
+    cs.wasCalled = get_exercise!(cs.strategy, currentState)
+  end
+
+  if cs.wasCalled
+    if isRebateTime
+      isDone = next_time_step!(cs.rebate, currentState, numberCashFlowsThisStep, genCashFlows)
+      for i in eachindex(numberCashFlowsThisStep)
+        for j = 1:numberCashFlowsThisStep[i]
+          genCashFlows[i][j].timeIndex += cs.rebateOffset
+        end
+      end
+    end
+  else
+    if isRebateTime
+      next_time_step!(cs.rebate, currentState, cs.dummyCashFlowsThisStep, cs.dummyCashFlowsGenerated)
+    end
+
+    if isUnderlyingTime
+      isDone = next_time_step!(cs.underlying, currentState, numberCashFlowsThisStep, genCashFlows)
+    end
+  end
+
+  cs.currentIndex += 1
+  return isDone || cs.currentIndex == length(cs.evolution.evolutionTimes) + 1
+end
+
+clone(cs::CallSpecifiedMultiProduct) = CallSpecifiedMultiProduct(clone(cs.underlying), clone(cs.strategy), clone(cs.rebate), clone(cs.evolution), deepcopy(cs.isPresent),
+                                        copy(cs.cashFlowTimes), cs.rebateOffset, cs.wasCalled, copy(cs.dummyCashFlowsThisStep), deepcopy(cs.dummyCashFlowsGenerated),
+                                        cs.currentIndex, cs.callable)

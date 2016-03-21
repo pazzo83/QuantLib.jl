@@ -84,9 +84,40 @@ function InverseFloater(rateLevel::Float64)
 
   numeraires = money_market_measure(evolution)
   evolver = LogNormalFwdRatePc(marketModel, generatorFactory, numeraires)
+  clonedEvolver = QuantLib.clone(evolver)
+
+  t1 = time()
 
   collect_node_data!(evolver, inverseFloater, basisSystem, nullRebate, control, trainingPaths, collectedData)
+
+  t2 = time()
+
+  # calcualte the exercise stategy's coefficients
   generic_longstaff_schwartz_regression!(collectedData, basisCoefficients)
+
+  # turn the coefficients into an exercise strategy
+  exerciseStrategy = LongstaffSchwartzExerciseStrategy(basisSystem, basisCoefficients, evolution, numeraires, nullRebate, control)
+
+  # callable receiver swap
+  callableProduct = CallSpecifiedMultiProduct(inverseFloater, exerciseStrategy, ExerciseAdapter(nullRebate))
+
+  allProducts = MarketModelComposite()
+  add_product!(allProducts, inverseFloater)
+  add_product!(allProducts, callableProduct)
+  finalize!(allProducts)
+
+  accounter = AccountingEngine(clonedEvolver, QuantLib.clone(allProducts), initialNumeraireValue)
+
+  stats = QuantLib.Math.GenericSequenceStats()
+  multiple_path_values!(accounter, stats, paths)
+
+  t3 = time()
+
+  means = QuantLib.Math.stats_mean(stats)
+
+  println("Means: ", means)
+  println("Time to build strategy: ", t2 - t1, " seconds")
+  println("Time to price: ", t3 - t2, " seconds")
 end
 
 function main()

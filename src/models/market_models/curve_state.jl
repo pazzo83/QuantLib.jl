@@ -94,3 +94,6 @@ function coterminal_swap_rate(lmm::LMMCurveState, i::Int)
 
   return res
 end
+
+clone(lmm::LMMCurveState) = LMMCurveState(lmm.numberOfRates, copy(lmm.rateTimes), copy(lmm.rateTaus), lmm.firstIdx, copy(lmm.discRatios), copy(lmm.forwardRates),
+                                          copy(lmm.cmSwapRates), copy(lmm.cmSwapAnnuties), copy(lmm.cotSwapRates), copy(lmm.cotAnnuities), lmm.firstCotAnnuityComped)

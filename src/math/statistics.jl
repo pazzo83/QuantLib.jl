@@ -40,6 +40,8 @@ function GenericSequenceStats(dimension::Int, dim2::Int = dimension)
   return gss
 end
 
+GenericSequenceStats() = reset!(GenericSequenceStats(0, Vector{GenericRiskStatistics}(0), Vector{Float64}(0), Matrix{Float64}(0, 0)), 0)
+
 function reset!(gss::GenericSequenceStats, dimension::Int, dim2::Int = dimension)
   # re-init
   if dimension > 0
@@ -50,7 +52,7 @@ function reset!(gss::GenericSequenceStats, dimension::Int, dim2::Int = dimension
     else
       gss.dimension = dimension
       gss.stats = GenericRiskStatistics[gen_RiskStatistics(dim2) for i = 1:dimension]
-      results = zeros(dimension)
+      gss.results = zeros(dimension)
     end
     gss.quadraticSum = zeros(dimension, dimension)
   else
@@ -67,6 +69,8 @@ function add_sample!(stat::GenericRiskStatistics, price::Float64, weight::Float6
   stat.isSorted = false
   return stat
 end
+
+add_sample!(stat::GenericRiskStatistics, price::Float64, idx::Int) = add_sample!(stat, price, 1.0, idx)
 
 function add_sample!(stat::NonWeightedStatistics, price::Float64)
   push!(stat.samples, price)
@@ -102,6 +106,19 @@ function adding_data!(stat::GenericRiskStatistics, sz::Int)
   return stat
 end
 
+function adding_data!(stat::GenericSequenceStats, sz::Int, sz2::Int)
+  stat.dimension += sz
+  append!(stat.results, zeros(sz))
+  stat.quadraticSum = vcat(stat.quadraticSum, zeros(sz, 2))
+
+  # now we have to add the additional stats
+  newStats = GenericRiskStatistics[gen_RiskStatistics(sz2) for i = 1:sz]
+
+  append!(stat.stats, newStats)
+
+  return stat
+end
+
 function sort_samples!(stat::GenericRiskStatistics)
   if ~stat.isSorted
     stat.samplesMatrix = sortrows(stat.samplesMatrix)
@@ -121,6 +138,21 @@ function error_estimate(stat::AbstractStatistics)
   sort_samples!(stat)
   return sqrt(var(stat.samples)/ length(stat.samples))
 end
+
+function weight_sum(stat::AbstractStatistics)
+  sort_samples!(stat)
+  return sum(stat.sampleWeights)
+end
+
+weight_sum(stat::GenericSequenceStats) = length(stat.stats) == 0 ? 0.0 : weight_sum(stat.stats[1])
+
+function sample_num(stat::AbstractStatistics)
+  sort_samples!(stat)
+
+  return length(stat.samples)
+end
+
+sample_num(stat::GenericSequenceStats) = length(stat.stats) == 0 ? 0 : sample_num(stat.stats[1])
 
 function stats_mean(stat::AbstractStatistics)
   sort_samples!(stat)
@@ -144,4 +176,23 @@ end
 function stats_kurtosis(stat::AbstractStatistics)
   sort_samples!(stat)
   return kurtosis(stat.samples)
+end
+
+function stats_covariance(stat::GenericSequenceStats)
+  sampleWeight = weight_sum(stat)
+  sampleWeight > 0.0 || error("sample weight of 0 insufficient")
+
+  sampleNumber = float(sample_num(stat))
+  sampleNumber > 1.0 || error("sample number <= 1.0 is insufficient")
+
+  m = stats_mean(stat)
+  inv = 1.0 / sampleWeight
+
+  result = inv * stat.quadraticSum
+
+  BLAS.ger!(-1.0, m, m, result)
+
+  result *= (sampleNumber / (sampleNumber - 1.0))
+
+  return result
 end

@@ -11,8 +11,8 @@ function collect_node_data!(evolver::AbstractMarketModelEvolver,
 
   numberCashFlowsThisStep = Vector{Int}(1)
   cashFlowsGenerated = Vector{Vector{MarketModelCashFlow}}(1)
-  #cashFlowsGenerated[1] = Vector{MarketModelCashFlow}(max_number_of_cashflows_per_step(product))
-  cashFlowsGenerated[1] = MarketModelCashFlow[MarketModelCashFlow() for i = 1:max_number_of_cashflows_per_step(product)]
+  #cashFlowsGenerated[1] = Vector{MarketModelCashFlow}(max_number_of_cashflows_per_product_per_step(product))
+  cashFlowsGenerated[1] = MarketModelCashFlow[MarketModelCashFlow() for i = 1:max_number_of_cashflows_per_product_per_step(product)]
 
   rateTimes = get_evolution(product).rateTimes
 
@@ -67,7 +67,7 @@ function collect_node_data!(evolver::AbstractMarketModelEvolver,
     # collectedData[i] = Vector{NodeData}(numberOfPaths)
     collectedData[i] = NodeData[NodeData() for i = 1:numberOfPaths]
   end
-  println("ex: ", exercises)
+  
   for i = 1:numberOfPaths
     start_new_path!(evolver)
     reset!(product)

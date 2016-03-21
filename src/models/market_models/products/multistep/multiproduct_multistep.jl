@@ -49,7 +49,7 @@ function MultiStepInverseFloater(rateTimes::Vector{Float64},
   multiplier = payer ? -1.0 : 1.0
 
   return MultiStepInverseFloater(common, fixedAccruals, floatingAccruals, fixedStrikes, fixedMultipliers, floatingSpreads, paymentTimes,
-                                payer, multiplier, length(rateTimes), -1)
+                                payer, multiplier, length(rateTimes), 1)
 end
 
 type ExerciseAdapter{M <: MarketModelExerciseValue} <: MultiProductMultiStep
@@ -66,7 +66,7 @@ function ExerciseAdapter(exercise::MarketModelExerciseValue, numberOfProducts::I
   common = MultiProductMultiStepCommon(ex.evolution.rateTimes)
   isExerciseTime = ex.isExerciseTime
 
-  return ExerciseAdapter(common, ex, numberOfProducts, isExerciseTime, -1)
+  return ExerciseAdapter(common, ex, numberOfProducts, isExerciseTime, 1)
 end
 
 number_of_products(::MultiStepInverseFloater) = 1
@@ -74,10 +74,17 @@ number_of_products(::MultiStepInverseFloater) = 1
 possible_cash_flow_times(msif::MultiStepInverseFloater) = msif.paymentTimes
 possible_cash_flow_times(ea::ExerciseAdapter) = possible_cash_flow_times(ea.exercise)
 
-max_number_of_cashflows_per_step(::ExerciseAdapter) = 1
-max_number_of_cashflows_per_step(::MultiStepInverseFloater) = 1
+max_number_of_cashflows_per_product_per_step(::ExerciseAdapter) = 1
+max_number_of_cashflows_per_product_per_step(::MultiStepInverseFloater) = 1
 
 reset!(msif::MultiStepInverseFloater) = msif.currentIndex = 1
+
+function reset!(ea::ExerciseAdapter)
+  reset!(ea.exercise)
+  ea.currentIndex = 1
+
+  return ea
+end
 
 function next_time_step!(msif::MultiStepInverseFloater, currentState::CurveState, numberCashFlowsThisStep::Vector{Int}, genCashFlows::Vector{Vector{MarketModelCashFlow}})
   liborRate = forward_rate(currentState, msif.currentIndex)
@@ -91,6 +98,22 @@ function next_time_step!(msif::MultiStepInverseFloater, currentState::CurveState
   msif.currentIndex += 1
 
   return (msif.currentIndex == msif.lastIndex)
+end
+
+function next_time_step!(ea::ExerciseAdapter, currentState::CurveState, numberCashFlowsThisStep::Vector{Int}, genCashFlows::Vector{Vector{MarketModelCashFlow}})
+  fill!(numberCashFlowsThisStep, 0)
+  isDone = false
+
+  next_step!(ea.exercise, currentState)
+  if ea.isExerciseTime[ea.currentIndex]
+    cf = get_value(ea.exercise, currentState)
+    numberCashFlowsThisStep[1] = 1
+    genCashFlows[1][1] = cf
+    isDone = true
+  end
+
+  ea.currentIndex += 1
+  return isDone || ea.currentIndex == length(ea.isExerciseTime)+1
 end
 
 ## Clone ##

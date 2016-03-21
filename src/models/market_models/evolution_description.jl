@@ -7,6 +7,9 @@ type EvolutionDescription
   firstAliveRate::Vector{Int}
 end
 
+# Constructors #
+EvolutionDescription() = EvolutionDescription(-1, Vector{Float64}(), Vector{Float64}(), Vector{Pair{Int, Int}}(), Vector{Float64}(), Vector{Int}())
+
 function EvolutionDescription(rateTimes::Vector{Float64},
                               evolutionTimes::Vector{Float64},
                               relevanceRates::Vector{Pair{Int, Int}} = Vector{Pair{Int, Int}}())
@@ -75,7 +78,7 @@ function check_compatibility(evol::EvolutionDescription, numeraires::Vector{Int}
 
   length(numeraires) == n || error("size mismatch between numeraires and evolution times")
 
-  rateTimes = evolution.rateTimes
+  rateTimes = evol.rateTimes
   for i = 1:n-1
     rateTimes[numeraires[i]] >= evolutionTimes[i] || error("$(i+1) step, evolution time $(evolutionTimes[i]): the numeraire ($(numeraires[i]))
                                                         corresponding to the rate time $(rateTimes[numeraires[i]]) is expired")

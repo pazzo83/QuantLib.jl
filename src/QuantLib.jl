@@ -219,6 +219,9 @@ export
     # models/market_models/products/multistep/call_specified_multiproduct.jl
     CallSpecifiedMultiProduct,
 
+    # models/market_models/products//composite_product.jl
+    MarketModelComposite, add_product!, finalize!,
+
     # models/market_models/correlations/exponential_correlation.jl
     ExponentialForwardCorrelation,
 
@@ -234,8 +237,14 @@ export
     # models/market_models/callability/collect_node_data.jl
     collect_node_data!,
 
+    # models/market_models/callability/ls_strategy.jl
+    LongstaffSchwartzExerciseStrategy,
+
     # models/market_models/market_models.jl
     LogNormalFwdRatePc,
+
+    # models/market_models/accounting_engine.jl
+    AccountingEngine, multiple_path_values!, 
 
     # methods - finite difference
     FdmG2Solver,FdmHullWhiteSolver, CrankNelson,
@@ -356,15 +365,18 @@ include("models/market_models/evolution_description.jl")
 include("models/market_models/brownian_generators.jl")
 include("models/market_models/products/multistep/multiproduct_multistep.jl")
 include("models/market_models/products/multistep/call_specified_multiproduct.jl")
+include("models/market_models/products/composite_product.jl")
 include("models/market_models/correlations/time_homogeneous_forward_correlation.jl")
 include("models/market_models/correlations/exponential_correlation.jl")
 include("models/market_models/callability/swap_rate_trigger.jl")
 include("models/market_models/callability/exercise_value.jl")
 include("models/market_models/callability/market_model_basis_system.jl")
 include("models/market_models/callability/collect_node_data.jl")
+include("models/market_models/callability/ls_strategy.jl")
 include("models/market_models/curve_state.jl")
 include("models/market_models/drift_computation.jl")
 include("models/market_models/market_models.jl")
+include("models/market_models/accounting_engine.jl")
 
 # Finite Difference method
 include("methods/finite_differences/fd_boundary_condition.jl")

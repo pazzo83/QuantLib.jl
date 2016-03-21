@@ -3,7 +3,7 @@ type MarketModelCashFlow
   amount::Float64
 end
 
-MarketModelCashFlow() = MarketModelCashFlow(-1, 0.0)
+MarketModelCashFlow() = MarketModelCashFlow(1, 0.0)
 clone(mmcf::MarketModelCashFlow) = MarketModelCashFlow(mmcf.timeIndex, mmcf.amount)
 
 ## Discounter ##

@@ -33,7 +33,7 @@ function NothingExerciseValue(rateTimes::Vector{Float64}, isExerciseTime::BitArr
 end
 
 possible_cash_flow_times(nev::NothingExerciseValue) = nev.rateTimes
-get_value(nev::NothingExerciseValue, ::CurveState) = nev.cf
+get_value(nev::NothingExerciseValue, ::CurveState) = clone(nev.cf)
 reset!(nev::NothingExerciseValue) = nev.currentIndex = 1
 
 function next_step!(nev::NothingExerciseValue, ::CurveState)
