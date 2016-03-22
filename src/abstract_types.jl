@@ -137,6 +137,7 @@ abstract AbstractMarketModelEvolver
 abstract ExerciseStrategy
 abstract MarketModelMultiProduct
 abstract MarketModelBasisSystem
+abstract MarketModelPathwiseMultiProduct
 abstract MultiProductMultiStep <: MarketModelMultiProduct
 abstract MarketModelExerciseValue
 abstract PiecewiseConstantCorrelation

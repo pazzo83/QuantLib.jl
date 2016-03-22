@@ -118,6 +118,18 @@ function InverseFloater(rateLevel::Float64)
   println("Means: ", means)
   println("Time to build strategy: ", t2 - t1, " seconds")
   println("Time to price: ", t3 - t2, " seconds")
+
+  # vegas
+
+  # do it twice once with factorwise bumping, one without
+  pathsToVegas = vegaPaths
+
+  # allowFactorwiseBumping
+  # doCaps
+
+  evolverEuler = LogNormalFwdRateEuler(marketModel, generatorFactory, numeraires)
+
+  pathwiseInverseFloater = MarketModelPathwiseInverseFloater(rateTimes, accruals, accruals, fixedStrikes, fixedMultipliers, floatingSpreads, paymentTimes, payer)
 end
 
 function main()

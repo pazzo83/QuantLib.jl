@@ -1,133 +1,50 @@
-type LogNormalFwdRatePc{M <: AbstractMarketModel, G <: BrownianGenerator} <: AbstractMarketModelEvolver
-  marketModel::M
-  numeraires::Vector{Int}
-  initialStep::Int
-  generator::G
-  fixedDrifts::Vector{Vector{Float64}}
-  numberOfRates::Int
-  numberOfFactors::Int
-  curveState::LMMCurveState
-  currentStep::Int
-  forwards::Vector{Float64}
-  displacement::Vector{Float64}
-  logForwards::Vector{Float64}
-  initialLogForwards::Vector{Float64}
-  drifts1::Vector{Float64}
-  drifts2::Vector{Float64}
-  initialDrifts::Vector{Float64}
-  brownians::Vector{Float64}
-  correlatedBrownians::Vector{Float64}
-  alive::Vector{Int}
-  calculators::Vector{LMMDriftCalculator}
+type MarketModelPathwiseInverseFloater <: MarketModelPathwiseMultiProduct
+  rateTimes::Vector{Float64}
+  fixedAccruals::Vector{Float64}
+  floatingAccruals::Vector{Float64}
+  fixedStrikes::Vector{Float64}
+  fixedMultipliers::Vector{Float64}
+  floatingSpreads::Vector{Float64}
+  paymentTimes::Vector{Float64}
+  payer::Bool
+  multiplier::Float64
+  lastIndex::Int
+  evolution::EvolutionDescription
+  currentIndex::Int
 end
 
-function LogNormalFwdRatePc(marketModel::AbstractMarketModel, factory::BrownianGeneratorFactory, numeraires::Vector{Int}, initialStep::Int = 1)
-  numberOfRates = marketModel.numberOfRates
-  numberOfFactors = marketModel.numberOfFactors
-  curveState = LMMCurveState(marketModel.evolution.rateTimes)
-  forwards = marketModel.initialRates
-  displacements = marketModel.displacements
-  logForwards = Vector{Float64}(numberOfRates)
-  initialLogForwards = Vector{Float64}(numberOfRates)
-  drifts1 = Vector{Float64}(numberOfRates)
-  drifts2 = Vector{Float64}(numberOfRates)
-  initialDrifts = Vector{Float64}(numberOfRates)
-  brownians = Vector{Float64}(numberOfFactors)
-  correlatedBrownians = Vector{Float64}(numberOfRates)
-  alive = marketModel.evolution.firstAliveRate
+function MarketModelPathwiseInverseFloater(rateTimes::Vector{Float64},
+                                          fixedAccruals::Vector{Float64},
+                                          floatingAccruals::Vector{Float64},
+                                          fixedStrikes::Vector{Float64},
+                                          fixedMultipliers::Vector{Float64},
+                                          floatingSpreads::Vector{Float64},
+                                          paymentTimes::Vector{Float64},
+                                          payer::Bool)
 
-  steps = number_of_steps(marketModel.evolution)
+  multiplier = payer ? -1.0 : 1.0
+  lastIndex = length(rateTimes)
 
-  generator = create(factory, numberOfFactors, steps - (initialStep-1))
+  check_increasing_times(paymentTimes)
 
-  currentStep = initialStep
+  length(fixedAccruals) == lastIndex - 1 || error("Incorrect number of fixedAccruals given")
+  length(floatingAccruals) == lastIndex - 1 || error("Incorrect number of floatingAccruals given")
+  length(fixedStrikes) == lastIndex - 1 || error("Incorrect number of fixedStrikes given")
+  length(fixedMultipliers) == lastIndex - 1 || error("Incorrect number of fixedMultipliers given")
+  length(floatingSpreads) == lastIndex - 1 || error("Incorrect number of floatingSpreads given")
+  length(paymentTimes) == lastIndex - 1 || error("Incorrect number of paymentTimes given")
 
-  calculators = Vector{LMMDriftCalculator}(steps)
-  fixedDrifts = Vector{Vector{Float64}}(steps)
+  evolTimes = copy(rateTimes)
+  pop!(evolTimes)
 
-  for j = 1:steps
-    A = marketModel.pseudoRoots[j]
-    calculators[j] = LMMDriftCalculator(A, displacements, marketModel.evolution.rateTaus, numeraires[j], alive[j])
-    fixed = Vector{Float64}(numberOfRates)
+  evolution = EvolutionDescription(rateTimes, evolTimes)
 
-    for k in eachindex(fixed)
-      # variance_ = dot(A[:, k], A[:, k])
-      variance_ = vecdot(A[k, :], A[k, :])
-      fixed[k] = -0.5 * variance_
-    end
-
-    fixedDrifts[j] = fixed
-  end
-
-  lognorm = LogNormalFwdRatePc(marketModel, numeraires, initialStep, generator, fixedDrifts, numberOfRates, numberOfFactors, curveState, currentStep, forwards,
-                              displacements, logForwards, initialLogForwards, drifts1, drifts2, initialDrifts, brownians, correlatedBrownians, alive, calculators)
-
-  set_forwards!(lognorm, marketModel.initialRates)
-  return lognorm
+  return MarketModelPathwiseInverseFloater(rateTimes, fixedAccruals, floatingAccruals, fixedStrikes, fixedMultipliers, floatingSpreads,
+                                        paymentTimes, payer, multiplier, lastIndex, evolution, 1)
 end
 
-current_state(lognorm::LogNormalFwdRatePc) = lognorm.curveState
 
-function set_forwards!(lognorm::LogNormalFwdRatePc, forwards::Vector{Float64})
-  length(forwards) == lognorm.numberOfRates || error("mismatch between forwards and rate times")
-  for i in eachindex(lognorm.initialLogForwards)
-    lognorm.initialLogForwards[i] = log(forwards[i] + lognorm.displacement[i])
-  end
-
-  compute!(lognorm.calculators[lognorm.initialStep], forwards, lognorm.initialDrifts)
-
-  return lognorm
-end
-
-function start_new_path!(lognorm::LogNormalFwdRatePc)
-  lognorm.currentStep = lognorm.initialStep
-  lognorm.logForwards = copy(lognorm.initialLogForwards)
-
-  return next_path!(lognorm.generator)
-end
-
-function advance_step!(lognorm::LogNormalFwdRatePc)
-  # we're going from T1 to T2
-
-  # a) compute drifts D1 at T1
-  if lognorm.currentStep > lognorm.initialStep
-    compute!(lognorm.calculators[lognorm.currentStep], lognorm.forwards, lognorm.drifts1)
-  else
-    lognorm.drifts1 = copy(lognorm.initialDrifts)
-  end
-
-  # b) evolve forwards up to T2 using D1
-
-  weight = next_step!(lognorm.generator, lognorm.brownians)
-
-  A = lognorm.marketModel.pseudoRoots[lognorm.currentStep]
-  fixedDrift = lognorm.fixedDrifts[lognorm.currentStep]
-
-  alive = lognorm.alive[lognorm.currentStep]
-  for i = alive:lognorm.numberOfRates
-    lognorm.logForwards[i] += lognorm.drifts1[i] + fixedDrift[i]
-    lognorm.logForwards[i] += vecdot(A[i, :], lognorm.brownians)
-    lognorm.forwards[i] = exp(lognorm.logForwards[i]) - lognorm.displacement[i]
-  end
-
-  # c) recompute drifts D2 using the predicted forwards
-  compute!(lognorm.calculators[lognorm.currentStep], lognorm.forwards, lognorm.drifts2)
-
-  # d) correct forwards using both drifts
-  for i = alive:lognorm.numberOfRates
-    lognorm.logForwards[i] += (lognorm.drifts2[i] - lognorm.drifts1[i]) / 2.0
-    lognorm.forwards[i] = exp(lognorm.logForwards[i]) - lognorm.displacement[i]
-  end
-
-  # e) update curve state
-  set_on_forward_rates!(lognorm.curveState, lognorm.forwards)
-  lognorm.currentStep += 1
-
-  return weight
-end
-
-clone(lognorm::LogNormalFwdRatePc) = LogNormalFwdRatePc(clone(lognorm.marketModel), copy(lognorm.numeraires), lognorm.initialStep, clone(lognorm.generator),
-                                      deepcopy(lognorm.fixedDrifts), lognorm.numberOfRates, lognorm.numberOfFactors, clone(lognorm.curveState),
-                                      lognorm.currentStep, copy(lognorm.forwards), copy(lognorm.displacement), copy(lognorm.logForwards), copy(lognorm.initialLogForwards),
-                                      copy(lognorm.drifts1), copy(lognorm.drifts2), copy(lognorm.initialDrifts), copy(lognorm.brownians), copy(lognorm.correlatedBrownians),
-                                      copy(lognorm.alive), deepcopy(lognorm.calculators))
+## Clone ##
+clone(mm::MarketModelPathwiseInverseFloater) = MarketModelPathwiseInverseFloater(copy(mm.rateTimes), copy(mm.fixedAccruals), copy(mm.floatingAccruals), copy(mm.fixedStrikes),
+                                                copy(mm.fixedMultipliers), copy(mm.floatingSpreads), copy(mm.paymentTimes), mm.payer, mm.multiplier,
+                                                mm..lastIndex, clone(mm.evolution), mm.currentIndex)

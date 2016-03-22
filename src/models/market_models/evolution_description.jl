@@ -26,7 +26,7 @@ function EvolutionDescription(rateTimes::Vector{Float64},
   evolutionTimes[end] <= rateTimes[end - 1] || error("The last evolution time is past the last fixing time")
 
   if isempty(relevanceRates)
-    relevanceRates = fill(Pair(0, numberOfRates), numberOfSteps)
+    relevanceRates = fill(Pair(1, numberOfRates+1), numberOfSteps)
   else
     length(relevanceRates) == numberOfSteps || error("relevanceRates / evolutionTimes mismatch")
   end

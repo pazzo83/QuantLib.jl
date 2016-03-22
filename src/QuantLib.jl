@@ -241,10 +241,16 @@ export
     LongstaffSchwartzExerciseStrategy,
 
     # models/market_models/market_models.jl
+    MarketModelPathwiseInverseFloater,
+
+    # models/market_models/evolvers/lognormal_fwd_rate_pc.jl
     LogNormalFwdRatePc,
 
+    # models/market_models/evolvers/lognormal_fwd_rate_euler.jl
+    LogNormalFwdRateEuler,
+
     # models/market_models/accounting_engine.jl
-    AccountingEngine, multiple_path_values!, 
+    AccountingEngine, multiple_path_values!,
 
     # methods - finite difference
     FdmG2Solver,FdmHullWhiteSolver, CrankNelson,
@@ -376,6 +382,8 @@ include("models/market_models/callability/ls_strategy.jl")
 include("models/market_models/curve_state.jl")
 include("models/market_models/drift_computation.jl")
 include("models/market_models/market_models.jl")
+include("models/market_models/evolvers/lognormal_fwd_rate_euler.jl")
+include("models/market_models/evolvers/lognormal_fwd_rate_pc.jl")
 include("models/market_models/accounting_engine.jl")
 
 # Finite Difference method
