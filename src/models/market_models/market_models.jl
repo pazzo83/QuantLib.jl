@@ -43,8 +43,11 @@ function MarketModelPathwiseInverseFloater(rateTimes::Vector{Float64},
                                         paymentTimes, payer, multiplier, lastIndex, evolution, 1)
 end
 
+number_of_products(::MarketModelPathwiseInverseFloater) = 1
+get_evolution(mm::MarketModelPathwiseInverseFloater) = mm.evolution
+possible_cash_flow_times(mm::MarketModelPathwiseInverseFloater) = mm.paymentTimes
 
 ## Clone ##
 clone(mm::MarketModelPathwiseInverseFloater) = MarketModelPathwiseInverseFloater(copy(mm.rateTimes), copy(mm.fixedAccruals), copy(mm.floatingAccruals), copy(mm.fixedStrikes),
                                                 copy(mm.fixedMultipliers), copy(mm.floatingSpreads), copy(mm.paymentTimes), mm.payer, mm.multiplier,
-                                                mm..lastIndex, clone(mm.evolution), mm.currentIndex)
+                                                mm.lastIndex, clone(mm.evolution), mm.currentIndex)

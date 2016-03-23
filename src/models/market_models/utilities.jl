@@ -6,6 +6,13 @@ end
 MarketModelCashFlow() = MarketModelCashFlow(1, 0.0)
 clone(mmcf::MarketModelCashFlow) = MarketModelCashFlow(mmcf.timeIndex, mmcf.amount)
 
+type MarketModelPathWiseCashFlow
+  timeIndex::Int
+  amount::Vector{Float64}
+end
+
+MarketModelPathWiseCashFlow(n::Int) = MarketModelPathWiseCashFlow(1, zeros(n))
+
 ## Discounter ##
 type MarketModelDiscounter
   beforeSize::Int

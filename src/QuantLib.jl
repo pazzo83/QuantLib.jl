@@ -219,6 +219,9 @@ export
     # models/market_models/products/multistep/call_specified_multiproduct.jl
     CallSpecifiedMultiProduct,
 
+    # models/market_models/products/pathwise/pathwise_product_calls_specified.jl
+    CallSpecifiedPathwiseMultiProduct,
+
     # models/market_models/products//composite_product.jl
     MarketModelComposite, add_product!, finalize!,
 
@@ -372,6 +375,8 @@ include("models/market_models/brownian_generators.jl")
 include("models/market_models/products/multistep/multiproduct_multistep.jl")
 include("models/market_models/products/multistep/call_specified_multiproduct.jl")
 include("models/market_models/products/composite_product.jl")
+include("models/market_models/products/pathwise/pathwise_product_calls_specified.jl")
+include("models/market_models/products/pathwise/pathwise_product_cashrebate.jl")
 include("models/market_models/correlations/time_homogeneous_forward_correlation.jl")
 include("models/market_models/correlations/exponential_correlation.jl")
 include("models/market_models/callability/swap_rate_trigger.jl")

@@ -130,6 +130,10 @@ function InverseFloater(rateLevel::Float64)
   evolverEuler = LogNormalFwdRateEuler(marketModel, generatorFactory, numeraires)
 
   pathwiseInverseFloater = MarketModelPathwiseInverseFloater(rateTimes, accruals, accruals, fixedStrikes, fixedMultipliers, floatingSpreads, paymentTimes, payer)
+
+  pathwiseInverseFloaterClone = QuantLib.clone(pathwiseInverseFloater)
+
+  callableProductPathwise = CallSpecifiedPathwiseMultiProduct(pathwiseInverseFloaterClone, exerciseStrategy)
 end
 
 function main()
