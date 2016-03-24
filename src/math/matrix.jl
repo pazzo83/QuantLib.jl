@@ -62,6 +62,17 @@ function rank_reduced_sqrt(matrix::Matrix, maxRank::Int, componentRetainedPercen
   result = jd[:vectors] * diagonal
 
   normalize_pseudo_root!(matrix, result)
-  
+
   return result
+end
+
+type OrthogoonalProjection
+  originalVectors::Matrix{Float64}
+  multiplierCutoff::Float64
+  numberVectors::Int
+  numberValidVectors::Int
+  dimension::Int
+  validVector::BitArray{1}
+  projectedVectors::Vector{Vector{Float64}}
+  orthoNormalizedVectors::Matrix{Float64}
 end

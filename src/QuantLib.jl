@@ -58,7 +58,7 @@ export
 
     Exercise, EarlyExercise, CompoundingType, TermStructure, YieldTermStructure, InterpolatedCurve, BootstrapTrait, Bootstrap, BootstrapHelper, BondHelper, RateHelper,
     FittingMethod, CashFlows, CashFlow, Coupon, CouponPricer, IborCouponPricer, Instrument, Bond, Swap, SwapType, PricingEngine, Duration, AbstractRate, Results,
-    InterestRateIndex, AbstractCurrency, Parameter, CalibrationHelper, ShortRateModel, FdmMesher, OptionType,
+    InterestRateIndex, AbstractCurrency, Parameter, CalibrationHelper, ShortRateModel, FdmMesher, OptionType, AbstractMarketModel,
 
     # lazy.jl
     LazyMixin, calculate!, recalculate!,
@@ -243,6 +243,12 @@ export
     # models/market_models/callability/ls_strategy.jl
     LongstaffSchwartzExerciseStrategy,
 
+    # models/market_models/pathwise_greeks/vega_bump_cluster.jl
+    VegaBumpCollection,
+
+    # models/market_models/pathwise_greeks/bump_instrument_jacobian.jl
+    VolatilityBumpInstrumentJacobianSwaption, VolatilityBumpInstrumentJacobianCap, OrthogonalizedBumpFinder,
+
     # models/market_models/market_models.jl
     MarketModelPathwiseInverseFloater,
 
@@ -383,6 +389,9 @@ include("models/market_models/callability/swap_rate_trigger.jl")
 include("models/market_models/callability/exercise_value.jl")
 include("models/market_models/callability/market_model_basis_system.jl")
 include("models/market_models/callability/collect_node_data.jl")
+include("models/market_models/pathwise_greeks/vega_bump_cluster.jl")
+include("models/market_models/pathwise_greeks/swaption_pseudo_derivative.jl")
+include("models/market_models/pathwise_greeks/bump_instrument_jacobian.jl")
 include("models/market_models/callability/ls_strategy.jl")
 include("models/market_models/curve_state.jl")
 include("models/market_models/drift_computation.jl")

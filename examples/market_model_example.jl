@@ -1,5 +1,28 @@
 using QuantLib
 
+function theVegaBumps(factorwiseBumping::Bool, marketModel::AbstractMarketModel, doCaps::Bool)
+  multiplierCutoff = 50.0
+  projectionTolerance = 1e-4
+  numberRates = marketModel.numberOfRates
+  caps = VolatilityBumpInstrumentJacobianCap[]
+
+  # if doCaps
+  # end
+
+  swaptions = Vector{VolatilityBumpInstrumentJacobianSwaption}(numberRates)
+
+  for i in eachindex(swaptions)
+    swaptions[i] = VolatilityBumpInstrumentJacobianSwaption(i, numberRates + 1)
+  end
+
+  possibleBumps = VegaBumpCollection(marketModel, factorwiseBumping)
+
+  bumpFinder = OrthogonalizedBumpFinder(possibleBumps, swaptions, caps, multiplierCutoff, projectionTolerance)
+
+  theBumps = Vector{Matrix{Float64}}()
+  
+end
+
 function InverseFloater(rateLevel::Float64)
   numberOfRates = 20
   accrual = 0.5
@@ -124,8 +147,8 @@ function InverseFloater(rateLevel::Float64)
   # do it twice once with factorwise bumping, one without
   pathsToVegas = vegaPaths
 
-  # allowFactorwiseBumping
-  # doCaps
+  allowFactorwiseBumping = false
+  doCaps = false
 
   evolverEuler = LogNormalFwdRateEuler(marketModel, generatorFactory, numeraires)
 
@@ -134,6 +157,8 @@ function InverseFloater(rateLevel::Float64)
   pathwiseInverseFloaterClone = QuantLib.clone(pathwiseInverseFloater)
 
   callableProductPathwise = CallSpecifiedPathwiseMultiProduct(pathwiseInverseFloaterClone, exerciseStrategy)
+
+  theBumps = theVegaBumps(allowFactorwiseBumping, marketModel, doCaps)
 end
 
 function main()
