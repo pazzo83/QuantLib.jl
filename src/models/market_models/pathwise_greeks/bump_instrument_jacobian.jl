@@ -35,6 +35,8 @@ function VolatilityBumpInstrumentJacobian(bumps::VegaBumpCollection,
   return VolatilityBumpInstrumentJacobian(bumps, swaptions, caps, computed, allComputed, derivatives, onePercentBumps, bumpMatrix)
 end
 
+get_input_bumps(voljacobian::VolatilityBumpInstrumentJacobian) = voljacobian.bumps
+
 function derivatives_volatility!(voljacobian::VolatilityBumpInstrumentJacobian, j::Int)
   j <= length(voljacobian.swaptions) + length(voljacobian.caps) || error("too high index passed to derivatives_volatility")
 
@@ -119,8 +121,43 @@ OrthogonalizedBumpFinder(bumps::VegaBumpCollection,
                         tolerance::Float64) = OrthogonalizedBumpFinder(VolatilityBumpInstrumentJacobian(bumps, swaptions, caps), multiplierCutoff, tolerance)
 
 
-function get_vega_bumps!(obf::OrthogonalizedBumpFinder, theBumps::Vector{Matrix{Float64}})
+function get_vega_bumps!(obf::OrthogonalizedBumpFinder, theBumps::Vector{Vector{Matrix{Float64}}})
  # todo
 
- projector = OrthogonalProjection(get_all_one_percent_bumps!(obf.derivativesProducer), obf.multiplierCutoff, obf.tolerance)
+  projector = OrthogonalProjection(get_all_one_percent_bumps!(obf.derivativesProducer), obf.multiplierCutoff, obf.tolerance)
+  numberRestrictedBumps = projector.numberValidVectors
+  marketmodel = associated_model(get_input_bumps(obf.derivativesProducer))
+  evolution = marketmodel.evolution
+
+  numberSteps = number_of_steps(evolution)
+  numberRates = evolution.numberOfRates
+  factors = marketmodel.numberOfFactors
+
+  resize!(theBumps, numberSteps)
+
+  modelMatrix = zeros(numberRates, factors)
+
+  for i in eachindex(theBumps)
+    theBumps[i] = Matrix[copy(modelMatrix) for i = 1:numberRestrictedBumps]
+  end
+
+  # for i = 1:numberSteps, j = 1:numberRestrictedBumps
+  #   theBumps[i][j] = copy(modelMatrix)
+  # end
+
+  bumpClusters = get_input_bumps(obf.derivativesProducer).allBumps
+
+  bumpIndex = 1
+  for inst in eachindex(projector.validVectors)
+    if projector.validVectors[inst]
+      for cluster in eachindex(bumpClusters)
+        magnitude = get_vector(projector, inst)[cluster]
+        for s = bumpClusters[cluster].stepBegin:bumpClusters[cluster].stepEnd, r = bumpClusters[cluster].rateBegin:bumpClusters[cluster].rateEnd, factor = bumpClusters[cluster].factorBegin:bumpClusters[cluster].factorEnd
+          theBumps[s][bumpIndex][r, factor] = magnitude
+        end
+      end
+      bumpIndex += 1
+    end
+  end
+  return theBumps
 end

@@ -128,7 +128,7 @@ export TridiagonalOperator, TridiagIdentity, set_mid_row!, set_last_row!, set_fi
 include("tridiagonal_operator.jl")
 
 # matrix.jl
-export NoneSalvagingAlgo, rank_reduced_sqrt, OrthogonalProjection
+export NoneSalvagingAlgo, rank_reduced_sqrt, OrthogonalProjection, get_vector
 include("matrix.jl")
 
 # transformed_grid.jl

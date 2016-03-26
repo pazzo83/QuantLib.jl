@@ -19,7 +19,7 @@ function theVegaBumps(factorwiseBumping::Bool, marketModel::AbstractMarketModel,
 
   bumpFinder = OrthogonalizedBumpFinder(possibleBumps, swaptions, caps, multiplierCutoff, projectionTolerance)
 
-  theBumps = Vector{Matrix{Float64}}()
+  theBumps = Vector{Vector{Matrix{Float64}}}()
   get_vega_bumps!(bumpFinder, theBumps)
 end
 

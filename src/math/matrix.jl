@@ -159,7 +159,7 @@ function OrthogonalProjection(originalVectors::Matrix{Float64}, multiplierCutoff
       end
     end # end of validVectors[j]
 
-    push!(projectedVectors, currentVector)
+    push!(projectedVectors, copy(currentVector))
   end # end of j loop
 
   numberValidVectors = 0
@@ -169,3 +169,5 @@ function OrthogonalProjection(originalVectors::Matrix{Float64}, multiplierCutoff
 
   return OrthogonalProjection(originalVectors, multiplierCutoff, numberVectors, numberValidVectors, dimension, validVectors, projectedVectors, orthoNormalizedVectors)
 end
+
+get_vector(op::OrthogonalProjection, i::Int) = op.projectedVectors[i]
