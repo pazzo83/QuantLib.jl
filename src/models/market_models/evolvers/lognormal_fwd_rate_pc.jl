@@ -25,8 +25,8 @@ function LogNormalFwdRatePc(marketModel::AbstractMarketModel, factory::BrownianG
   numberOfRates = marketModel.numberOfRates
   numberOfFactors = marketModel.numberOfFactors
   curveState = LMMCurveState(marketModel.evolution.rateTimes)
-  forwards = marketModel.initialRates
-  displacements = marketModel.displacements
+  forwards = copy(marketModel.initialRates)
+  displacements = copy(marketModel.displacements)
   logForwards = Vector{Float64}(numberOfRates)
   initialLogForwards = Vector{Float64}(numberOfRates)
   drifts1 = Vector{Float64}(numberOfRates)

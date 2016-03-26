@@ -56,6 +56,24 @@ function discount_ratio(lmm::LMMCurveState, i::Int, j::Int)
   return lmm.discRatios[i] / lmm.discRatios[j]
 end
 
+function coterminal_from_discount_ratios!(lmm::LMMCurveState, firstValidIndex::Int, discountFactors::Vector{Float64}, taus::Vector{Float64},
+                                        cotSwapRates::Vector{Float64}, cotSwapAnnuities::Vector{Float64})
+  nCotSwapRates = length(cotSwapRates)
+  length(taus) == nCotSwapRates || error("taus size != cotSwapRate size")
+  length(cotSwapAnnuities) == nCotSwapRates || error("cotSwapAnnuities size != cotSwapRate size")
+  length(discountFactors) == nCotSwapRates + 1 || error("discountFactors size != cotSwapRate size + 1")
+
+  cotSwapAnnuities[nCotSwapRates] = taus[nCotSwapRates] * discountFactors[nCotSwapRates + 1]
+  cotSwapRates[nCotSwapRates] = (discountFactors[nCotSwapRates] - discountFactors[nCotSwapRates + 1]) / cotSwapAnnuities[nCotSwapRates]
+
+  for i = nCotSwapRates:-1:firstValidIndex + 1
+    cotSwapAnnuities[i-1] = cotSwapAnnuities[i] + taus[i-1] * discountFactors[i]
+    cotSwapRates[i-1] = (discountFactors[i-1] - discountFactors[nCotSwapRates+1]) / cotSwapAnnuities[i-1]
+  end
+
+  return cotSwapAnnuities, cotSwapRates
+end
+
 function forward_rate(lmm::LMMCurveState, i::Int)
   lmm.firstIdx <= lmm.numberOfRates || error("curve state not initialized yet")
   (i >= lmm.firstIdx && i <= lmm.numberOfRates) || error("invalid index")
@@ -93,6 +111,13 @@ function coterminal_swap_rate(lmm::LMMCurveState, i::Int)
   res = (lmm.discRatios[i] / lmm.discRatios[lmm.numberOfRates+1] - 1.0) / coterminal_swap_annuity(lmm, lmm.numberOfRates+1, i)
 
   return res
+end
+
+function coterminal_swap_rates!(lmm::LMMCurveState)
+  lmm.firstIdx <= lmm.numberOfRates || error("curve state not initialized yet")
+  coterminal_from_discount_ratios!(lmm, lmm.firstIdx, lmm.discRatios, lmm.rateTaus, lmm.cotSwapRates, lmm.cotAnnuities)
+
+  return lmm.cotSwapRates
 end
 
 clone(lmm::LMMCurveState) = LMMCurveState(lmm.numberOfRates, copy(lmm.rateTimes), copy(lmm.rateTaus), lmm.firstIdx, copy(lmm.discRatios), copy(lmm.forwardRates),

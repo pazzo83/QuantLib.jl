@@ -26,10 +26,10 @@ function VegaBumpCollection(volStructure::AbstractMarketModel, factorwiseBumping
     for r = volStructure.evolution.firstAliveRate[s]:rates
       if factorwiseBumping
         for f = 1:factors
-          push!(allBumps, VegaBumpCluster(f, f+1, r, r+1, s, s+1))
+          push!(allBumps, VegaBumpCluster(f, f, r, r, s, s))
         end
       else
-        push!(allBumps, VegaBumpCluster(1, factors+1, r, r+1, s, s+1))
+        push!(allBumps, VegaBumpCluster(1, factors, r, r, s, s))
       end
     end
   end

@@ -12,7 +12,7 @@ function theVegaBumps(factorwiseBumping::Bool, marketModel::AbstractMarketModel,
   swaptions = Vector{VolatilityBumpInstrumentJacobianSwaption}(numberRates)
 
   for i in eachindex(swaptions)
-    swaptions[i] = VolatilityBumpInstrumentJacobianSwaption(i, numberRates + 1)
+    swaptions[i] = VolatilityBumpInstrumentJacobianSwaption(i, numberRates)
   end
 
   possibleBumps = VegaBumpCollection(marketModel, factorwiseBumping)
@@ -20,7 +20,7 @@ function theVegaBumps(factorwiseBumping::Bool, marketModel::AbstractMarketModel,
   bumpFinder = OrthogonalizedBumpFinder(possibleBumps, swaptions, caps, multiplierCutoff, projectionTolerance)
 
   theBumps = Vector{Matrix{Float64}}()
-  
+  get_vega_bumps!(bumpFinder, theBumps)
 end
 
 function InverseFloater(rateLevel::Float64)

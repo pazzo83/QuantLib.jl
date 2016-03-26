@@ -247,7 +247,7 @@ export
     VegaBumpCollection,
 
     # models/market_models/pathwise_greeks/bump_instrument_jacobian.jl
-    VolatilityBumpInstrumentJacobianSwaption, VolatilityBumpInstrumentJacobianCap, OrthogonalizedBumpFinder,
+    VolatilityBumpInstrumentJacobianSwaption, VolatilityBumpInstrumentJacobianCap, OrthogonalizedBumpFinder, get_vega_bumps!,
 
     # models/market_models/market_models.jl
     MarketModelPathwiseInverseFloater,
@@ -378,6 +378,7 @@ include("models/short_rate/one_factor/gsr.jl")
 include("models/market_models/utilities.jl")
 include("models/market_models/evolution_description.jl")
 include("models/market_models/brownian_generators.jl")
+include("models/market_models/swap_forward_mappings.jl")
 include("models/market_models/products/multistep/multiproduct_multistep.jl")
 include("models/market_models/products/multistep/call_specified_multiproduct.jl")
 include("models/market_models/products/composite_product.jl")

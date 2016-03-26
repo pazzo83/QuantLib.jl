@@ -66,13 +66,106 @@ function rank_reduced_sqrt(matrix::Matrix, maxRank::Int, componentRetainedPercen
   return result
 end
 
-type OrthogoonalProjection
+function ql_norm_squared(v::Matrix{Float64}, row::Int)
+  x = 0.0
+  for i = 1:size(v)[2]
+    x += v[row, i] * v[row, i]
+  end
+
+  return x
+end
+
+function ql_norm(v::Matrix{Float64}, row::Int)
+  return sqrt(ql_norm_squared(v, row))
+end
+
+function inner_product(v::Matrix{Float64}, row1::Int, w::Matrix{Float64}, row2::Int)
+  x = 0.0
+  for i = 1:size(v)[2]
+    x += v[row1, i] * w[row2, i]
+  end
+
+  return x
+end
+
+type OrthogonalProjection
   originalVectors::Matrix{Float64}
   multiplierCutoff::Float64
   numberVectors::Int
   numberValidVectors::Int
   dimension::Int
-  validVector::BitArray{1}
+  validVectors::BitArray{1}
   projectedVectors::Vector{Vector{Float64}}
   orthoNormalizedVectors::Matrix{Float64}
+end
+
+function OrthogonalProjection(originalVectors::Matrix{Float64}, multiplierCutoff::Float64, tolerance::Float64)
+  numberVectors, dimension = size(originalVectors)
+  validVectors = trues(numberVectors)
+  orthoNormalizedVectors = Matrix{Float64}(numberVectors, dimension)
+  projectedVectors = Vector{Vector{Float64}}()
+
+  currentVector = Vector{Float64}(dimension)
+  for j in eachindex(validVectors)
+    if validVectors[j]
+      for k = 1:numberVectors
+        for m = 1:dimension
+          orthoNormalizedVectors[k, m] = originalVectors[k, m]
+        end
+
+        if k != j && validVectors[k]
+          for l = 1:k
+            if validVectors[l] && l != j
+              dotProduct = inner_product(orthoNormalizedVectors, k, orthoNormalizedVectors, l)
+              for n = 1:dimension
+                orthoNormalizedVectors[k, n] -= dotProduct * orthoNormalizedVectors[l, n]
+              end
+            end
+          end
+
+          normBeforeScaling = ql_norm(orthoNormalizedVectors, k)
+
+          if normBeforeScaling < tolerance
+            validVectors[k] = false
+          else
+            normBeforeScalingRecip = 1.0/normBeforeScaling
+            for m = 1:dimension
+              orthoNormalizedVectors[k, m] *= normBeforeScalingRecip
+            end
+          end # end of else (norm < tolerance)
+        end # end of if k != j && validVectors[k]
+      end # end of for k = 1:numberVectors
+      # we now have an o.n. basis for everything except j
+      prevNormSquared = ql_norm_squared(originalVectors, j)
+
+      for r = 1:numberVectors
+        if validVectors[r] && r != j
+          dotProduct = inner_product(orthoNormalizedVectors, j, orthoNormalizedVectors, r)
+          for s = 1:dimension
+            orthoNormalizedVectors[j, s] -= dotProduct * orthoNormalizedVectors[r, s]
+          end
+        end
+      end
+
+      projectionOnOriginalDirection = inner_product(originalVectors, j, orthoNormalizedVectors, j)
+      sizeMultiplier = prevNormSquared / projectionOnOriginalDirection
+
+      if abs(sizeMultiplier) < multiplierCutoff
+        for t = 1:dimension
+          currentVector[t] = orthoNormalizedVectors[j, t] * sizeMultiplier
+        end
+      else
+        validVectors[j] = false
+      end
+    end # end of validVectors[j]
+
+    push!(projectedVectors, currentVector)
+  end # end of j loop
+
+  numberValidVectors = 0
+  for i in eachindex(validVectors)
+    numberValidVectors += validVectors[i] ? 1 : 0
+  end
+
+  return OrthogonalProjection(originalVectors, multiplierCutoff, numberVectors, numberValidVectors, dimension, validVectors, projectedVectors, orthoNormalizedVectors)
 end

@@ -7,13 +7,13 @@ function coterminal_swap_forward_jacobian(::SwapForwardMappings, cs::CurveState)
 
   a = Vector{Float64}(n)
   for k in eachindex(a)
-    a[k] = discount_ratio(cs, k, n) - 1.0
+    a[k] = discount_ratio(cs, k, n+1) - 1.0
   end
 
   jacobian = zeros(n, n)
   for i = 1:n, j = i:n
-    bi = coterminal_swap_annuity(cs, n, i)
-    bj = coterminal_swap_annuity(cs, n, j)
+    bi = coterminal_swap_annuity(cs, n+1, i)
+    bj = coterminal_swap_annuity(cs, n+1, j)
     jacobian[i, j] = tau[j] / coterminal_swap_annuity(cs, j+1, i) + tau[j] / (1.0 + f[j] * tau[j]) * (-a[j] * bi + a[i] * bj) / (bi * bi)
   end
 
@@ -26,11 +26,11 @@ function coterminal_swap_zed_matrix(sfm::SwapForwardMappings, cs::CurveState, di
   zMatrix = coterminal_swap_forward_jacobian(sfm, cs)
 
   f = cs.forwardRates
-  sr = coterminal_swap_rate(cs)
+  sr = coterminal_swap_rates!(cs)
 
   for i = 1:n, j = i:n
     zMatrix[i, j] *= (f[j] + displacement) / (sr[i] + displacement)
   end
 
-  return zMatrix    
+  return zMatrix
 end

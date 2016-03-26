@@ -27,7 +27,7 @@ function VolatilityBumpInstrumentJacobian(bumps::VegaBumpCollection,
   swaptionsPlusCaps = length(swaptions) + length(caps)
   computed = falses(swaptionsPlusCaps)
   derivatives = [zeros(number_of_bumps(bumps)) for _ = 1:swaptionsPlusCaps]
-  bumpMatrix = Matrix{Float64}(swaptionsPlusCaps, number_of_bumps(bumps))
+  bumpMatrix = zeros(swaptionsPlusCaps, number_of_bumps(bumps))
 
   onePercentBumps = deepcopy(derivatives)
   allComputed = false
@@ -56,9 +56,9 @@ function derivatives_volatility!(voljacobian::VolatilityBumpInstrumentJacobian, 
 
     for k = 1:number_of_bumps(voljacobian.bumps)
       v = 0.0
-      for i = voljacobian.allBumps[k].stepBegin:voljacobian.allBumps[k].stepEnd
+      for i = voljacobian.bumps.allBumps[k].stepBegin:voljacobian.bumps.allBumps[k].stepEnd
         fullDerivative = thisPseudo.volatilityDerivatives[i]
-        for f = voljacobian.allBumps[k].factorBegin:voljacobian.allBumps[k].factorEnd, r = voljacobian.allBumps[k].rateBegin:voljacobian.allBumps[k].rateEnd
+        for f = voljacobian.bumps.allBumps[k].factorBegin:voljacobian.bumps.allBumps[k].factorEnd, r = voljacobian.bumps.allBumps[k].rateBegin:voljacobian.bumps.allBumps[k].rateEnd
           v += fullDerivative[r, f]
         end
       end
@@ -69,6 +69,25 @@ function derivatives_volatility!(voljacobian::VolatilityBumpInstrumentJacobian, 
   else
     # it's a cap
     j -= length(voljacobian.swaptions) - 1 # need to get back to index 1
+
+    thisPseudo = CapPseudoDerivative(associated_model(voljacobian.bumps), voljacobian.caps[j].strike, voljacobian.caps[j].startIndex, voljacobian.caps[j].endIndex, 1.0)
+
+    for k = 1:number_of_bumps(voljacobian.bumps)
+      v = 0.0
+      for i = voljacobian.bumps.allBumps[k].stepBegin:voljacobian.bumps.allBumps[k].stepEnd
+        fullDerivative = thisPseudo.volatilityDerivatives[i]
+        for f = voljacobian.bumps.allBumps[k].factorBegin:voljacobian.bumps.allBumps[k].factorEnd, r = voljacobian.bumps.allBumps[k].rateBegin:voljacobian.bumps.allBumps[k].rateEnd
+          v += fullDerivative[r, f]
+        end
+      end
+
+      sizesq += v * v
+      voljacobian.derivatives[initj, k] = v
+    end
+  end
+
+  for k = 1:number_of_bumps(voljacobian.bumps)
+    voljacobian.bumpMatrix[initj, k] = voljacobian.onePercentBumps[initj][k] = 0.01 * voljacobian.derivatives[initj][k] / sizesq
   end
 
   return voljacobian.derivatives[initj]
@@ -83,7 +102,7 @@ function get_all_one_percent_bumps!(voljacobian::VolatilityBumpInstrumentJacobia
 
   voljacobian.allComputed = true
 
-  return bumpMatrix
+  return voljacobian.bumpMatrix
 end
 
 
@@ -100,6 +119,8 @@ OrthogonalizedBumpFinder(bumps::VegaBumpCollection,
                         tolerance::Float64) = OrthogonalizedBumpFinder(VolatilityBumpInstrumentJacobian(bumps, swaptions, caps), multiplierCutoff, tolerance)
 
 
-function get_vega_bumps!(theBumps::Vector{Matrix{Float64}})
+function get_vega_bumps!(obf::OrthogonalizedBumpFinder, theBumps::Vector{Matrix{Float64}})
  # todo
+
+ projector = OrthogonalProjection(get_all_one_percent_bumps!(obf.derivativesProducer), obf.multiplierCutoff, obf.tolerance)
 end
