@@ -76,3 +76,10 @@ function set_forwards!(lognorm::LogNormalFwdRateEuler, forwards::Vector{Float64}
 
   return lognorm
 end
+
+# Clone #
+clone(lognorm::LogNormalFwdRateEuler) = LogNormalFwdRateEuler(clone(lognorm.marketModel), copy(lognorm.numeraires), lognorm.initialStep, clone(lognorm.generator),
+                                      deepcopy(lognorm.fixedDrifts), lognorm.numberOfRates, lognorm.numberOfFactors, clone(lognorm.curveState),
+                                      lognorm.currentStep, copy(lognorm.forwards), copy(lognorm.displacement), copy(lognorm.logForwards), copy(lognorm.initialLogForwards),
+                                      copy(lognorm.drifts1), copy(lognorm.initialDrifts), copy(lognorm.brownians), copy(lognorm.correlatedBrownians),
+                                      copy(lognorm.alive), deepcopy(lognorm.calculators))

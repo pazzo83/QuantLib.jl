@@ -52,3 +52,13 @@ function CallSpecifiedPathwiseMultiProduct(underlying::MarketModelPathwiseMultiP
   return CallSpecifiedPathwiseMultiProduct(underlying, strategy, rebate, evolution, isPresent, cashFlowTimes, rebateOffset, false, dummyCashFlowsThisStep,
                                   dummyCashFlowsGenerated, 1, true)
 end
+
+number_of_products(cs::CallSpecifiedPathwiseMultiProduct) = number_of_products(cs.underlying)
+already_deflated(cs::CallSpecifiedPathwiseMultiProduct) = already_deflated(cs.underlying)
+possible_cash_flow_times(cs::CallSpecifiedPathwiseMultiProduct) = cs.cashFlowTimes
+max_number_of_cashflows_per_product_per_step(cs::CallSpecifiedPathwiseMultiProduct) =
+            max(max_number_of_cashflows_per_product_per_step(cs.underlying), max_number_of_cashflows_per_product_per_step(cs.rebate))
+
+clone(cs::CallSpecifiedPathwiseMultiProduct) = CallSpecifiedPathwiseMultiProduct(clone(cs.underlying), clone(cs.strategy), clone(cs.rebate), clone(cs.evolution), deepcopy(cs.isPresent),
+                                        copy(cs.cashFlowTimes), cs.rebateOffset, cs.wasCalled, copy(cs.dummyCashFlowsThisStep), deepcopy(cs.dummyCashFlowsGenerated),
+                                        cs.currentIndex, cs.callable)

@@ -261,6 +261,9 @@ export
     # models/market_models/accounting_engine.jl
     AccountingEngine, multiple_path_values!,
 
+    # models/market_models/pathwise_accounting_engine.jl
+    PathwiseVegasOuterAccountingEngine,
+
     # methods - finite difference
     FdmG2Solver,FdmHullWhiteSolver, CrankNelson,
 
@@ -384,6 +387,7 @@ include("models/market_models/products/multistep/call_specified_multiproduct.jl"
 include("models/market_models/products/composite_product.jl")
 include("models/market_models/products/pathwise/pathwise_product_calls_specified.jl")
 include("models/market_models/products/pathwise/pathwise_product_cashrebate.jl")
+include("models/market_models/products/pathwise/rate_pseudo_root_jacobian.jl")
 include("models/market_models/correlations/time_homogeneous_forward_correlation.jl")
 include("models/market_models/correlations/exponential_correlation.jl")
 include("models/market_models/callability/swap_rate_trigger.jl")
@@ -400,6 +404,7 @@ include("models/market_models/market_models.jl")
 include("models/market_models/evolvers/lognormal_fwd_rate_euler.jl")
 include("models/market_models/evolvers/lognormal_fwd_rate_pc.jl")
 include("models/market_models/accounting_engine.jl")
+include("models/market_models/pathwise_accounting_engine.jl")
 
 # Finite Difference method
 include("methods/finite_differences/fd_boundary_condition.jl")

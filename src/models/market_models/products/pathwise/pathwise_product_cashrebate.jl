@@ -24,3 +24,6 @@ end
 possible_cash_flow_times(mm::MarketModelPathwiseCashRebate) = mm.paymentTimes
 
 max_number_of_cashflows_per_product_per_step(::MarketModelPathwiseCashRebate) = 1
+
+# Clone #
+clone(mm::MarketModelPathwiseCashRebate) = MarketModelPathwiseCashRebate(clone(mm.evolution), copy(mm.paymentTimes), copy(mm.amounts), mm.numberOfProducts, mm.currentIndex)

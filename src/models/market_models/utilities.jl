@@ -55,6 +55,35 @@ function numeraire_bonds(mmd::MarketModelDiscounter, curveState::CurveState, num
   return ^(preDF, mmd.beforeWeight) * ^(postDF, 1.0 - mmd.beforeWeight)
 end
 
+type MarketModelPathwiseDiscounter
+  beforeTimeIdx::Int
+  numberRates::Int
+  beforeWeight::Float64
+  postWeight::Float64
+  taus::Vector{Float64}
+end
+
+function MarketModelPathwiseDiscounter(paymentTime::Float64, rateTimes::Vector{Float64})
+  check_increasing_times(rateTimes)
+
+  numberRates = length(rateTimes) - 1
+  beforeTimeIdx = findfirst(rateTimes, paymentTime)
+
+  # handle the case where the payment is in the last period or after the last period
+  if beforeTimeIdx > length(rateTimes) - 1
+    beforeTimeIdx = length(rateTimes) - 1
+  end
+
+  beforeWeight = 1.0 - (paymentTime - rateTimes[beforeTimeIdx]) / (rateTimes[beforeTimeIdx + 1] - rateTimes[beforeTimeIdx])
+  postWeight = 1.0 - beforeWeight
+  taus = Vector{Float64}(numberRates)
+  for i in eachindex(taus)
+    taus[i] = rateTimes[i+1] - rateTimes[i]
+  end
+
+  return MarketModelPathwiseDiscounter(beforeTimeIdx, numberRates, beforeWeight, postWeight, taus)
+end
+
 function check_increasing_times(times::Vector{Float64})
   length(times) > 0 || error("at least one time is required")
   times[1] > 0.0 || error("first time must be greater than zero")

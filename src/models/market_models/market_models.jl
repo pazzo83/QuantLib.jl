@@ -72,6 +72,8 @@ end
 number_of_products(::MarketModelPathwiseInverseFloater) = 1
 get_evolution(mm::MarketModelPathwiseInverseFloater) = mm.evolution
 possible_cash_flow_times(mm::MarketModelPathwiseInverseFloater) = mm.paymentTimes
+max_number_of_cashflows_per_product_per_step(mm::MarketModelPathwiseInverseFloater) = 1
+already_deflated(::MarketModelPathwiseInverseFloater) = false
 
 ## Clone ##
 clone(mm::MarketModelPathwiseInverseFloater) = MarketModelPathwiseInverseFloater(copy(mm.rateTimes), copy(mm.fixedAccruals), copy(mm.floatingAccruals), copy(mm.fixedStrikes),

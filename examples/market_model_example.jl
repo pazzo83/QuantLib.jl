@@ -159,6 +159,8 @@ function InverseFloater(rateLevel::Float64)
   callableProductPathwise = CallSpecifiedPathwiseMultiProduct(pathwiseInverseFloaterClone, exerciseStrategy)
 
   theBumps = theVegaBumps(allowFactorwiseBumping, marketModel, doCaps)
+
+  accountingEngineVegas = PathwiseVegasOuterAccountingEngine(QuantLib.clone(evolverEuler), QuantLib.clone(callableProductPathwise), marketModel, theBumps, initialNumeraireValue)
 end
 
 function main()
