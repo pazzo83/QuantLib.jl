@@ -123,9 +123,17 @@ function PathwiseVegasOuterAccountingEngine(evolver::LogNormalFwdRateEuler,
 
   cashFlowIndicesThisStep = Vector{Int}[Vector{Int}() for i = 1:numberSteps]
   for i in eachindex(cashFlowTimes)
-    idx = upper_bound(evolutionTimes, cashFlowTimes[i])
-    if idx != 1
-      idx -= 1
+    # idx = upper_bound(evolutionTimes, cashFlowTimes[i])
+    # if idx != 1
+    #   idx -= 1
+    # end
+    idx = findlast(evolutionTimes, cashFlowTimes[i])
+    if idx == 0
+      if cashFlowTimes[i] > evolutionTimes[end]
+        idx = length(evolutionTimes)
+      else
+        idx = 1
+      end
     end
     push!(cashFlowIndicesThisStep[idx], i)
   end
