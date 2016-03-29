@@ -53,11 +53,60 @@ function CallSpecifiedPathwiseMultiProduct(underlying::MarketModelPathwiseMultiP
                                   dummyCashFlowsGenerated, 1, true)
 end
 
+function next_time_step!(cs::CallSpecifiedPathwiseMultiProduct, currentState::CurveState, numberCashFlowsThisStep::Vector{Int}, genCashFlows::Vector{Vector{MarketModelCashFlow}})
+  isUnderlyingTime = cs.isPresent[1][cs.currentIndex]
+  isExerciseTime = cs.isPresent[2][cs.currentIndex]
+  isRebateTime = cs.isPresent[3][cs.currentIndex]
+  isStrategyRelevantTime = cs.isPresent[4][cs.currentIndex]
+
+  isDone = false
+
+  if ~cs.wasCalled && isStrategyRelevantTime
+    next_step!(cs.strategy, currentState)
+  end
+
+  if ~cs.wasCalled && isExerciseTime && cs.callable
+    cs.wasCalled = get_exercise!(cs.strategy, currentState)
+  end
+
+  if cs.wasCalled
+    if isRebateTime
+      isDone = next_time_step!(cs.rebate, currentState, numberCashFlowsThisStep, genCashFlows)
+      for i in eachindex(numberCashFlowsThisStep)
+        for j = 1:numberCashFlowsThisStep[i]
+          genCashFlows[i][j].timeIndex += cs.rebateOffset
+        end
+      end
+    end
+  else
+    if isRebateTime
+      next_time_step!(cs.rebate, currentState, cs.dummyCashFlowsThisStep, cs.dummyCashFlowsGenerated)
+    end
+
+    if isUnderlyingTime
+      isDone = next_time_step!(cs.underlying, currentState, numberCashFlowsThisStep, genCashFlows)
+    end
+  end
+
+  cs.currentIndex += 1
+  return isDone || cs.currentIndex == length(cs.evolution.evolutionTimes) + 1
+end
+
 number_of_products(cs::CallSpecifiedPathwiseMultiProduct) = number_of_products(cs.underlying)
 already_deflated(cs::CallSpecifiedPathwiseMultiProduct) = already_deflated(cs.underlying)
 possible_cash_flow_times(cs::CallSpecifiedPathwiseMultiProduct) = cs.cashFlowTimes
 max_number_of_cashflows_per_product_per_step(cs::CallSpecifiedPathwiseMultiProduct) =
             max(max_number_of_cashflows_per_product_per_step(cs.underlying), max_number_of_cashflows_per_product_per_step(cs.rebate))
+
+function reset!(cs::CallSpecifiedPathwiseMultiProduct)
+  reset!(cs.underlying)
+  reset!(cs.rebate)
+  reset!(cs.strategy)
+  cs.currentIndex = 1
+  cs.wasCalled = false
+
+  return cs
+end
 
 clone(cs::CallSpecifiedPathwiseMultiProduct) = CallSpecifiedPathwiseMultiProduct(clone(cs.underlying), clone(cs.strategy), clone(cs.rebate), clone(cs.evolution), deepcopy(cs.isPresent),
                                         copy(cs.cashFlowTimes), cs.rebateOffset, cs.wasCalled, copy(cs.dummyCashFlowsThisStep), deepcopy(cs.dummyCashFlowsGenerated),

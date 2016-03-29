@@ -77,6 +77,47 @@ function set_forwards!(lognorm::LogNormalFwdRateEuler, forwards::Vector{Float64}
   return lognorm
 end
 
+function start_new_path!(lognorm::LogNormalFwdRateEuler)
+  lognorm.currentStep = lognorm.initialStep
+  lognorm.logForwards = copy(lognorm.initialLogForwards)
+
+  return next_path!(lognorm.generator)
+end
+
+function advance_step!(lognorm::LogNormalFwdRateEuler)
+  # we are going from T1 to T2
+
+  # a) compute drifts D1 at T1
+  if lognorm.currentStep > lognorm.initialStep
+    compute!(lognorm.calculators[lognorm.currentStep], lognorm.forwards, lognorm.drifts1)
+  else
+    lognorm.drifts1 = copy(lognorm.initialDrifts)
+  end
+
+  # b) evolve forwards up to T2 using D1
+  weight = next_step!(lognorm.generator, lognorm.brownians)
+  A = copy(lognorm.marketModel.pseudoRoots[lognorm.currentStep])
+  fixedDrift = copy(lognorm.fixedDrifts[lognorm.currentStep])
+
+  alive = lognorm.alive(lognorm.currentStep)
+  for i = alive:lognorm.numberOfRates
+    lognorm.logForwards[i] += lognorm.drifts1[i] + fixedDrift[i]
+    lognorm.logForwards[i] += vecdot(A[i, :], lognorm.brownians)
+    lognorm.forwards[i] = exp(lognorm.logForwards[i]) - lognorm.displacements[i]
+  end
+
+  # same as PC evolver with two steps dropped
+
+  # c) update curve state
+  set_on_forward_rates!(lognorm.curveState, lognorm.forwards)
+  lognorm.currentStep += 1
+
+  return weight
+end
+
+current_state(lognorm::LogNormalFwdRateEuler) = lognorm.curveState
+brownians_this_step(lognorm::LogNormalFwdRateEuler) = lognorm.brownians
+
 # Clone #
 clone(lognorm::LogNormalFwdRateEuler) = LogNormalFwdRateEuler(clone(lognorm.marketModel), copy(lognorm.numeraires), lognorm.initialStep, clone(lognorm.generator),
                                       deepcopy(lognorm.fixedDrifts), lognorm.numberOfRates, lognorm.numberOfFactors, clone(lognorm.curveState),

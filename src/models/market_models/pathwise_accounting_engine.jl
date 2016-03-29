@@ -156,3 +156,99 @@ function PathwiseVegasOuterAccountingEngine(evolver::LogNormalFwdRateEuler,
                                             jacobiansThisPaths, deflatorAndDerivatives, fullDerivatives, numberCashFlowsThisIndex, totalCashFlowsThisIndex,
                                             cashFlowIndicesThisStep)
 end
+
+function single_path_values!(pwEng::PathwiseVegasOuterAccountingEngine, values::Vector{Float64})
+  initialForwards = copy(pwEng.pseudoRootStructure.initialRates)
+
+  for i = 1:pwEng.numberProducts
+    pwEng.numerairesHeld[i] = 0.0
+    for j = 1:pwEng.numberCashFlowTimes
+      pwEng.numberCashFlowsThisIndex[i][j] = 0
+      for k = 1:pwEng.numberRates + 1
+        pwEng.totalCashFlowsThisIndex[i][j, k] = 0.0
+      end
+    end
+    for l = 1:pwEng.numberRates
+      for m = 1:pwEng.numberSteps + 1
+        pwEng.V[i][m, l] = 0.0
+      end
+    end
+  end
+
+  weight = start_new_path!(pwEng.evolver)
+  reset!(pwEng.product)
+
+  isDone = false
+  while isDone
+    thisStep = pwEng.evolver.currentStep
+    storeStep = thisStep + 1
+    weight *= advance_step!(pwEng.evolver)
+
+    isDone = next_time_step!(pwEng.product, current_state(pwEng.evolver), pwEng.numberCashFlowsThisStep, pwEng.cashFlowsGenerated)
+
+    pwEng.lastForwards = copy(pwEng.currentForwards)
+
+    pwEng.currentForwards = copy(current_state(pwEng.evolver).forwardRates)
+
+    for i = 1:pwEng.numberRates
+      x = discount_ratio(current_state(pwEng.evolver), i+1, i)
+      pwEng.stepsDiscounts[i+1] = x
+      pwEng.StepsDiscountsSquared[storeStep, i] = x*x
+
+      pwEng.LIBORRatios[storeStep, i] = pwEng.currentForwards[i] / pwEng.lastForwards[i]
+      pwEng.LIBORRates[storeStep, i] = pwEng.currentForwards[i]
+      pwEng.Discounts[storeStep, i+1] = discount_ratio(current_state(pwEng.evolver), i+1, 1)
+    end
+
+    get_bumps(pwEng.jacobianComputers[thisStep], pwEng.lastForwards, pwEng.stepsDiscounts, pwEng.currentForwards, brownians_this_step(pwEng.evolver),
+              pwEng.jacobiansThisPaths[thisStep])
+
+    # for each product and each cash flow
+    for i = 1:pwEng.numberProducts, j = 1:pwEng.numberCashFlowsThisStep[i]
+      k = pwEng.cashFlowsGenerated[i][j].timeIndex
+      pwEng.numberCashFlowsThisIndex[i][k] += 1
+
+      for l = 1:pwEng.numberRates + 1
+        pwEng.totalCashFlowsThisIndex[i][k, l] += pwEng.cashFlowsGenerated[i][j].amount[l] * weight
+      end
+    end
+
+    # if done
+    #   break
+    # end
+  end
+end
+
+function multiple_path_values_elementary!(pwEng::PathwiseVegasOuterAccountingEngine, means::Vector{Float64}, errors::Vector{Float64}, numberOfPaths::Int)
+  numberOfElementaryVegas = pwEng.numberRates * pwEng.numberFactors * pwEng.factors
+  values = Vector{Float64}(number_of_products(pwEng.product) * (1 + pwEng.numberRates + numberOfElementaryVegas))
+  resize!(means, length(values))
+  resize!(errors, length(values))
+
+  sums = zeros(length(values))
+  sumsqs = zeros(length(values))
+
+  for i = 1:numberOfPaths
+    single_path_values!(pwEng, values)
+    for j in eachindex(values)
+      sums[j] += values[j]
+      sumsqs[j] += values[j] * values[j]
+    end
+  end
+
+  for j in eachindex(values)
+    means[j] = sums[j] / numberOfPaths
+    meanSq = sumsqs[j] / numberOfPaths
+    variance = meanSq - means[j] * means[j]
+    errors[j] = sqrt(variance / numberOfPaths)
+  end
+
+  return means, errors
+end
+
+function multiple_path_values!(pwEng::PathwiseVegasOuterAccountingEngine, means::Vector{Float64}, errors::Vector{Float64}, numberOfPaths::Int)
+  allMeans = Vector{Float64}()
+  allErrors = Vector{Float64}()
+
+  multiple_path_values_elementary!(pwEng, allMeans, allErrors, numberOfPaths)
+end
