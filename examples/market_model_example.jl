@@ -6,8 +6,13 @@ function theVegaBumps(factorwiseBumping::Bool, marketModel::AbstractMarketModel,
   numberRates = marketModel.numberOfRates
   caps = VolatilityBumpInstrumentJacobianCap[]
 
-  # if doCaps
-  # end
+  if doCaps
+    capStrike = marketModel.initialRates[1]
+    for i = 1:numberRates - 1
+      nextCap = VolatilityBumpInstrumentJacobianCap(i, i, capStrike)
+      push!(caps, nextCap)
+    end
+  end
 
   swaptions = Vector{VolatilityBumpInstrumentJacobianSwaption}(numberRates)
 
@@ -147,27 +152,55 @@ function InverseFloater(rateLevel::Float64)
   # do it twice once with factorwise bumping, one without
   pathsToVegas = vegaPaths
 
-  allowFactorwiseBumping = false
-  doCaps = false
+  for i = 0:3
+    allowFactorwiseBumping = i % 2 > 0
+    doCaps = round(Int, i / 2) > 0
 
-  evolverEuler = LogNormalFwdRateEuler(marketModel, generatorFactory, numeraires)
+    evolverEuler = LogNormalFwdRateEuler(marketModel, generatorFactory, numeraires)
 
-  pathwiseInverseFloater = MarketModelPathwiseInverseFloater(rateTimes, accruals, accruals, fixedStrikes, fixedMultipliers, floatingSpreads, paymentTimes, payer)
+    pathwiseInverseFloater = MarketModelPathwiseInverseFloater(rateTimes, accruals, accruals, fixedStrikes, fixedMultipliers, floatingSpreads, paymentTimes, payer)
 
-  pathwiseInverseFloaterClone = QuantLib.clone(pathwiseInverseFloater)
+    pathwiseInverseFloaterClone = QuantLib.clone(pathwiseInverseFloater)
 
-  callableProductPathwise = CallSpecifiedPathwiseMultiProduct(pathwiseInverseFloaterClone, exerciseStrategy)
+    callableProductPathwise = CallSpecifiedPathwiseMultiProduct(pathwiseInverseFloaterClone, exerciseStrategy)
 
-  theBumps = theVegaBumps(allowFactorwiseBumping, marketModel, doCaps)
+    theBumps = theVegaBumps(allowFactorwiseBumping, marketModel, doCaps)
 
-  accountingEngineVegas = PathwiseVegasOuterAccountingEngine(QuantLib.clone(evolverEuler), QuantLib.clone(callableProductPathwise), marketModel, theBumps, initialNumeraireValue)
+    accountingEngineVegas = PathwiseVegasOuterAccountingEngine(QuantLib.clone(evolverEuler), QuantLib.clone(callableProductPathwise), marketModel, theBumps, initialNumeraireValue)
 
-  values = Vector{Float64}()
-  errors = Vector{Float64}()
+    values = Vector{Float64}()
+    errors = Vector{Float64}()
 
-  multiple_path_values!(accountingEngineVegas, values, errors, pathsToVegas)
+    multiple_path_values!(accountingEngineVegas, values, errors, pathsToVegas)
+
+    println("vega output")
+    println("factorwise bumping: ", allowFactorwiseBumping)
+    println("doCaps: ", doCaps)
+
+    r = 1
+    println("price estimate: ", values[r])
+    r += 1
+
+    for i = 1:numberOfRates
+      println("Delta ", i, ", ", values[r], ", ", errors[r])
+      r += 1
+    end
+
+    totalVega = 0.0
+
+    for t = r:length(values)
+      println("vega, ", t - 1 - numberOfRates, ", ", values[t], ", ", errors[t])
+      totalVega += values[t]
+    end
+
+    println("total vega: ", totalVega)
+  end
+
+  ## TODO Upper Bound
 end
 
 function main()
-  InverseFloater(5 / 100.0)
+  for i = 5:9
+    InverseFloater(i / 100.0)
+  end
 end

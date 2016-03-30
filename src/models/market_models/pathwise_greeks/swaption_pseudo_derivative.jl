@@ -3,7 +3,7 @@ type QuickCap
   annuities::Vector{Float64}
   currentRates::Vector{Float64}
   expires::Vector{Float64}
-  price::Vector{Float64}
+  price::Float64
 end
 
 function operator(qc::QuickCap)
@@ -13,7 +13,7 @@ function operator(qc::QuickCap)
       price += black_formula(Call(), qc.strike, qc.currentRates[i], vol * sqrt(qc.expires[i]), qc.annuities[i])
     end
 
-    return qc.price = price
+    return price - qc.price
   end
 
   return _inner
@@ -26,7 +26,7 @@ function get_vega(qc::QuickCap, vol::Float64)
     vega_ += black_formula_vol_derivative(qc.strike, qc.currentRates[i], vol * sqrt(qc.expires[i]), qc.expires[i], qc.annuities[i], 0.0)
   end
 
-  return vega
+  return vega_
 end
 
 type SwaptionPseudoDerivative{M <: AbstractMarketModel}
@@ -133,13 +133,13 @@ function CapPseudoDerivative(inputModel::AbstractMarketModel,
                             endIndex::Int,
                             firstDF::Float64)
 
-  startIndex < endIndex || error("for a cap pseudo derivative the start of the cap must be before the end")
+  startIndex <= endIndex || error("for a cap pseudo derivative the start of the cap must be before or equal to the end")
   endIndex <= inputModel.numberOfRates || error("for a cap pseudo derivative the end of the cap must be before the end of the rates")
 
   priceDerivatives = Vector{Matrix{Float64}}()
   volatilityDerivatives = Vector{Matrix{Float64}}()
 
-  numberCaplets = (endIndex - 1) - (startIndex - 1)
+  numberCaplets = endIndex - startIndex + 1
   numberRates = inputModel.numberOfRates
   factors = inputModel.numberOfFactors
   curve = LMMCurveState(inputModel.evolution.rateTimes)
@@ -169,7 +169,7 @@ function CapPseudoDerivative(inputModel::AbstractMarketModel,
     forward = inputModel.initialRates[j]
     initialRates[capletIndex] = forward
 
-    annuity = discount_ratio(j+1, 1) * inputModel.evolution.rateTaus[j] * firstDF
+    annuity = discount_ratio(curve, j+1, 1) * inputModel.evolution.rateTaus[j] * firstDF
     annuities[capletIndex] = forward
 
     displacement = inputModel.displacements[j]
@@ -188,9 +188,9 @@ function CapPseudoDerivative(inputModel::AbstractMarketModel,
   for s = 1:number_of_steps(inputModel.evolution)
     thisDerivative = zeros(numberRates, factors)
 
-    for rate = max(inputModel.evolution.firstAliveRate[step], startIndex):endIndex, f = 1:factors
+    for rate = max(inputModel.evolution.firstAliveRate[s], startIndex):endIndex, f = 1:factors
       expiry = inputModel.evolution.rateTimes[rate]
-      volDerivative = inputModel.pseudoRoots[step][rate, f] / (displacedImpliedVols[((rate - 1) - (startIndex - 1) + 1)] * expiry)
+      volDerivative = inputModel.pseudoRoots[s][rate, f] / (displacedImpliedVols[((rate - 1) - (startIndex - 1) + 1)] * expiry)
       capletVega = black_formula_vol_derivative(strike, inputModel.initialRates[rate], displacedImpliedVols[((rate - 1) - (startIndex - 1) + 1)] * sqrt(expiry), expiry,
                                                 annuities[((rate - 1) - (startIndex - 1) + 1)], inputModel.displacements[rate])
       thisDerivative[rate, f] = volDerivative * capletVega
@@ -203,12 +203,12 @@ function CapPseudoDerivative(inputModel::AbstractMarketModel,
   accuracy = 1e-6
 
   solver = BrentSolver(maxEvals)
-  impliedVolatility = solve!(solver, operator(capPricer), accuracy, guess, minVol * 0.99, maxVol * 1.01)
+  impliedVolatility = solve(solver, operator(capPricer), accuracy, guess, minVol * 0.99, maxVol * 1.01)
 
   vega_ = get_vega(capPricer, impliedVolatility)
 
   for s = 1:number_of_steps(inputModel.evolution)
-    thisDerivative = zeros(numberRates, factors, 0.0)
+    thisDerivative = zeros(numberRates, factors)
     for rate = max(inputModel.evolution.firstAliveRate[s], startIndex):endIndex, f = 1:factors
       thisDerivative[rate, f] = priceDerivatives[s][s, f] / vega_
     end

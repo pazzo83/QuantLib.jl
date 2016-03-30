@@ -46,7 +46,7 @@ function black_formula_std_dev_derivative(strike::Float64, forward::Float64, std
 
   d1 = log(forward/strike) / stdDev + 0.5 * stdDev
 
-  return discount * forward * distribution_derivative(Normal(), d1)
+  return disc * forward * distribution_derivative(Normal(), d1)
 end
 
 black_formula_vol_derivative(strike::Float64, forward::Float64, stdDev::Float64, expiry::Float64, disc::Float64, displacement::Float64) =

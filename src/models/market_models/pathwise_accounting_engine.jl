@@ -325,7 +325,7 @@ function single_path_values!(pwEng::PathwiseVegasOuterAccountingEngine, values::
         sensitivity += pwEng.V[i][nextIndex, r] * pwEng.jacobiansThisPaths[j][r][k, f]
       end
 
-      pwEng.elementaryVegasThisPath[i][j][k, f]
+      pwEng.elementaryVegasThisPath[i][j][k, f] = sensitivity
     end
   end
 

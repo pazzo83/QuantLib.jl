@@ -21,7 +21,7 @@ function total_covariance(mm::AbstractMarketModel, endIndex::Int)
     endIndex <= length(mm.covariance) || error("endIndex must be less than or equal to total covariance size")
   end
 
-  return totalCovariance[endIndex]
+  return mm.totalCovariance[endIndex]
 end
 
 type MarketModelPathwiseInverseFloater <: MarketModelPathwiseMultiProduct

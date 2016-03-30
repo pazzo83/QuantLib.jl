@@ -70,7 +70,7 @@ function derivatives_volatility!(voljacobian::VolatilityBumpInstrumentJacobian, 
     end
   else
     # it's a cap
-    j -= length(voljacobian.swaptions) - 1 # need to get back to index 1
+    j -= length(voljacobian.swaptions) # need to get back to index 1
 
     thisPseudo = CapPseudoDerivative(associated_model(voljacobian.bumps), voljacobian.caps[j].strike, voljacobian.caps[j].startIndex, voljacobian.caps[j].endIndex, 1.0)
 
@@ -84,7 +84,7 @@ function derivatives_volatility!(voljacobian::VolatilityBumpInstrumentJacobian, 
       end
 
       sizesq += v * v
-      voljacobian.derivatives[initj, k] = v
+      voljacobian.derivatives[initj][k] = v
     end
   end
 
