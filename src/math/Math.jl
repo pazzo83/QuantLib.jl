@@ -153,7 +153,8 @@ export GeneralLinearLeastSquares, get_coefficients
 include("general_linear_least_squares.jl")
 
 # interpolation.jl
-export Interpolation, Spline, Lagrange, LogInterpolation, LogLinear, BicubicSpline, NaturalCubicSpline, CubicInterpolation, BackwardFlatInterpolation, update!, locate, initialize!, value, get_primitive
+export Interpolation, Spline, Lagrange, LogInterpolation, LogLinear, BicubicSpline, NaturalCubicSpline, CubicInterpolation, BackwardFlatInterpolation, update!, locate, initialize!, value, get_primitive,
+derivative
 
 include("interpolation/interpolation.jl")
 include("interpolation/linear_interpolation.jl")

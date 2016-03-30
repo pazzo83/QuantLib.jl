@@ -56,4 +56,8 @@ function update!{I <: Integer}(interp::LogInterpolation, idx::I)
   return interp
 end
 
+update!(interp::LogInterpolation) = update!(interp.interpolator)
+
 value(interp::LogInterpolation, val::Float64) = exp(value(interp.interpolator, val))
+
+derivative(interp::LogInterpolation, val::Float64) = value(interp, val) * derivative(interp.interpolator, val)

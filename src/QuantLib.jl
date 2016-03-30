@@ -145,7 +145,7 @@ export
     check_range, max_date, time_from_reference,
 
     # termstructures/yield_term_structure.jl
-    NullYieldTermStructure, FlatForwardTermStructure, JumpDate, JumpTime,
+    NullYieldTermStructure, FlatForwardTermStructure, JumpDate, JumpTime, InterpolatedDiscountCurve,
     calculated!, discount, zero_rate, forward_rate, discount_impl,
 
     # termstructures/bootstrap_traits.jl
@@ -262,7 +262,7 @@ export
     AccountingEngine, multiple_path_values!,
 
     # models/market_models/pathwise_accounting_engine.jl
-    PathwiseVegasOuterAccountingEngine, multiple_path_values!, 
+    PathwiseVegasOuterAccountingEngine, multiple_path_values!,
 
     # methods - finite difference
     FdmG2Solver,FdmHullWhiteSolver, CrankNelson,
@@ -352,6 +352,7 @@ include("termstructures/yield/yield_term_structure.jl")
 include("termstructures/yield/piecewise_yield_curve.jl")
 include("termstructures/yield/fitted_bond_curve.jl")
 include("termstructures/yield/nonlinear_fitting_methods.jl")
+include("termstructures/yield/discount_curve.jl")
 # volatility
 include("termstructures/volatility/vol_term_structure.jl")
 include("termstructures/volatility/black_vol_term_structure.jl")

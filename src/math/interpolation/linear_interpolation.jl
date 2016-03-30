@@ -23,6 +23,8 @@ function update!{I <: Integer}(interp::LinearInterpolation, idx::I)
   return interp
 end
 
+update!(interp::LinearInterpolation) = update!(interp, length(interp.y_vals))
+
 function value(interp::LinearInterpolation, val::Float64)
   i = locate(interp, val)
   # println("I is ", i)
@@ -31,4 +33,9 @@ function value(interp::LinearInterpolation, val::Float64)
   # println("X vals ", interp.x_vals)
   # println("S vals ", interp.s)
   return interp.y_vals[i] + (val - interp.x_vals[i]) * interp.s[i]
+end
+
+function derivative(interp::LinearInterpolation, val::Float64)
+  i = locate(interp, val)
+  return interp.s[i]
 end
