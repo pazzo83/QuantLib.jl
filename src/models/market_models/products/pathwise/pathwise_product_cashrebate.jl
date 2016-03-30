@@ -31,7 +31,7 @@ function next_time_step!(mm::MarketModelPathwiseCashRebate, ::CurveState, number
   for i = 1:mm.numberOfProducts
     numberCashFlowsThisStep[i] = 1
     cashFlowsGenerated[i][1].timeIndex = mm.currentIndex
-    cashFlowsGenerated[i][1].amount[1] = mm.amounts[1][mm.currentIndex]
+    cashFlowsGenerated[i][1].amount[1] = mm.amounts[1, mm.currentIndex]
 
     for k = 2:mm.evolution.numberOfRates + 1
       cashFlowsGenerated[i][1].amount[k] = 0.0

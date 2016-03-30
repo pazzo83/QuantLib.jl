@@ -53,7 +53,7 @@ function CallSpecifiedPathwiseMultiProduct(underlying::MarketModelPathwiseMultiP
                                   dummyCashFlowsGenerated, 1, true)
 end
 
-function next_time_step!(cs::CallSpecifiedPathwiseMultiProduct, currentState::CurveState, numberCashFlowsThisStep::Vector{Int}, genCashFlows::Vector{Vector{MarketModelCashFlow}})
+function next_time_step!(cs::CallSpecifiedPathwiseMultiProduct, currentState::CurveState, numberCashFlowsThisStep::Vector{Int}, genCashFlows::Vector{Vector{MarketModelPathWiseCashFlow}})
   isUnderlyingTime = cs.isPresent[1][cs.currentIndex]
   isExerciseTime = cs.isPresent[2][cs.currentIndex]
   isRebateTime = cs.isPresent[3][cs.currentIndex]

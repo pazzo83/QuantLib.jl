@@ -80,7 +80,7 @@ reset!(mm::MarketModelPathwiseInverseFloater) = mm.currentIndex = 1
 function next_time_step!(mm::MarketModelPathwiseInverseFloater, currentState::CurveState, numberCashFlowsThisStep::Vector{Int},
                         cashFlowsGenerated::Vector{Vector{MarketModelPathWiseCashFlow}})
   numberCashFlowsThisStep[1] = 1
-  for i = 2:mm.lastIndex + 1
+  for i = 2:mm.lastIndex
     cashFlowsGenerated[1][1].amount[i] = 0.0
   end
 

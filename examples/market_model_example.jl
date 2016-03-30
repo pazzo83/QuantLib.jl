@@ -161,6 +161,11 @@ function InverseFloater(rateLevel::Float64)
   theBumps = theVegaBumps(allowFactorwiseBumping, marketModel, doCaps)
 
   accountingEngineVegas = PathwiseVegasOuterAccountingEngine(QuantLib.clone(evolverEuler), QuantLib.clone(callableProductPathwise), marketModel, theBumps, initialNumeraireValue)
+
+  values = Vector{Float64}()
+  errors = Vector{Float64}()
+
+  multiple_path_values!(accountingEngineVegas, values, errors, pathsToVegas)
 end
 
 function main()

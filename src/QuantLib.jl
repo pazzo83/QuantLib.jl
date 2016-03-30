@@ -262,7 +262,7 @@ export
     AccountingEngine, multiple_path_values!,
 
     # models/market_models/pathwise_accounting_engine.jl
-    PathwiseVegasOuterAccountingEngine,
+    PathwiseVegasOuterAccountingEngine, multiple_path_values!, 
 
     # methods - finite difference
     FdmG2Solver,FdmHullWhiteSolver, CrankNelson,

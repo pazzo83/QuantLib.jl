@@ -26,6 +26,24 @@ type SimpleDayCount <: DayCount end
 
 # Day Counting
 # default day count method
+function day_count(c::BondThirty360, d_start::Date, d_end::Date)
+  dd1 = day(d_start)
+  dd2 = day(d_end)
+
+  mm1 = month(d_start)
+  mm2 = month(d_end)
+
+  yy1 = year(d_start)
+  yy2 = year(d_end)
+
+  if dd2 == 31 && dd1 < 30
+    dd2 = 1
+    mm2 += 1
+  end
+
+  return 360.0 * (yy2 - yy1) + 30.0 * (mm2 - mm1 - 1) + max(0, 30 - dd1) + min(30, dd2)
+end
+
 function day_count(c::EuroBondThirty360, d_start::Date, d_end::Date)
   dd1 = day(d_start)
   dd2 = day(d_end)

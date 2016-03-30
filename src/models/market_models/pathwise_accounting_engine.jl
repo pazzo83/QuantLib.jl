@@ -159,6 +159,7 @@ end
 
 function single_path_values!(pwEng::PathwiseVegasOuterAccountingEngine, values::Vector{Float64})
   initialForwards = copy(pwEng.pseudoRootStructure.initialRates)
+  pwEng.currentForwards = copy(initialForwards)
 
   for i = 1:pwEng.numberProducts
     pwEng.numerairesHeld[i] = 0.0
@@ -179,7 +180,8 @@ function single_path_values!(pwEng::PathwiseVegasOuterAccountingEngine, values::
   reset!(pwEng.product)
 
   isDone = false
-  while isDone
+  thisStep = 1
+  while ~isDone
     thisStep = pwEng.evolver.currentStep
     storeStep = thisStep + 1
     weight *= advance_step!(pwEng.evolver)
@@ -200,7 +202,7 @@ function single_path_values!(pwEng::PathwiseVegasOuterAccountingEngine, values::
       pwEng.Discounts[storeStep, i+1] = discount_ratio(current_state(pwEng.evolver), i+1, 1)
     end
 
-    get_bumps(pwEng.jacobianComputers[thisStep], pwEng.lastForwards, pwEng.stepsDiscounts, pwEng.currentForwards, brownians_this_step(pwEng.evolver),
+    get_bumps!(pwEng.jacobianComputers[thisStep], pwEng.lastForwards, pwEng.stepsDiscounts, pwEng.currentForwards, brownians_this_step(pwEng.evolver),
               pwEng.jacobiansThisPaths[thisStep])
 
     # for each product and each cash flow
@@ -217,10 +219,137 @@ function single_path_values!(pwEng::PathwiseVegasOuterAccountingEngine, values::
     #   break
     # end
   end
+
+  # ok we've gathered cash-flows, still have to do backwards computation
+  factors = pwEng.pseudoRootStructure.numberOfFactors
+  taus = pwEng.pseudoRootStructure.evolution.rateTaus
+
+  flowsFound = false
+  finalStepDone = thisStep
+
+  for currentStep = pwEng.numberSteps:-1:1
+    stepToUse = min(currentStep, finalStepDone) + 1
+    for k in eachindex(pwEng.cashFlowIndicesThisStep[currentStep])
+      cashFlowIndex = pwEng.cashFlowIndicesThisStep[currentStep][k]
+
+      # first check to see if anything actually happened before spending time on computing stuff
+      noFlows = true
+      for l = 1:pwEng.numberProducts
+        noFlows = noFlows && (pwEng.numberCashFlowsThisIndex[l][cashFlowIndex] == 0)
+        if ~noFlows
+          break
+        end
+      end
+
+      flowsFound = flowsFound || ~noFlows
+
+      if ~noFlows
+        if pwEng.doDeflation
+          pwEng.deflatorAndDerivatives = get_factors(pwEng.discounters[cashFlowIndex], pwEng.LIBORRates, pwEng.Discounts, stepToUse)
+        end
+
+        for j = 1:pwEng.numberProducts
+          if pwEng.numberCashFlowsThisIndex[j][cashFlowIndex] > 0
+            deflatedCashFlow = pwEng.totalCashFlowsThisIndex[j][cashFlowIndex, 1]
+            if pwEng.doDeflation
+              deflatedCashFlow *= pwEng.deflatorAndDerivatives[1]
+            end
+
+            pwEng.numerairesHeld[j] += deflatedCashFlow
+
+            for i = 2:pwEng.numberRates + 1
+              thisDerivative = pwEng.totalCashFlowsThisIndex[j][cashFlowIndex, i]
+              if pwEng.doDeflation
+                thisDerivative *= pwEng.deflatorAndDerivatives[1]
+                thisDerivative += pwEng.totalCashFlowsThisIndex[j][cashFlowIndex, 1] * pwEng.deflatorAndDerivatives[i]
+              else
+                pwEng.fullDerivatives[i-1] = thisDerivative
+              end
+
+              pwEng.V[j][stepToUse, i-1] += thisDerivative
+            end # end of for i = 2:numberRates + 1
+          end # end of (numberCashFlowsThisIndex[j][cashFlowIndex] > 0)
+        end # end of j = 1:numberProducts
+      end # end of ~noFlows
+    end # end of k in eachindex(cashFlowIndicesThisStep)
+
+    # need to do backwards updating
+    if flowsFound
+      nextStepToUse = min(currentStep - 1, finalStepDone)
+      nextStepIndex = nextStepToUse + 1
+
+      if nextStepIndex != stepToUse # then we need to update V
+        thisPseudoRoot = pwEng.pseudoRootStructure.pseudoRoots[currentStep]
+
+        for i = 1:pwEng.numberProducts
+          # compute partials
+          for f = 1:factors
+            libor = pwEng.LIBORRates[stepToUse, pwEng.numberRates]
+            V = pwEng.V[i][stepToUse, pwEng.numberRates]
+            pseudo = thisPseudoRoot[pwEng.numberRates, f]
+            thisPartialTerm = libor * V * pseudo
+            pwEng.partials[f, pwEng.numberRates] = thisPartialTerm
+
+            for r = pwEng.numberRates-1:-1:1
+              thisPartialTermr = pwEng.LIBORRates[stepToUse, r] * pwEng.V[i][stepToUse, r] * thisPseudoRoot[r, f]
+              pwEng.partials[f, r] = pwEng.partials[f, r+1] + thisPartialTermr
+            end
+          end # end of f = 1:factors
+
+          for j = 1:pwEng.numberRates
+            nextV = pwEng.V[i][stepToUse, j] * pwEng.LIBORRatios[stepToUse, j]
+            pwEng.V[i][nextStepIndex, j] = nextV
+
+            summandTerm = 0.0
+            for f = 1:factors
+              summandTerm += thisPseudoRoot[j, f] * pwEng.partials[f, j]
+            end
+
+            summandTerm *= taus[j] * pwEng.StepsDiscountsSquared[stepToUse, j]
+            pwEng.V[i][nextStepIndex, j] += summandTerm
+          end # end of for j = 1:numberRates
+        end # end of i = 1:numberProducts
+      end # end of if nextStepIndex != stepToUse
+    end # end of if flowsFound
+  end # end of for currentStep = numberSteps:-1:1
+
+  # all V matricies computed, we now compute the elementary vegas for this path
+  for i = 1:pwEng.numberProducts, j = 1:pwEng.numberSteps
+    nextIndex = j+1
+
+    # we know V, we need to pair against the sensitivity of the rate to the elementary vega
+    # note the simplification here arising from the fact that the elementary vega affects the evolution on precisely one step
+    for k = 1:pwEng.numberRates, f = 1:pwEng.factors
+      sensitivity = 0.0
+      for r = 1:pwEng.numberRates
+        sensitivity += pwEng.V[i][nextIndex, r] * pwEng.jacobiansThisPaths[j][r][k, f]
+      end
+
+      pwEng.elementaryVegasThisPath[i][j][k, f]
+    end
+  end
+
+  # write answer into values
+  entriesPerProduct = 1 + pwEng.numberRates + pwEng.numberElementaryVegas
+
+  for i = 1:pwEng.numberProducts
+    values[((i - 1) * entriesPerProduct) + 1] = pwEng.numerairesHeld[i] * pwEng.initialNumeraireValue
+
+    for j = 1:pwEng.numberRates
+      values[(i - 1) * entriesPerProduct + 1 + j] = pwEng.V[i][1, j] * pwEng.initialNumeraireValue
+    end
+
+    for k = 1:pwEng.numberSteps, l = 1:pwEng.numberRates, m = 1:pwEng.factors
+      values[(i-1) * entriesPerProduct + pwEng.numberRates + 1 + m + (l - 1) * factors + (k - 1) * pwEng.numberRates * pwEng.factors] =
+            pwEng.elementaryVegasThisPath[i][k][l, m] * pwEng.initialNumeraireValue
+    end
+  end
+
+  return 1.0 # we have put the weight in already, this results in lower variance since weight changes along the path
 end
 
 function multiple_path_values_elementary!(pwEng::PathwiseVegasOuterAccountingEngine, means::Vector{Float64}, errors::Vector{Float64}, numberOfPaths::Int)
-  numberOfElementaryVegas = pwEng.numberRates * pwEng.numberFactors * pwEng.factors
+  numberOfElementaryVegas = pwEng.numberRates * pwEng.numberSteps * pwEng.factors
   values = Vector{Float64}(number_of_products(pwEng.product) * (1 + pwEng.numberRates + numberOfElementaryVegas))
   resize!(means, length(values))
   resize!(errors, length(values))
@@ -251,4 +380,26 @@ function multiple_path_values!(pwEng::PathwiseVegasOuterAccountingEngine, means:
   allErrors = Vector{Float64}()
 
   multiple_path_values_elementary!(pwEng, allMeans, allErrors, numberOfPaths)
+
+  outDataPerProduct = 1 + pwEng.numberRates + pwEng.numberBumps
+  inDataPerProduct = 1 + pwEng.numberRates + pwEng.numberElementaryVegas
+
+  resize!(means, (1 + pwEng.numberRates + pwEng.numberBumps) * pwEng.numberProducts)
+  resize!(errors, (1 + pwEng.numberRates + pwEng.numberBumps) * pwEng.numberProducts)
+
+  for p = 1:pwEng.numberProducts, i = 1:pwEng.numberRates + 1
+    means[i + (p - 1) * outDataPerProduct] = allMeans[i + (p - 1) * outDataPerProduct]
+    errors[i + (p - 1) * outDataPerProduct] = allErrors[i + (p - 1) * outDataPerProduct]
+
+    for bump = 1:pwEng.numberBumps
+      thisVega = 0.0
+      for t = 1:pwEng.numberSteps, r = 1:pwEng.numberRates, f = 1:pwEng.factors
+        thisVega += pwEng.vegaBumps[t][bump][r, f] * allMeans[(p - 1) * inDataPerProduct + 1 + pwEng.numberRates + (t - 1) * pwEng.numberRates * pwEng.factors + (r - 1) * pwEng.factors + f]
+      end
+
+      means[(p - 1) * outDataPerProduct + 1 + pwEng.numberRates + bump] = thisVega
+    end
+  end
+
+  return means, errors
 end

@@ -99,11 +99,11 @@ function advance_step!(lognorm::LogNormalFwdRateEuler)
   A = copy(lognorm.marketModel.pseudoRoots[lognorm.currentStep])
   fixedDrift = copy(lognorm.fixedDrifts[lognorm.currentStep])
 
-  alive = lognorm.alive(lognorm.currentStep)
+  alive = lognorm.alive[lognorm.currentStep]
   for i = alive:lognorm.numberOfRates
     lognorm.logForwards[i] += lognorm.drifts1[i] + fixedDrift[i]
     lognorm.logForwards[i] += vecdot(A[i, :], lognorm.brownians)
-    lognorm.forwards[i] = exp(lognorm.logForwards[i]) - lognorm.displacements[i]
+    lognorm.forwards[i] = exp(lognorm.logForwards[i]) - lognorm.displacement[i]
   end
 
   # same as PC evolver with two steps dropped

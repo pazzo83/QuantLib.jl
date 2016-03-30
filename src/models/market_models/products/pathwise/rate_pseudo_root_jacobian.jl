@@ -32,17 +32,17 @@ function get_bumps!(ratePseudo::RatePseudoRootJacobianAllElements, oldRates::Vec
 
   length(B) == numberRates || error("B must be the same size as numberRates")
   for j in eachindex(B)
-    size(B) == (numberRates, ratePseudo.factors) || error("matrix in B not of proper size")
+    size(B[j]) == (numberRates, ratePseudo.factors) || error("matrix in B not of proper size")
   end
 
   for j = ratePseudo.aliveIndex:numberRates
     ratePseudo.ratios[j] = (oldRates[j] + ratePseudo.displacements[j]) * discountRatios[j+1]
   end
 
-  for f = 1:factors
+  for f = 1:ratePseudo.factors
     ratePseudo.e[ratePseudo.aliveIndex, f] = 0.0
     for j = ratePseudo.aliveIndex+1:numberRates
-      ratePseudo.e[j, f] = ratePseudo.e[j-1, f] + ratePseudo.ratios[j-1] * ratePseudo.pseudoBumps[j-1, f]
+      ratePseudo.e[j, f] = ratePseudo.e[j-1, f] + ratePseudo.ratios[j-1] * ratePseudo.pseudoRoot[j-1, f]
     end
   end
 

@@ -84,6 +84,40 @@ function MarketModelPathwiseDiscounter(paymentTime::Float64, rateTimes::Vector{F
   return MarketModelPathwiseDiscounter(beforeTimeIdx, numberRates, beforeWeight, postWeight, taus)
 end
 
+function get_factors(mmdisc::MarketModelPathwiseDiscounter, ::Matrix{Float64}, Discounts::Matrix{Float64}, currentStep::Int)
+  factors = Vector{Float64}(mmdisc.numberRates + 1)
+  preDF = Discounts[currentStep, mmdisc.beforeTimeIdx]
+  postDF = Discounts[currentStep, mmdisc.beforeTimeIdx + 1]
+
+  for i = mmdisc.beforeTimeIdx+1:mmdisc.numberRates
+    factors[i+1] = 0.0
+  end
+
+  if mmdisc.postWeight == 0.0
+    factors[1] = preDF
+
+    for i = 1:mmdisc.beforeTimeIdx
+      factors[i+1] = -preDF * mmdisc.taus[i] * Discounts[currentStep, i+1] / Discounts[currentStep, i]
+    end
+
+    factors[mmdisc.beforeTimeIdx + 1] = 0.0
+
+    return factors
+  end
+
+  df = preDF * ^(postDF / preDF, mmdisc.postWeight)
+
+  factors[1] = df
+
+  for i = 1:mmdisc.beforeTimeIdx
+    factors[i+1] = -df * mmdisc.taus[i] * Discounts[currentStep, i+1] / Discounts[currentStep, i]
+  end
+
+  factors[mmdisc.beforeTimeIdx + 1] *= mmdisc.postWeight
+
+  return factors
+end
+
 function check_increasing_times(times::Vector{Float64})
   length(times) > 0 || error("at least one time is required")
   times[1] > 0.0 || error("first time must be greater than zero")
