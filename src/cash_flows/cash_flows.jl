@@ -14,15 +14,15 @@ type CouponMixin{DC <: DayCount}
   accrualPeriod::Float64
 end
 
-accrual_start_date{C <: Coupon}(coup::C) = coup.couponMixin.accrualStartDate
-accrual_end_date{C <: Coupon}(coup::C) = coup.couponMixin.accrualEndDate
-ref_period_start{C <: Coupon}(coup::C) = coup.couponMixin.refPeriodStart
-ref_period_end{C <: Coupon}(coup::C) = coup.couponMixin.refPeriodEnd
-get_dc{C <: Coupon}(coup::C) = coup.couponMixin.dc
+accrual_start_date(coup::Coupon) = coup.couponMixin.accrualStartDate
+accrual_end_date(coup::Coupon) = coup.couponMixin.accrualEndDate
+ref_period_start(coup::Coupon) = coup.couponMixin.refPeriodStart
+ref_period_end(coup::Coupon) = coup.couponMixin.refPeriodEnd
+get_dc(coup::Coupon) = coup.couponMixin.dc
 
 # accural_period{C <: Coupon}(coup::C) = coup.couponMixin.accrualPeriod
-accrual_period!{C <: Coupon}(coup::C, val::Float64) = coup.couponMixin.accrualPeriod = val
-function accrual_period{C <: Coupon}(coup::C)
+accrual_period!(coup::Coupon, val::Float64) = coup.couponMixin.accrualPeriod = val
+function accrual_period(coup::Coupon)
   if coup.couponMixin.accrualPeriod == -1.0
     p = year_fraction(get_dc(coup), accrual_start_date(coup), accrual_end_date(coup), ref_period_start(coup), ref_period_end(coup))
     accrual_period!(coup, p)
@@ -41,8 +41,8 @@ amount(cf::SimpleCashFlow) = cf.amount
 date(cf::SimpleCashFlow) = cf.date
 date_accrual_end(cf::SimpleCashFlow) = cf.date
 
-date{C <: Coupon}(coup::C) = coup.paymentDate
-date_accrual_end{C <: Coupon}(coup::C) = accrual_end_date(coup)
+date(coup::Coupon) = coup.paymentDate
+date_accrual_end(coup::Coupon) = accrual_end_date(coup)
 
 type Dividend <: CashFlow
   amount::Float64
@@ -159,7 +159,7 @@ get_reset_dates{C <: Coupon}(coups::Vector{C}) = Date[accrual_start_date(coup) f
 # end
 
 ## NPV METHODS ##
-function npv{L <: Leg, Y <: YieldTermStructure}(leg::L, yts::Y, settlement_date::Date, npv_date::Date)
+function npv(leg::Leg, yts::YieldTermStructure, settlement_date::Date, npv_date::Date)
   # stuff
   totalNPV = 0.0
   if length(leg.coupons) == 0
@@ -178,7 +178,7 @@ function npv{L <: Leg, Y <: YieldTermStructure}(leg::L, yts::Y, settlement_date:
   return totalNPV / discount(yts, npv_date)
 end
 
-function npv{L <: Leg}(leg::L, y::InterestRate, include_settlement_cf::Bool, settlement_date::Date, npv_date::Date)
+function npv(leg::Leg, y::InterestRate, include_settlement_cf::Bool, settlement_date::Date, npv_date::Date)
   if length(leg.coupons) == 0
     return 0.0
   end
@@ -226,7 +226,7 @@ function npv{L <: Leg}(leg::L, y::InterestRate, include_settlement_cf::Bool, set
   return totalNPV
 end
 
-function npv{Y <: YieldTermStructure}(leg::ZeroCouponLeg, yts::Y, settlement_date::Date, npv_date::Date)
+function npv(leg::ZeroCouponLeg, yts::YieldTermStructure, settlement_date::Date, npv_date::Date)
   if amount(leg.redemption) == 0.0
     return 0.0
   end
@@ -253,7 +253,7 @@ function npv(leg::ZeroCouponLeg, y::InterestRate, include_settlement_cf::Bool, s
 end
 
 
-function npvbps{L <: Leg, Y <: YieldTermStructure}(leg::L, yts::Y, settlement_date::Date, npv_date::Date, includeSettlementDateFlows::Bool = true)
+function npvbps(leg::Leg, yts::YieldTermStructure, settlement_date::Date, npv_date::Date, includeSettlementDateFlows::Bool = true)
   npv = 0.0
   bps = 0.0
 
@@ -285,13 +285,13 @@ function npvbps{L <: Leg, Y <: YieldTermStructure}(leg::L, yts::Y, settlement_da
 end
 
 ## Duration Calculations ##
-modified_duration_calc{F <: Frequency}(::SimpleCompounding, c::Float64, B::Float64, t::Float64, ::Float64, ::F) = c * B * B * t
-modified_duration_calc{F <: Frequency}(::CompoundedCompounding, c::Float64, B::Float64, t::Float64, r::Float64, N::F) = c * t * B / (1 + r / QuantLib.Time.value(N))
-modified_duration_calc{F <: Frequency}(::ContinuousCompounding, c::Float64, B::Float64, t::Float64, ::Float64, ::F) = c * B * t
-modified_duration_calc{F <: Frequency}(::SimpleThenCompounded, c::Float64, B::Float64, t::Float64, r::Float64, N::F) =
+modified_duration_calc(::SimpleCompounding, c::Float64, B::Float64, t::Float64, ::Float64, ::Frequency) = c * B * B * t
+modified_duration_calc(::CompoundedCompounding, c::Float64, B::Float64, t::Float64, r::Float64, N::Frequency) = c * t * B / (1 + r / QuantLib.Time.value(N))
+modified_duration_calc(::ContinuousCompounding, c::Float64, B::Float64, t::Float64, ::Float64, ::Frequency) = c * B * t
+modified_duration_calc(::SimpleThenCompounded, c::Float64, B::Float64, t::Float64, r::Float64, N::Frequency) =
   t <= 1.0 / N ? modified_duration_calc(Simple(), c, B, t, r, N) : modified_duration_calc(CompoundedCompounding(), c, B, t, r, N)
 
-function duration{L <: Leg, DC <: DayCount}(::ModifiedDuration, leg::L, y::InterestRate, dc::DC, include_settlement_cf::Bool, settlement_date::Date, npv_date::Date = Date())
+function duration(::ModifiedDuration, leg::Leg, y::InterestRate, dc::DayCount, include_settlement_cf::Bool, settlement_date::Date, npv_date::Date = Date())
   if length(leg.coupons) == 0 # TODO make this applicable to redemption too
     return 0.0
   end
@@ -343,7 +343,7 @@ function duration{L <: Leg, DC <: DayCount}(::ModifiedDuration, leg::L, y::Inter
   return -dPdy / P # reverse derivative sign
 end
 
-function duration{DC <: DayCount}(::ModifiedDuration, leg::ZeroCouponLeg, y::InterestRate, dc::DC, include_settlement_cf::Bool, settlement_date::Date, npv_date::Date = Date())
+function duration(::ModifiedDuration, leg::ZeroCouponLeg, y::InterestRate, dc::DayCount, include_settlement_cf::Bool, settlement_date::Date, npv_date::Date = Date())
   if amount(leg.redemption) == 0.0 || has_occurred(leg.redemption, settlement_date)
     return 0.0
   end
@@ -375,7 +375,7 @@ function duration{DC <: DayCount}(::ModifiedDuration, leg::ZeroCouponLeg, y::Int
   return -dPdy / P # reverse derivative sign
 end
 
-function aggregate_rate{L <: Leg, I <: Integer}(cf::L, _first::I, _last::I)
+function aggregate_rate(cf::Leg, _first::Int, _last::Int)
   if cf.coupons[_first] == cf.coupons[_last]
     return 0.0
   end
@@ -398,23 +398,23 @@ end
 
 
 # functions for sorting and finding
-sort_cashflow{C <: Coupon}(cf::C) = accrual_end_date(cf) #cf.couponMixin.accrualEndDate
+sort_cashflow(cf::Coupon) = accrual_end_date(cf) #cf.couponMixin.accrualEndDate
 sort_cashflow(simp::SimpleCashFlow) = simp.date
 
-prev_cf{C <: Coupon}(cf::C, d::Date) = d > cf.paymentDate
+prev_cf(cf::Coupon, d::Date) = d > cf.paymentDate
 prev_cf(simp::SimpleCashFlow) = d > simp.date
 
-next_cf{C <: Coupon}(cf::C, d::Date) = d < cf.paymentDate
+next_cf(cf::Coupon, d::Date) = d < cf.paymentDate
 next_cf(simp::SimpleCashFlow) = d < simp.date
 
-function previous_cashflow_date{L <: Leg}(cf::L, settlement_date::Date)
+function previous_cashflow_date(cf::Leg, settlement_date::Date)
   # right now we can assume cashflows are sorted by date because of schedule
   prev_cashflow_idx = findprev(prev_cf, cf.coupons, length(cf.coupons), settlement_date)
 
   return prev_cashflow_idx == 0 ? 0 : cf.coupons[prev_cashflow_idx].paymentDate
 end
 
-function accrual_days{C <: CashFlows, DC <: DayCount}(cf::C, dc::DC, settlement_date::Date)
+function accrual_days(cf::CashFlows, dc::DayCount, settlement_date::Date)
   last_payment = previous_cashflow_date(cf, settlement_date)
 
   if last_payment == 0
@@ -424,7 +424,7 @@ function accrual_days{C <: CashFlows, DC <: DayCount}(cf::C, dc::DC, settlement_
   end
 end
 
-function next_cashflow{L <: Leg}(cf::L, settlement_date::Date)
+function next_cashflow(cf::Leg, settlement_date::Date)
   if settlement_date > date(cf.coupons[end])
     return length(cf.coupons)
   end
@@ -432,12 +432,12 @@ function next_cashflow{L <: Leg}(cf::L, settlement_date::Date)
   return findnext(next_cf, cf.coupons, 1, settlement_date)
 end
 
-function next_coupon_rate{L <: Leg}(cf::L, settlement_date::Date)
+function next_coupon_rate(cf::Leg, settlement_date::Date)
   next_cf_idx = next_cashflow(cf, settlement_date)
   return aggregate_rate(cf, next_cf_idx, length(cf.coupons))
 end
 
-function accrued_amount{L <: Leg}(cf::L, settlement_date::Date, include_settlement_cf::Bool = false)
+function accrued_amount(cf::Leg, settlement_date::Date, include_settlement_cf::Bool = false)
   next_cf_idx = next_cashflow(cf, settlement_date)
   if cf.coupons[next_cf_idx] == length(cf.coupons)
     return 0.0
@@ -469,7 +469,7 @@ accrued_amount(simp::SimpleCashFlow, ::Date, ::Bool = false) = 0.0
 #   return p
 # end
 
-function has_occurred{C <: CashFlow}(cf::C, ref_date::Date, include_settlement_cf::Bool = true)
+function has_occurred(cf::CashFlow, ref_date::Date, include_settlement_cf::Bool = true)
   # will need to expand this
   if ref_date < date(cf) || (ref_date == date(cf) && include_settlement_cf)
     return false
@@ -478,15 +478,15 @@ function has_occurred{C <: CashFlow}(cf::C, ref_date::Date, include_settlement_c
   end
 end
 
-function maturity_date{L <: Leg}(leg::L)
+function maturity_date(leg::Leg)
   # sort cashflows
   sorted_cf = sort(leg.coupons, by=sort_cashflow)
   return date_accrual_end(sorted_cf[end])
 end
 
 # Yield Calculations ##
-function yield{L <: Leg, DC <: DayCount, C <: CompoundingType, F <: Frequency, I <: Integer}(leg::L, npv::Float64, dc::DC, compounding::C, freq::F, include_settlement_cf::Bool, settlement_date::Date,
-              npv_date::Date, accuracy::Float64, max_iter::I, guess::Float64)
+function yield(leg::Leg, npv::Float64, dc::DayCount, compounding::CompoundingType, freq::Frequency, include_settlement_cf::Bool, settlement_date::Date,
+              npv_date::Date, accuracy::Float64, max_iter::Int, guess::Float64)
   solver = NewtonSolver(max_iter)
   obj_fun = IRRFinder(leg, npv, dc, compounding, freq, include_settlement_cf, settlement_date, npv_date)
 
@@ -506,9 +506,9 @@ end
 #
 # Base.done(f::FixedRateLeg, state) = length(f.coupons) + 1 < state
 
-Base.start{L <: Leg}(f::L) = 1
-Base.next{L <: Leg}(f::L, state) = f.coupons[state], state + 1
-Base.done{L <: Leg}(f::L, state) = length(f.coupons) == state - 1
+Base.start(f::Leg) = 1
+Base.next(f::Leg, state) = f.coupons[state], state + 1
+Base.done(f::Leg, state) = length(f.coupons) == state - 1
 
 Base.getindex(f::Leg, i::Int) = f.coupons[i]
 Base.endof(f::Leg) = endof(f.coupons)

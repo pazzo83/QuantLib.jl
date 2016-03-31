@@ -94,7 +94,7 @@ export
 
     # cash_flows/cash_flows.jl
     CouponMixin, accrual_start_date, accrual_end_date, ref_period_start, ref_period_end, SimpleCashFlow, Leg, ZeroCouponLeg, IRRFinder, operator, amount, date, duration, yield, previous_cashflow_date,
-    accrual_days, accrual_days, next_cashflow, has_occurred, next_coupon_rate, initialize!,
+    accrual_days, accrual_days, next_cashflow, has_occurred, accrued_amount, next_coupon_rate, maturity_date, initialize!,
 
     # cash_flows/fixed_rate_coupon.jl
     FixedRateCoupon, FixedRateLeg,
