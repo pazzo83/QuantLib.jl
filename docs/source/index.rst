@@ -12,7 +12,7 @@ Welcome to QuantLib.jl's documentation!
 
 
 .. Indices and tables
-..==================
+.. ==================
 
 .. * :ref:`genindex`
 .. * :ref:`modindex`
