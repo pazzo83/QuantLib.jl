@@ -11,6 +11,8 @@ Pkg.clone("https://github.com/pazzo83/QuantLib.jl.git")
 
 The package essentially contains the main QuantLib module and two sub-modules for various time-based and math-based operations.  Below is a fairly up-to-date status of what is included.
 
+**Documentation**: <http://quantlibjl.readthedocs.org/en/latest/>
+
 ### Math
 Interpolations:
 * Backward Flat
@@ -73,6 +75,7 @@ Swaps:
 * Finite Differences
 * Trinomial Tree
 * Tree Lattice 1D & 2D
+* Monte Carlo
 
 ### Models
 Short Rate:
@@ -81,9 +84,18 @@ Short Rate:
 * Hull White
 * G2
 
+Equity:
+* Bates Model
+* Heston Model
+
+Market Models
+* Flat Vol
+
 ### Pricing Engines
 Bond:
 * Discounting Bond Engine
+* Tree Callable Fixed Rate Bond Engine
+* Black Callable Fixed Rate Bond Engine
 
 Swap:
 * Discounting Swap Engine
@@ -103,14 +115,28 @@ Swaptions:
 
 Vanilla:
 * Analytic European Engine (for black scholes)
+* Analytic Heston Engine
+* Barone Adesi Whaley Engine
+* Bates Engine
+* Binomial Engine
+* Bjerksund Stensland Approximation Engine
+* FD Vanilla Engine
+* Integral Engine
+* MonteCarlo American Engine
+* MonteCarlo European Engine
 
 General:
 * Black Scholes Calculator
+* Black Formula
+* MonteCarlo Simulation
+* Lattice ShortRate Model Engine
 
 ### Processes
 * Black Scholes Process
 * Ornstein Uhlenbeck Process
 * Gaussian Short Rate Process
+* Bates Process
+* Heston Process
 
 ### Term Structures
 Credit:
@@ -127,6 +153,7 @@ Yield:
 * Flat Forward
 * Fitted Bond Curve (various fitting methods)
 * Piecewise Yield Curve
+* Discount Curve
 
 ## Example
 ### Price a fixed rate Bond
