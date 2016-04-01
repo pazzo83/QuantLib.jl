@@ -8,6 +8,7 @@ immutable IborIndex{S <: AbstractString, TP <: TenorPeriod, CUR <: AbstractCurre
   endOfMonth::Bool
   dc::DC
   ts::T
+  pastFixings::Dict{Date, Float64}
 
   # call{S, I, B, C, DC}(::Type{IborIndex}, familyName::S, tenor::TenorPeriod, fixingDays::I, currency::AbstractCurrency, fixingCalendar::B,
   #                               convention::C, endOfMonth::Bool, dc::DC) =
@@ -22,7 +23,8 @@ immutable IborIndex{S <: AbstractString, TP <: TenorPeriod, CUR <: AbstractCurre
 end
 
 IborIndex{S <: AbstractString, TP <: TenorPeriod, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::S, tenor::TP, fixingDays::Int, currency::CUR,
-          fixingCalendar::B, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) = IborIndex{S, TP, CUR, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, convention, endOfMonth, dc, ts)
+          fixingCalendar::B, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) =
+          IborIndex{S, TP, CUR, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, convention, endOfMonth, dc, ts, Dict{Date, Float64}())
 
 
 immutable LiborIndex{S <: AbstractString, TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
@@ -69,7 +71,16 @@ function fixing(idx::InterestRateIndex, ts::TermStructure, _fixing_date::Date, f
     return forecast_fixing(idx, ts, _fixing_date)
   end
 
-  error("Not yet implemented for older dates than eval date")
+  # this is a path fixing
+  pastFix = get(idx.pastFixings, _fixing_date, -1.0)
+
+  if pastFix == -1.0
+    # none found, default to forecast
+    return forecast_fixing(idx, ts, _fixing_date)
+  else
+    return pastFix
+  end
+  # error("Not yet implemented for older dates than eval date")
 end
 
 function forecast_fixing(idx::InterestRateIndex, ts::TermStructure, _fixing_date::Date)
@@ -84,6 +95,14 @@ function forecast_fixing(idx::InterestRateIndex, ts::TermStructure, d1::Date, d2
   disc2 = discount(ts, d2)
 
   return (disc1 / disc2 - 1.0) / t
+end
+
+is_valid_fixing_date(idx::InterestRateIndex, d::Date) = is_business_day(idx.fixingCalendar, d)
+
+function add_fixing!(idx::InterestRateIndex, d::Date, fixingVal::Float64)
+  idx.pastFixings[d] = fixingVal
+
+  return idx
 end
 
 # Libor methods

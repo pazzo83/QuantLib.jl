@@ -90,7 +90,7 @@ export
     AmericanExercise, BermudanExercise, EuropeanExercise,
 
     # Indexes
-    IborIndex, LiborIndex, fixing_date, maturity_date, fixing, forecast_fixing, euribor_index, usd_libor_index, update_termstructure,
+    IborIndex, LiborIndex, fixing_date, maturity_date, fixing, forecast_fixing, euribor_index, usd_libor_index, update_termstructure, is_valid_fixing_date, add_fixing!,
 
     # cash_flows/cash_flows.jl
     CouponMixin, accrual_start_date, accrual_end_date, ref_period_start, ref_period_end, SimpleCashFlow, Leg, ZeroCouponLeg, IRRFinder, operator, amount, date, duration, yield, previous_cashflow_date,
@@ -127,7 +127,7 @@ export
     FaceValueClaim,
 
     # instruments/swap.jl
-    Payer, Receiver, SwapResults, VanillaSwap, NonstandardSwap, CreditDefaultSwap, fair_rate,
+    Payer, Receiver, SwapResults, VanillaSwap, NonstandardSwap, CreditDefaultSwap, fair_rate, update_all_ts!,
 
     # Swap Index
     SwapIndex, EuriborSwapIsdaFixA,
@@ -153,7 +153,7 @@ export
 
     # termstructures/curve.jl
     PiecewiseYieldCurve, PiecewiseDefaultCurve, FittedBondDiscountCurve, FittingCost, NullCurve,
-    max_date, discount, calculate!, initialize!, value, nodes, survival_probability,
+    max_date, discount, calculate!, initialize!, value, nodes, survival_probability, default_probability, default_density, hazard_rate,
 
     # termstructures/vol_term_structure.jl
     ConstantOptionVolatility, ConstantSwaptionVolatility,
@@ -166,6 +166,9 @@ export
 
     # termstructures/credit_helper.jl
     SpreadCDSHelper,
+
+    # termstructures/credit
+    InterpolatedHazardRateCurve,
 
     # termstructures/nonlinear_fitting_methods.jl
     ExponentialSplinesFitting, SimplePolynomialFitting, NelsonSiegelFitting, SvenssonFitting, CubicBSplinesFitting, discount_function, guess_size,
@@ -359,6 +362,7 @@ include("termstructures/volatility/black_vol_term_structure.jl")
 include("termstructures/volatility/callable_bond_vol_structure.jl")
 # credit
 include("termstructures/credit/piecewise_default_curve.jl")
+include("termstructures/credit/interpolated_hazard_rate_curve.jl")
 
 # process
 include("process/discretization.jl")

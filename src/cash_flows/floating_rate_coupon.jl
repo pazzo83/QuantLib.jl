@@ -78,11 +78,19 @@ end
 function index_fixing(coupon::IborCoupon)
   today = settings.evaluation_date
 
-  if coupon.fixingDate > today
+  if coupon.fixingDate >= today
     return forecast_fixing(coupon.iborIndex, coupon.iborIndex.ts, coupon.fixingValueDate, coupon.fixingEndDate, coupon.spanningTime)
   end
 
-  error("Fixing date on or before eval date")
+  pastFix = get(coupon.iborIndex.pastFixings, coupon.fixingDate, -1.0)
+
+  if pastFix == -1.0
+    return forecast_fixing(coupon.iborIndex, coupon.iborIndex.ts, coupon.fixingValueDate, coupon.fixingEndDate, coupon.spanningTime)
+  else
+    return pastFix
+  end
+
+  # error("Fixing date on or before eval date")
 end
 
 function accrued_amount(coup::IborCoupon, settlement_date::Date)

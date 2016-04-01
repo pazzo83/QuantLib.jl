@@ -19,7 +19,7 @@ day_count, days_per_year, year_fraction
 # BusinessCalendar.jl
 export BusinessCalendar, WesternCalendar, OrthodoxCalendar, UnitedStatesCalendar, USSettlementCalendar, USNYSECalendar, USNERCCalendar,
 USGovernmentBondCalendar, UnitedKingdomCalendar, UKSettlementCalendar, UKLSECalendar, UKLMECalendar, TargetCalendar, NullCalendar, JointCalendar,
-BusinessDayConvention, Unadjusted, ModifiedFollowing, Following,
+BusinessDayConvention, Unadjusted, ModifiedFollowing, Following, is_business_day,
 easter_date, is_holiday, advance, adjust
 
 # tenor_period.jl

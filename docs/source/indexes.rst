@@ -28,6 +28,14 @@ InterestRateIndex is the Abstract Type from which the Ibor and Libor indexes are
 
     Calculates a forecasted fixing for a future date given two dates and the time period between the two dates
 
+.. function:: is_valid_fixing_date(idx::InterestRateIndex, d::Date)
+
+    Determines whether or not a date is a valid fixing date for the index (namely, is it a valid business day)
+
+.. function:: add_fixing!(idx::InterestRateIndex, d::Date, fixingVal::Float64)
+
+    Adds a fixing and date to the index's cache of fixings
+
 Ibor Index
 ----------
 
@@ -43,6 +51,7 @@ Ibor Index
       endOfMonth::Bool
       dc::DayCount
       ts::TermStructure
+      pastFixings::Dict{Date, Float64}
     end
 
 .. function:: IborIndex(familyName::AbstractString, tenor::TenorPeriod, fixingDays::Int, currency::AbstractCurrency, fixingCalendar::BusinessCalendar, convention::BusinessDayConvention, endOfMonth::Bool, dc::DayCount, ts::TermStructure = NullTermStructure())

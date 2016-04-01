@@ -75,7 +75,7 @@ abstract Curve <: YieldTermStructure
 abstract InterpolatedCurve{P, T} <: Curve
 abstract AbstractDefaultProbabilityTermStructure <: CreditTermStructure
 abstract AbstractDefaultProbabilityCurve <: AbstractDefaultProbabilityTermStructure
-abstract InterpolatedDefaultProbabilityCurve{P, T} <: AbstractDefaultProbabilityCurve
+abstract InterpolatedDefaultProbabilityCurve{P} <: AbstractDefaultProbabilityCurve
 
 abstract VolatilityTermStructure <: TermStructure
 abstract OptionletVolatilityStructure <: VolatilityTermStructure

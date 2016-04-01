@@ -32,6 +32,8 @@ function update!(interp::BackwardFlatInterpolation, idx::Int)
   return interp
 end
 
+update!(interp::BackwardFlatInterpolation) = update!(interp, length(interp.x_vals))
+
 function value(interp::BackwardFlatInterpolation, x::Float64)
   if x <= interp.x_vals[1]
     return interp.y_vals[1]

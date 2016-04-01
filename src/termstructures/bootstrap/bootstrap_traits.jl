@@ -10,7 +10,7 @@ type Discount <: BootstrapTrait end
 type HazardRate <: BootstrapTrait end
 
 # Type aliases
-typealias InterpolatedHazardRateCurve{P, T} InterpolatedDefaultProbabilityCurve{P, HazardRate}
+# typealias InterpolatedHazardRateCurve{P, T} InterpolatedDefaultProbabilityCurve{P, HazardRate}
 
 initial_value(::Discount) = 1.0
 max_iterations(::Discount) = 100

@@ -1,6 +1,6 @@
-type PiecewiseDefaultCurve{I <: Integer, B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap} <: InterpolatedDefaultProbabilityCurve{P, T}
+type PiecewiseDefaultCurve{B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap} <: InterpolatedDefaultProbabilityCurve{P}
   lazyMixin::LazyMixin
-  settlementDays::I
+  settlementDays::Int
   referenceDate::Date
   instruments::Vector{B}
   dc::DC
@@ -53,7 +53,7 @@ function survival_probability(ts::AbstractDefaultProbabilityTermStructure, t::Fl
   return survival_probability_impl(ts, t)
 end
 
-function survival_probability_impl(ts::InterpolatedHazardRateCurve, t::Float64)
+function survival_probability_impl(ts::PiecewiseDefaultCurve, t::Float64)
   calculate!(ts)
   if t == 0.0
     return 1.0
@@ -70,11 +70,20 @@ function survival_probability_impl(ts::InterpolatedHazardRateCurve, t::Float64)
 end
 
 default_probability(ts::AbstractDefaultProbabilityTermStructure, d::Date) = 1.0 - survival_probability(ts, d)
+default_probability(ts::AbstractDefaultProbabilityTermStructure, t::Float64) = 1.0 - survival_probability(ts, t)
 
 function default_probability(ts::AbstractDefaultProbabilityTermStructure, d1::Date, d2::Date)
   p1 = d1 < reference_date(ts) ? 0.0 : default_probability(ts, d1)
   p2 = default_probability(ts, d2)
 
+  return p2 - p1
+end
+
+function default_probability(ts::AbstractDefaultProbabilityTermStructure, t1::Float64, t2::Float64)
+  t1 <= t2 || error("time mismatch")
+
+  p1 = t1 < 0.0 ? 0.0 : default_probability(ts, t1)
+  p2 = default_probability(ts, t2)
   return p2 - p1
 end
 
@@ -84,10 +93,11 @@ function default_density(ts::AbstractDefaultProbabilityTermStructure, t::Float64
   return default_density_impl(ts, t)
 end
 
-default_density_impl(ts::InterpolatedHazardRateCurve, t::Float64) = _default_density_impl(ts, t) * survival_probability_impl(ts, t)
+default_density_impl(ts::AbstractDefaultProbabilityTermStructure, t::Float64) = hazard_rate_impl(ts, t) * survival_probability_impl(ts, t)
+default_density_impl(ts::PiecewiseDefaultCurve, t::Float64) = _default_density_impl(ts, t) * survival_probability_impl(ts, t)
 
 # sub method
-function _default_density_impl(ts::InterpolatedHazardRateCurve, t::Float64)
+function _default_density_impl(ts::PiecewiseDefaultCurve, t::Float64)
   calculate!(ts)
   if t <= ts.times[end]
     return QuantLib.Math.value(ts.interp, t)
@@ -103,7 +113,7 @@ function hazard_rate(ts::AbstractDefaultProbabilityTermStructure, t::Float64)
   return S == 0.0 ? 0.0 : default_density(ts, t) / S
 end
 
-function nodes(ts::InterpolatedHazardRateCurve)
+function nodes(ts::PiecewiseDefaultCurve)
   calculate!(ts)
   results = Vector{Tuple}(length(ts.dates))
   for i in eachindex(ts.dates)
