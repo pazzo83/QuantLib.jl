@@ -1,6 +1,6 @@
 type CallableFixedRateBond{DC <: DayCount, P <: PricingEngine, P2 <: PricingEngine} <: AbstractCallableBond
   lazyMixin::LazyMixin
-  bondMixin::BondMixin{Int}
+  bondMixin::BondMixin
   faceAmount::Float64
   schedule::Schedule
   cashflows::FixedRateLeg
@@ -33,7 +33,7 @@ function CallableFixedRateBond{DC <: DayCount, P <: PricingEngine}(settlementDay
   blackVolQuote = Quote(0.0)
   blackEngine = BlackCallableFixedRateBondEngine(blackVolQuote)
 
-  return CallableFixedRateBond(LazyMixin(), BondMixin{Int}(settlementDays, issueDate, maturityDate), faceAmount, schedule, coups, accrualDayCounter, redemption,
+  return CallableFixedRateBond{DC, P, BlackCallableFixedRateBondEngine}(LazyMixin(), BondMixin(settlementDays, issueDate, maturityDate), faceAmount, schedule, coups, accrualDayCounter, redemption,
                               schedule.dates[1], pe, 0.0, putCallSchedule, blackEngine, blackVolQuote)
 end
 

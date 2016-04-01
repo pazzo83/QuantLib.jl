@@ -1,7 +1,7 @@
-immutable SwapIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
+immutable SwapIndex{S <: AbstractString, TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
   familyName::S
   tenor::TP
-  fixingDays::I
+  fixingDays::Int
   currency::Currency
   fixingCalendar::B
   fixedLegTenor::Dates.Period
@@ -13,13 +13,13 @@ immutable SwapIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, B <: B
   lastSwap::VanillaSwap
   lastFixingDate::Date
 
-  SwapIndex(familyName::S, tenor::TP, fixingDays::I, currency::Currency, fixingCalendar::B, fixedLegTenor::Dates.Period, fixedLegConvention::C, fixedLegDayCount::DC,
+  SwapIndex(familyName::S, tenor::TP, fixingDays::Int, currency::Currency, fixingCalendar::B, fixedLegTenor::Dates.Period, fixedLegConvention::C, fixedLegDayCount::DC,
             discount::T, iborIndex::IborIndex, exogenousDiscount::Bool = true) =
-            new{S, TP, I, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, fixedLegTenor, fixedLegConvention, fixedLegDayCount, discount, iborIndex, exogenousDiscount)
+            new{S, TP, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, fixedLegTenor, fixedLegConvention, fixedLegDayCount, discount, iborIndex, exogenousDiscount)
 end
 
-SwapIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::S, tenor::TP, settlementDays::I, currency::Currency, fixingCalendar::B,
-          fixedLegTenor::Dates.Period, fixedLegConvention::C, fixedLegDayCount::DC, discount::T, iborIndex::IborIndex) = SwapIndex{S, TP, I, B, C, DC, T}(familyName, tenor, settlementDays, currency, fixingCalendar, fixedLegTenor,
+SwapIndex{S <: AbstractString, TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::S, tenor::TP, settlementDays::Int, currency::Currency, fixingCalendar::B,
+          fixedLegTenor::Dates.Period, fixedLegConvention::C, fixedLegDayCount::DC, discount::T, iborIndex::IborIndex) = SwapIndex{S, TP, B, C, DC, T}(familyName, tenor, settlementDays, currency, fixingCalendar, fixedLegTenor,
           fixedLegConvention, fixedLegDayCount, discount, iborIndex)
 
 function EuriborSwapIsdaFixA(tenor::TenorPeriod, forwardingTS::YieldTermStructure, discTS::YieldTermStructure)

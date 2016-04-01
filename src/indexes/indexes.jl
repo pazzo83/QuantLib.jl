@@ -1,7 +1,7 @@
-immutable IborIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
+immutable IborIndex{S <: AbstractString, TP <: TenorPeriod, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
   familyName::S
   tenor::TP
-  fixingDays::I
+  fixingDays::Int
   currency::CUR
   fixingCalendar::B
   convention::C
@@ -21,14 +21,14 @@ immutable IborIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, CUR <:
   #                                                                                           endOfMonth, dc, ts)
 end
 
-IborIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::S, tenor::TP, fixingDays::I, currency::CUR,
-          fixingCalendar::B, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) = IborIndex{S, TP, I, CUR, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, convention, endOfMonth, dc, ts)
+IborIndex{S <: AbstractString, TP <: TenorPeriod, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::S, tenor::TP, fixingDays::Int, currency::CUR,
+          fixingCalendar::B, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) = IborIndex{S, TP, CUR, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, convention, endOfMonth, dc, ts)
 
 
-immutable LiborIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
+immutable LiborIndex{S <: AbstractString, TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
   familyName::S
   tenor::TP
-  fixingDays::I
+  fixingDays::Int
   currency::Currency
   fixingCalendar::B
   jointCalendar::JointCalendar
@@ -44,13 +44,12 @@ immutable LiborIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, B <: 
 end
 
 # catch all constructor #
-LiborIndex{S <: AbstractString, TP <: TenorPeriod, I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::S, tenor::TP, fixingDays::I, currency::Currency, fixingCalendar::B,
-                  jointCalendar::JointCalendar, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) = LiborIndex{S, TP, I, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, jointCalendar, convention,
+LiborIndex{S <: AbstractString, TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::S, tenor::TP, fixingDays::Int, currency::Currency, fixingCalendar::B,
+                  jointCalendar::JointCalendar, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) = LiborIndex{S, TP, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, jointCalendar, convention,
                                                                                           endOfMonth, dc, ts)
 
 
-function LiborIndex{S <: AbstractString, I <: Integer, B <: BusinessCalendar, DC <: DayCount}(familyName::S,
-                    tenor::TenorPeriod, fixingDays::I, currency::Currency, fixingCalendar::B, dc::DC, yts::YieldTermStructure)
+function LiborIndex(familyName::AbstractString, tenor::TenorPeriod, fixingDays::Int, currency::Currency, fixingCalendar::BusinessCalendar, dc::DayCount, yts::YieldTermStructure)
   endOfMonth = libor_eom(tenor.period)
   conv = libor_conv(tenor.period)
   jc = JointCalendar(QuantLib.Time.UKLSECalendar(), fixingCalendar)
@@ -60,11 +59,11 @@ end
 
 
 
-fixing_date{I <: InterestRateIndex}(idx::I, d::Date) = advance(Dates.Day(-idx.fixingDays), idx.fixingCalendar, d, idx.convention)
+fixing_date(idx::InterestRateIndex, d::Date) = advance(Dates.Day(-idx.fixingDays), idx.fixingCalendar, d, idx.convention)
 maturity_date(idx::IborIndex, d::Date) = advance(idx.tenor.period, idx.fixingCalendar, d, idx.convention)
-value_date{I <: InterestRateIndex}(idx::I, d::Date) = advance(Dates.Day(idx.fixingDays), idx.fixingCalendar, d)
+value_date(idx::InterestRateIndex, d::Date) = advance(Dates.Day(idx.fixingDays), idx.fixingCalendar, d)
 
-function fixing{I <: InterestRateIndex, T <: TermStructure}(idx::I, ts::T, _fixing_date::Date, forecast_todays_fixing::Bool=true)
+function fixing(idx::InterestRateIndex, ts::TermStructure, _fixing_date::Date, forecast_todays_fixing::Bool=true)
   today = settings.evaluation_date
   if _fixing_date > today || (_fixing_date == today && forecast_todays_fixing)
     return forecast_fixing(idx, ts, _fixing_date)
@@ -73,14 +72,14 @@ function fixing{I <: InterestRateIndex, T <: TermStructure}(idx::I, ts::T, _fixi
   error("Not yet implemented for older dates than eval date")
 end
 
-function forecast_fixing{X <: InterestRateIndex, T <: TermStructure}(idx::X, ts::T, _fixing_date::Date)
+function forecast_fixing(idx::InterestRateIndex, ts::TermStructure, _fixing_date::Date)
   d1 = value_date(idx, _fixing_date)
   d2 = maturity_date(idx, d1)
   t = year_fraction(idx.dc, d1, d2)
   return forecast_fixing(idx, ts, d1, d2, t)
 end
 
-function forecast_fixing{X <: InterestRateIndex, T <: TermStructure}(idx::X, ts::T, d1::Date, d2::Date, t::Float64)
+function forecast_fixing(idx::InterestRateIndex, ts::TermStructure, d1::Date, d2::Date, t::Float64)
   disc1 = discount(ts, d1)
   disc2 = discount(ts, d2)
 
@@ -97,7 +96,7 @@ maturity_date(idx::LiborIndex, d::Date) = advance(idx.tenor.period, idx.jointCal
 
 # types of indexes
 euribor_index(tenor::TenorPeriod) = IborIndex("Euribor", tenor, 2, EURCurrency(), QuantLib.Time.TargetCalendar(), euribor_conv(tenor.period), euribor_eom(tenor.period), QuantLib.Time.Actual360())
-euribor_index{T <: TermStructure}(tenor::TenorPeriod, ts::T) = IborIndex("Euribor", tenor, 2, EURCurrency(), QuantLib.Time.TargetCalendar(), euribor_conv(tenor.period), euribor_eom(tenor.period), QuantLib.Time.Actual360(), ts)
+euribor_index(tenor::TenorPeriod, ts::TermStructure) = IborIndex("Euribor", tenor, 2, EURCurrency(), QuantLib.Time.TargetCalendar(), euribor_conv(tenor.period), euribor_eom(tenor.period), QuantLib.Time.Actual360(), ts)
 
 function usd_libor_index(tenor::TenorPeriod, yts::YieldTermStructure)
   return LiborIndex("USDLibor", tenor, 2, USDCurrency(), QuantLib.Time.USSettlementCalendar(), QuantLib.Time.Actual360(), yts)

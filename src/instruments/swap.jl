@@ -259,7 +259,7 @@ function _build_payer(swapT::Receiver)
 end
 
 # Swap methods #
-function maturity_date{S <: Swap}(swap::S)
+function maturity_date(swap::Swap)
   d = maturity_date(swap.legs[1])
   for i = 2:length(swap.legs)
     d = max(d, maturity_date(swap.legs[i]))

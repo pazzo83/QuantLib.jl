@@ -21,7 +21,7 @@ type FixedRateLeg <: Leg
   # redemption::SimpleCashFlow
 end
 
-function FixedRateLeg{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}(schedule::Schedule, faceAmount::Float64, rate::Float64, calendar::B, paymentConvention::C, dc::DC; add_redemption::Bool = true)
+function FixedRateLeg(schedule::Schedule, faceAmount::Float64, rate::Float64, calendar::BusinessCalendar, paymentConvention::BusinessDayConvention, dc::DayCount; add_redemption::Bool = true)
   # n = add_redemption ? length(schedule.dates) : length(schedule.dates) - 1
   # coups = Vector{Union{FixedRateCoupon, SimpleCashFlow}}(n)
   #

@@ -4,8 +4,8 @@ end
 
 DividendSchedule() = DividendSchedule(Vector{Dividend}(0))
 
-type BondMixin{I <: Integer}
-  settlementDays::I
+type BondMixin
+  settlementDays::Int
   # schedule::Schedule
   # cashflows::L
   # dc::DC
@@ -14,13 +14,13 @@ type BondMixin{I <: Integer}
   # pricingEngine::P
 end
 
-get_settlement_days{B <: Bond}(bond::B) = bond.bondMixin.settlementDays
-get_issue_date{B <: Bond}(bond::B) = bond.bondMixin.issueDate
-get_maturity_date{B <: Bond}(bond::B) = bond.bondMixin.maturityDate
+get_settlement_days(bond::Bond) = bond.bondMixin.settlementDays
+get_issue_date(bond::Bond) = bond.bondMixin.issueDate
+get_maturity_date(bond::Bond) = bond.bondMixin.maturityDate
 
-type FixedRateBond{I <: Integer, DC <: DayCount, P <: PricingEngine} <: Bond
+type FixedRateBond{DC <: DayCount, P <: PricingEngine} <: Bond
   lazyMixin::LazyMixin
-  bondMixin::BondMixin{I}
+  bondMixin::BondMixin
   faceAmount::Float64
   schedule::Schedule
   cashflows::FixedRateLeg
@@ -31,7 +31,7 @@ type FixedRateBond{I <: Integer, DC <: DayCount, P <: PricingEngine} <: Bond
   settlementValue::Float64
 end
 
-function FixedRateBond{I <: Integer, DC <: DayCount, B <: BusinessDayConvention, C <: BusinessCalendar, P <: PricingEngine}(settlementDays::I, faceAmount::Float64, schedule::Schedule, coup_rate::Float64, dc::DC, paymentConvention::B,
+function FixedRateBond{DC <: DayCount, B <: BusinessDayConvention, C <: BusinessCalendar, P <: PricingEngine}(settlementDays::Int, faceAmount::Float64, schedule::Schedule, coup_rate::Float64, dc::DC, paymentConvention::B,
   redemption::Float64, issueDate::Date, calendar::C, pricing_engine::P)
   maturityDate = schedule.dates[end]
 
@@ -49,18 +49,18 @@ function FixedRateBond{I <: Integer, DC <: DayCount, B <: BusinessDayConvention,
 
   coups = FixedRateLeg(schedule, faceAmount, coup_rate, calendar, paymentConvention, dc)
 
-  return FixedRateBond{I, DC, P}(LazyMixin(), BondMixin{I}(settlementDays, issueDate, maturityDate), faceAmount, schedule, coups, dc, redemption, schedule.dates[1], pricing_engine, 0.0)
+  return FixedRateBond{DC, P}(LazyMixin(), BondMixin(settlementDays, issueDate, maturityDate), faceAmount, schedule, coups, dc, redemption, schedule.dates[1], pricing_engine, 0.0)
 end
 
-type FloatingRateBond{I <: Integer, X <: InterestRateIndex, DC <: DayCount, P <: PricingEngine} <: Bond
+type FloatingRateBond{X <: InterestRateIndex, DC <: DayCount, P <: PricingEngine} <: Bond
   lazyMixin::LazyMixin
-  bondMixin::BondMixin{I}
+  bondMixin::BondMixin
   faceAmount::Float64
   schedule::Schedule
   cashflows::IborLeg
   iborIndex::X
   dc::DC
-  fixingDays::I
+  fixingDays::Int
   gearings::Vector{Float64}
   spreads::Vector{Float64}
   caps::Vector{Float64}
@@ -71,21 +71,21 @@ type FloatingRateBond{I <: Integer, X <: InterestRateIndex, DC <: DayCount, P <:
   settlementValue::Float64
 end
 
-function FloatingRateBond{I <: Integer, X <: InterestRateIndex, DC <: DayCount, B <: BusinessDayConvention, P <: PricingEngine}(settlementDays::I, faceAmount::Float64, schedule::Schedule, iborIndex::X, dc::DC,
-                          convention::B, fixingDays::I, issueDate::Date, pricingEngine::P, inArrears::Bool = false, redemption::Float64 = 100.0,
+function FloatingRateBond{X <: InterestRateIndex, DC <: DayCount, B <: BusinessDayConvention, P <: PricingEngine}(settlementDays::Int, faceAmount::Float64, schedule::Schedule, iborIndex::X, dc::DC,
+                          convention::B, fixingDays::Int, issueDate::Date, pricingEngine::P, inArrears::Bool = false, redemption::Float64 = 100.0,
                           gearings::Vector{Float64} = ones(length(schedule.dates) - 1), spreads::Vector{Float64} = zeros(length(schedule.dates) - 1),
                           caps::Vector{Float64} = Vector{Float64}(), floors::Vector{Float64} = Vector{Float64}())
   maturityDate = schedule.dates[end]
   fixingDaysVect = fill(fixingDays, length(schedule.dates) - 1)
 
   coups = IborLeg(schedule, faceAmount, iborIndex, dc, convention, fixingDaysVect, gearings, spreads, caps, floors, inArrears; add_redemption=true)
-  return FloatingRateBond{I, X, DC, P}(LazyMixin(), BondMixin{I}(settlementDays, issueDate, maturityDate), faceAmount, schedule, coups, iborIndex, dc, fixingDays, gearings, spreads, caps, floors,
+  return FloatingRateBond{X, DC, P}(LazyMixin(), BondMixin(settlementDays, issueDate, maturityDate), faceAmount, schedule, coups, iborIndex, dc, fixingDays, gearings, spreads, caps, floors,
                           inArrears, redemption, pricingEngine, 0.0)
 end
 
-type ZeroCouponBond{I <: Integer, BC <: BusinessCalendar, P <: PricingEngine} <: Bond
+type ZeroCouponBond{BC <: BusinessCalendar, P <: PricingEngine} <: Bond
   lazyMixin::LazyMixin
-  bondMixin::BondMixin{I}
+  bondMixin::BondMixin
   faceAmount::Float64
   redemption::Float64
   cashflows::ZeroCouponLeg
@@ -94,20 +94,20 @@ type ZeroCouponBond{I <: Integer, BC <: BusinessCalendar, P <: PricingEngine} <:
   pricingEngine::P
 end
 
-function ZeroCouponBond{I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, P <: PricingEngine}(settlementDays::I, calendar::B, faceAmount::Float64, maturityDate::Date,
+function ZeroCouponBond{B <: BusinessCalendar, C <: BusinessDayConvention, P <: PricingEngine}(settlementDays::Int, calendar::B, faceAmount::Float64, maturityDate::Date,
                         paymentConvention::C=Following(), redemption::Float64=100.0, issueDate::Date=Date(), pe::P = DiscountingBondEngine())
   # build redemption CashFlow
   redemption_cf = ZeroCouponLeg(SimpleCashFlow(redemption, maturityDate))
-  return ZeroCouponBond{I, B, P}(LazyMixin(), BondMixin{I}(settlementDays, issueDate, maturityDate), faceAmount, redemption, redemption_cf, calendar, 0.0, pe)
+  return ZeroCouponBond{B, P}(LazyMixin(), BondMixin(settlementDays, issueDate, maturityDate), faceAmount, redemption, redemption_cf, calendar, 0.0, pe)
 end
 
 get_calendar(zcb::ZeroCouponBond) = zcb.calendar
 
 get_calendar(b::Bond) = b.schedule.cal
 
-get_settlement_date{B <: Bond}(b::B) = get_issue_date(b)
+get_settlement_date(b::Bond) = get_issue_date(b)
 
-function notional{B <: Bond}(bond::B, d::Date)
+function notional(bond::Bond, d::Date)
   if d > get_maturity_date(bond)
     return 0.0
   else
@@ -124,12 +124,12 @@ function perform_calculations!{B <: Bond}(bond::B)
 end
 
 # bond methods
-accrued_amount{B <: Bond}(bond::B, settlement::Date) = accrued_amount(bond.cashflows, settlement, false) * 100.0 / notional(bond, settlement)
+accrued_amount(bond::Bond, settlement::Date) = accrued_amount(bond.cashflows, settlement, false) * 100.0 / notional(bond, settlement)
 
-maturity_date{B <: Bond}(bond::B) = maturity_date(bond.cashflows)
+maturity_date(bond::Bond) = maturity_date(bond.cashflows)
 
-function yield{B <: Bond, DC <: DayCount, C <: CompoundingType, F <: Frequency, I <: Integer}(bond::B, clean_price::Float64, dc::DC, compounding::C, freq::F, settlement::Date, accuracy::Float64 = 1.0e-10,
-              max_iter::I = 100, guess::Float64 = 0.05)
+function yield(bond::Bond, clean_price::Float64, dc::DayCount, compounding::CompoundingType, freq::Frequency, settlement::Date, accuracy::Float64 = 1.0e-10,
+              max_iter::Int = 100, guess::Float64 = 0.05)
   dirty_price = clean_price + accrued_amount(bond, settlement)
   dirty_price /= 100.0 / notional(bond, settlement)
 
@@ -142,11 +142,11 @@ yield(bond::Bond, dc::DayCount, compounding::CompoundingType, freq::Frequency, s
 yield(bond::Bond, dc::DayCount, compounding::CompoundingType, freq::Frequency, accuracy::Float64 = 1.0e-10, max_iter::Int = 100) =
       yield(bond, clean_price(bond), dc, compounding, freq, settlement_date(bond), accuracy, max_iter)
 
-function duration{B <: Bond, D <: Duration, DC <: DayCount}(bond::B, yld::InterestRate, duration_::D, dc::DC, settlement_date::Date)
+function duration(bond::Bond, yld::InterestRate, duration_::Duration, dc::DayCount, settlement_date::Date)
   return duration(duration_, bond.cashflows, yld, dc, false, settlement_date)
 end
 
-function duration{B <: Bond, DC <: DayCount, C <: CompoundingType, F <: Frequency, D <: Duration}(bond::B, yld::Float64, dc::DC, compounding::C, freq::F, duration_::D, settlement_date::Date)
+function duration(bond::Bond, yld::Float64, dc::DayCount, compounding::CompoundingType, freq::Frequency, duration_::Duration, settlement_date::Date)
   y = InterestRate(yld, dc, compounding, freq)
   return duration(bond, y, duration_, dc, settlement_date)
 end
@@ -155,23 +155,23 @@ end
 #   calculate!(pe, bond)
 #   return bond.settlementValue
 # end
-function npv{B <: Bond}(bond::B)
+function npv(bond::Bond)
   calculate!(bond)
 
   return bond.settlementValue
 end
 
-clean_price{B <: Bond}(bond::B, settlement_value::Float64, settlement_date::Date) = dirty_price(bond, settlement_value, settlement_date) - accrued_amount(bond, settlement_date)
-dirty_price{B <: Bond}(bond::B, settlement_value::Float64, settlement_date::Date) = settlement_value * 100.0 / bond.faceAmount # replace with notionals
+clean_price(bond::Bond, settlement_value::Float64, settlement_date::Date) = dirty_price(bond, settlement_value, settlement_date) - accrued_amount(bond, settlement_date)
+dirty_price(bond::Bond, settlement_value::Float64, settlement_date::Date) = settlement_value * 100.0 / bond.faceAmount # replace with notionals
 
-function clean_price{B <: Bond}(bond::B)
+function clean_price(bond::Bond)
   calculate!(bond)
   clean_price(bond, bond.settlementValue, settlement_date(bond))
 end
 
-dirty_price{B <: Bond}(bond::B) = dirty_price(bond, bond.settlementValue, settlement_date(bond))
+dirty_price(bond::Bond) = dirty_price(bond, bond.settlementValue, settlement_date(bond))
 
-function settlement_date{B <: Bond}(bond::B, d::Date = Date())
+function settlement_date(bond::Bond, d::Date = Date())
   if d == Date()
     d = settings.evaluation_date
   end

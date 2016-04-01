@@ -97,6 +97,78 @@ This type is for any dividend cash flow
     Returns the accrual end date of the dividend (which is the date)
 
 
+Fixed Rate Coupon
+~~~~~~~~~~~~~~~~~
+
+.. code-block:: julia
+
+    type FixedRateCoupon{DC <: DayCount} <: Coupon
+      couponMixin::CouponMixin{DC}
+      paymentDate::Date
+      nominal::Float64
+      rate::InterestRate
+    end
+
+This is a coupon for fixed rate cash flows
+
+.. function:: FixedRateCoupon{DC <: DayCount}(paymentDate::Date, faceAmount::Float64, rate::InterestRate, accrual_start::Date, accrual_end::Date, ref_start::Date, ref_end::Date, dc::DC, accrual::Float64)
+
+    Constructor for FixedRateCoupon
+
+.. function:: amount(coup::FixedRateCoupon)
+
+    Calculates value of coupon
+
+.. function:: calc_rate(coup::FixedRateCoupon) = coup.rate.rate
+
+    Returns the coupon rate
+
+.. function:: get_pay_dates(coups::Vector{Union{FixedRateCoupon, SimpleCashFlow}})
+
+    Returns the pay dates as a vector of a vector of fixed rate coupons and simple cash flows (usually a redemption)
+
+.. function:: get_reset_dates(coups::Vector{Union{FixedRateCoupon, SimpleCashFlow}})
+
+    Returns the reset dates as a vector of a vector of fixed rate coupons and simple cash flows (usually a redemption)
+
+.. function:: accrued_amount(coup::FixedRateCoupon, settlement_date::Date)
+
+    Calculates the accrued amount of a fixed rate coupon given a settlement date
+
+
+Ibor Coupon
+~~~~~~~~~~~
+
+.. code-block:: julia
+
+    type IborCoupon{DC <: DayCount, X <: InterestRateIndex, ICP <: IborCouponPricer} <: Coupon
+      couponMixin::CouponMixin{DC}
+      paymentDate::Date
+      nominal::Float64
+      fixingDate::Date
+      fixingValueDate::Date
+      fixingEndDate::Date
+      fixingDays::Int
+      iborIndex::X
+      gearing::Float64
+      spread::Float64
+      isInArrears::Bool
+      spanningTime::Float64
+      pricer::ICP
+    end
+
+.. function:: IborCoupon(paymentDate::Date, nominal::Float64, startDate::Date, endDate::Date, fixingDays::I, iborIndex::InterestRateIndex, gearing::Float64, spread::Float64, refPeriodStart::Date, refPeriodEnd::Date, dc::DayCount, isInArrears::Bool, pricer::IborCouponPricer)
+
+    Constructor for IborCoupon
+
+.. function:: amount(coup::IborCoupon)
+
+    Calculates the Ibor coupon amount
+
+.. function:: accrued_amount(coup::IborCoupon, settlement_date::Date)
+
+    Calculates the accrued amount of the coupon given a settlement date
+
 Cash Flow Legs
 --------------
 
@@ -170,3 +242,35 @@ Zero Coupon Leg
 .. function:: duration(::ModifiedDuration, leg::ZeroCouponLeg, y::InterestRate, dc::DC, include_settlement_cf::Bool, settlement_date::Date, npv_date::Date = Date())
 
     Calculates the modified duration of a zero coupon cash flow leg
+
+
+Fixed Rate Leg
+~~~~~~~~~~~~~~
+
+.. code-block:: julia
+
+    type FixedRateLeg <: Leg
+      coupons::Vector{Union{FixedRateCoupon, SimpleCashFlow}}
+    end
+
+.. function:: FixedRateLeg(schedule::Schedule, faceAmount::Float64, rate::Float64, calendar::BusinessCalendar, paymentConvention::BusinessDayConvention, dc::DayCount; add_redemption::Bool = true)
+
+    Constructor for FixedRateLeg, passing in one rate
+
+.. function:: FixedRateLeg(schedule::Schedule, faceAmount::Float64, rates::Vector{Float64}, calendar::BusinessCalendar, paymentConvention::BusinessDayConvention, dc::DayCount; add_redemption::Bool = false)
+
+    Constructor for FixedRateleg, passing in a vector of rates
+
+
+Ibor Leg
+~~~~~~~~
+
+.. code-block:: julia
+
+    type IborLeg <: Leg
+      coupons::Vector{Union{IborCoupon, SimpleCashFlow}}
+    end
+
+.. function:: IborLeg(schedule::Schedule, nominal::Float64, iborIndex::InterestRateIndex, paymentDC::DayCount, paymentAdj::BusinessDayConvention, fixingDays::Vector{Int} = fill(iborIndex.fixingDays, length(schedule.dates) - 1), gearings::Vector{Float64} = ones(length(schedule.dates) - 1), spreads::Vector{Float64} = zeros(length(schedule.dates) - 1), caps::Vector{Float64} = Vector{Float64}(), floors::Vector{Float64} = Vector{Float64}(), isInArrears::Bool = false, isZero::Bool = false, pricer::IborCouponPricer = BlackIborCouponPricer(); add_redemption::Bool = true)
+
+    Constructor for Ibor Leg (will construct the coupons given the parameters passed in)

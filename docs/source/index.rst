@@ -8,6 +8,8 @@ Welcome to QuantLib.jl's documentation!
    :maxdepth: 2
 
    cashflows.rst
+   indexes.rst
+   instruments.rst
 
 
 
