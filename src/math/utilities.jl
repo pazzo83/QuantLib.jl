@@ -9,8 +9,8 @@ type NoShift <: ShiftStrategy end
 type Overrelaxation <: ShiftStrategy end
 type CloseEigenValue <: ShiftStrategy end
 
-immutable TqrEigenDecomposition{I <: Integer}
-  iter::I
+immutable TqrEigenDecomposition
+  iter::Int
   d::Vector{Float64}
   ev::Matrix{Float64}
 end

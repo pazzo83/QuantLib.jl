@@ -1,11 +1,11 @@
 type BrentSolver <: Solver1D
   solverInfo::SolverInfo
 end
-BrentSolver{I <: Integer}(maxEvals::I = 100, lowerBoundEnforced::Bool = false, upperBoundEnforced::Bool = false, lowerBound::Float64 = 0.0, upperBound::Float64 = 0.0) =
+BrentSolver(maxEvals::Int = 100, lowerBoundEnforced::Bool = false, upperBoundEnforced::Bool = false, lowerBound::Float64 = 0.0, upperBound::Float64 = 0.0) =
   BrentSolver(SolverInfo(maxEvals, lowerBoundEnforced, upperBoundEnforced, lowerBound, upperBound))
 
 # brent solver function
-function _solve{I <: Integer}(solver::BrentSolver, f::Function, accuracy::Float64, xMin::Float64, xMax::Float64, fxMin::Float64, fxMax::Float64, root::Float64, eval_num::I)
+function _solve(solver::BrentSolver, f::Function, accuracy::Float64, xMin::Float64, xMax::Float64, fxMin::Float64, fxMax::Float64, root::Float64, eval_num::Int)
   froot = f(root)
   eval_num += 1
   max_evals = solver.solverInfo.maxEvals

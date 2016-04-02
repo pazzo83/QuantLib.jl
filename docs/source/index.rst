@@ -10,6 +10,7 @@ Welcome to QuantLib.jl's documentation!
    cashflows.rst
    indexes.rst
    instruments.rst
+   math.rst
 
 
 

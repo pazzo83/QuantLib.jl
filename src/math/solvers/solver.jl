@@ -1,8 +1,8 @@
 # Solvers
 abstract Solver1D
 
-type SolverInfo{I <: Integer}
-  maxEvals::I
+type SolverInfo
+  maxEvals::Int
   lowerBoundEnforced::Bool
   upperBoundEnforced::Bool
   lowerBound::Float64
@@ -10,7 +10,7 @@ type SolverInfo{I <: Integer}
 end
 
 # solver functions
-function solve{S <: Solver1D}(solver::S, f::Function, accuracy::Float64, guess::Float64, step::Float64)
+function solve(solver::Solver1D, f::Function, accuracy::Float64, guess::Float64, step::Float64)
   ## This method returns the 0 of a function determined by a given accuracy.  This method using bracketing
   ## routine to which an intial guess must be supplied as well as a step
   growth_factor = 1.6
@@ -70,7 +70,7 @@ function solve{S <: Solver1D}(solver::S, f::Function, accuracy::Float64, guess::
   error("Cannot converge!")
 end
 
-function solve{S <: Solver1D}(solver::S, f::Function, accuracy::Float64, guess::Float64, xMin::Float64, xMax::Float64)
+function solve(solver::Solver1D, f::Function, accuracy::Float64, guess::Float64, xMin::Float64, xMax::Float64)
   fxMin = f(xMin)
   if is_close(fxMin, 0.0)
     return xMin

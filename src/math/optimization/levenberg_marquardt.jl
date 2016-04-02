@@ -35,7 +35,7 @@ function minimize!(lm::LevenbergMarquardt, p::Problem, endCriteria::EndCriteria)
   wa3 = zeros(n)
   wa4 = zeros(m)
 
-  function fcn!{I <: Integer}(::I, n::I, _x::Vector{Float64}, _fvec::Vector{Float64})
+  function fcn!(::Int, n::Int, _x::Vector{Float64}, _fvec::Vector{Float64})
     xt = _x[1:n]
 
     if test(p.constraint, xt)

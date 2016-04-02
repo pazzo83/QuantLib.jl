@@ -1,7 +1,7 @@
-type PathGenerator{RSG <: AbstractRandomSequenceGenerator, I <: Integer, S <: StochasticProcess1D}
+type PathGenerator{RSG <: AbstractRandomSequenceGenerator, S <: StochasticProcess1D}
   brownianBridge::Bool
   generator::RSG
-  dimension::I
+  dimension::Int
   timeGrid::TimeGrid
   process::S
   nextSample::Sample

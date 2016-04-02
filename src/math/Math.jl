@@ -66,7 +66,7 @@ function get_factorial{I <: Integer}(i::I)
   end
 end
 
-function get_polynomial{I <: Integer}(::BernsteinPolynomial, i::I, n::I, x::Float64)
+function get_polynomial(::BernsteinPolynomial, i::Int, n::Int, x::Float64)
   coeff = get_factorial(n) / (get_factorial(n-1) * get_factorial(i))
 
   return coeff * (x ^ i) * (1.0 - x)^(n - i)

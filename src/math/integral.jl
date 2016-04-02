@@ -12,18 +12,18 @@ get_beta(poly::GaussLaguerrePolynomial, i::Int) = i * (i + poly.s)
 get_mu_0(poly::GaussLaguerrePolynomial) = exp(lgamma(poly.s + 1.0))
 get_w(poly::GaussLaguerrePolynomial, x::Float64) = ^(x, poly.s) * exp(-x)
 
-type SegmentIntegral{I <: Integer} <: Integrator
+type SegmentIntegral <: Integrator
   absoluteAccuracy::Float64
   absoluteError::Float64
-  maxEvals::I
-  evals::I
-  intervals::I
+  maxEvals::Int
+  evals::Int
+  intervals::Int
 end
 
-SegmentIntegral{I <: Integer}(intervals::I) = SegmentIntegral{I}(1.0, 0.0, 1, 0, intervals)
+SegmentIntegral(intervals::Int) = SegmentIntegral(1.0, 0.0, 1, 0, intervals)
 
 
-function operator{I <: Integrator}(integrator::I, f::Function, a::Float64, b::Float64)
+function operator(integrator::Integrator, f::Function, a::Float64, b::Float64)
   integrator.evals = 0
   if a == b
     return 0.0
@@ -36,7 +36,7 @@ function operator{I <: Integrator}(integrator::I, f::Function, a::Float64, b::Fl
   end
 end
 
-function call{I <: Integrator}(integrator::I, f::IntegrationFunction, a::Float64, b::Float64)
+function call(integrator::Integrator, f::IntegrationFunction, a::Float64, b::Float64)
   integrator.evals = 0
   if a == b
     return 0.0

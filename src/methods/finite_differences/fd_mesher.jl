@@ -10,14 +10,14 @@ function FdmMesherComposite{F1D <: Fdm1DMesher}(mesh::F1D)
   meshers = F1D[mesh]
   layout = get_layout_from_meshers(meshers)
 
-  return FdmMesherComposite(layout, meshers)
+  return FdmMesherComposite{F1D}(layout, meshers)
 end
 
 function FdmMesherComposite{F1D <: Fdm1DMesher}(xmesher::F1D, ymesher::F1D)
   meshers = F1D[xmesher, ymesher]
   layout = get_layout_from_meshers(meshers)
 
-  return FdmMesherComposite(layout, meshers)
+  return FdmMesherComposite{F1D}(layout, meshers)
 end
 
 function iter_coords!(coord::Vector{Int}, dims::Vector{Int})
@@ -44,17 +44,17 @@ function get_locations(mesher::FdmMesherComposite, direction::Int)
   return retVal
 end
 
-get_location{I <: Integer}(mesher::FdmMesherComposite, coords::Vector{I}, direction::I) = mesher.meshers[direction].locations[coords[direction]]
+get_location(mesher::FdmMesherComposite, coords::Vector{Int}, direction::Int) = mesher.meshers[direction].locations[coords[direction]]
 
-get_dminus{I <: Integer}(mesher::FdmMesherComposite, coords::Vector{I}, direction::I) = mesher.meshers[direction].dminus[coords[direction]]
-get_dplus{I <: Integer}(mesher::FdmMesherComposite, coords::Vector{I}, direction::I) = mesher.meshers[direction].dplus[coords[direction]]
+get_dminus(mesher::FdmMesherComposite, coords::Vector{Int}, direction::Int) = mesher.meshers[direction].dminus[coords[direction]]
+get_dplus(mesher::FdmMesherComposite, coords::Vector{Int}, direction::Int) = mesher.meshers[direction].dplus[coords[direction]]
 
 ## Meshers ##
-type FdmSimpleProcess1dMesher{I <: Integer, P <: StochasticProcess1D} <: Fdm1DMesher
-  size::I
+type FdmSimpleProcess1dMesher{P <: StochasticProcess1D} <: Fdm1DMesher
+  size::Int
   process::P
   maturity::Float64
-  tAvgSteps::I
+  tAvgSteps::Int
   epsilon::Float64
   mandatoryPoint::Float64
   locations::Vector{Float64}

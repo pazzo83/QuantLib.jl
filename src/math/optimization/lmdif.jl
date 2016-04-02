@@ -1,7 +1,7 @@
 const MACHEP = 1.2e-16
 const DWARF = 1.0e-38
 
-function enorm{I <: Integer}(n::I, x::Vector{Float64})
+function enorm(n::Int, x::Vector{Float64})
   const rdwarf = 3.834e-20
   const rgiant = 1.304e19
 
@@ -66,7 +66,7 @@ function enorm{I <: Integer}(n::I, x::Vector{Float64})
 end
 
 # Forward Difference Approximation #
-function fdjac2!{I <: Integer}(m::I, n::I, x::Vector{Float64}, fvec::Vector{Float64}, fjac::Matrix{Float64}, ::I, iflag::I, epsfcn::Float64, wa::Vector{Float64}, fcn!::Function)
+function fdjac2!(m::Int, n::Int, x::Vector{Float64}, fvec::Vector{Float64}, fjac::Matrix{Float64}, ::Int, iflag::Int, epsfcn::Float64, wa::Vector{Float64}, fcn!::Function)
   # returns:
   # fjac :  is an output m by n array which contains the
   #         approximation to the jacobian matrix evaluated at x.
@@ -95,7 +95,7 @@ function fdjac2!{I <: Integer}(m::I, n::I, x::Vector{Float64}, fvec::Vector{Floa
   return fjac
 end
 
-function qrfac!{I <: Integer}(m::I, n::I, a::Matrix{Float64}, ::I, pivot::I, ipvt::Vector{I}, ::I, rdiag::Vector{Float64}, acnorm::Vector{Float64}, wa::Vector{Float64})
+function qrfac!(m::Int, n::Int, a::Matrix{Float64}, ::Int, pivot::Int, ipvt::Vector{Int}, ::Int, rdiag::Vector{Float64}, acnorm::Vector{Float64}, wa::Vector{Float64})
   # returns:
   # a :     is an m by n array. on input a contains the matrix for
   #         which the qr factorization is to be computed. on output
@@ -229,7 +229,7 @@ function qrfac!{I <: Integer}(m::I, n::I, a::Matrix{Float64}, ::I, pivot::I, ipv
   return a, ipvt, rdiag, acnorm
 end
 
-function qrsolv!{I <: Integer}(n::I, r::Matrix{Float64}, ldr::Int, ipvt::Vector{I}, diag_::Vector{Float64}, qtb::Vector{Float64}, x::Vector{Float64},
+function qrsolv!(n::Int, r::Matrix{Float64}, ldr::Int, ipvt::Vector{Int}, diag_::Vector{Float64}, qtb::Vector{Float64}, x::Vector{Float64},
                 sdiag::Vector{Float64}, wa::Vector{Float64})
   # copy r and (q transpose) * b to preserve input and initialize s, in particular
   # save the diagonal elements of r in x
@@ -348,7 +348,7 @@ function qrsolv!{I <: Integer}(n::I, r::Matrix{Float64}, ldr::Int, ipvt::Vector{
   return r, x, sdiag
 end
 
-function lmpar!{I <: Integer}(n::I, r::Matrix{Float64}, ldr::I, ipvt::Vector{I}, diag_::Vector{Float64}, qtb::Vector{Float64}, delta::Float64, par::Float64,
+function lmpar!(n::Int, r::Matrix{Float64}, ldr::Int, ipvt::Vector{Int}, diag_::Vector{Float64}, qtb::Vector{Float64}, delta::Float64, par::Float64,
               x::Vector{Float64}, sdiag::Vector{Float64}, wa1::Vector{Float64}, wa2::Vector{Float64})
 
   # Compute and store in x the gauss-newton direction.  If the jacobin is rank-deficient
@@ -531,8 +531,8 @@ function lmpar!{I <: Integer}(n::I, r::Matrix{Float64}, ldr::I, ipvt::Vector{I},
   return par
 end
 
-function lmdif!{I <: Integer}(m::I, n::I, x::Vector{Float64}, fvec::Vector{Float64}, ftol::Float64, xtol::Float64, gtol::Float64, maxFev::I, epsfcn::Float64,
-                diag_::Vector{Float64}, mode::I, factor_::Float64, nprint::I, info_::I, nfev::I, fjac::Matrix{Float64}, ldfjac::I, ipvt::Vector{I}, qtf::Vector{Float64},
+function lmdif!(m::Int, n::Int, x::Vector{Float64}, fvec::Vector{Float64}, ftol::Float64, xtol::Float64, gtol::Float64, maxFev::Int, epsfcn::Float64,
+                diag_::Vector{Float64}, mode::Int, factor_::Float64, nprint::Int, info_::Int, nfev::Int, fjac::Matrix{Float64}, ldfjac::Int, ipvt::Vector{Int}, qtf::Vector{Float64},
                 wa1::Vector{Float64}, wa2::Vector{Float64}, wa3::Vector{Float64}, wa4::Vector{Float64}, fcn!::Function)
 
   delta = 0.0

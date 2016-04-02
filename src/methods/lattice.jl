@@ -1,12 +1,12 @@
 type NullLattice <: Lattice end
 
-type Branching{I <: Integer}
-  k::Vector{I}
+type Branching
+  k::Vector{Int}
   probs::Vector{Vector{Float64}}
-  kMin::I
-  jMin::I
-  kMax::I
-  jMax::I
+  kMin::Int
+  jMin::Int
+  kMax::Int
+  jMax::Int
 end
 
 function Branching()
@@ -75,15 +75,15 @@ function TrinomialTree{S <: StochasticProcess}(process::S, timeGrid::TimeGrid, i
   return TrinomialTree(process, timeGrid, dx, branchings, isPositive)
 end
 
-type TreeLattice1D{T <: TreeLattice, I <: Integer} <: TreeLattice
+type TreeLattice1D{T <: TreeLattice} <: TreeLattice
   tg::TimeGrid
   impl::T
   statePrices::Vector{Vector{Float64}}
-  n::I
-  statePricesLimit::I
+  n::Int
+  statePricesLimit::Int
 end
 
-function TreeLattice1D{I <: Integer, T <: TreeLattice}(tg::TimeGrid, n::I, impl::T)
+function TreeLattice1D{T <: TreeLattice}(tg::TimeGrid, n::Int, impl::T)
   statePrices = Vector{Vector{Float64}}(1)
   statePrices[1] = ones(1)
 
@@ -103,12 +103,12 @@ function get_grid(lat::TreeLattice1D, t::Float64)
   return grid
 end
 
-type TreeLattice2D{T <: TreeLattice, I <: Integer} <: TreeLattice
+type TreeLattice2D{T <: TreeLattice} <: TreeLattice
   tg::TimeGrid
   impl::T
   statePrices::Vector{Vector{Float64}}
-  n::I
-  statePricesLimit::I
+  n::Int
+  statePricesLimit::Int
   tree1::TrinomialTree
   tree2::TrinomialTree
   m::Matrix{Float64}

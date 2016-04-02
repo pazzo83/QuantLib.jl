@@ -1,9 +1,9 @@
-type TridiagonalOperator{I <: Integer}
+type TridiagonalOperator
   diagonal::Vector{Float64}
   lowerDiagonal::Vector{Float64}
   upperDiagonal::Vector{Float64}
   temp::Vector{Float64}
-  n::I
+  n::Int
 end
 
 TridiagonalOperator(n::Int) = TridiagonalOperator(zeros(n), zeros(n - 1), zeros(n - 1), zeros(n), n)

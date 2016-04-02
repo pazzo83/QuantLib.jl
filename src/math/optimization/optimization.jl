@@ -6,11 +6,11 @@ abstract Constraint
 
 const FINITE_DIFFERENCES_EPSILON = 1e-8
 
-type Projection{I <: Integer}
+type Projection
   actualParameters::Vector{Float64}
   fixedParameters::Vector{Float64}
   fixParams::BitArray
-  numberOfFreeParams::I
+  numberOfFreeParams::Int
 end
 
 function Projection(parameterValues::Vector{Float64}, fixParams::BitArray)
@@ -63,9 +63,9 @@ type ProjectedConstraint{C <: Constraint} <: Constraint
   projection::Projection
 end
 
-type EndCriteria{I <: Integer}
-  maxIterations::I
-  maxStationaryStateIterations::I
+type EndCriteria
+  maxIterations::Int
+  maxStationaryStateIterations::Int
   rootEpsilon::Float64
   functionEpsilon::Float64
   gradientNormEpsilon::Float64
@@ -95,7 +95,7 @@ function test(c::BoundaryConstraint, x::Vector{Float64})
   return true
 end
 
-function update{C <: Constraint, T}(constraint::C, params::Vector{T}, direction::Vector{Float64}, beta::Float64)
+function update{T}(constraint::Constraint, params::Vector{T}, direction::Vector{Float64}, beta::Float64)
   diff = beta
   new_params = params + diff * direction
   valid = test(constraint, new_params)
@@ -116,7 +116,7 @@ function update{C <: Constraint, T}(constraint::C, params::Vector{T}, direction:
 end
 
 ## Cost Function methods ##
-function get_jacobin!{C <: CostFunction}(cf::C, jac::Matrix{Float64}, x::Vector{Float64})
+function get_jacobin!(cf::CostFunction, jac::Matrix{Float64}, x::Vector{Float64})
   eps_ = FINITE_DIFFERENCES_EPSILON
   xx = zeros(length(x))
   for i = 1:length(x)

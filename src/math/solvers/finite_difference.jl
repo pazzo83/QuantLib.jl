@@ -1,12 +1,12 @@
 type FiniteDifferenceNewtonSafe <: Solver1D
   solverInfo::SolverInfo
 end
-FiniteDifferenceNewtonSafe{I <: Integer}(maxEvals::I = 100, lowerBoundEnforced::Bool = false, upperBoundEnforced::Bool = false, lowerBound::Float64 = 0.0, upperBound::Float64 = 0.0) =
+FiniteDifferenceNewtonSafe(maxEvals::Int = 100, lowerBoundEnforced::Bool = false, upperBoundEnforced::Bool = false, lowerBound::Float64 = 0.0, upperBound::Float64 = 0.0) =
   FiniteDifferenceNewtonSafe(SolverInfo(maxEvals, lowerBoundEnforced, upperBoundEnforced, lowerBound, upperBound))
 
 # Finite Differences Solver
-function _solve{I <: Integer}(solver::FiniteDifferenceNewtonSafe, f::Function, accuracy::Float64, xMin::Float64, xMax::Float64, fxMin::Float64, fxMax::Float64,
-                root::Float64, eval_num::I)
+function _solve(solver::FiniteDifferenceNewtonSafe, f::Function, accuracy::Float64, xMin::Float64, xMax::Float64, fxMin::Float64, fxMax::Float64,
+                root::Float64, eval_num::Int)
 
   max_evals = solver.solverInfo.maxEvals
   # orienting search such that f(xl) < 0

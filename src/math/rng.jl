@@ -2,27 +2,27 @@ using StatsFuns
 using Sobol
 
 abstract AbstractRandomSequenceGenerator
-type PseudoRandomRSG{I <: Integer} <: AbstractRandomSequenceGenerator
+type PseudoRandomRSG <: AbstractRandomSequenceGenerator
   rng::MersenneTwister
-  dimension::I
+  dimension::Int
   values::Vector{Float64}
   weight::Float64
 end
 
 PseudoRandomRSG(seed::Int, dimension::Int = 1, weight::Float64 = 1.0) = PseudoRandomRSG(MersenneTwister(seed), dimension, zeros(dimension), weight)
 
-type InverseCumulativeRSG{I <: Integer} <: AbstractRandomSequenceGenerator
+type InverseCumulativeRSG <: AbstractRandomSequenceGenerator
   rng::MersenneTwister
-  dimension::I
+  dimension::Int
   values::Vector{Float64}
   weight::Float64
 end
 
 InverseCumulativeRSG(seed::Int, dimension::Int = 1, weight::Float64 = 1.0) = InverseCumulativeRSG(MersenneTwister(seed), dimension, zeros(dimension), weight)
 
-type SobolRSG{I <: Integer} <: AbstractRandomSequenceGenerator
+type SobolRSG <: AbstractRandomSequenceGenerator
   rng::Sobol.SobolSeq
-  dimension::I
+  dimension::Int
   values::Vector{Float64}
   weight::Float64
 end

@@ -1,14 +1,14 @@
 using QuantLib
 
-type Problem{F <: CostFunction, C <: Constraint, T, I <: Integer}
+type Problem{F <: CostFunction, C <: Constraint, T}
   costFunction::F
   constraint::C
   initialValue::Vector{T}
   currentValue::Vector{T}
   functionValue::Float64
   squaredNorm::Float64
-  functionEvaluation::I
-  gradientEvaluation::I
+  functionEvaluation::Int
+  gradientEvaluation::Int
 end
 
 function Problem{F <: CostFunction, C <: Constraint, T}(costFunction::F, constraint::C, initialValue::Vector{T})
@@ -39,7 +39,7 @@ function values!(p::Problem, x::Vector{Float64})
   return QuantLib.func_values(p.costFunction, x)
 end
 
-function extrapolate!{I <: Integer, T}(p::Problem, i_highest::I, factor::Float64, values::Vector{T}, sum_array::Vector{T},
+function extrapolate!{T}(p::Problem, i_highest::Int, factor::Float64, values::Vector{T}, sum_array::Vector{T},
                     vertices::Vector{Vector{T}})
   pTry = zeros(length(sum_array))
   while true

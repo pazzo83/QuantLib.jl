@@ -406,9 +406,9 @@ function apply(ninePointLin::NinePointLinearOp, u::Vector{Float64})
   return retVal
 end
 
-type FdmG2Op{I <: Integer} <: FdmLinearOpComposite
-  direction1::I
-  direction2::I
+type FdmG2Op <: FdmLinearOpComposite
+  direction1::Int
+  direction2::Int
   x::Vector{Float64}
   y::Vector{Float64}
   dxMap::TripleBandLinearOp

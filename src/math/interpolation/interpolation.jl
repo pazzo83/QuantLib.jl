@@ -9,7 +9,7 @@ type Lagrange <: BoundaryCondition end
 
 # general interpolation methods #
 # update if value passed in
-function update!{I <: Integer}(interp::Interpolation, idx::I, val::Float64)
+function update!(interp::Interpolation, idx::Int, val::Float64)
   interp.y_vals[idx] = val
 
   update!(interp, idx)
@@ -18,7 +18,7 @@ function update!{I <: Integer}(interp::Interpolation, idx::I, val::Float64)
 end
 
 # locate x
-function locate{I <: Interpolation}(interp::I, val::Float64)
+function locate(interp::Interpolation, val::Float64)
   if val < interp.x_vals[1]
     return 1
   elseif val >= interp.x_vals[end - 1]

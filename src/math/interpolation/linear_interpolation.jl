@@ -14,7 +14,7 @@ function initialize!(interp::LinearInterpolation, x_vals::Vector{Float64}, y_val
 end
 
 # Linear Interpolation update
-function update!{I <: Integer}(interp::LinearInterpolation, idx::I)
+function update!(interp::LinearInterpolation, idx::Int)
   for i = 2:idx
     @inbounds dx = interp.x_vals[i] - interp.x_vals[i - 1]
     @inbounds interp.s[i - 1] = (interp.y_vals[i] - interp.y_vals[i - 1]) / dx

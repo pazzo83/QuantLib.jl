@@ -66,7 +66,7 @@ function call{T <: Real}(spl::NaturalCubicSpline, my_x::T)
 end
 
 ## Cubic Interpolation ##
-type CubicInterpolation{D <: DerivativeApprox, B1 <: BoundaryCondition, B2 <: BoundaryCondition, I <: Integer} <: Interpolation
+type CubicInterpolation{D <: DerivativeApprox, B1 <: BoundaryCondition, B2 <: BoundaryCondition} <: Interpolation
   derivativeApprox::D
   leftBoundaryCondition::B1
   rightBoundaryCondition::B2
@@ -81,7 +81,7 @@ type CubicInterpolation{D <: DerivativeApprox, B1 <: BoundaryCondition, B2 <: Bo
   tmp::Vector{Float64}
   dx::Vector{Float64}
   S::Vector{Float64}
-  n::I
+  n::Int
   L::TridiagonalOperator
 end
 
@@ -98,7 +98,7 @@ end
 call(interp::CubicInterpolation, x::Float64) = value(interp, x)
 
 # type aliases #
-typealias SplineCubicInterpolation{D, B1, B2, N} CubicInterpolation{Spline, B1, B2, N} # First derivative approximation
+typealias SplineCubicInterpolation{D, B1, B2} CubicInterpolation{Spline, B1, B2} # First derivative approximation
 
 function cubicInterpolationPolynomialDerivative(x_vals::Vector{Float64}, y_vals::Vector{Float64}, x::Float64)
   a, b, c, d = x_vals

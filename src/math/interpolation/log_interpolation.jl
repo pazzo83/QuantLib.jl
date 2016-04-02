@@ -45,7 +45,7 @@ function initialize!(interp::LogInterpolation, x_vals::Vector{Float64}, y_vals::
 end
 
 # Log Interpolation update
-function update!{I <: Integer}(interp::LogInterpolation, idx::I)
+function update!(interp::LogInterpolation, idx::Int)
   # first get the log of the y values
   for i = 1:idx
     @inbounds interp.interpolator.y_vals[i] = log(interp.y_vals[i])

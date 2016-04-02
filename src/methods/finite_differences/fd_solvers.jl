@@ -1,11 +1,11 @@
-type FdmSolverDesc{F <: FdmMesher, C <: FdmInnerValueCalculator, I <: Integer}
+type FdmSolverDesc{F <: FdmMesher, C <: FdmInnerValueCalculator}
   mesher::F
   bcSet::FdmBoundaryConditionSet
   condition::FdmStepConditionComposite
   calculator::C
   maturity::Float64
-  timeSteps::I
-  dampingSteps::I
+  timeSteps::Int
+  dampingSteps::Int
 end
 
 ## Solvers ##
