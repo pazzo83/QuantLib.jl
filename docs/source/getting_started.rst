@@ -157,13 +157,16 @@ Let's build our CDS helpers
 
 .. code-block:: julia
 
-    insts = SpreadCDSHelper[SpreadCDSHelper(Quote(quoteSpreads[i]), tenors[i], 0, cal, QuantLib.Time.Quarterly(), QuantLib.Time.Following(), QuantLib.Time.DateGenerationTwentieth(), QuantLib.Time.Actual365(), recoveryRate, tsCurve) for i in eachindex(tenors)]
+    insts = SpreadCDSHelper[SpreadCDSHelper(Quote(quoteSpreads[i]), tenors[i], 0, cal, QuantLib.Time.Quarterly(),
+            QuantLib.Time.Following(), QuantLib.Time.DateGenerationTwentieth(), QuantLib.Time.Actual365(),
+            recoveryRate, tsCurve) for i in eachindex(tenors)]
 
 With our helpers constructed, now we can build the hazard rate curve.
 
 .. code-block:: julia
 
-    hazardRateStructure = PiecewiseDefaultCurve(todays_date, insts, QuantLib.Time.Actual365(), QuantLib.Math.BackwardFlatInterpolation(), HazardRate(), 1.0e-12)
+    hazardRateStructure = PiecewiseDefaultCurve(todays_date, insts, QuantLib.Time.Actual365(),
+                          QuantLib.Math.BackwardFlatInterpolation(), HazardRate(), 1.0e-12)
 
 By requested for the curve nodes, we will trigger the bootstrap calculation
 
@@ -175,8 +178,10 @@ Now we can output the 1Y and 2Y survival probabilities
 
 .. code-block:: julia
 
-    println(@sprintf("1Y Survival Probability: %.6f %%", survival_probability(hazardRateStructure, todays_date + Dates.Year(1)) * 100.0))
-    println(@sprintf("2Y Survival Probability: %.6f %%", survival_probability(hazardRateStructure, todays_date + Dates.Year(2)) * 100.0))
+    println(@sprintf("1Y Survival Probability: %.6f %%", survival_probability(hazardRateStructure,
+            todays_date + Dates.Year(1)) * 100.0))
+    println(@sprintf("2Y Survival Probability: %.6f %%", survival_probability(hazardRateStructure,
+            todays_date + Dates.Year(2)) * 100.0))
 
 
 
@@ -197,7 +202,9 @@ Gather appropriate market data
 .. code-block:: julia
 
     swaptionMats = [Dates.Year(1), Dates.Year(2), Dates.Year(3), Dates.Year(4), Dates.Year(5)]
-    swaptionVols = [0.1490, 0.1340, 0.1228, 0.1189, 0.1148, 0.1290, 0.1201, 0.1146, 0.1108, 0.1040, 0.1149, 0.1112, 0.1070, 0.1010, 0.0957, 0.1047, 0.1021, 0.0980, 0.0951, 0.1270, 0.1000, 0.0950, 0.0900, 0.1230, 0.1160]
+    swaptionVols = [0.1490, 0.1340, 0.1228, 0.1189, 0.1148, 0.1290, 0.1201, 0.1146, 0.1108,
+                    0.1040, 0.1149, 0.1112, 0.1070, 0.1010, 0.0957, 0.1047, 0.1021, 0.0980, 0.0951,
+                    0.1270, 0.1000, 0.0950, 0.0900, 0.1230, 0.1160]
     swaptionLengths = [Dates.Year(1), Dates.Year(2), Dates.Year(3), Dates.Year(4), Dates.Year(5)]
 
 Generate a flat-forward term structure implying a 1x5 swap at 5%
@@ -205,7 +212,7 @@ Generate a flat-forward term structure implying a 1x5 swap at 5%
 .. code-block:: julia
 
     flat_rate = Quote(0.04875825)
-    ffts = FlatForwardTermStructure(settlementDate, cal, flat_rate, QuantLib.Time.Actual365())
+    rhTermStructure = FlatForwardTermStructure(settlementDate, cal, flat_rate, QuantLib.Time.Actual365())
 
 Build an ATM swap
 
@@ -224,14 +231,18 @@ Build an ATM swap
     startDate = QuantLib.Time.advance(Dates.Year(1), cal, settlementDate, floatingLegConvention)
     maturity = QuantLib.Time.advance(Dates.Year(5), cal, startDate, floatingLegConvention)
 
-    fixedSchedule = QuantLib.Time.Schedule(startDate, maturity, QuantLib.Time.TenorPeriod(fixedLegFrequency), fixedLegConvention, fixedLegConvention, QuantLib.Time.DateGenerationForwards(), false, cal)
-    floatSchedule = QuantLib.Time.Schedule(startDate, maturity, QuantLib.Time.TenorPeriod(floatingLegFrequency), floatingLegConvention, floatingLegConvention, QuantLib.Time.DateGenerationForwards(), false, cal)
+    fixedSchedule = QuantLib.Time.Schedule(startDate, maturity, QuantLib.Time.TenorPeriod(fixedLegFrequency),
+                    fixedLegConvention, fixedLegConvention, QuantLib.Time.DateGenerationForwards(), false, cal)
+    floatSchedule = QuantLib.Time.Schedule(startDate, maturity, QuantLib.Time.TenorPeriod(floatingLegFrequency),
+                    floatingLegConvention, floatingLegConvention, QuantLib.Time.DateGenerationForwards(), false, cal)
 
-    swap = VanillaSwap(swapType, 1000.0, fixedSchedule, dummyFixedRate, fixedLegDayCounter, indexSixMonths, 0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine(rhTermStructure))
+    swap = VanillaSwap(swapType, 1000.0, fixedSchedule, dummyFixedRate, fixedLegDayCounter,
+          indexSixMonths, 0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine(rhTermStructure))
 
     fixedATMRate = fair_rate(swap)
 
-    atmSwap = VanillaSwap(swapType, 1000.0, fixedSchedule, fixedATMRate, fixedLegDayCounter, indexSixMonths, 0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine(rhTermStructure))
+    atmSwap = VanillaSwap(swapType, 1000.0, fixedSchedule, fixedATMRate, fixedLegDayCounter, indexSixMonths,
+              0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine(rhTermStructure))
 
 Construct our model
 
@@ -253,8 +264,9 @@ Build our calibration helpers
       j = numCols - (i - 1)
       k = (i - 1) * numCols + j
 
-      sh = SwaptionHelper(swaptionMats[i], swaptionLengths[j], Quote(swaptionVols[k]), indexSixMonths, indexSixMonths.tenor, indexSixMonths.dc, indexSixMonths.dc,
-                          rhTermStructure, G2SwaptionEngine(modelG2, 6.0, 16))
+      sh = SwaptionHelper(swaptionMats[i], swaptionLengths[j], Quote(swaptionVols[k]), indexSixMonths,
+            indexSixMonths.tenor, indexSixMonths.dc, indexSixMonths.dc, rhTermStructure,
+            G2SwaptionEngine(modelG2, 6.0, 16))
 
       times = add_times_to!(sh, times)
       swaptions[i] = sh
@@ -277,7 +289,8 @@ Calibrate our model
       implied = implied_volatility!(swaptions[i], npv, 1e-4, 1000, 0.05, 0.50)
       diff = implied - swaptionVols[k]
 
-      println(@sprintf("%i x %i: model %.5f%%, market: %.5f%% (%.5f%%)", i, Int(swaptionLengths[j]), implied * 100, swaptionVols[k] * 100, diff * 100))
+      println(@sprintf("%i x %i: model %.5f%%, market: %.5f%% (%.5f%%)", i, Int(swaptionLengths[j]), implied * 100,
+              swaptionVols[k] * 100, diff * 100))
     end
 
     println("calibrated to: ")
