@@ -141,11 +141,10 @@ Spread-quoted CDS hazard rate bootstrap helper
       swap::CreditDefaultSwap
     end
 
-.. code-block:: julia
-
 .. function:: SpreadCDSHelper(runningSpread::Quote, tenor::Dates.Period, settlementDays::Int, calendar::BusinessCalendar, frequency::Frequency, paymentConvention::BusinessDayConvention, rule::DateGenerationRule, dc::DayCount, recoveryRate::Float64, discountCurve::YieldTermStructure = NullYieldTermStructure(), settlesAccrual::Bool = true, paysAtDefaultTime::Bool = true)
 
     Constructor for the SpreadCDSHelper
+
 
 
 Yield Term Structures
@@ -410,6 +409,7 @@ CubicSpline B-splines fitting method
     Default constructor for the Cubic BSplines fitting method
 
 
+
 Credit Term Structures
 ----------------------
 
@@ -472,9 +472,9 @@ Each segment is determined sequentially starting from the earliest period to the
     Constructor for a PiecewiseDefaultCurve
 
 
+
 Volatility Term Structures
 --------------------------
-
 
 ConstantOptionVolatility
 ~~~~~~~~~~~~~~~~~~~~~~~~

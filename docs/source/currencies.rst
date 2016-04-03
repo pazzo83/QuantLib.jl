@@ -3,7 +3,7 @@ Currencies
 
 Derived from Ito.jl, the Currency type contains a variety of currencies worldwide, which are generated at compile time.
 
-.. code-block::
+.. code-block:: julia
 
     immutable Currency <: AbstractCurrency
       name::AbstractString

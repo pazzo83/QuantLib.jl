@@ -9,6 +9,7 @@ This documentation is largely derived from QuantLib's documentation, with some a
 .. toctree::
    :maxdepth: 2
 
+   getting_started.rst
    cashflows.rst
    currencies.rst
    indexes.rst

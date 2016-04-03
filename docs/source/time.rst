@@ -225,7 +225,7 @@ General Day Counters
 
 **EuroThirty360** - 30E/360 (Eurobond basis)
 
-** ItalianThirty360** - 30/360 (Italian)
+**ItalianThirty360** - 30/360 (Italian)
 
 
 Actual-Actual Day Counters
