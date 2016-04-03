@@ -279,7 +279,7 @@ Calibrate our model
 .. code-block:: julia
 
     om = QuantLib.Math.LevenbergMarquardt()
-    calibrate!(model, swaptions, om, QuantLib.Math.EndCriteria(400, 100, 1.0e-8, 1.0e-8, 1.0e-8))
+    calibrate!(modelG2, swaptions, om, QuantLib.Math.EndCriteria(400, 100, 1.0e-8, 1.0e-8, 1.0e-8))
 
     for i=1:numRows
       j = numCols - (i - 1)
