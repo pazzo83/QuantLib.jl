@@ -1,5 +1,5 @@
-QuantLib.jl Math Module
-=======================
+Math Module
+===========
 
 This is a sub-module in QuantLib.jl that has math-related types and methods.  It includes various interpolation methods, solvers, and optimization methods.
 

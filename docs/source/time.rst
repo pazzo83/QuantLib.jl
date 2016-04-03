@@ -1,5 +1,5 @@
-QuantLib.jl Time Module
-=======================
+Time Module
+===========
 
 QuantLib.jl's Time sub-module provides calendars, day counters, tenor time periods, and other time related types and methods for pricing.
 
