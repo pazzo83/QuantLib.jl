@@ -3,13 +3,13 @@ type FdmNullStepCondition <: StepCondition end
 
 apply_to!(cond::FdmNullStepCondition, a::Vector{Float64}, ::Float64) = cond, a
 
-type FdmDividendHandler{F <: FdmMesher, I <: Integer} <: StepCondition
+type FdmDividendHandler{F <: FdmMesher} <: StepCondition
   x::Vector{Float64}
   dividendTimes::Vector{Float64}
   dividendDates::Vector{Date}
   dividends::Vector{Float64}
   mesher::F
-  equityDirection::I
+  equityDirection::Int
 end
 
 function FdmDividendHandler(schedule::DividendSchedule, mesher::FdmMesher, refDate::Date, dc::DayCount, equityDirection::Int)

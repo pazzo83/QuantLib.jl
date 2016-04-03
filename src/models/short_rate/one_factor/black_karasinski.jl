@@ -30,8 +30,8 @@ BlackKarasinskiDynamics{P <: Parameter}(fitting::P, a::Float64, sigma::Float64) 
 
 short_rate(dynamic::BlackKarasinskiDynamics, t::Float64, x::Float64) = exp(x + dynamic.fitting(t))
 
-immutable BlackKarasinskiHelper{I <: Integer}
-  sz::I
+immutable BlackKarasinskiHelper
+  sz::Int
   xMin::Float64
   dx::Float64
   dt::Float64
@@ -39,7 +39,7 @@ immutable BlackKarasinskiHelper{I <: Integer}
   statePrices::Vector{Float64}
 end
 
-function BlackKarasinskiHelper{I <: Integer}(i::I, xMin::Float64, dx::Float64, discountBond::Float64, _tree::OneFactorShortRateTree)
+function BlackKarasinskiHelper(i::Int, xMin::Float64, dx::Float64, discountBond::Float64, _tree::OneFactorShortRateTree)
   sz = get_size(_tree, i)
   statePrices = get_state_prices!(_tree, i)
   dt = _tree.tg.dt[i]

@@ -1,9 +1,9 @@
-type FdG2SwaptionEngine{I <: Integer, Y <: TermStructure} <: PricingEngine
+type FdG2SwaptionEngine{Y <: TermStructure} <: PricingEngine
   model::G2
-  tGrid::I
-  xGrid::I
-  yGrid::I
-  dampingSteps::I
+  tGrid::Int
+  xGrid::Int
+  yGrid::Int
+  dampingSteps::Int
   invEps::Float64
   schemeDesc::FdmSchemeDesc
   ts::Y

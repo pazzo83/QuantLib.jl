@@ -28,7 +28,7 @@ end
 calibration_error{C <: CalibrationHelper}(::RelativePriceError, helper::C) =
   abs(helper.calibCommon.marketValue - model_value!(helper)) / helper.calibCommon.marketValue
 
-function implied_volatility!{C <: CalibrationHelper, I <: Integer}(ch::C, targetValue::Float64, accuracy::Float64, maxEvals::I, minVol::Float64, maxVol::Float64)
+function implied_volatility!(ch::CalibrationHelper, targetValue::Float64, accuracy::Float64, maxEvals::Int, minVol::Float64, maxVol::Float64)
   ivh = ImpliedVolatilityHelper(ch, targetValue)
 
   solv = BrentSolver(maxEvals)

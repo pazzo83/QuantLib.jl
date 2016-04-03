@@ -74,11 +74,13 @@ end
 function FloatingRateBond{X <: InterestRateIndex, DC <: DayCount, B <: BusinessDayConvention, P <: PricingEngine}(settlementDays::Int, faceAmount::Float64, schedule::Schedule, iborIndex::X, dc::DC,
                           convention::B, fixingDays::Int, issueDate::Date, pricingEngine::P, inArrears::Bool = false, redemption::Float64 = 100.0,
                           gearings::Vector{Float64} = ones(length(schedule.dates) - 1), spreads::Vector{Float64} = zeros(length(schedule.dates) - 1),
-                          caps::Vector{Float64} = Vector{Float64}(), floors::Vector{Float64} = Vector{Float64}())
+                          caps::Vector{Float64} = Vector{Float64}(), floors::Vector{Float64} = Vector{Float64}();
+                          cap_vol::OptionletVolatilityStructure=NullOptionletVolatilityStructure())
   maturityDate = schedule.dates[end]
   fixingDaysVect = fill(fixingDays, length(schedule.dates) - 1)
 
-  coups = IborLeg(schedule, faceAmount, iborIndex, dc, convention, fixingDaysVect, gearings, spreads, caps, floors, inArrears; add_redemption=true)
+  coups = IborLeg(schedule, faceAmount, iborIndex, dc, convention, fixingDaysVect, gearings, spreads, caps, floors, inArrears;
+                  add_redemption=true, cap_vol = cap_vol)
   return FloatingRateBond{X, DC, P}(LazyMixin(), BondMixin(settlementDays, issueDate, maturityDate), faceAmount, schedule, coups, iborIndex, dc, fixingDays, gearings, spreads, caps, floors,
                           inArrears, redemption, pricingEngine, 0.0)
 end

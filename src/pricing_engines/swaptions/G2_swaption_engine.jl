@@ -1,9 +1,9 @@
-type G2SwaptionEngine{AffineModelType, Y <: YieldTermStructure, I <: Integer} <: PricingEngine
+type G2SwaptionEngine{AffineModelType, Y <: YieldTermStructure} <: PricingEngine
   model::G2{AffineModelType, Y}
   range::Float64
-  intervals::I
+  intervals::Int
 
-  call{Y, I}(::Type{G2SwaptionEngine}, model::G2{AffineModelType, Y}, range::Float64, intervals::I) = new{AffineModelType, Y, I}(model, range, intervals)
+  call{Y}(::Type{G2SwaptionEngine}, model::G2{AffineModelType, Y}, range::Float64, intervals::Int) = new{AffineModelType, Y}(model, range, intervals)
 end
 
 # methods #

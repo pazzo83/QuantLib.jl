@@ -58,7 +58,7 @@ export
 
     Exercise, EarlyExercise, CompoundingType, TermStructure, YieldTermStructure, InterpolatedCurve, BootstrapTrait, Bootstrap, BootstrapHelper, BondHelper, RateHelper,
     FittingMethod, CashFlows, CashFlow, Coupon, CouponPricer, IborCouponPricer, Instrument, Bond, Swap, SwapType, PricingEngine, Duration, AbstractRate, Results,
-    InterestRateIndex, AbstractCurrency, Parameter, CalibrationHelper, ShortRateModel, FdmMesher, OptionType, AbstractMarketModel,
+    InterestRateIndex, AbstractCurrency, Parameter, CalibrationHelper, ShortRateModel, FdmMesher, OptionType, AbstractMarketModel, OptionletVolatilityStructure,
 
     # lazy.jl
     LazyMixin, calculate!, recalculate!,
@@ -207,14 +207,14 @@ export
     # models/short_rate/one_factor.jl
     BlackKarasinski, HullWhite, GSR, calibrate_volatilities_iterative!, get_volatilities,
 
-    # models/market_models/exercise_value.jl
+    # models/market_models/callability/exercise_value.jl
     NothingExerciseValue,
 
     # models/market_models/brownian_generators.jl
-    SobolDiagonalOrdering, SobolBrownianGeneratorFactory,
+    SobolDiagonalOrdering, SobolBrownianGeneratorFactory, create,
 
     # models/market_models/evolution_description.jl
-    money_market_measure,
+    EvolutionDescription, money_market_measure,
 
     # models/market_models/products/multistep/multiproduct_multistep.jl
     MultiStepInverseFloater, ExerciseAdapter,
@@ -225,13 +225,13 @@ export
     # models/market_models/products/pathwise/pathwise_product_calls_specified.jl
     CallSpecifiedPathwiseMultiProduct,
 
-    # models/market_models/products//composite_product.jl
+    # models/market_models/products/composite_product.jl
     MarketModelComposite, add_product!, finalize!,
 
     # models/market_models/correlations/exponential_correlation.jl
     ExponentialForwardCorrelation,
 
-    # models/market_models/correlations/time_homogeneous_forward_correlation.jl
+    # models/market_models/modesl/flatvol.jl
     FlatVol,
 
     # models/market_models/callability/swap_rate_trigger.jl
@@ -252,7 +252,7 @@ export
     # models/market_models/pathwise_greeks/bump_instrument_jacobian.jl
     VolatilityBumpInstrumentJacobianSwaption, VolatilityBumpInstrumentJacobianCap, OrthogonalizedBumpFinder, get_vega_bumps!,
 
-    # models/market_models/market_models.jl
+    # models/market_models/pathwise/pathwise_product_inverse_floater.jl
     MarketModelPathwiseInverseFloater,
 
     # models/market_models/evolvers/lognormal_fwd_rate_pc.jl
@@ -393,6 +393,8 @@ include("models/market_models/products/composite_product.jl")
 include("models/market_models/products/pathwise/pathwise_product_calls_specified.jl")
 include("models/market_models/products/pathwise/pathwise_product_cashrebate.jl")
 include("models/market_models/products/pathwise/rate_pseudo_root_jacobian.jl")
+include("models/market_models/products/pathwise/pathwise_product_inverse_floater.jl")
+include("models/market_models/models/flatvol.jl")
 include("models/market_models/correlations/time_homogeneous_forward_correlation.jl")
 include("models/market_models/correlations/exponential_correlation.jl")
 include("models/market_models/callability/swap_rate_trigger.jl")

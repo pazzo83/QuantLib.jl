@@ -1,6 +1,6 @@
-type BlackConstantVol{I <: Integer, BC <: BusinessCalendar, DC <: DayCount} <: BlackVolTermStructure
+type BlackConstantVol{BC <: BusinessCalendar, DC <: DayCount} <: BlackVolTermStructure
   referenceDate::Date
-  settlementDays::I
+  settlementDays::Int
   calendar::BC
   volatility::Quote
   dc::DC

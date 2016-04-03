@@ -1,8 +1,8 @@
-type FdHullWhiteSwaptionEngine{I <: Integer, Y <: TermStructure} <: PricingEngine
+type FdHullWhiteSwaptionEngine{Y <: TermStructure} <: PricingEngine
   model::HullWhite
-  tGrid::I
-  xGrid::I
-  dampingSteps::I
+  tGrid::Int
+  xGrid::Int
+  dampingSteps::Int
   invEps::Float64
   schemeDesc::FdmSchemeDesc
   ts::Y

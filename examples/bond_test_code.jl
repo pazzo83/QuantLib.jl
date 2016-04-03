@@ -231,7 +231,7 @@ function fitted_bond_curve_all()
   println("Svensson Fitting: $(sf_fitted_curve.fittingMethod.commons.numberOfIterations)")
 end
 
-function generate_floatingrate_bond(yts::YieldTermStructure, disc_yts::YieldTermStructure)
+function generate_floatingrate_bond(yts::YieldTermStructure, disc_yts::YieldTermStructure, cap_vol::OptionletVolatilityStructure)
   # Floating Rate bond
   settlement_days = 3
   face_amount = 100.0
@@ -247,7 +247,7 @@ function generate_floatingrate_bond(yts::YieldTermStructure, disc_yts::YieldTerm
   gearings = ones(length(fb_schedule.dates) - 1)
   spreads = fill(0.001, length(fb_schedule.dates) - 1)
   libor_3m = usd_libor_index(QuantLib.Time.TenorPeriod(Base.Dates.Month(3)), yts)
-  floating_bond = FloatingRateBond(settlement_days, face_amount, fb_schedule, libor_3m, fb_dc, conv, fixing_days, fb_issue_date, bond_engine, in_arrears, 100.0, gearings, spreads)
+  floating_bond = FloatingRateBond(settlement_days, face_amount, fb_schedule, libor_3m, fb_dc, conv, fixing_days, fb_issue_date, bond_engine, in_arrears, 100.0, gearings, spreads, cap_vol=cap_vol)
 
   return floating_bond
 end
@@ -468,11 +468,9 @@ function main3()
 
   disc_yts = generate_discounting_ts(settlement_date)
 
-  # Floating Rate Bond
-  fb = generate_floatingrate_bond(yts, disc_yts)
-
   cap_vol = ConstantOptionVolatility(3, cal, QuantLib.Time.ModifiedFollowing(), 0.0, QuantLib.Time.Actual365())
-  update_pricer!(fb.cashflows, cap_vol)
+  # Floating Rate Bond
+  fb = generate_floatingrate_bond(yts, disc_yts, cap_vol)
 
   # fb.iborIndex.ts = yts
   # fb.pricingEngine.yts = disc_yts

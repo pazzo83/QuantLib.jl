@@ -11,6 +11,8 @@ Welcome to QuantLib.jl's documentation!
    indexes.rst
    instruments.rst
    math.rst
+   methods.rst
+   models.rst
 
 
 

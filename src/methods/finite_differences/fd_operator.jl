@@ -1,9 +1,9 @@
-type TripleBandLinearOp{I <: Integer, FM <: FdmMesher}
-  direction::I
+type TripleBandLinearOp{FM <: FdmMesher}
+  direction::Int
   mesher::FM
-  i0::Vector{I}
-  i2::Vector{I}
-  reverseIndex::Vector{I}
+  i0::Vector{Int}
+  i2::Vector{Int}
+  reverseIndex::Vector{Int}
   lower::Vector{Float64}
   _diag::Vector{Float64}
   upper::Vector{Float64}
@@ -237,17 +237,17 @@ function solve_splitting(trpBandLinOp::TripleBandLinearOp, r::Vector{Float64}, a
   return retArray
 end
 
-type SecondOrderMixedDerivativeOp{I <: Integer, FD <: FdmMesher} <: NinePointLinearOp
-  d1::I
-  d2::I
-  i00::Vector{I}
-  i10::Vector{I}
-  i20::Vector{I}
-  i01::Vector{I}
-  i21::Vector{I}
-  i02::Vector{I}
-  i12::Vector{I}
-  i22::Vector{I}
+type SecondOrderMixedDerivativeOp{FD <: FdmMesher} <: NinePointLinearOp
+  d1::Int
+  d2::Int
+  i00::Vector{Int}
+  i10::Vector{Int}
+  i20::Vector{Int}
+  i01::Vector{Int}
+  i21::Vector{Int}
+  i02::Vector{Int}
+  i12::Vector{Int}
+  i22::Vector{Int}
   a00::Vector{Float64}
   a10::Vector{Float64}
   a20::Vector{Float64}
@@ -437,8 +437,8 @@ function FdmG2Op(mesher::FdmMesher, model::G2, direction1::Int, direction2::Int)
   return FdmG2Op(direction1, direction2, x, y, dxMap, dyMap, corrMap, mapX, mapY, model)
 end
 
-type FdmHullWhiteOp{I <: Integer} <: FdmLinearOpComposite
-  direction::I
+type FdmHullWhiteOp <: FdmLinearOpComposite
+  direction::Int
   x::Vector{Float64}
   dzMap::TripleBandLinearOp
   mapT::TripleBandLinearOp

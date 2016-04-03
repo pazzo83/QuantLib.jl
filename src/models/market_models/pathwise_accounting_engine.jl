@@ -1,3 +1,15 @@
+# Engine collecting cash flows along a market-model simulation for doing pathwise computation of Deltas and vegas using Giles--Glasserman smoking adjoints method
+# note only works with displaced LMM.
+
+# The method is intimately connected with log-normal Euler evolution
+
+# We must work with discretely compounding MM account
+# To compute a vega means changing the pseudo-square root at each time step
+# So for each vega, we have a vector of matrices. So we need a vector of vectors of matrices to compute all the vegas.
+# We do the outermost vector by time step and inner one by which vega.
+# This implementation is different in that all the linear combinations by the bumps are done as late as possible,
+# whereas PathwiseVegasAccountingEngine does them as early as possible.
+
 type PathwiseVegasOuterAccountingEngine{P <: MarketModelPathwiseMultiProduct, M <: AbstractMarketModel}
   evolver::LogNormalFwdRateEuler
   product::P

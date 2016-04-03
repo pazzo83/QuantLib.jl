@@ -11,14 +11,17 @@ type BlackIborCouponPricer{O <: OptionletVolatilityStructure} <: IborCouponPrice
   initialized::Bool
   capletVolatility::O
 
-  function call(::Type{BlackIborCouponPricer})
-    new{OptionletVolatilityStructure}(0.0, 0.0, 0.0, false)
-  end
+  # function call(::Type{BlackIborCouponPricer})
+  #   new{OptionletVolatilityStructure}(0.0, 0.0, 0.0, false)
+  # end
 
-  function call{O}(::Type{BlackIborCouponPricer}, capletVolatility::O)
-    new{O}(0.0, 0.0, 0.0, false, capletVolatility)
-  end
+  # function call{O}(::Type{BlackIborCouponPricer}, capletVolatility::O)
+  #   new{O}(0.0, 0.0, 0.0, false, capletVolatility)
+  # end
 end
+
+BlackIborCouponPricer() = BlackIborCouponPricer{NullOptionletVolatilityStructure}(0.0, 0.0, 0.0, false, NullOptionletVolatilityStructure())
+BlackIborCouponPricer(capVol::OptionletVolatilityStructure) = BlackIborCouponPricer{typeof(capVol)}(0.0, 0.0, 0.0, false, capVol)
 
 type IborCoupon{DC <: DayCount, X <: InterestRateIndex, ICP <: IborCouponPricer} <: Coupon
   couponMixin::CouponMixin{DC}
@@ -109,8 +112,12 @@ type IborLeg <: Leg
                    fixingDays::Vector{Int} = fill(iborIndex.fixingDays, length(schedule.dates) - 1),
                    gearings::Vector{Float64} = ones(length(schedule.dates) - 1), spreads::Vector{Float64} = zeros(length(schedule.dates) - 1),
                    caps::Vector{Float64} = Vector{Float64}(), floors::Vector{Float64} = Vector{Float64}(), isInArrears::Bool = false,
-                   isZero::Bool = false, pricer::ICP = BlackIborCouponPricer(); add_redemption::Bool = true)
+                   isZero::Bool = false, pricer::ICP = BlackIborCouponPricer();
+                   add_redemption::Bool = true, cap_vol::OptionletVolatilityStructure = NullOptionletVolatilityStructure())
     n = add_redemption ? length(schedule.dates) : length(schedule.dates) - 1
+    if isa(pricer.capletVolatility, NullOptionletVolatilityStructure) && ~isa(cap_vol, NullOptionletVolatilityStructure)
+      pricer = BlackIborCouponPricer(cap_vol)
+    end
     coups = Vector{Union{IborCoupon, SimpleCashFlow}}(n)
     last_payment_date = adjust(schedule.cal, paymentAdj, schedule.dates[end])
 

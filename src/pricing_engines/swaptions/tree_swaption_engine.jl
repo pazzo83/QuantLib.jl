@@ -1,6 +1,6 @@
-type TreeSwaptionEngine{S <: ShortRateModel, I <: Integer} <: LatticeShortRateModelEngine{S}
+type TreeSwaptionEngine{S <: ShortRateModel} <: LatticeShortRateModelEngine{S}
   model::S
-  timeSteps::I
+  timeSteps::Int
   common::LatticeShortRateModelEngineCommon
   # ts::Y
 
@@ -14,15 +14,15 @@ type TreeSwaptionEngine{S <: ShortRateModel, I <: Integer} <: LatticeShortRateMo
   # call{S, I}(::Type{TreeSwaptionEngine}, m::S, tsteps::I, l::LatticeShortRateModelEngineCommon) = new{S, I, YieldTermStructure}(m, tsteps, l)
   #
   # call{S, I, Y}(::Type{TreeSwaptionEngine}, m::S, tsteps::I, l::LatticeShortRateModelEngineCommon, ts::Y) = new{S, I, T, Y}(m, tsteps, l, ts)
-  function TreeSwaptionEngine{S, I}(model::S, timeSteps::I, common::LatticeShortRateModelEngineCommon)
-    ts = new{S, I}(model, timeSteps, common)
+  function TreeSwaptionEngine{S}(model::S, timeSteps::Int, common::LatticeShortRateModelEngineCommon)
+    ts = new{S}(model, timeSteps, common)
     add_observer!(model, ts)
 
     return ts
   end
 
-  function TreeSwaptionEngine{S, I}(model::S, timeSteps::I)
-    ts = new{S, I}(model, timeSteps)
+  function TreeSwaptionEngine{S}(model::S, timeSteps::Int)
+    ts = new{S}(model, timeSteps)
     add_observer!(model, ts)
 
     return ts
@@ -31,10 +31,10 @@ end
 
 function TreeSwaptionEngine{S <: ShortRateModel}(model::S, tg::TimeGrid)
   lattice = tree(model, tg)
-  return TreeSwaptionEngine{S, Int}(model, 0, LatticeShortRateModelEngineCommon(tg, lattice))
+  return TreeSwaptionEngine{S}(model, 0, LatticeShortRateModelEngineCommon(tg, lattice))
 end
 
-TreeSwaptionEngine{S <: ShortRateModel}(model::S, timeSteps::Int) = TreeSwaptionEngine{S, Int}(model, timeSteps)
+TreeSwaptionEngine{S <: ShortRateModel}(model::S, timeSteps::Int) = TreeSwaptionEngine{S}(model, timeSteps)
 
 # methods
 function _calculate!(pe::TreeSwaptionEngine, swaption::Swaption)

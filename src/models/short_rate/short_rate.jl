@@ -102,7 +102,7 @@ function set_params!{M <: ShortRateModel}(model::M, params::Vector{Float64})
 
 ## Short Rate Model calibration function #
 function calibrate!{M <: ShortRateModel, C <: CalibrationHelper, O <: OptimizationMethod}(model::M, instruments::Vector{C}, method::O, endCriteria::EndCriteria,
-                    constraint::Constraint = model.privateConstraint, weights::Vector{Float64} = ones(length(instruments)), fixParams::BitArray = BitArray(0))
+                    constraint::Constraint = model.privateConstraint, weights::Vector{Float64} = ones(length(instruments)), fixParams::BitArray{1} = BitArray(0))
 
   w = length(weights) == 0 ? ones(length(instruments)) : weights
   prms = get_params(model)

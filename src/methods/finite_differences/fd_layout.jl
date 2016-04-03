@@ -1,10 +1,10 @@
-type FdmLinearOpLayout{I <: Integer}
-  size::I
-  dim::Vector{I}
-  spacing::Vector{I}
+type FdmLinearOpLayout
+  size::Int
+  dim::Vector{Int}
+  spacing::Vector{Int}
 end
 
-function FdmLinearOpLayout{I <: Integer}(dim::Vector{I})
+function FdmLinearOpLayout(dim::Vector{Int})
   spacing = ones(Int, length(dim))
   spacing[2:end] = cumprod(dim[1:end-1])
   sz = spacing[end] * dim[end]
@@ -21,7 +21,7 @@ function get_layout_from_meshers{F1D <: Fdm1DMesher}(mesherVec::Vector{F1D})
   return FdmLinearOpLayout(dim)
 end
 
-function neighborhood{I <: Integer}(mesherLayout::FdmLinearOpLayout, idx::I, coords::Vector{I}, i::I, offset::I)
+function neighborhood(mesherLayout::FdmLinearOpLayout, idx::Int, coords::Vector{Int}, i::Int, offset::Int)
   myIndex = idx - (coords[i] - 1) * mesherLayout.spacing[i]
   coorOffset = (coords[i] - 1) + offset
 
@@ -34,7 +34,7 @@ function neighborhood{I <: Integer}(mesherLayout::FdmLinearOpLayout, idx::I, coo
   return myIndex + coorOffset * mesherLayout.spacing[i]
 end
 
-function neighborhood{I <: Integer}(mesherLayout::FdmLinearOpLayout, idx::I, coords::Vector{I}, i1::I, offset1::I, i2::I, offset2::I)
+function neighborhood(mesherLayout::FdmLinearOpLayout, idx::Int, coords::Vector{Int}, i1::Int, offset1::Int, i2::Int, offset2::Int)
   myIndex = idx - (coords[i1] - 1) * mesherLayout.spacing[i1] - (coords[i2] - 1) * mesherLayout.spacing[i2]
   coorOffset1 = (coords[i1] - 1) + offset1
 

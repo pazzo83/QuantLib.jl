@@ -84,8 +84,8 @@ function forward_rate{T <: YieldTermStructure, C <: CompoundingType, F <: Freque
 end
 
 ## FlatForwardTermStructure
-type FlatForwardTermStructure{I <: Integer, B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency} <: YieldTermStructure
-  settlementDays::I
+type FlatForwardTermStructure{B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency} <: YieldTermStructure
+  settlementDays::Int
   referenceDate::Date
   calendar::B
   forward::Quote
@@ -97,7 +97,7 @@ type FlatForwardTermStructure{I <: Integer, B <: BusinessCalendar, DC <: DayCoun
   jumpDates::Vector{JumpDate}
 end
 
-function FlatForwardTermStructure{I <: Integer, B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency}(settlement_days::I, referenceDate::Date, calendar::B, forward::Quote, dc::DC,
+function FlatForwardTermStructure{B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency}(settlement_days::Int, referenceDate::Date, calendar::B, forward::Quote, dc::DC,
                                   comp::C = ContinuousCompounding(), freq::F = QuantLib.Time.Annual())
   rate = InterestRate(forward.value, dc, comp, freq)
   FlatForwardTermStructure(settlement_days, referenceDate, calendar, forward, dc, comp, freq, rate, Vector{JumpTime}(0), Vector{JumpDate}(0))

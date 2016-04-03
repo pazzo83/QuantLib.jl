@@ -147,9 +147,9 @@ Floating Rate Bond
       settlementValue::Float64
     end
 
-.. function:: FloatingRateBond(settlementDays::Int, faceAmount::Float64, schedule::Schedule, iborIndex::InterestRateIndex, dc::DayCount, convention::BusinessDayConvention, fixingDays::Int, issueDate::Date, pricingEngine::PricingEngine, inArrears::Bool = false, redemption::Float64 = 100.0, gearings::Vector{Float64} = ones(length(schedule.dates) - 1), spreads::Vector{Float64} = zeros(length(schedule.dates) - 1), caps::Vector{Float64} = Vector{Float64}(), floors::Vector{Float64} = Vector{Float64}())
+.. function:: FloatingRateBond(settlementDays::Int, faceAmount::Float64, schedule::Schedule, iborIndex::InterestRateIndex, dc::DayCount, convention::BusinessDayConvention, fixingDays::Int, issueDate::Date, pricingEngine::PricingEngine, inArrears::Bool = false, redemption::Float64 = 100.0, gearings::Vector{Float64} = ones(length(schedule.dates) - 1), spreads::Vector{Float64} = zeros(length(schedule.dates) - 1), caps::Vector{Float64} = Vector{Float64}(), floors::Vector{Float64} = Vector{Float64}(); cap_vol::OptionletVolatilityStructure=NullOptionletVolatilityStructure())
 
-    Constructor for a floating rate bond
+    Constructor for a floating rate bond, optional argument to pass in an optionlet volatility term structure for the floating rate coupon pricer
 
 
 Zero Coupon Bond

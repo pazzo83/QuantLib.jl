@@ -110,15 +110,15 @@ Log interpolation between points - this must be associated with another interpol
 
     Updates a log interpolation and its interpolator from a given index
 
-.. function:: update!(interp::LogInterpolation) = update!(interp.interpolator)
+.. function:: update!(interp::LogInterpolation)
 
     Updates a log interpolation and its interpolator from the first index
 
-..function:: value(interp::LogInterpolation, val::Float64)
+.. function:: value(interp::LogInterpolation, val::Float64)
 
     Returns the interpolated value
 
-..function:: derivative(interp::LogInterpolation, val::Float64)
+.. function:: derivative(interp::LogInterpolation, val::Float64)
 
     Returns the derivative of the interpolated value
 
@@ -229,7 +229,7 @@ General Optimization types and methods
 
 OptimizationMethod is the abstract base type.  The CostFunction abstract type is the base type for any function passed to an optimization method.  And the Constraint abstract type provides constraints for the optimization method.
 
-Projection
+**Projection**
 
 .. code-block:: julia
 
@@ -251,7 +251,7 @@ The Projection type provides a data structure for actual and fixed parameters fo
     Returns whole set of parameters corresponding to the set of projected parameters
 
 
-Constraints:
+**Constraints:**
 
 .. code-block:: julia
 
@@ -270,7 +270,7 @@ Constraints:
 Various constraint types used in optimization methods
 
 
-End Criteria:
+**End Criteria:**
 
 .. code-block:: julia
 
@@ -284,7 +284,7 @@ End Criteria:
 
 This type provides the end criteria for an optimization method.
 
-Problem:
+**Problem:**
 
 .. code-block:: julia
 
@@ -472,18 +472,19 @@ QuantLib.jl has various integration methods available.  All are derived from an 
 Any integrator has a base "call" method (in Julia, you can make types callable), defined as follows:
 
 .. code-block:: julia
-  function call(integrator::Integrator, f::IntegrationFunction, a::Float64, b::Float64)
-    integrator.evals = 0
-    if a == b
-      return 0.0
-    end
 
-    if (b > a)
-      return integrate(integrator, f, a, b)
-    else
-      return -integrate(integrator, f, b, a)
+    function call(integrator::Integrator, f::IntegrationFunction, a::Float64, b::Float64)
+      integrator.evals = 0
+      if a == b
+        return 0.0
+      end
+
+      if (b > a)
+        return integrate(integrator, f, a, b)
+      else
+        return -integrate(integrator, f, b, a)
+      end
     end
-  end
 
 Gauss Laguerre Integration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -583,7 +584,7 @@ Orthogonal Projection
 Random Number Generation
 ------------------------
 
-We use Julia's built in MersenneTwister RNG for random number generation (RNG), and we have defined types to generate sequences (RSG) based on a few different methods.  We use the StatsFun and Sobol Julia packages here.
+We use Julia's built in MersenneTwister RNG for random number generation (RNG), and we have defined types to generate sequences (RSG) based on a few different methods.  We use the StatsFuns and Sobol Julia packages here.
 
 All sequence generators are derived from:
 
@@ -655,9 +656,9 @@ This RSG uses the Julia package Sobol to generate sequences from the Sobol RNG.
 
 .. code-block:: julia
 
-    type SobolRSG{I <: Integer} <: AbstractRandomSequenceGenerator
+    type SobolRSG <: AbstractRandomSequenceGenerator
       rng::Sobol.SobolSeq
-      dimension::I
+      dimension::Int
       values::Vector{Float64}
       weight::Float64
     end
@@ -787,10 +788,10 @@ Basic Stats Methods
     Calculates the kurtosis of all the samples
 
 
-Non-weighted Stats
+Non-weighted Statistics
 ~~~~~~~~~~~~~~~~~~
 
-The simplest of our stats types, NonWeightedStats simply stores non-weighted samples
+The simplest of our stats types, NonWeightedStatistics simply stores non-weighted samples
 
 .. code-block:: julia
 
@@ -831,7 +832,7 @@ This is the basic weighted stats collector
 
 .. function:: adding_data!(stat::GenericRiskStatistics, sz::Int)
 
-    This prepares the stats collector to accept new samples.  Because we use a matrix to store the samples and their weights, the size of the matrix has to be preallocated with the number of expected samples.  If you are going to then add additional samples, this must be called again with the number of expected samples.
+    This prepares the stats collector to accept new samples.  Because we use a matrix to store the samples and their weights, the size of the matrix has to be preallocated with the number of expected samples.  If you are going to then add additional samples, this must be called again with the number of expected additional samples.
 
 .. function:: add_sample!(stat::GenericRiskStatistics, price::Float64, weight::Float64, idx::Int)
 

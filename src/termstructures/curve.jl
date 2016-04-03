@@ -2,17 +2,17 @@
 
 type NullCurve <: Curve end
 
-type FittingCost{I <: Integer} <: CostFunction
+type FittingCost <: CostFunction
   # value::Vector{Float64}
   # values::Vector{Float64}
-  firstCashFlow::Vector{I}
+  firstCashFlow::Vector{Int}
   curve::Curve
 end
 
-function FittingCost{I <: Integer, C <: Curve}(size::I, curve::C)
+function FittingCost{C <: Curve}(size::Int, curve::C)
   # value = Vector{Float64}()
   # values = Vector{Float64}()
-  firstCashFlow = zeros(I, size)
+  firstCashFlow = zeros(Int, size)
 
   return FittingCost(firstCashFlow, curve)
 end

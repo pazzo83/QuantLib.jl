@@ -196,7 +196,7 @@ function operator(pricingFunc::G2SwaptionPricingFunction)
   return _inner
 end
 
-function gen_swaption{I <: Integer}(model::G2, swaption::Swaption, fixedRate::Float64, range::Float64, intervals::I)
+function gen_swaption(model::G2, swaption::Swaption, fixedRate::Float64, range::Float64, intervals::Int)
   settlement = reference_date(model.ts)
   dc = model.ts.dc
   startTime = year_fraction(dc, settlement, swaption.swap.args.floatingResetDates[1])

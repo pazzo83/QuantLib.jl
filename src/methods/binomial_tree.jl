@@ -1,10 +1,10 @@
 branches(::Type{AbstractBinomialTree}) = 2
 
-type BinomialTreeCommon{I <: Integer}
+type BinomialTreeCommon
   x0::Float64
   driftPerStep::Float64
   dt::Float64
-  columns::I
+  columns::Int
 end
 
 get_x0(t::AbstractBinomialTree) = t.common.x0

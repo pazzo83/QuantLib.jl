@@ -13,7 +13,7 @@ type OneFactorShortRateTree{S <: ShortRateDynamics} <: ShortRateTree
   end
 end
 
-get_size{I <: Integer}(tr::OneFactorShortRateTree, i::I) = get_size(tr.tree, i)
+get_size(tr::OneFactorShortRateTree, i::Int) = get_size(tr.tree, i)
 
 function discount(tr::OneFactorShortRateTree, i::Int, idx::Int)
   x = get_underlying(tr.tree, i, idx)

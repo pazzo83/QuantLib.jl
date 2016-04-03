@@ -1,4 +1,4 @@
-type NullOptionVolatilityStructure <: OptionletVolatilityStructure end
+type NullOptionletVolatilityStructure <: OptionletVolatilityStructure end
 
 type ShiftedLognormalVolType <: VolatilityType end
 type NormalVolType <: VolatilityType end
@@ -25,8 +25,8 @@ end
 volatility_impl(smile::FlatSmileSection, ::Float64) = smile.vol
 volatility(smile::AbstractSmileSection, rate::Float64) = volatility_impl(smile, rate)
 
-type ConstantOptionVolatility{I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount} <: OptionletVolatilityStructure
-  settlementDays::I
+type ConstantOptionVolatility{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount} <: OptionletVolatilityStructure
+  settlementDays::Int
   referenceDate::Date
   calendar::B
   bdc::C
@@ -34,15 +34,15 @@ type ConstantOptionVolatility{I <: Integer, B <: BusinessCalendar, C <: Business
   dc::DC
 end
 
-function ConstantOptionVolatility{I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}(settlementDays::I, calendar::B, bdc::C, volatility::Float64, dc::DC)
+function ConstantOptionVolatility{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}(settlementDays::Int, calendar::B, bdc::C, volatility::Float64, dc::DC)
   today = settings.evaluation_date
   ref_date = advance(Dates.Day(settlementDays), calendar, today, bdc)
   ConstantOptionVolatility(settlementDays, ref_date, calendar, bdc, volatility, dc)
 end
 
 # Swaption Volatility structures
-type ConstantSwaptionVolatility{I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount} <: SwaptionVolatilityStructure
-  settlementDays::I
+type ConstantSwaptionVolatility{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount} <: SwaptionVolatilityStructure
+  settlementDays::Int
   referenceDate::Date
   calendar::B
   bdc::C
@@ -51,13 +51,13 @@ type ConstantSwaptionVolatility{I <: Integer, B <: BusinessCalendar, C <: Busine
 end
 
 # floating reference date, floating market data
-ConstantSwaptionVolatility{I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}(settlementDays::I, cal::B, bdc::C, volatility::Quote, dc::DC) =
+ConstantSwaptionVolatility{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}(settlementDays::Int, cal::B, bdc::C, volatility::Quote, dc::DC) =
                           ConstantSwaptionVolatility(settlementDays, Date(), cal, bdc, volatility, dc)
 
 # Local Vol Term Structure #
-type LocalConstantVol{I <: Integer, DC <: DayCount} <: LocalVolTermStructure
+type LocalConstantVol{DC <: DayCount} <: LocalVolTermStructure
   referenceDate::Date
-  settlementDays::I
+  settlementDays::Int
   volatility::Quote
   dc::DC
 end
