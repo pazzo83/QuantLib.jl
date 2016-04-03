@@ -1,23 +1,23 @@
-type FittedBondDiscountCurve{I <: Integer, C <: BusinessCalendar, B <: BondHelper, DC <: DayCount, F <: FittingMethod} <: Curve
+type FittedBondDiscountCurve{C <: BusinessCalendar, B <: BondHelper, DC <: DayCount, F <: FittingMethod} <: Curve
   lazyMixin::LazyMixin
-  settlementDays::I
+  settlementDays::Int
   referenceDate::Date
   calendar::C
   bonds::Vector{B}
   dc::DC
   fittingMethod::F
   accuracy::Float64
-  maxEvaluations::I
+  maxEvaluations::Int
   simplexLambda::Float64
 
-  FittedBondDiscountCurve(settlementDays::I,
+  FittedBondDiscountCurve(settlementDays::Int,
                           referenceDate::Date,
                           calendar::C,
                           bonds::Vector{B},
                           dc::DC,
                           fittingMethod::F,
                           accuracy::Float64,
-                          maxEvaluations::I,
+                          maxEvaluations::Int,
                           simplexLambda::Float64) =
 
                           (x = new(LazyMixin(), settlementDays, referenceDate, calendar, bonds, dc, fittingMethod, accuracy, maxEvaluations, simplexLambda);
@@ -36,9 +36,9 @@ type FittedBondDiscountCurve{I <: Integer, C <: BusinessCalendar, B <: BondHelpe
   # end
 end
 
-FittedBondDiscountCurve{I <: Integer, C <: BusinessCalendar, B <: BondHelper, DC <: DayCount, F <: FittingMethod}(settlementDays::I, referenceDate::Date, calendar::C, bonds::Vector{B}, dc::DC, fittingMethod::F, accuracy::Float64=1e-10,
-                                     maxEvaluations::I=10000, simplexLambda::Float64=1.0) =
-                                     FittedBondDiscountCurve{I, C, B, DC, F}(settlementDays, referenceDate, calendar, bonds, dc, fittingMethod, accuracy, maxEvaluations, simplexLambda)
+FittedBondDiscountCurve{C <: BusinessCalendar, B <: BondHelper, DC <: DayCount, F <: FittingMethod}(settlementDays::Int, referenceDate::Date, calendar::C, bonds::Vector{B}, dc::DC, fittingMethod::F, accuracy::Float64=1e-10,
+                                     maxEvaluations::Int=10000, simplexLambda::Float64=1.0) =
+                                     FittedBondDiscountCurve{C, B, DC, F}(settlementDays, referenceDate, calendar, bonds, dc, fittingMethod, accuracy, maxEvaluations, simplexLambda)
 
 ### Fitted curve methods ###
 discount_impl(curve::FittedBondDiscountCurve, t::Float64) = discount_function(curve.fittingMethod, curve.fittingMethod.commons.solution, t)

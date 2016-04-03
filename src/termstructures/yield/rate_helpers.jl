@@ -5,9 +5,9 @@ type SwapRateHelper{PrT <: Dates.Period, PrS <: Dates.Period} <: RateHelper
   swap::VanillaSwap
 end
 
-function SwapRateHelper{PrT <: Dates.Period, C <: BusinessCalendar, F <: Frequency, B <: BusinessDayConvention, DC <: DayCount, PrS <: Dates.Period, P <: PricingEngine, I <: Integer, ST <: SwapType}(rate::Float64, tenor::PrT, cal::C,
+function SwapRateHelper{PrT <: Dates.Period, C <: BusinessCalendar, F <: Frequency, B <: BusinessDayConvention, DC <: DayCount, PrS <: Dates.Period, P <: PricingEngine, ST <: SwapType}(rate::Float64, tenor::PrT, cal::C,
                     fixedFrequency::F, fixedConvention::B, fixedDayCount::DC, iborIndex::IborIndex, spread::Float64, fwdStart::PrS,
-                    pricingEngine::P = DiscountingSwapEngine(), settlementDays::I = iborIndex.fixingDays, nominal::Float64 = 1.0, swapT::ST = Payer(), fixedRate::Float64 = 0.0)
+                    pricingEngine::P = DiscountingSwapEngine(), settlementDays::Int = iborIndex.fixingDays, nominal::Float64 = 1.0, swapT::ST = Payer(), fixedRate::Float64 = 0.0)
   # do stuff
   fixedCal = cal
   floatingCal = cal
@@ -39,10 +39,10 @@ end
 
 maturity_date(sh::SwapRateHelper) = maturity_date(sh.swap)
 
-type DepositRateHelper{I <: Integer, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount} <: RateHelper
+type DepositRateHelper{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount} <: RateHelper
   rate::Quote
   tenor::TenorPeriod
-  fixingDays::I
+  fixingDays::Int
   calendar::B
   convention::C
   endOfMonth::Bool

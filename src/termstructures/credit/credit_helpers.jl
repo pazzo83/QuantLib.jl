@@ -1,7 +1,7 @@
-type SpreadCDSHelper{P <: Dates.Period, I <: Integer, C <: BusinessCalendar, F <: Frequency, PC <: BusinessDayConvention, DC <: DayCount, YTS <: YieldTermStructure, PROB <: AbstractDefaultProbabilityTermStructure} <: AbstractCDSHelper
+type SpreadCDSHelper{P <: Dates.Period, C <: BusinessCalendar, F <: Frequency, PC <: BusinessDayConvention, DC <: DayCount, YTS <: YieldTermStructure, PROB <: AbstractDefaultProbabilityTermStructure} <: AbstractCDSHelper
   runningSpread::Quote
   tenor::P
-  settlementDays::I
+  settlementDays::Int
   calendar::C
   frequency::F
   paymentConvention::PC
@@ -16,17 +16,17 @@ type SpreadCDSHelper{P <: Dates.Period, I <: Integer, C <: BusinessCalendar, F <
   swap::CreditDefaultSwap
 
   # main constructor
-  SpreadCDSHelper(runningSpread::Quote, tenor::P, settlementDays::I, calendar::C, frequency::F, paymentConvention::PC, dc::DC, recoveryRate::Float64, schedule::Schedule,
+  SpreadCDSHelper(runningSpread::Quote, tenor::P, settlementDays::Int, calendar::C, frequency::F, paymentConvention::PC, dc::DC, recoveryRate::Float64, schedule::Schedule,
                   discountCurve::YTS, settlesAccrual::Bool, paysAtDefaultTime::Bool, protectionStart::Date, probability::PROB) =
                   new(runningSpread, tenor, settlementDays, calendar, frequency, paymentConvention, dc, recoveryRate, schedule, discountCurve, settlesAccrual, paysAtDefaultTime, protectionStart, probability)
 end
 
 # Catch all constructor
-SpreadCDSHelper{P <: Dates.Period, I <: Integer, C <: BusinessCalendar, F <: Frequency, PC <: BusinessDayConvention, DC <: DayCount, YTS <: YieldTermStructure, PROB <: AbstractDefaultProbabilityTermStructure}(
-                runningSpread::Quote, tenor::P, settlementDays::I, calendar::C, frequency::F, paymentConvention::PC, dc::DC, recoveryRate::Float64,
+SpreadCDSHelper{P <: Dates.Period, C <: BusinessCalendar, F <: Frequency, PC <: BusinessDayConvention, DC <: DayCount, YTS <: YieldTermStructure, PROB <: AbstractDefaultProbabilityTermStructure}(
+                runningSpread::Quote, tenor::P, settlementDays::Int, calendar::C, frequency::F, paymentConvention::PC, dc::DC, recoveryRate::Float64,
                 schedule::Schedule, discountCurve::YTS, settlesAccrual::Bool, paysAtDefaultTime::Bool, protectionStart::Date, probability::PROB = NullDefaultProbabilityTermStructure()) =
 
-                SpreadCDSHelper{P, I, C, F, PC, DC, YTS, PROB}(runningSpread, tenor, settlementDays, calendar, frequency, paymentConvention, dc, recoveryRate, schedule, discountCurve,
+                SpreadCDSHelper{P, C, F, PC, DC, YTS, PROB}(runningSpread, tenor, settlementDays, calendar, frequency, paymentConvention, dc, recoveryRate, schedule, discountCurve,
                                 settlesAccrual, paysAtDefaultTime, protectionStart, probability)
 
 # main outer constructor

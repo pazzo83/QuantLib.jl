@@ -8,9 +8,9 @@ num_evals(integration::HestonGaussLaguerre) = get_order(integration.integration)
 
 type Gatheral <: ComplexLogFormula end
 
-type AnalyticHestonEngine{I <: Integer, C <: ComplexLogFormula, HI <: HestonIntegration} <: AbstractHestonEngine
+type AnalyticHestonEngine{C <: ComplexLogFormula, HI <: HestonIntegration} <: AbstractHestonEngine
   model::HestonModel
-  evaluations::I
+  evaluations::Int
   cpxLog::C
   integration::HI
 end

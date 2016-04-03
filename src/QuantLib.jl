@@ -274,7 +274,7 @@ export
     MonteCarloModel, PathGenerator, add_samples!, Path,
 
     # pricing_engines/pricing_engines.jl
-    DiscountingBondEngine, DiscountingSwapEngine, MidPointCdsEngine, TreeCallibleFixedRateEngine,
+    DiscountingBondEngine, DiscountingSwapEngine, MidPointCdsEngine, TreeCallableFixedRateEngine,
 
     # pricing_engines/black_calculator.jl
     BlackCalculator, value, delta, vega,
@@ -283,7 +283,7 @@ export
     DiscretizedSwaption, DiscretizedSwap,
 
     # pricing_engines/swaption_engines
-    G2SwaptionEngine, JamshidianSwaptionEngine, TreeSwaptionEngine, FdG2SwaptionEngine, FdHullWhiteSwaptionEngine, Gaussian1DSwaptionEngine, Gaussian1DNonstandardSwaptionEngine,
+    BlackSwaptionEngine, G2SwaptionEngine, JamshidianSwaptionEngine, TreeSwaptionEngine, FdG2SwaptionEngine, FdHullWhiteSwaptionEngine, Gaussian1DSwaptionEngine, Gaussian1DNonstandardSwaptionEngine,
 
     # pricing_engines/vanilla
     AnalyticEuropeanEngine, AnalyticHestonEngine, BatesEngine, BaroneAdesiWhaleyApproximationEngine, BjerksundStenslandApproximationEngine, IntegralEngine,

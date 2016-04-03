@@ -37,7 +37,7 @@ end
 function ConstantOptionVolatility{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}(settlementDays::Int, calendar::B, bdc::C, volatility::Float64, dc::DC)
   today = settings.evaluation_date
   ref_date = advance(Dates.Day(settlementDays), calendar, today, bdc)
-  ConstantOptionVolatility(settlementDays, ref_date, calendar, bdc, volatility, dc)
+  ConstantOptionVolatility{B, C, DC}(settlementDays, ref_date, calendar, bdc, volatility, dc)
 end
 
 # Swaption Volatility structures
@@ -52,7 +52,7 @@ end
 
 # floating reference date, floating market data
 ConstantSwaptionVolatility{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}(settlementDays::Int, cal::B, bdc::C, volatility::Quote, dc::DC) =
-                          ConstantSwaptionVolatility(settlementDays, Date(), cal, bdc, volatility, dc)
+                          ConstantSwaptionVolatility{B, C, DC}(settlementDays, Date(), cal, bdc, volatility, dc)
 
 # Local Vol Term Structure #
 type LocalConstantVol{DC <: DayCount} <: LocalVolTermStructure

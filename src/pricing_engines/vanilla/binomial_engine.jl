@@ -1,6 +1,6 @@
-type BinomialVanillaEngine{P <: AbstractBlackScholesProcess, I <: Integer, T <: BinomialTreeType} <: AbstractVanillaEngine
+type BinomialVanillaEngine{P <: AbstractBlackScholesProcess, T <: BinomialTreeType} <: AbstractVanillaEngine
   process::P
-  timeSteps::I
+  timeSteps::Int
   treeClass::Type{T}
 end
 

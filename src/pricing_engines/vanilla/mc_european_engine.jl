@@ -1,12 +1,12 @@
-type MCEuropeanEngine{S <: AbstractBlackScholesProcess, I <: Integer} <: MCVanillaEngine
+type MCEuropeanEngine{S <: AbstractBlackScholesProcess} <: MCVanillaEngine
   process::S
-  timeSteps::I
-  timeStepsPerYear::I
-  requiredSamples::I
-  maxSamples::I
+  timeSteps::Int
+  timeStepsPerYear::Int
+  requiredSamples::Int
+  maxSamples::Int
   requiredTolerance::Float64
   brownianBridge::Bool
-  seed::I
+  seed::Int
   mcSimulation::MCSimulation
 end
 

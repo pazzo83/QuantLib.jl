@@ -38,7 +38,7 @@ type ModifiedFollowing <: BusinessDayConvention end
 type Following <: BusinessDayConvention end
 
 # easter functions
-function easter_rata{I <: Integer}(y::I)
+function easter_rata(y::Int)
 
   c::Int64
 	e::Int64
@@ -69,7 +69,7 @@ function easter_rata{I <: Integer}(y::I)
 end
 
 # Returns Date
-function easter_date{I <: Integer}(y::I)
+function easter_date(y::Int)
 	# Compute the gregorian date for Rata Die number
      return Date(Dates.rata2datetime( easter_rata(y) ))
 end
@@ -78,7 +78,7 @@ end
 # advance{B <: BusinessDayConvention}(time_period::Day, cal::NullCalendar, dt::Date, ::B) = dt += time_period
 # advance{B <: BusinessDayConvention}(time_period::Union{Week, Month, Year}, cal::NullCalendar, dt::Date, ::B) = dt += time_period
 
-function advance{C <: BusinessCalendar, B <: BusinessDayConvention}(days::Day, cal::C, dt::Date, biz_conv::B = Following())
+function advance(days::Day, cal::BusinessCalendar, dt::Date, biz_conv::BusinessDayConvention = Following())
   n = Int(days)
   if n > 0
     while n > 0
@@ -101,14 +101,14 @@ function advance{C <: BusinessCalendar, B <: BusinessDayConvention}(days::Day, c
   return dt
 end
 
-function advance{C <: BusinessCalendar, B <: BusinessDayConvention}(time_period::Union{Week, Month, Year}, cal::C, dt::Date, biz_conv::B = Following())
+function advance(time_period::Union{Week, Month, Year}, cal::BusinessCalendar, dt::Date, biz_conv::BusinessDayConvention = Following())
   dt += time_period
   return adjust(cal, biz_conv, dt)
 end
 
 is_business_day(cal::NullCalendar, ::Date) = true
 
-function is_business_day{C <: BusinessCalendar}(cal::C, dt::Date)
+function is_business_day(cal::BusinessCalendar, dt::Date)
   if dayofweek(dt) in [6, 7] || is_holiday(cal, dt)
     return false
   else
@@ -385,9 +385,9 @@ function is_holiday(::TargetCalendar, dt::Date)
 end
 
 # adjustments
-adjust{B <: BusinessCalendar}(::B, ::Unadjusted, d::Date) = d
+adjust(::BusinessCalendar, ::Unadjusted, d::Date) = d
 
-function adjust{B <: BusinessCalendar}(cal::B, ::Union{ModifiedFollowing, Following}, d::Date)
+function adjust(cal::BusinessCalendar, ::Union{ModifiedFollowing, Following}, d::Date)
   while !is_business_day(cal, d)
     d += Day(1)
   end

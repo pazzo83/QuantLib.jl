@@ -117,7 +117,7 @@ function _calculate!{T <: TermStructure}(boot::IterativeBootstrap, ts::T)
   return ts
 end
 
-function bootstrap_error{I <: Integer, T <: BootstrapHelper, Y <: TermStructure}(i::I, inst::T, ts::Y)
+function bootstrap_error{T <: BootstrapHelper, Y <: TermStructure}(i::Int, inst::T, ts::Y)
   function bootstrap_error_inner(g::Float64)
     # update trait
     update_guess!(ts.trait, i, ts, g)

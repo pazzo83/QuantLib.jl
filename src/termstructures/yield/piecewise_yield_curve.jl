@@ -1,6 +1,6 @@
-type PiecewiseYieldCurve{I <: Integer, B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap} <: InterpolatedCurve{P, T}
+type PiecewiseYieldCurve{B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap} <: InterpolatedCurve{P, T}
   lazyMixin::LazyMixin
-  settlementDays::I
+  settlementDays::Int
   referenceDate::Date
   instruments::Vector{B}
   dc::DC

@@ -1,9 +1,9 @@
-type TreeCallibleFixedRateEngine{S <: ShortRateModel} <: LatticeShortRateModelEngine{S}
+type TreeCallableFixedRateEngine{S <: ShortRateModel} <: LatticeShortRateModelEngine{S}
   model::S
   timeSteps::Int
   common::LatticeShortRateModelEngineCommon
 
-  function TreeCallibleFixedRateEngine{S}(model::S, timeSteps::Int)
+  function TreeCallableFixedRateEngine{S}(model::S, timeSteps::Int)
     te = new{S}(model, timeSteps)
 
     add_observer!(model, te)
@@ -12,9 +12,9 @@ type TreeCallibleFixedRateEngine{S <: ShortRateModel} <: LatticeShortRateModelEn
   end
 end
 
-TreeCallibleFixedRateEngine{S <: ShortRateModel}(model::S, timeSteps::Int) = TreeCallibleFixedRateEngine{S}(model, timeSteps)
+TreeCallableFixedRateEngine{S <: ShortRateModel}(model::S, timeSteps::Int) = TreeCallableFixedRateEngine{S}(model, timeSteps)
 
-function _calculate!(pe::TreeCallibleFixedRateEngine, bond::CallableFixedRateBond)
+function _calculate!(pe::TreeCallableFixedRateEngine, bond::CallableFixedRateBond)
   tsmodel = pe.model
 
   refDate = reference_date(tsmodel.ts)

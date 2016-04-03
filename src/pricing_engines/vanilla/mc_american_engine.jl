@@ -1,10 +1,10 @@
-type LongstaffSchwartzPathPricer{E <: EarlyExercisePathPricer, I <: Integer, T} <: AbstractPathPricer
+type LongstaffSchwartzPathPricer{E <: EarlyExercisePathPricer, T} <: AbstractPathPricer
   calibrationPhase::Bool
   pathPricer::E
   coeff::Vector{Vector{Float64}}
   dF::Vector{Float64}
   paths::Vector{Path}
-  len::I
+  len::Int
   exerciseProbability::NonWeightedStatistics
   v::Vector{T}
 end
@@ -23,24 +23,24 @@ function LongstaffSchwartzPathPricer(tg::TimeGrid, ep::EarlyExercisePathPricer, 
   return LongstaffSchwartzPathPricer(true, ep, coeff, dF, paths, len, NonWeightedStatistics(), v)
 end
 
-type MCAmericanEngine{S <: AbstractBlackScholesProcess, I <: Integer, P <: LsmBasisSystemPolynomType} <: MCLongstaffSchwartzEngine
+type MCAmericanEngine{S <: AbstractBlackScholesProcess, P <: LsmBasisSystemPolynomType} <: MCLongstaffSchwartzEngine
   process::S
-  timeSteps::I
-  timeStepsPerYear::I
-  requiredSamples::I
-  maxSamples::I
+  timeSteps::Int
+  timeStepsPerYear::Int
+  requiredSamples::Int
+  maxSamples::Int
   requiredTolerance::Float64
   brownianBridge::Bool
-  seed::I
-  nCalibrationSamples::I
-  polynomOrder::I
+  seed::Int
+  nCalibrationSamples::Int
+  polynomOrder::Int
   polynomType::P
   mcSimulation::MCSimulation
   pathPricer::LongstaffSchwartzPathPricer
 
-  MCAmericanEngine{S, I, P}(process::S, timeSteps::I, timeStepsPerYear::I, requiredSamples::I, maxSamples::I, requiredTolerance::Float64, brownianBridge::Bool,
-                            seed::I, nCalibrationSamples::I, polynomOrder::I, polynomType::P, mcSimulation::MCSimulation) =
-                            new{S, I, P}(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed,
+  MCAmericanEngine{S, P}(process::S, timeSteps::Int, timeStepsPerYear::Int, requiredSamples::Int, maxSamples::Int, requiredTolerance::Float64, brownianBridge::Bool,
+                            seed::Int, nCalibrationSamples::Int, polynomOrder::Int, polynomType::P, mcSimulation::MCSimulation) =
+                            new{S, P}(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed,
                                         nCalibrationSamples, polynomOrder, polynomType, mcSimulation)
 end
 
@@ -50,7 +50,7 @@ function MCAmericanEngine{RSG <: AbstractRandomSequenceGenerator, S <: AbstractB
   # build mc sim
   mcSim = MCSimulation{RSG, SingleVariate}(antitheticVariate, false, rsg, SingleVariate())
 
-  return MCAmericanEngine{S, Int, typeof(polynomType)}(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed,
+  return MCAmericanEngine{S, typeof(polynomType)}(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed,
                                                       nCalibrationSamples, polynomOrder, polynomType, mcSim)
 end
 
@@ -169,7 +169,7 @@ function calibrate!(lpp::LongstaffSchwartzPathPricer)
       end
     end
   end
-  
+
   # remove calibration paths & release memory
   lpp.paths = Path[]
   # entering calculation phase

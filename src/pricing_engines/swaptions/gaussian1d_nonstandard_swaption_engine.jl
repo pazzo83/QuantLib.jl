@@ -1,6 +1,6 @@
-type Gaussian1DNonstandardSwaptionEngine{G <: Gaussian1DModel, I <: Integer, Y <: YieldTermStructure, P <: GaussianProbabilities} <: PricingEngine
+type Gaussian1DNonstandardSwaptionEngine{G <: Gaussian1DModel, Y <: YieldTermStructure, P <: GaussianProbabilities} <: PricingEngine
   model::G
-  integrationPoints::I
+  integrationPoints::Int
   stddevs::Float64
   extrapolatePayoff::Bool
   flatPayoffExtrapolation::Bool
@@ -9,10 +9,10 @@ type Gaussian1DNonstandardSwaptionEngine{G <: Gaussian1DModel, I <: Integer, Y <
   probabilities::P
 end
 
-Gaussian1DNonstandardSwaptionEngine{G <: Gaussian1DModel, I <: Integer, Y <: YieldTermStructure, P <: GaussianProbabilities}(model::G, integrationPoints::I = 64, stddevs::Float64 = 7.0,
+Gaussian1DNonstandardSwaptionEngine{G <: Gaussian1DModel, Y <: YieldTermStructure, P <: GaussianProbabilities}(model::G, integrationPoints::Int = 64, stddevs::Float64 = 7.0,
                         extrapolatePayoff::Bool = true, flatPayoffExtrapolation::Bool = false, oas::Quote = Quote(-1.0), discountCurve::Y = NullYieldTermStructure(),
                         probabilities::P = NoneProbabilities()) =
-                        Gaussian1DNonstandardSwaptionEngine{G, I, Y, P}(model, integrationPoints, stddevs, extrapolatePayoff, flatPayoffExtrapolation, oas, discountCurve, probabilities)
+                        Gaussian1DNonstandardSwaptionEngine{G, Y, P}(model, integrationPoints, stddevs, extrapolatePayoff, flatPayoffExtrapolation, oas, discountCurve, probabilities)
 
 # methods #
 function _calculate!(pe::Gaussian1DNonstandardSwaptionEngine, swaption::NonstandardSwaption)

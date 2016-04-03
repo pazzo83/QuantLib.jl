@@ -20,7 +20,7 @@ function PiecewiseDefaultCurve{B <: BootstrapHelper, DC <: DayCount, P <: Interp
   # get the initial length of instruments
   n = length(instruments)
   # create an initial state of the curve
-  pyc = PiecewiseDefaultCurve(LazyMixin(),
+  pyc = PiecewiseDefaultCurve{B, DC, P, T, BT}(LazyMixin(),
                             0,
                             referenceDate,
                             instruments,

@@ -47,7 +47,7 @@ function main()
 
   sigma = eps()
   hw0 = HullWhite(ts, reversionParameter, sigma)
-  engine0 = TreeCallibleFixedRateEngine(hw0, gridIntervals)
+  engine0 = TreeCallableFixedRateEngine(hw0, gridIntervals)
 
   callableBond = CallableFixedRateBond(settlementDays, faceAmount, schedule, coupon, bondDayCount, paymentConvention, redemption, issue, callSchedule, engine0)
 

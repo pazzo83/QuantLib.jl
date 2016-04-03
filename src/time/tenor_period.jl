@@ -4,7 +4,7 @@ type TenorPeriod
 end
 
 # Constructors
-function TenorPeriod{F <: Frequency}(f::F)
+function TenorPeriod(f::Frequency)
   freq = value(f)
   if freq < 0
     period = Dates.Day(0)

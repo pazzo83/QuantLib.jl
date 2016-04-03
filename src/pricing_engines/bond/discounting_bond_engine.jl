@@ -1,14 +1,16 @@
 type DiscountingBondEngine{Y <: YieldTermStructure} <: PricingEngine
   yts::Y
 
-  function call(::Type{DiscountingBondEngine})
-    new{YieldTermStructure}()
-  end
-
-  function call{Y}(::Type{DiscountingBondEngine}, yts::Y)
-    new{Y}(yts)
-  end
+  # function call(::Type{DiscountingBondEngine})
+  #   new{YieldTermStructure}()
+  # end
+  #
+  # function call{Y}(::Type{DiscountingBondEngine}, yts::Y)
+  #   new{Y}(yts)
+  # end
 end
+
+DiscountingBondEngine() = DiscountingBondEngine{NullYieldTermStructure}(NullYieldTermStructure())
 
 function _calculate!{B <: Bond}(pe::DiscountingBondEngine, bond::B)
   yts = pe.yts

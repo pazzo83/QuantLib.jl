@@ -8,7 +8,7 @@ type TimeGrid
   mandatoryTimes::Vector{Float64}
 end
 
-function TimeGrid{I <: Integer}(times::Vector{Float64}, steps::I)
+function TimeGrid(times::Vector{Float64}, steps::Int)
   sortedUniqueTimes = sort(unique(times))
 
   lastTime = sortedUniqueTimes[end]

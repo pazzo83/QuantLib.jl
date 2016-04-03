@@ -1,7 +1,7 @@
-type FDEuropeanEngine{B <: AbstractBlackScholesProcess, I <: Integer} <: AbstractFDVanillaEngine
+type FDEuropeanEngine{B <: AbstractBlackScholesProcess} <: AbstractFDVanillaEngine
   process::B
-  timeSteps::I
-  gridPoints::I
+  timeSteps::Int
+  gridPoints::Int
   timeDependent::Bool
   exerciseDate::Date
   finiteDifferenceOperator::TridiagonalOperator
@@ -25,10 +25,10 @@ function FDEuropeanEngine(process::AbstractBlackScholesProcess, fdEvolverFunc::F
                           intrinsicValues, BCs, sMin, center, sMax, prices, fdEvolverFunc)
 end
 
-type FDBermudanEngine{B <: AbstractBlackScholesProcess, I <: Integer} <: FDMultiPeriodEngine
+type FDBermudanEngine{B <: AbstractBlackScholesProcess} <: FDMultiPeriodEngine
   process::B
-  timeSteps::I
-  gridPoints::I
+  timeSteps::Int
+  gridPoints::Int
   timeDependent::Bool
   exerciseDate::Date
   finiteDifferenceOperator::TridiagonalOperator
@@ -39,7 +39,7 @@ type FDBermudanEngine{B <: AbstractBlackScholesProcess, I <: Integer} <: FDMulti
   sMax::Float64
   prices::SampledCurve
   stoppingTimes::Vector{Float64}
-  timeStepPerPeriod::I
+  timeStepPerPeriod::Int
   fdEvolverFunc::Function
 end
 
@@ -56,10 +56,10 @@ function FDBermudanEngine(process::AbstractBlackScholesProcess, fdEvolverFunc::F
                           intrinsicValues, BCs, sMin, center, sMax, prices, stoppingTimes, timeStepPerPeriod, fdEvolverFunc)
 end
 
-type FDAmericanEngine{B <: AbstractBlackScholesProcess, I <: Integer} <: FDStepConditionEngine
+type FDAmericanEngine{B <: AbstractBlackScholesProcess} <: FDStepConditionEngine
   process::B
-  timeSteps::I
-  gridPoints::I
+  timeSteps::Int
+  gridPoints::Int
   timeDependent::Bool
   exerciseDate::Date
   finiteDifferenceOperator::TridiagonalOperator

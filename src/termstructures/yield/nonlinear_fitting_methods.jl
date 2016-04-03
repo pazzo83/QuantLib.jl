@@ -1,15 +1,15 @@
 # using FloatFloat
 
-type FittingMethodCommons{T, I <: Integer}
+type FittingMethodCommons{T <: Real}
   solution::Vector{T}
   guessSolution::Vector{T}
-  numberOfIterations::I
+  numberOfIterations::Int
   minimumCostValue::Float64
   weights::Vector{T}
   costFunction::FittingCost
 end
 
-function FittingMethodCommons{I <: Integer}(size::I, gsize::I)
+function FittingMethodCommons(size::Int, gsize::Int)
   solution = zeros(size)
   # solution = Vector{DD}(size)
   guessSolution = zeros(gsize)
@@ -24,13 +24,13 @@ function FittingMethodCommons{I <: Integer}(size::I, gsize::I)
   return FittingMethodCommons(solution, guessSolution, numberOfIterations, minimumCostValue, weights, costFunction)
 end
 
-type ExponentialSplinesFitting{I <: Integer} <: FittingMethod
+type ExponentialSplinesFitting <: FittingMethod
   constrainAtZero::Bool
-  size::I
+  size::Int
   commons::FittingMethodCommons
 end
 
-function ExponentialSplinesFitting{I <: Integer}(constrainAtZero::Bool, size::I)
+function ExponentialSplinesFitting(constrainAtZero::Bool, size::Int)
   if constrainAtZero
     gsize = 9
   else
@@ -42,14 +42,14 @@ function ExponentialSplinesFitting{I <: Integer}(constrainAtZero::Bool, size::I)
   return ExponentialSplinesFitting(constrainAtZero, gsize, commons)
 end
 
-type SimplePolynomialFitting{I <: Integer} <: FittingMethod
+type SimplePolynomialFitting <: FittingMethod
   constrainAtZero::Bool
-  degree::I
-  size::I
+  degree::Int
+  size::Int
   commons::FittingMethodCommons
 end
 
-function SimplePolynomialFitting{I <: Integer}(constrainAtZero::Bool, degree::I, size::I)
+function SimplePolynomialFitting(constrainAtZero::Bool, degree::Int, size::Int)
   if constrainAtZero
     gsize = degree
   else
@@ -61,13 +61,13 @@ function SimplePolynomialFitting{I <: Integer}(constrainAtZero::Bool, degree::I,
   return SimplePolynomialFitting(constrainAtZero, degree, gsize, commons)
 end
 
-type NelsonSiegelFitting{I <: Integer} <: FittingMethod
+type NelsonSiegelFitting <: FittingMethod
   constrainAtZero::Bool
-  size::I
+  size::Int
   commons::FittingMethodCommons
 end
 
-function NelsonSiegelFitting{I <: Integer}(size::I)
+function NelsonSiegelFitting(size::Int)
   constrainAtZero = true
   gsize = 4
 
@@ -76,13 +76,13 @@ function NelsonSiegelFitting{I <: Integer}(size::I)
   return NelsonSiegelFitting(constrainAtZero, gsize, commons)
 end
 
-type SvenssonFitting{I <: Integer} <: FittingMethod
+type SvenssonFitting <: FittingMethod
   constrainAtZero::Bool
-  size::I
+  size::Int
   commons::FittingMethodCommons
 end
 
-function SvenssonFitting{I <: Integer}(size::I)
+function SvenssonFitting(size::Int)
   constrainAtZero = true
   gsize = 6
 
@@ -91,15 +91,15 @@ function SvenssonFitting{I <: Integer}(size::I)
   return SvenssonFitting(constrainAtZero, gsize, commons)
 end
 
-type CubicBSplinesFitting{I <: Integer} <: FittingMethod
+type CubicBSplinesFitting <: FittingMethod
   constrainAtZero::Bool
-  size::I
+  size::Int
   knots::Vector{Float64}
   splines::BSpline
-  N::I
+  N::Int
   commons::FittingMethodCommons
 
-  function CubicBSplinesFitting(constrainAtZero::Bool, knots::Vector{Float64}, size::I)
+  function CubicBSplinesFitting(constrainAtZero::Bool, knots::Vector{Float64}, size::Int)
     m = length(knots)
     m >= 8 || error("At least 8 knots are required")
 
@@ -121,7 +121,7 @@ type CubicBSplinesFitting{I <: Integer} <: FittingMethod
   end
 end
 
-CubicBSplinesFitting{I <: Integer}(constrainAtZero::Bool, knots::Vector{Float64}, size::I) = CubicBSplinesFitting{I}(constrainAtZero, knots, size)
+# CubicBSplinesFitting(constrainAtZero::Bool, knots::Vector{Float64}, size::Int) = CubicBSplinesFitting(constrainAtZero, knots, size)
 
 
 # function ExponentialSplinesFitting(constrainAtZero::Bool, size::Integer)
@@ -146,7 +146,7 @@ guess_size(fitting::ExponentialSplinesFitting) = fitting.constrainAtZero ? 9 : 1
 guess_size(fitting::SimplePolynomialFitting) = fitting.constrainAtZero ? fitting.degree : fitting.degree + 1
 
 # Discount functions
-function discount_function{T}(method::ExponentialSplinesFitting, x::Vector{T}, t::Float64)
+function discount_function{T <: Real}(method::ExponentialSplinesFitting, x::Vector{T}, t::Float64)
   d = 0.0
   N = guess_size(method)
   kappa = x[N]
@@ -166,7 +166,7 @@ function discount_function{T}(method::ExponentialSplinesFitting, x::Vector{T}, t
   return d
 end
 
-function discount_function{T}(method::SimplePolynomialFitting, x::Vector{T}, t::Float64)
+function discount_function{T <: Real}(method::SimplePolynomialFitting, x::Vector{T}, t::Float64)
   d = 0.0
   N = method.size
 
@@ -184,7 +184,7 @@ function discount_function{T}(method::SimplePolynomialFitting, x::Vector{T}, t::
   return d
 end
 
-function discount_function{T}(method::NelsonSiegelFitting, x::Vector{T}, t::Float64)
+function discount_function{T <: Real}(method::NelsonSiegelFitting, x::Vector{T}, t::Float64)
   kappa = x[method.size]
   @inbounds zero_rate = x[1] + (x[2] + x[3]) * (1.0 - exp(-kappa * t)) / ((kappa + QuantLib.Math.EPS_VAL) * (t + QuantLib.Math.EPS_VAL)) - (x[3]) * exp(-kappa * t)
   d = exp(-zero_rate * t)
@@ -192,7 +192,7 @@ function discount_function{T}(method::NelsonSiegelFitting, x::Vector{T}, t::Floa
   return d
 end
 
-function discount_function{T}(method::SvenssonFitting, x::Vector{T}, t::Float64)
+function discount_function{T <: Real}(method::SvenssonFitting, x::Vector{T}, t::Float64)
   kappa = x[method.size - 1]
   kappa_1 = x[method.size]
   eps_v = QuantLib.Math.EPS_VAL
@@ -203,7 +203,7 @@ function discount_function{T}(method::SvenssonFitting, x::Vector{T}, t::Float64)
   return d
 end
 
-function discount_function{T}(method::CubicBSplinesFitting, x::Vector{T}, t::Float64)
+function discount_function{T <: Real}(method::CubicBSplinesFitting, x::Vector{T}, t::Float64)
   d = 0.0
   if !method.constrainAtZero
     for i = 1:method.size

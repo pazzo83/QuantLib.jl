@@ -9,7 +9,8 @@ type DiscretizedSwap{ST <: SwapType} <: DiscretizedAsset
   common::DiscretizedAssetCommon
 end
 
-function DiscretizedSwap{DC <: DayCount, ST <: SwapType}(nominal::Float64, swapT::ST, referenceDate::Date, dc::DC, fixedPayDates::Vector{Date}, fixedResetDates::Vector{Date}, floatingPayDates::Vector{Date}, floatingResetDates::Vector{Date}, args::VanillaSwapArgs)
+function DiscretizedSwap{DC <: DayCount, ST <: SwapType}(nominal::Float64, swapT::ST, referenceDate::Date, dc::DC, fixedPayDates::Vector{Date}, fixedResetDates::Vector{Date},
+                        floatingPayDates::Vector{Date}, floatingResetDates::Vector{Date}, args::VanillaSwapArgs)
   fixed_n = length(fixedPayDates)
   float_n = length(floatingPayDates)
 

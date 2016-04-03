@@ -2,14 +2,17 @@ type DiscountingSwapEngine{Y <: YieldTermStructure} <: PricingEngine
   yts::Y
   includeSettlementDateFlows::Bool
 
-  function call(::Type{DiscountingSwapEngine})
-    new{YieldTermStructure}()
-  end
-
-  function call{Y}(::Type{DiscountingSwapEngine}, yts::Y, includeSettlementDateFlows::Bool = true)
-    new{Y}(yts, includeSettlementDateFlows)
-  end
+  # function call(::Type{DiscountingSwapEngine})
+  #   new{YieldTermStructure}()
+  # end
+  #
+  # function call{Y}(::Type{DiscountingSwapEngine}, yts::Y, includeSettlementDateFlows::Bool = true)
+  #   new{Y}(yts, includeSettlementDateFlows)
+  # end
 end
+
+DiscountingSwapEngine() = DiscountingSwapEngine{NullYieldTermStructure}(NullYieldTermStructure(), true)
+DiscountingSwapEngine{Y <: YieldTermStructure}(yts::Y, includeSettlementDateFlows::Bool = true) = DiscountingSwapEngine{Y}(yts, includeSettlementDateFlows)
 
 function _calculate!{S <: Swap}(pe::DiscountingSwapEngine, swap::S)
   # stuff
