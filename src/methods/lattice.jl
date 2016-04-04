@@ -267,7 +267,7 @@ function step_back!(lattice::TreeLattice, i::Int, vals::Vector{Float64}, newVals
     @simd for l = 1:lattice.n
       @inbounds val += probability(lattice.impl, i, j, l) * vals[descendant(lattice.impl, i, j, l)]
     end
-    val *= discount(lattice.impl, i, j)
+    @inbounds val *= discount(lattice.impl, i, j)
     @inbounds newVals[j] = val
   end
 
