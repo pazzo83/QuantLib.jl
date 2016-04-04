@@ -402,10 +402,10 @@ sort_cashflow(cf::Coupon) = accrual_end_date(cf) #cf.couponMixin.accrualEndDate
 sort_cashflow(simp::SimpleCashFlow) = simp.date
 
 prev_cf(cf::Coupon, d::Date) = d > cf.paymentDate
-prev_cf(simp::SimpleCashFlow) = d > simp.date
+prev_cf(simp::SimpleCashFlow, d::Date) = d > simp.date
 
 next_cf(cf::Coupon, d::Date) = d < cf.paymentDate
-next_cf(simp::SimpleCashFlow) = d < simp.date
+next_cf(simp::SimpleCashFlow, d::Date) = d < simp.date
 
 function previous_cashflow_date(cf::Leg, settlement_date::Date)
   # right now we can assume cashflows are sorted by date because of schedule

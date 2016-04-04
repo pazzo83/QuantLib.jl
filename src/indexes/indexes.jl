@@ -38,6 +38,7 @@ immutable LiborIndex{S <: AbstractString, TP <: TenorPeriod, B <: BusinessCalend
   endOfMonth::Bool
   dc::DC
   ts::T
+  pastFixings::Dict{Date, Float64}
 
   # call{S, I, B, C, DC}(::Type{LiborIndex}, familyName::S, tenor::TenorPeriod, fixingDays::I, currency::Currency, fixingCalendar::B,
   #                               jointCalendar::JointCalendar, convention::C, endOfMonth::Bool, dc::DC) =
@@ -48,7 +49,7 @@ end
 # catch all constructor #
 LiborIndex{S <: AbstractString, TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::S, tenor::TP, fixingDays::Int, currency::Currency, fixingCalendar::B,
                   jointCalendar::JointCalendar, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) = LiborIndex{S, TP, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, jointCalendar, convention,
-                                                                                          endOfMonth, dc, ts)
+                                                                                          endOfMonth, dc, ts, Dict{Date, Float64}())
 
 
 function LiborIndex(familyName::AbstractString, tenor::TenorPeriod, fixingDays::Int, currency::Currency, fixingCalendar::BusinessCalendar, dc::DayCount, yts::YieldTermStructure)
