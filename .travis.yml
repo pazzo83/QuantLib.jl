@@ -4,7 +4,7 @@ os:
   - linux
   - osx
 julia:
-  - release
+  - 0.4
   - nightly
 notifications:
   email: false
@@ -12,3 +12,8 @@ notifications:
 #script:
 #  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 #  - julia -e 'Pkg.clone(pwd()); Pkg.build("QuantLib"); Pkg.test("QuantLib"; coverage=true)'
+script:
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+  - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("QuantLib"); Pkg.test("QuantLib"; coverage=true)'
+after_success:
+  - julia -e 'cd(Pkg.dir("QuantLib")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
