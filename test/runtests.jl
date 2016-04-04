@@ -1,7 +1,8 @@
 using QuantLib
 
 tests = ["cash_flows",
-        "indexes"]
+        "indexes",
+        "bonds"]
 
 println("Running tests:")
 
