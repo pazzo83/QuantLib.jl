@@ -36,7 +36,7 @@ function operator(integrator::Integrator, f::Function, a::Float64, b::Float64)
   end
 end
 
-function call(integrator::Integrator, f::IntegrationFunction, a::Float64, b::Float64)
+function call{T <: Integrator}(integrator::T, f::IntegrationFunction, a::Float64, b::Float64)
   integrator.evals = 0
   if a == b
     return 0.0

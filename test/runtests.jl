@@ -2,7 +2,11 @@ using QuantLib
 
 tests = ["cash_flows",
         "indexes",
-        "bonds"]
+        "bonds",
+        "forwards",
+        "options",
+        "swaps",
+        "swaptions"]
 
 println("Running tests:")
 
