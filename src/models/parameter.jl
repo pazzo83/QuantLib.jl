@@ -1,4 +1,4 @@
-call{P <: Parameter}(param::P, t::Float64) = value(param, t)
+# call{P <: Parameter}(param::P, t::Float64) = value(param, t)
 
 type ConstantParameter{C <: Constraint} <: Parameter
   data::Vector{Float64}
@@ -7,6 +7,7 @@ end
 
 get_data(c::ConstantParameter) = c.data
 set_params!(c::ConstantParameter, i::Int, val::Float64) = c.data[i] = val
+# call(c::ConstantParameter, t::Float64) = value(c, t)
 
 type G2FittingParameter{T <: TermStructure} <: Parameter
   a::Float64
@@ -16,6 +17,8 @@ type G2FittingParameter{T <: TermStructure} <: Parameter
   rho::Float64
   ts::T
 end
+
+call(g::G2FittingParameter, t::Float64) = value(g, t)
 
 function value(param::G2FittingParameter, t::Float64)
   forward = forward_rate(param.ts, t, t, ContinuousCompounding(), NoFrequency()).rate
@@ -33,6 +36,8 @@ type HullWhiteFittingParameter{T <: TermStructure} <: Parameter
   ts::T
 end
 
+call(h::HullWhiteFittingParameter, t::Float64) = value(h, t)
+
 function value(param::HullWhiteFittingParameter, t::Float64)
   forward = forward_rate(param.ts, t, t, ContinuousCompounding(), NoFrequency()).rate
   temp = param.a < sqrt(eps()) ? param.sigma * t : param.sigma * (-expm1(-param.a * t)) / param.a
@@ -47,6 +52,8 @@ type TermStructureFittingParameter{T <: TermStructure} <: Parameter
 end
 
 TermStructureFittingParameter{T <: TermStructure}(ts::T) = TermStructureFittingParameter{T}(zeros(0), zeros(0), ts)
+
+call(tsp::TermStructureFittingParameter, t::Float64) = value(tsp, t)
 
 function reset_param_impl!(param::TermStructureFittingParameter)
   param.times = zeros(length(param.times))
@@ -78,6 +85,8 @@ type PiecewiseConstantParameter{C <: Constraint} <: Parameter
 end
 
 PiecewiseConstantParameter{C <: Constraint}(times::Vector{Float64}, constraint::C) = PiecewiseConstantParameter{C}(times, constraint)
+
+# call(p::PiecewiseConstantParameter, t::Float64) = value(p, t)
 
 set_params!(param::PiecewiseConstantParameter, i::Int, val::Float64) = param.times[i] = val
 get_data(param::PiecewiseConstantParameter) = param.times
