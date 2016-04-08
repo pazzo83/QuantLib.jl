@@ -210,7 +210,7 @@ for i =1:length(coupon_rates)
 end
 
 # Construct the Yield Curve
-interp = QuantLib.Math.LogInterpolation()
+interp = QuantLib.Math.LogLinear()
 trait = Discount()
 bootstrap = IterativeBootstrap()
 yts = PiecewiseYieldCurve(settlement_date, insts, dc, interp, trait, 0.00000000001, bootstrap)
