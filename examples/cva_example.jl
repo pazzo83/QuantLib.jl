@@ -79,11 +79,13 @@ function main()
   end
 
   npv_cube = zeros(length(portfolio), length(date_grid), N)
+  # npv_cube = zeros(length(date_grid), length(portfolio), N)
   discount_factors = Float64[discount(yts, time_grid[i]) for i in eachindex(time_grid)]'
+  # discount_factors = Float64[discount(yts, time_grid[i]) for i in eachindex(time_grid)]
 
   # Clone swaptions for updating pricing
   tempPort = Tuple{VanillaSwap, Vector{Date}}[]
-  defaultDiscCurve = InterpolatedDiscountCurve([tdy for i = 1:12], ones(12), QuantLib.Time.Actual365(), QuantLib.Math.LogLinear())
+  defaultDiscCurve = InterpolatedDiscountCurve(Date[tdy for i = 1:12], ones(12), QuantLib.Time.Actual365(), QuantLib.Math.LogLinear())
   for (deal, dates) in portfolio
     push!(tempPort, (QuantLib.clone(deal, DiscountingSwapEngine(defaultDiscCurve), defaultDiscCurve), dates))
   end
@@ -105,6 +107,7 @@ function main()
 
       for i in eachindex(portfolio)
         npv_cube[i, t, p] = npv(portfolio[i][1])
+        # npv_cube[t, i, p] = npv(portfolio[i][1])
       end
     end
     empty!(euribor6m.pastFixings)
@@ -112,12 +115,16 @@ function main()
   set_eval_date!(settings, tdy)
   discountedCube = zeros(size(npv_cube))
   for i = 1:size(discountedCube)[1]
+  # for i = 1:size(discountedCube)[2]
     discountedCube[i, :, :] = npv_cube[i, :, :] .* discount_factors
+    # discountedCube[:, i, :] = npv_cube[:, i, :] .* discount_factors
   end
 
   # calculate the discounted rows
   portfolio_npv = sum(npv_cube, 1)
+  # portfolio_npv = sum(npv_cube, 2)
   discounted_npv = sum(discountedCube, 1)
+  # discounted_npv = sum(discountedCube, 2)
 
   # calculate the exposure and discounted exposure
   E = deepcopy(portfolio_npv)
@@ -135,6 +142,7 @@ function main()
 
   # alternative pfc 95% quantile of the maxima of each exposure path
   PFE = sort(maximum(E, 2), 3)[round(Int, 0.95 * N)]
+  # PFE = sort(maximum(E, 1), 3)[round(Int, 0.95 * N)]
 
   # setup default curve
   pdDates = Date[tdy + Dates.Year(i) for i = 0:10]
@@ -164,4 +172,5 @@ function main()
   # Calculation of CVA
   recovery = 0.4
   CVA = (1.0 - recovery) * sum(dEE[:, 2:end, 1]' .* dPD)
+  # CVA = (1.0 - recovery) * sum(dEE[2:end, :, 1] .* dPD)
 end
