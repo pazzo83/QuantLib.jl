@@ -96,7 +96,7 @@ type ParallelEvolver{E <: FdScheme} <: FdScheme
   evolvers::Vector{E}
 end
 
-function ParallelEvolver(L::Vector{TridiagonalOperator}, bcs::Matrix{BoundaryCondition}, evolverFunc::Function)
+function ParallelEvolver{BC <: BoundaryCondition}(L::Vector{TridiagonalOperator}, bcs::Matrix{BC}, evolverFunc::Function)
   # build first for Vector
   evolv1 = evolverFunc(L[1], FdmBoundaryConditionSet(bcs[:, 1]))
   evolvers = Vector{typeof(evolv1)}(length(L))

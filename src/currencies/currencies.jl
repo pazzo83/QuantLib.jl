@@ -123,5 +123,5 @@ list_deprecated=Dict(
 
 # Codegen function
 for currency in list_currencies
-	@eval ($(symbol("$(currency[2])"*"Currency")))()=Currency(($currency)...)
+	@eval ($(Symbol("$(currency[2])"*"Currency")))()=Currency(($currency)...)
 end

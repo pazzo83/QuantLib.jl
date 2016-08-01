@@ -7,6 +7,9 @@ type Gaussian1DNonstandardSwaptionEngine{G <: Gaussian1DModel, Y <: YieldTermStr
   oas::Quote
   discountCurve::Y
   probabilities::P
+
+  Gaussian1DNonstandardSwaptionEngine(model, integrationPoints, stddevs, extrapolatePayoff, flatPayoffExtrapolation, oas, discountCurve, probabilities) =
+    new(model, integrationPoints, stddevs, extrapolatePayoff, flatPayoffExtrapolation, oas, discountCurve, probabilities)
 end
 
 Gaussian1DNonstandardSwaptionEngine{G <: Gaussian1DModel, Y <: YieldTermStructure, P <: GaussianProbabilities}(model::G, integrationPoints::Int = 64, stddevs::Float64 = 7.0,

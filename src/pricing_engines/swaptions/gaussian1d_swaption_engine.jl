@@ -12,6 +12,9 @@ type Gaussian1DSwaptionEngine{G <: Gaussian1DModel, Y <: YieldTermStructure, P <
   flatPayoffExtrapolation::Bool
   discountCurve::Y
   probabilities::P
+
+  Gaussian1DSwaptionEngine(model, integrationPoints, stddevs, extrapolatePayoff, flatPayoffExtrapolation, discountCurve, probabilities) =
+    new(model, integrationPoints, stddevs, extrapolatePayoff, flatPayoffExtrapolation, discountCurve, probabilities)
 end
 
 Gaussian1DSwaptionEngine{G <: Gaussian1DModel, Y <: YieldTermStructure, P <: GaussianProbabilities}(model::G, integrationPoints::Int = 64, stddevs::Float64 = 7.0,
