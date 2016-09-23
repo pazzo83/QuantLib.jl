@@ -47,7 +47,7 @@ function NaturalCubicSpline{T <: Real}(x_vert::Vector{T}, y_vert::Vector{T})
   return NaturalCubicSpline(x_vert, y_vert, b, c, d)
 end
 
-function call{T <: Real}(spl::NaturalCubicSpline, my_x::T)
+function (spl::NaturalCubicSpline)(my_x::Number)
   # get coefficients
   # b, c, d = gen_splines(x_vert, y_vert)
 
@@ -95,7 +95,7 @@ function CubicInterpolation(dApprox::DerivativeApprox, leftBoundary::BoundaryCon
   return ci
 end
 
-call(interp::CubicInterpolation, x::Float64) = value(interp, x)
+(interp::CubicInterpolation)(x::Float64) = value(interp, x)
 
 # type aliases #
 typealias SplineCubicInterpolation{D, B1, B2} CubicInterpolation{Spline, B1, B2} # First derivative approximation

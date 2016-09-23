@@ -40,9 +40,9 @@ type Following <: BusinessDayConvention end
 # easter functions
 function easter_rata(y::Int)
 
-  c::Int64
-	e::Int64
-	p::Int64
+  local c::Int64
+	local e::Int64
+	local p::Int64
 
    # Algo R only works after 1582
    if y < 1582

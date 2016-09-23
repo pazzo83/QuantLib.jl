@@ -84,14 +84,14 @@ end
 basis_system(p::AmericanPathPricer) = p.v
 get_state(p::AmericanPathPricer, path::Path, t::Int) = path[t] * p.scalingValue
 get_payoff(p::AmericanPathPricer, st::Float64) = p.payoff(st / p.scalingValue)
-call(p::AmericanPathPricer, path::Path, t::Int) = get_payoff(p, get_state(p, path, t))
+(p::AmericanPathPricer)(path::Path, t::Int) = get_payoff(p, get_state(p, path, t))
 
 function update_paths!(lpp::LongstaffSchwartzPathPricer, path::Path)
   push!(lpp.paths, copy(path))
   return lpp
 end
 
-function call(lpp::LongstaffSchwartzPathPricer, path::Path)
+function (lpp::LongstaffSchwartzPathPricer)(path::Path)
   if lpp.calibrationPhase
     update_paths!(lpp, path)
     return 0.0

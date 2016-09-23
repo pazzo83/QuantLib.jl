@@ -9,7 +9,7 @@ type Integrand{P <: StrikedTypePayoff} <: IntegrationFunction
   variance::Float64
 end
 
-function call(integrand::Integrand, x::Float64)
+function (integrand::Integrand)(x::Float64)
   temp = integrand.s0 * exp(x)
   result = integrand.payoff(temp)
   return result * exp(-(x - integrand.drift) * (x - integrand.drift) / (2.0 * integrand.variance))

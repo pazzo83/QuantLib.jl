@@ -4,7 +4,7 @@ type MonomialFunction{I <: Integer} <: LSMBasisSystemFunction
   order::I
 end
 
-function call(m::MonomialFunction, x::Float64)
+function (m::MonomialFunction)(x::Float64)
   ret = 1.0
   for i = 1:m.order
     ret *= x

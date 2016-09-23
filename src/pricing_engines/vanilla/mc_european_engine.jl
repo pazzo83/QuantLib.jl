@@ -25,7 +25,7 @@ end
 
 EuropeanPathPricer(optionType::OptionType, strike::Float64, disc::Float64) = EuropeanPathPricer(PlainVanillaPayoff(optionType, strike), disc)
 
-call(pricer::EuropeanPathPricer, path::Path) = pricer.payoff(path[end]) * pricer.discount
+(pricer::EuropeanPathPricer)(path::Path) = pricer.payoff(path[end]) * pricer.discount
 
 function time_grid(pe::MCVanillaEngine, opt::VanillaOption)
   lastExerciseDate = opt.exercise.dates[end]

@@ -9,7 +9,7 @@ type PlainVanillaPayoff{OT <: OptionType} <: StrikedTypePayoff
   strike::Float64
 end
 
-call(payoff::PlainVanillaPayoff, price::Float64) = _get_payoff(payoff.optionType, payoff, price)
+(payoff::PlainVanillaPayoff)(price::Float64) = _get_payoff(payoff.optionType, payoff, price)
 
 _get_payoff(::Call, payoff::PlainVanillaPayoff, price::Float64) = max(price - payoff.strike, 0.0)
 _get_payoff(::Put, payoff::PlainVanillaPayoff, price::Float64) = max(payoff.strike - price, 0.0)

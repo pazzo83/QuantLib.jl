@@ -36,7 +36,7 @@ function operator(integrator::Integrator, f::Function, a::Float64, b::Float64)
   end
 end
 
-function call(integrator::SegmentIntegral, f::IntegrationFunction, a::Float64, b::Float64)
+function (integrator::SegmentIntegral)(f::IntegrationFunction, a::Float64, b::Float64)
   integrator.evals = 0
   if a == b
     return 0.0
@@ -67,7 +67,7 @@ type GaussLaguerreIntegration <: GaussianQuadrature
   w::Vector{Float64}
 end
 
-function call(gli::GaussLaguerreIntegration, f::IntegrationFunction)
+function (gli::GaussLaguerreIntegration)(f::IntegrationFunction)
   sum_ = 0.0
   @inbounds @simd for i = length(gli.x):-1:1
     sum_ += gli.w[i] * f(gli.x[i])

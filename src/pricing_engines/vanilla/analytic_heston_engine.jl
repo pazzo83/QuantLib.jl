@@ -45,9 +45,9 @@ type FJHelper{I <: Integer, C <: ComplexLogFormula, A <: AbstractHestonEngine} <
   engine::A
 end
 
-call(fjh::FJHelper, phi::Float64) = fjh(phi, fjh.cpxLog)
+(fjh::FJHelper)(phi::Float64) = fjh(phi, fjh.cpxLog)
 
-function call(fjh::FJHelper, phi::Float64, cpxLog::Gatheral)
+function (fjh::FJHelper)(phi::Float64, cpxLog::Gatheral)
   rpsig = fjh.rsigma * phi
   t1 = fjh.t0 + complex(0.0, -rpsig)
   d = sqrt(t1 * t1 - fjh.sigma2 * phi * complex(-phi, fjh.j == 1 ? 1.0 : -1.0))

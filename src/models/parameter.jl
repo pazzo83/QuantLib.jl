@@ -18,7 +18,7 @@ type G2FittingParameter{T <: TermStructure} <: Parameter
   ts::T
 end
 
-call(g::G2FittingParameter, t::Float64) = value(g, t)
+(g::G2FittingParameter)(t::Float64) = value(g, t)
 
 function value(param::G2FittingParameter, t::Float64)
   forward = forward_rate(param.ts, t, t, ContinuousCompounding(), NoFrequency()).rate
@@ -36,7 +36,7 @@ type HullWhiteFittingParameter{T <: TermStructure} <: Parameter
   ts::T
 end
 
-call(h::HullWhiteFittingParameter, t::Float64) = value(h, t)
+(h::HullWhiteFittingParameter)(t::Float64) = value(h, t)
 
 function value(param::HullWhiteFittingParameter, t::Float64)
   forward = forward_rate(param.ts, t, t, ContinuousCompounding(), NoFrequency()).rate
@@ -53,7 +53,7 @@ end
 
 TermStructureFittingParameter{T <: TermStructure}(ts::T) = TermStructureFittingParameter{T}(zeros(0), zeros(0), ts)
 
-call(tsp::TermStructureFittingParameter, t::Float64) = value(tsp, t)
+(tsp::TermStructureFittingParameter)(t::Float64) = value(tsp, t)
 
 function reset_param_impl!(param::TermStructureFittingParameter)
   param.times = zeros(length(param.times))
