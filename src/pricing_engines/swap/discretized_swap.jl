@@ -50,7 +50,7 @@ end
 
 function pre_adjust_values_impl!(dSwap::DiscretizedSwap)
   # Floating payments
-  @simd for i = 1:length(dSwap.floatingResetTimes)
+  for i in eachindex(dSwap.floatingResetTimes)
     @inbounds t = dSwap.floatingResetTimes[i]
     if t >= 0.0 && is_on_time(dSwap, t)
       bond = DiscretizedDiscountBond()
@@ -62,7 +62,7 @@ function pre_adjust_values_impl!(dSwap::DiscretizedSwap)
       spread = dSwap.args.floatingSpreads[i]
 
       accruedSpread = nominal * T * spread
-      for j = 1:length(dSwap.common.values)
+      @simd for j in eachindex(dSwap.common.values)
         @inbounds coup = nominal * (1.0 - bond.common.values[j]) + accruedSpread * bond.common.values[j]
 
         if isa(dSwap.swapT, Payer)
@@ -75,7 +75,7 @@ function pre_adjust_values_impl!(dSwap::DiscretizedSwap)
   end
 
   # Fixed Payments
-  @simd for i = 1:length(dSwap.fixedResetTimes)
+  for i in eachindex(dSwap.fixedResetTimes)
     t = dSwap.fixedResetTimes[i]
     if t >= 0.0 && is_on_time(dSwap, t)
       bond = DiscretizedDiscountBond()
@@ -84,7 +84,7 @@ function pre_adjust_values_impl!(dSwap::DiscretizedSwap)
 
       @inbounds fixedCoup = dSwap.args.fixedCoupons[i]
 
-      for j = 1:length(dSwap.common.values)
+      @simd for j in eachindex(dSwap.common.values)
         @inbounds coup = fixedCoup * bond.common.values[j]
         if isa(dSwap.swapT, Payer)
           @inbounds dSwap.common.values[j] -= coup
@@ -100,7 +100,7 @@ end
 
 function post_adjust_values_impl!(dSwap::DiscretizedSwap)
   # fixed coupons whose reset time is in the past won't be managed in pre_adjust_values
-  @simd for i = 1:length(dSwap.fixedPayTimes)
+  @simd for i in eachindex(dSwap.fixedPayTimes)
     @inbounds t = dSwap.fixedPayTimes[i]
     @inbounds _reset = dSwap.fixedResetTimes[i]
     if t >= 0.0 && is_on_time(dSwap, t) && _reset < 0.0
@@ -114,7 +114,7 @@ function post_adjust_values_impl!(dSwap::DiscretizedSwap)
   end
 
   # the same applies to floating payments whose rate is already fixed
-  @simd for i = 1:length(dSwap.floatingPayTimes)
+  @simd for i in eachindex(dSwap.floatingPayTimes)
     @inbounds t = dSwap.floatingPayTimes[i]
     @inbounds _reset = dSwap.floatingResetTimes[i]
     if t >= 0.0 && is_on_time(dSwap, t) && _reset < 0.0

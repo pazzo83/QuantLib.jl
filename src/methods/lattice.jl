@@ -33,7 +33,7 @@ function TrinomialTree{S <: StochasticProcess}(process::S, timeGrid::TimeGrid, i
   jMax = 0
   branchings = Vector{Branching}(nTimeSteps)
 
-  @simd for i = 1:nTimeSteps
+  for i = 1:nTimeSteps
     t = timeGrid.times[i]
     dt = timeGrid.dt[i]
 
@@ -44,7 +44,7 @@ function TrinomialTree{S <: StochasticProcess}(process::S, timeGrid::TimeGrid, i
 
     branching = Branching()
 
-    for j =jMin:jMax
+    @simd for j =jMin:jMax
       @inbounds x = x0 + j * dx[i]
       m = expectation(process, t, x, dt)
       @inbounds temp = round(Int, floor((m - x0) / dx[i+1] + 0.5))
@@ -198,12 +198,12 @@ function get_state_prices!(t::TreeLattice, i::Int)
 end
 
 function compute_state_prices!(t::TreeLattice, until::Int)
-  @simd for i = t.statePricesLimit:until - 1
+  for i = t.statePricesLimit:until - 1
     push!(t.statePrices, zeros(get_size(t.impl, i + 1)))
     for j = 1:get_size(t.impl, i)
       disc = discount(t.impl, i, j)
       @inbounds statePrice = t.statePrices[i][j]
-      for l = 1:t.n
+      @simd for l = 1:t.n
         @inbounds t.statePrices[i + 1][descendant(t.impl, i, j, l)] += statePrice * disc * probability(t.impl, i, j, l)
       end
     end
@@ -262,7 +262,7 @@ end
 
 function step_back!(lattice::TreeLattice, i::Int, vals::Vector{Float64}, newVals::Vector{Float64})
   # pragma omp parallel for
-  Threads.@threads for j = 1:get_size(lattice.impl, i)
+  for j = 1:get_size(lattice.impl, i)
     val = 0.0
     @simd for l = 1:lattice.n
       @inbounds val += probability(lattice.impl, i, j, l) * vals[descendant(lattice.impl, i, j, l)]
@@ -294,7 +294,7 @@ end
 descendant(b::Branching, idx::Int, branch::Int) = b.k[idx] - b.jMin - 1 + branch
 probability(b::Branching, idx::Int, branch::Int) = b.probs[branch][idx]
 branches(::Type{TrinomialTree}) = 3
-get_size{I <: Integer}(t::TrinomialTree, i::I) = i == 1 ? 1 : get_size(t.branchings[i-1])
+get_size(t::TrinomialTree, i::Int) = i == 1 ? 1 : get_size(t.branchings[i-1])
 
 function get_underlying(t::TrinomialTree, i::Int, idx::Int)
   if i == 1

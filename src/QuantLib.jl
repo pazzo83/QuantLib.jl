@@ -474,9 +474,10 @@ include("pricing_engines/vanilla/mc_american_engine.jl")
 
 type Settings
   evaluation_date::Date
+  counter::Int
 end
 
-settings = Settings(Date())
+settings = Settings(Date(), 0)
 
 function set_eval_date!(sett::Settings, d::Date)
   sett.evaluation_date = d

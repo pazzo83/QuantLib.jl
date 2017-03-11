@@ -55,7 +55,7 @@ function _calculate!(pe::TreeSwaptionEngine, swaption::Swaption)
   end
 
   stoppingTimes = zeros(length(swaption.exercise.dates))
-  @simd for i = 1:length(stoppingTimes)
+  @simd for i in eachindex(stoppingTimes)
     @inbounds stoppingTimes[i] = year_fraction(dc, refDate, swaption.exercise.dates[i])
   end
 
