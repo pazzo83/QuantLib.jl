@@ -22,20 +22,20 @@ function collect_node_data!(evolver::AbstractMarketModelEvolver,
 
   n = length(cashFlowTimes)
   productDiscounters = Vector{MarketModelDiscounter}(n)
-  for i in eachindex(productDiscounters)
-    productDiscounters[i] = MarketModelDiscounter(cashFlowTimes[i], rateTimes)
+  @simd for i in eachindex(productDiscounters)
+    @inbounds productDiscounters[i] = MarketModelDiscounter(cashFlowTimes[i], rateTimes)
   end
 
   n = length(rebateTimes)
   rebateDiscounters = Vector{MarketModelDiscounter}(n)
-  for i in eachindex(rebateDiscounters)
-    rebateDiscounters[i] = MarketModelDiscounter(rebateTimes[i], rateTimes)
+  @simd for i in eachindex(rebateDiscounters)
+    @inbounds rebateDiscounters[i] = MarketModelDiscounter(rebateTimes[i], rateTimes)
   end
 
   n = length(controlTimes)
   controlDiscounters = Vector{MarketModelDiscounter}(n)
-  for i in eachindex(controlDiscounters)
-    controlDiscounters[i] = MarketModelDiscounter(controlTimes[i], rateTimes)
+  @simd for i in eachindex(controlDiscounters)
+    @inbounds controlDiscounters[i] = MarketModelDiscounter(controlTimes[i], rateTimes)
   end
 
   evolution = get_evolution(product)
@@ -51,7 +51,7 @@ function collect_node_data!(evolver::AbstractMarketModelEvolver,
   v = rebate.isExerciseTime
   exercises = idx = 1
 
-  for i in eachindex(evolutionTimes)
+  @inbounds @simd for i in eachindex(evolutionTimes)
     if isRebateTime[i]
       if v[idx]
         isExerciseTime[i] = true
@@ -67,7 +67,7 @@ function collect_node_data!(evolver::AbstractMarketModelEvolver,
     # collectedData[i] = Vector{NodeData}(numberOfPaths)
     collectedData[i] = NodeData[NodeData() for i = 1:numberOfPaths]
   end
-  
+
   for i = 1:numberOfPaths
     start_new_path!(evolver)
     reset!(product)

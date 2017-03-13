@@ -22,8 +22,8 @@ end
 function get_vega(qc::QuickCap, vol::Float64)
   vega_ = 0.0
 
-  for i in eachindex(qc.annuities)
-    vega_ += black_formula_vol_derivative(qc.strike, qc.currentRates[i], vol * sqrt(qc.expires[i]), qc.expires[i], qc.annuities[i], 0.0)
+  @simd for i in eachindex(qc.annuities)
+    @inbounds vega_ += black_formula_vol_derivative(qc.strike, qc.currentRates[i], vol * sqrt(qc.expires[i]), qc.expires[i], qc.annuities[i], 0.0)
   end
 
   return vega_
@@ -60,7 +60,7 @@ function SwaptionPseudoDerivative(inputModel::AbstractMarketModel, startIndex::I
 
     thisVariance = 0.0
     for j = startIndex:endIndex, k = startIndex:endIndex, f = 1:factors
-      thisVariance += zed[1, j - (startIndex - 1)] * thisPseudo[j, f] * thisPseudo[k, f] * zed[1, k - (startIndex - 1)]
+      @inbounds thisVariance += zed[1, j - (startIndex - 1)] * thisPseudo[j, f] * thisPseudo[k, f] * zed[1, k - (startIndex - 1)]
     end
 
     variance_ += thisVariance
@@ -85,7 +85,7 @@ function SwaptionPseudoDerivative(inputModel::AbstractMarketModel, startIndex::I
   while idx < stopIndex
     thisPseudo = inputModel.pseudoRoots[idx]
 
-    for rate1 = startIndex:endIndex
+    @inbounds @simd for rate1 = startIndex:endIndex
       zIndex = rate1 - (startIndex - 1)
       for f = 1:factors
         sum_ = 0.0
@@ -101,7 +101,7 @@ function SwaptionPseudoDerivative(inputModel::AbstractMarketModel, startIndex::I
     push!(varianceDerivatives, copy(thisDerivative))
 
     for rate1 = startIndex:endIndex, f = 1:factors
-      thisDerivative[rate1, f] *= scale_
+      @inbounds thisDerivative[rate1, f] *= scale_
     end
 
     push!(volatilityDerivatives, copy(thisDerivative))
@@ -158,7 +158,7 @@ function CapPseudoDerivative(inputModel::AbstractMarketModel,
   minVol = 1e10
   maxVol = 0.0
 
-  for j = startIndex:endIndex
+  @inbounds @simd for j = startIndex:endIndex
     capletIndex = ((j - 1) - (startIndex - 1)) + 1
     resetTime = inputModel.evolution.rateTimes[j]
     expires[capletIndex] = resetTime
@@ -185,7 +185,7 @@ function CapPseudoDerivative(inputModel::AbstractMarketModel,
 
   guess /= numberCaplets
 
-  for s = 1:number_of_steps(inputModel.evolution)
+  @inbounds @simd for s = 1:number_of_steps(inputModel.evolution)
     thisDerivative = zeros(numberRates, factors)
 
     for rate = max(inputModel.evolution.firstAliveRate[s], startIndex):endIndex, f = 1:factors
@@ -207,7 +207,7 @@ function CapPseudoDerivative(inputModel::AbstractMarketModel,
 
   vega_ = get_vega(capPricer, impliedVolatility)
 
-  for s = 1:number_of_steps(inputModel.evolution)
+  @inbounds @simd for s = 1:number_of_steps(inputModel.evolution)
     thisDerivative = zeros(numberRates, factors)
     for rate = max(inputModel.evolution.firstAliveRate[s], startIndex):endIndex, f = 1:factors
       thisDerivative[rate, f] = priceDerivatives[s][s, f] / vega_

@@ -79,24 +79,24 @@ function PathwiseVegasOuterAccountingEngine(evolver::LogNormalFwdRateEuler,
 
   jacobiansThisPathsModel = Vector{Matrix{Float64}}(numberRates)
 
-  for i in eachindex(jacobiansThisPathsModel)
-    jacobiansThisPathsModel[i] = Matrix{Float64}(numberRates, factors)
+  @simd for i in eachindex(jacobiansThisPathsModel)
+    @inbounds jacobiansThisPathsModel[i] = Matrix{Float64}(numberRates, factors)
   end
 
   jacobianComputers = Vector{RatePseudoRootJacobianAllElements}(numberSteps)
   jacobiansThisPaths = Vector{Vector{Matrix{Float64}}}(numberSteps)
-  for i in eachindex(jacobianComputers)
-    jacobianComputers[i] = RatePseudoRootJacobianAllElements(pseudoRootStructure.pseudoRoots[i], evolution.firstAliveRate[i],
+  @simd for i in eachindex(jacobianComputers)
+    @inbounds jacobianComputers[i] = RatePseudoRootJacobianAllElements(pseudoRootStructure.pseudoRoots[i], evolution.firstAliveRate[i],
                             numeraires[i], evolution.rateTaus, pseudoRootStructure.displacements)
-    jacobiansThisPaths[i] = deepcopy(jacobiansThisPathsModel)
+    @inbounds jacobiansThisPaths[i] = deepcopy(jacobiansThisPathsModel)
   end
 
   VModel = Matrix{Float64}(numberSteps + 1, numberRates)
 
   Discounts = Matrix{Float64}(numberSteps + 1, numberRates + 1)
 
-  for i = 1:numberSteps+1
-    Discounts[i, 1] = 1.0
+  @simd for i = 1:numberSteps+1
+    @inbounds Discounts[i, 1] = 1.0
   end
 
   V = Vector{Matrix{Float64}}(numberProducts)
@@ -107,7 +107,7 @@ function PathwiseVegasOuterAccountingEngine(evolver::LogNormalFwdRateEuler,
   V = Vector{Matrix{Float64}}(numberProducts)
   totalCashFlowsThisIndex = Vector{Matrix{Float64}}(numberProducts)
 
-  for i in eachindex(numberCashFlowsThisIndex)
+  @inbounds @simd for i in eachindex(numberCashFlowsThisIndex)
     p = max_number_of_cashflows_per_product_per_step(product)
     cashFlowsGenerated[i] = MarketModelPathWiseCashFlow[MarketModelPathWiseCashFlow(numberRates + 1) for i = 1:p]
 
@@ -134,7 +134,7 @@ function PathwiseVegasOuterAccountingEngine(evolver::LogNormalFwdRateEuler,
   # what we really need for each step, what cash flow time indices to look at
 
   cashFlowIndicesThisStep = Vector{Int}[Vector{Int}() for i = 1:numberSteps]
-  for i in eachindex(cashFlowTimes)
+  @inbounds @simd for i in eachindex(cashFlowTimes)
     # idx = upper_bound(evolutionTimes, cashFlowTimes[i])
     # if idx != 1
     #   idx -= 1
@@ -154,8 +154,8 @@ function PathwiseVegasOuterAccountingEngine(evolver::LogNormalFwdRateEuler,
 
   begin
     modelVegaMatrix = zeros(numberRates, factors)
-    for i in eachindex(elementaryVegasThisPath)
-      elementaryVegasThisPath[i] = Matrix[copy(modelVegaMatrix) for j = 1:numberSteps]
+    @simd for i in eachindex(elementaryVegasThisPath)
+      @inbounds elementaryVegasThisPath[i] = Matrix[copy(modelVegaMatrix) for j = 1:numberSteps]
     end
   end
 
@@ -173,7 +173,7 @@ function single_path_values!(pwEng::PathwiseVegasOuterAccountingEngine, values::
   initialForwards = copy(pwEng.pseudoRootStructure.initialRates)
   pwEng.currentForwards = copy(initialForwards)
 
-  for i = 1:pwEng.numberProducts
+  @inbounds @simd for i = 1:pwEng.numberProducts
     pwEng.numerairesHeld[i] = 0.0
     for j = 1:pwEng.numberCashFlowTimes
       pwEng.numberCashFlowsThisIndex[i][j] = 0
@@ -204,7 +204,7 @@ function single_path_values!(pwEng::PathwiseVegasOuterAccountingEngine, values::
 
     pwEng.currentForwards = copy(current_state(pwEng.evolver).forwardRates)
 
-    for i = 1:pwEng.numberRates
+    @inbounds @simd for i = 1:pwEng.numberRates
       x = discount_ratio(current_state(pwEng.evolver), i+1, i)
       pwEng.stepsDiscounts[i+1] = x
       pwEng.StepsDiscountsSquared[storeStep, i] = x*x
@@ -218,11 +218,11 @@ function single_path_values!(pwEng::PathwiseVegasOuterAccountingEngine, values::
               pwEng.jacobiansThisPaths[thisStep])
 
     # for each product and each cash flow
-    for i = 1:pwEng.numberProducts, j = 1:pwEng.numberCashFlowsThisStep[i]
+    @inbounds for i = 1:pwEng.numberProducts, j = 1:pwEng.numberCashFlowsThisStep[i]
       k = pwEng.cashFlowsGenerated[i][j].timeIndex
       pwEng.numberCashFlowsThisIndex[i][k] += 1
 
-      for l = 1:pwEng.numberRates + 1
+      @simd for l = 1:pwEng.numberRates + 1
         pwEng.totalCashFlowsThisIndex[i][k, l] += pwEng.cashFlowsGenerated[i][j].amount[l] * weight
       end
     end
@@ -239,7 +239,7 @@ function single_path_values!(pwEng::PathwiseVegasOuterAccountingEngine, values::
   flowsFound = false
   finalStepDone = thisStep
 
-  for currentStep = pwEng.numberSteps:-1:1
+  @inbounds for currentStep = pwEng.numberSteps:-1:1
     stepToUse = min(currentStep, finalStepDone) + 1
     for k in eachindex(pwEng.cashFlowIndicesThisStep[currentStep])
       cashFlowIndex = pwEng.cashFlowIndicesThisStep[currentStep][k]
@@ -326,14 +326,14 @@ function single_path_values!(pwEng::PathwiseVegasOuterAccountingEngine, values::
   end # end of for currentStep = numberSteps:-1:1
 
   # all V matricies computed, we now compute the elementary vegas for this path
-  for i = 1:pwEng.numberProducts, j = 1:pwEng.numberSteps
+  @inbounds for i = 1:pwEng.numberProducts, j = 1:pwEng.numberSteps
     nextIndex = j+1
 
     # we know V, we need to pair against the sensitivity of the rate to the elementary vega
     # note the simplification here arising from the fact that the elementary vega affects the evolution on precisely one step
     for k = 1:pwEng.numberRates, f = 1:pwEng.factors
       sensitivity = 0.0
-      for r = 1:pwEng.numberRates
+      @simd for r = 1:pwEng.numberRates
         sensitivity += pwEng.V[i][nextIndex, r] * pwEng.jacobiansThisPaths[j][r][k, f]
       end
 
@@ -344,7 +344,7 @@ function single_path_values!(pwEng::PathwiseVegasOuterAccountingEngine, values::
   # write answer into values
   entriesPerProduct = 1 + pwEng.numberRates + pwEng.numberElementaryVegas
 
-  for i = 1:pwEng.numberProducts
+  @inbounds @simd for i = 1:pwEng.numberProducts
     values[((i - 1) * entriesPerProduct) + 1] = pwEng.numerairesHeld[i] * pwEng.initialNumeraireValue
 
     for j = 1:pwEng.numberRates
@@ -369,7 +369,7 @@ function multiple_path_values_elementary!(pwEng::PathwiseVegasOuterAccountingEng
   sums = zeros(length(values))
   sumsqs = zeros(length(values))
 
-  for i = 1:numberOfPaths
+  @inbounds @simd for i = 1:numberOfPaths
     single_path_values!(pwEng, values)
     for j in eachindex(values)
       sums[j] += values[j]
@@ -377,7 +377,7 @@ function multiple_path_values_elementary!(pwEng::PathwiseVegasOuterAccountingEng
     end
   end
 
-  for j in eachindex(values)
+  @inbounds @simd for j in eachindex(values)
     means[j] = sums[j] / numberOfPaths
     meanSq = sumsqs[j] / numberOfPaths
     variance = meanSq - means[j] * means[j]
@@ -399,11 +399,11 @@ function multiple_path_values!(pwEng::PathwiseVegasOuterAccountingEngine, means:
   resize!(means, (1 + pwEng.numberRates + pwEng.numberBumps) * pwEng.numberProducts)
   resize!(errors, (1 + pwEng.numberRates + pwEng.numberBumps) * pwEng.numberProducts)
 
-  for p = 1:pwEng.numberProducts, i = 1:pwEng.numberRates + 1
+  @inbounds for p = 1:pwEng.numberProducts, i = 1:pwEng.numberRates + 1
     means[i + (p - 1) * outDataPerProduct] = allMeans[i + (p - 1) * outDataPerProduct]
     errors[i + (p - 1) * outDataPerProduct] = allErrors[i + (p - 1) * outDataPerProduct]
 
-    for bump = 1:pwEng.numberBumps
+    @simd for bump = 1:pwEng.numberBumps
       thisVega = 0.0
       for t = 1:pwEng.numberSteps, r = 1:pwEng.numberRates, f = 1:pwEng.factors
         thisVega += pwEng.vegaBumps[t][bump][r, f] * allMeans[(p - 1) * inDataPerProduct + 1 + pwEng.numberRates + (t - 1) * pwEng.numberRates * pwEng.factors + (r - 1) * pwEng.factors + f]

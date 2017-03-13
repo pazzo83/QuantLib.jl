@@ -31,15 +31,15 @@ function get_bumps!(ratePseudo::RatePseudoRootJacobianAllElements, oldRates::Vec
   numberRates = length(ratePseudo.taus)
 
   length(B) == numberRates || error("B must be the same size as numberRates")
-  for j in eachindex(B)
-    size(B[j]) == (numberRates, ratePseudo.factors) || error("matrix in B not of proper size")
+  @simd for j in eachindex(B)
+    @inbounds size(B[j]) == (numberRates, ratePseudo.factors) || error("matrix in B not of proper size")
   end
 
-  for j = ratePseudo.aliveIndex:numberRates
-    ratePseudo.ratios[j] = (oldRates[j] + ratePseudo.displacements[j]) * discountRatios[j+1]
+  @simd for j = ratePseudo.aliveIndex:numberRates
+    @inbounds ratePseudo.ratios[j] = (oldRates[j] + ratePseudo.displacements[j]) * discountRatios[j+1]
   end
 
-  for f = 1:ratePseudo.factors
+  @inbounds @simd for f = 1:ratePseudo.factors
     ratePseudo.e[ratePseudo.aliveIndex, f] = 0.0
     for j = ratePseudo.aliveIndex+1:numberRates
       ratePseudo.e[j, f] = ratePseudo.e[j-1, f] + ratePseudo.ratios[j-1] * ratePseudo.pseudoRoot[j-1, f]
@@ -48,11 +48,11 @@ function get_bumps!(ratePseudo::RatePseudoRootJacobianAllElements, oldRates::Vec
 
   # nullify B for rates that have already reset
   for j = 1:ratePseudo.aliveIndex, k = 1:numberRates, f = 1:ratePseudo.factors
-    B[j][k, f] = 0.0
+    @inbounds B[j][k, f] = 0.0
   end
 
-  for f = 1:ratePseudo.factors, j = ratePseudo.aliveIndex:numberRates
-    for k = ratePseudo.aliveIndex:j
+  @inbounds for f = 1:ratePseudo.factors, j = ratePseudo.aliveIndex:numberRates
+    @simd for k = ratePseudo.aliveIndex:j
       B[j][k, f] = newRates[j] * ratePseudo.ratios[k] * ratePseudo.taus[k] * ratePseudo.pseudoRoot[j, f]
     end
 

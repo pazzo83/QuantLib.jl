@@ -53,7 +53,7 @@ function initialize!(curve::FittedBondDiscountCurve)
  cost_f = curve.fittingMethod.commons.costFunction
 
  squared_sum = 0.0
- for i = 1:n
+ @inbounds for i in eachindex(curve.bonds)
    bond = curve.bonds[i].bond
    leg = bond.cashflows
    clean_price = bond.faceAmount

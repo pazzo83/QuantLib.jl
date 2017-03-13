@@ -35,7 +35,7 @@ function initialize!(interp::LogInterpolation, x_vals::Vector{Float64}, y_vals::
   interp.y_vals = y_vals
 
   log_y = zeros(length(y_vals))
-  for i = 1:length(y_vals)
+  @simd for i = 1:length(y_vals)
     @inbounds log_y[i] = log(y_vals[i])
   end
 
@@ -47,7 +47,7 @@ end
 # Log Interpolation update
 function update!(interp::LogInterpolation, idx::Int)
   # first get the log of the y values
-  for i = 1:idx
+  @simd for i = 1:idx
     @inbounds interp.interpolator.y_vals[i] = log(interp.y_vals[i])
   end
   # use these log values to update the linear interpolator

@@ -26,7 +26,7 @@ probability(tr::OneFactorShortRateTree, i::Int, idx::Int, branch::Int) = probabi
 
 get_params(m::OneFactorModel) = Float64[get_a(m), get_sigma(m)]
 
-type RStarFinder{M <: ShortRateModel}
+type RStarFinder{M <: ShortRateModel} <: Function
   model::M
   strike::Float64
   maturity::Float64
@@ -35,21 +35,33 @@ type RStarFinder{M <: ShortRateModel}
   amounts::Vector{Float64}
 end
 
-function operator(rsf::RStarFinder)
-  function _inner(x::Float64)
-    _value = rsf.strike
-    _B = discount_bond(rsf.model, rsf.maturity, rsf.valueTime, x)
-    sz = length(rsf.fixedPayTimes)
-    for i = 1:sz
-      dbVal = discount_bond(rsf.model, rsf.maturity, rsf.fixedPayTimes[i], x) / _B
-      _value -= rsf.amounts[i] * dbVal
-    end
-
-    return _value
+function (rsf::RStarFinder)(x::Float64)
+  _value = rsf.strike
+  _B = discount_bond(rsf.model, rsf.maturity, rsf.valueTime, x)
+  sz = length(rsf.fixedPayTimes)
+  @simd for i = 1:sz
+    @inbounds dbVal = discount_bond(rsf.model, rsf.maturity, rsf.fixedPayTimes[i], x) / _B
+    @inbounds _value -= rsf.amounts[i] * dbVal
   end
 
-  return _inner
+  return _value
 end
+
+# function operator(rsf::RStarFinder)
+#   function _inner(x::Float64)
+#     _value = rsf.strike
+#     _B = discount_bond(rsf.model, rsf.maturity, rsf.valueTime, x)
+#     sz = length(rsf.fixedPayTimes)
+#     for i = 1:sz
+#       dbVal = discount_bond(rsf.model, rsf.maturity, rsf.fixedPayTimes[i], x) / _B
+#       _value -= rsf.amounts[i] * dbVal
+#     end
+#
+#     return _value
+#   end
+#
+#   return _inner
+# end
 
 discount_bond(model::OneFactorModel, tNow::Float64, maturity::Float64, factors::Vector{Float64}) = discount_bond(model, tNow, maturity, factors[1])
 discount_bond{M <: OneFactorModel}(model::M, tNow::Float64, maturity::Float64, _rate::Float64) = A(model, tNow, maturity) * exp(-B(model, tNow, maturity) * _rate)

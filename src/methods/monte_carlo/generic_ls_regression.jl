@@ -2,7 +2,7 @@ function generic_longstaff_schwartz_regression!(simulationData::Vector{Vector{No
   steps = length(simulationData)
   resize!(basisCoefficients, steps-1)
 
-  for i = steps:-1:2
+  @inbounds @simd for i = steps:-1:2
     exerciseData = simulationData[i]
 
     # 1) Find the covariance matrix of basis function values and deflated cash-flows
@@ -59,8 +59,8 @@ function generic_longstaff_schwartz_regression!(simulationData::Vector{Vector{No
   estimatedData = simulationData[1]
   estimate = gen_RiskStatistics(length(estimatedData))
 
-  for j in eachindex(estimatedData)
-    add_sample!(estimate, estimatedData[j].cumulatedCashFlows, j)
+  @simd for j in eachindex(estimatedData)
+    @inbounds add_sample!(estimate, estimatedData[j].cumulatedCashFlows, j)
   end
 
   return stats_mean(estimate)

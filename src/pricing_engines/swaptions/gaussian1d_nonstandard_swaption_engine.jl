@@ -46,7 +46,7 @@ function _calculate!(pe::Gaussian1DNonstandardSwaptionEngine, swaption::Nonstand
   npvp0 = Vector{Vector{Float64}}()
   npvp1 = Vector{Vector{Float64}}()
   if !isa(pe.probabilities, NoneProbabilities)
-    for i = 1:(idx - (minIdxAlive - 1) + 1)
+    @inbounds @simd for i = 1:(idx - (minIdxAlive - 1) + 1)
       npvTmp0 = zeros(2 * pe.integrationPoints + 1)
       npvTmp1 = zeros(2 * integrationPoints + 1)
       push!(npvp0, npvTmp0)
@@ -69,7 +69,7 @@ function _calculate!(pe::Gaussian1DNonstandardSwaptionEngine, swaption::Nonstand
     j1 = upper_bound(fixedSchedule.dates, expiry0 - Dates.Day(1))
     k1 = upper_bound(floatingSchedule.dates, expiry0 - Dates.Day(1))
 
-    for k = 1:(expiry0 > settlement ? length(npv0) : 1)
+    @inbounds @simd for k = 1:(expiry0 > settlement ? length(npv0) : 1)
       price = 0.0
 
       if expiry1Time != -1.0
@@ -224,7 +224,7 @@ function calibration_basket(swaptionEngine::Gaussian1DNonstandardSwaptionEngine,
 
   # rebEx = RebatedExercise(exercise)
 
-  for i = minIdxAlive:n
+  @inbounds @simd for i = minIdxAlive:n
     expiry = swaption.exercise.dates[i]
     rebate = 0.0
     rebateDate = expiry

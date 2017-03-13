@@ -14,8 +14,8 @@ end
 
 function get_layout_from_meshers{F1D <: Fdm1DMesher}(mesherVec::Vector{F1D})
   dim = zeros(Int, length(mesherVec))
-  for i = 1:length(dim)
-    dim[i] = mesherVec[i].size
+  @simd for i in eachindex(dim)# = 1:length(dim)
+    @inbounds dim[i] = mesherVec[i].size
   end
 
   return FdmLinearOpLayout(dim)

@@ -89,8 +89,8 @@ function add_sample!(stat::GenericSequenceStats, vals::Vector, idx::Int, weight:
 
   BLAS.ger!(1.0, vals, vals, stat.quadraticSum)
 
-  for i in eachindex(stat.stats)
-    add_sample!(stat.stats[i], vals[i], weight, idx)
+  @simd for i in eachindex(stat.stats)
+    @inbounds add_sample!(stat.stats[i], vals[i], weight, idx)
   end
 
   return stat

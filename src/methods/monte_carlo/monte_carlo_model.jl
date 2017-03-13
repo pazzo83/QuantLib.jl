@@ -10,7 +10,7 @@ end
 function add_samples!(mcmodel::MonteCarloModel, samples::Int, idx::Int=1)
   # re-init the risk data
   adding_data!(mcmodel.sampleAccumulator, samples)
-  for j = 1:samples
+  @inbounds @simd for j = 1:samples
     path = get_next!(mcmodel.pathGenerator)
     price = mcmodel.pathPricer(path.value)
 

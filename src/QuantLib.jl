@@ -6,13 +6,13 @@ import Base.findprev, Base.findnext
 
 function findprev(testf::Function, A, start::Integer, val)
   for i = start:-1:1
-    testf(A[i], val) && return i
+    @inbounds testf(A[i], val) && return i
   end
   0
 end
 
 function findnext(testf::Function, A, start::Integer, val)
-  for i = start:length(A)
+  @inbounds for i = start:length(A)
     if testf(A[i], val)
       return i
     end

@@ -61,7 +61,7 @@ type ZeroCouponLeg <: Leg
 end
 
 ## Function wrapper for solvers ##
-type IRRFinder{L <: Leg, DC <: DayCount, C <: CompoundingType, F <: Frequency}
+type IRRFinder{L <: Leg, DC <: DayCount, C <: CompoundingType, F <: Frequency} <: Function
   leg::L
   npv::Float64
   dc::DC
@@ -70,6 +70,17 @@ type IRRFinder{L <: Leg, DC <: DayCount, C <: CompoundingType, F <: Frequency}
   includeSettlementDateFlows::Bool
   settlementDate::Date
   npvDate::Date
+end
+
+function (finder::IRRFinder)(y::Float64)
+  yld = InterestRate(y, finder.dc, finder.comp, finder.freq)
+  NPV = npv(finder.leg, yld, finder.includeSettlementDateFlows, finder.settlementDate, finder.npvDate)
+  return finder.npv - NPV
+end
+
+function (finder::IRRFinder)(y::Float64, ::Derivative)
+  yld = InterestRate(y, finder.dc, finder.comp, finder.freq)
+  return duration(ModifiedDuration(), finder.leg, yld, finder.dc, finder.includeSettlementDateFlows, finder.settlementDate, finder.npvDate)
 end
 
 ## this function can pass itself or its derivative ##
@@ -159,19 +170,20 @@ get_reset_dates{C <: Coupon}(coups::Vector{C}) = Date[accrual_start_date(coup) f
 # end
 
 ## NPV METHODS ##
+function _npv_reduce(coup::Union{Coupon, SimpleCashFlow}, yts::YieldTermStructure, settlement_date::Date)
+  if has_occurred(coup, settlement_date)
+    return 0.0
+  end
+  return amount(coup) * discount(yts, date(coup))
+end
+
 function npv(leg::Leg, yts::YieldTermStructure, settlement_date::Date, npv_date::Date)
   # stuff
-  totalNPV = 0.0
   if length(leg.coupons) == 0
-    return totalNPV
+    return 0.0
   end
 
-  for i in leg
-    if has_occurred(i, settlement_date)
-      continue
-    end
-    @inbounds totalNPV += amount(i) * discount(yts, date(i))
-  end
+  totalNPV = mapreduce(x -> _npv_reduce(x, yts, settlement_date), +, leg)
 
   # redemption - not needed with new iterator
   # totalNPV += amount(leg.redemption) * discount(yts, leg.redemption.date)
@@ -252,10 +264,10 @@ function npv(leg::ZeroCouponLeg, y::InterestRate, include_settlement_cf::Bool, s
   return totalNPV
 end
 
-
 function npvbps(leg::Leg, yts::YieldTermStructure, settlement_date::Date, npv_date::Date, includeSettlementDateFlows::Bool = true)
   npv = 0.0
   bps = 0.0
+
 
   for cp in leg
     if has_occurred(cp, settlement_date, includeSettlementDateFlows)
@@ -267,15 +279,6 @@ function npvbps(leg::Leg, yts::YieldTermStructure, settlement_date::Date, npv_da
     if isa(cp, Coupon)
       bps += cp.nominal * accrual_period(cp) * df
     end
-    # if isa(cp, FixedRateCoupon)
-    #   println("###########################")
-    #   println("df ", df)
-    #   println("bps ", bps)
-    #   println("Date ", date(cp))
-    #   println("nom ", cp.nominal)
-    #   println("acru p ", accrual_period(cp))
-    #   println("DayCount ", cp.dc)
-    # end
   end
   d = discount(yts, npv_date)
   npv /= d
@@ -490,7 +493,7 @@ function yield(leg::Leg, npv::Float64, dc::DayCount, compounding::CompoundingTyp
   solver = NewtonSolver(max_iter)
   obj_fun = IRRFinder(leg, npv, dc, compounding, freq, include_settlement_cf, settlement_date, npv_date)
 
-  return solve(solver, QuantLib.operator(obj_fun), accuracy, guess, guess / 10.0)
+  return solve(solver, obj_fun, accuracy, guess, guess / 10.0)
 end
 
 ## ITERATORS ##

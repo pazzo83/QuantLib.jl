@@ -37,8 +37,8 @@ function set_on_forward_rates!(lmm::LMMCurveState, rates::Vector{Float64}, first
 
   # then calculate the discount ratios
   # taken care at constructor time discRatios[numberOfRates] = 1.0
-  for i = lmm.firstIdx:lmm.numberOfRates
-    lmm.discRatios[i+1] = lmm.discRatios[i] / (1.0 + lmm.forwardRates[i] * lmm.rateTaus[i])
+  @simd for i = lmm.firstIdx:lmm.numberOfRates
+    @inbounds lmm.discRatios[i+1] = lmm.discRatios[i] / (1.0 + lmm.forwardRates[i] * lmm.rateTaus[i])
   end
 
   # lazy evaluation of :
@@ -66,9 +66,9 @@ function coterminal_from_discount_ratios!(lmm::LMMCurveState, firstValidIndex::I
   cotSwapAnnuities[nCotSwapRates] = taus[nCotSwapRates] * discountFactors[nCotSwapRates + 1]
   cotSwapRates[nCotSwapRates] = (discountFactors[nCotSwapRates] - discountFactors[nCotSwapRates + 1]) / cotSwapAnnuities[nCotSwapRates]
 
-  for i = nCotSwapRates:-1:firstValidIndex + 1
-    cotSwapAnnuities[i-1] = cotSwapAnnuities[i] + taus[i-1] * discountFactors[i]
-    cotSwapRates[i-1] = (discountFactors[i-1] - discountFactors[nCotSwapRates+1]) / cotSwapAnnuities[i-1]
+  @simd for i = nCotSwapRates:-1:firstValidIndex + 1
+    @inbounds cotSwapAnnuities[i-1] = cotSwapAnnuities[i] + taus[i-1] * discountFactors[i]
+    @inbounds cotSwapRates[i-1] = (discountFactors[i-1] - discountFactors[nCotSwapRates+1]) / cotSwapAnnuities[i-1]
   end
 
   return cotSwapAnnuities, cotSwapRates
@@ -95,8 +95,8 @@ function coterminal_swap_annuity(lmm::LMMCurveState, numeraire::Int, i::Int)
     lmm.firstCotAnnuityComped -= 1
   end
 
-  for j = lmm.firstCotAnnuityComped-1:-1:i
-    lmm.cotAnnuities[j] = lmm.cotAnnuities[j+1] + lmm.rateTaus[j] * lmm.discRatios[j+1]
+  @simd for j = lmm.firstCotAnnuityComped-1:-1:i
+    @inbounds lmm.cotAnnuities[j] = lmm.cotAnnuities[j+1] + lmm.rateTaus[j] * lmm.discRatios[j+1]
   end
 
   lmm.firstCotAnnuityComped = i

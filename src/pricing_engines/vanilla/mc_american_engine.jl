@@ -16,8 +16,8 @@ function LongstaffSchwartzPathPricer(tg::TimeGrid, ep::EarlyExercisePathPricer, 
   dF = zeros(len - 1)
   paths = Vector{Path}()
 
-  for i in eachindex(dF)
-    dF[i] = discount(yts, tg.times[i+1]) / discount(yts, tg.times[i])
+  @simd for i in eachindex(dF)
+    @inbounds dF[i] = discount(yts, tg.times[i+1]) / discount(yts, tg.times[i])
   end
 
   return LongstaffSchwartzPathPricer(true, ep, coeff, dF, paths, len, NonWeightedStatistics(), v)
@@ -100,7 +100,7 @@ function (lpp::LongstaffSchwartzPathPricer)(path::Path)
   # initialize with exercise on last date
   exercised = price != 0.0
 
-  for i = lpp.len-1:-1:2
+  @inbounds @simd for i = lpp.len-1:-1:2
     price *= lpp.dF[i]
     exercise = lpp.pathPricer(path, i)
     if exercise > 0.0
@@ -128,11 +128,12 @@ function calibrate!(lpp::LongstaffSchwartzPathPricer)
   exercise = zeros(n)
   len = length(lpp.paths[1])
 
-  for i in eachindex(prices)
-    prices[i] = lpp.pathPricer(lpp.paths[i], len)
-  end
+  # for i in eachindex(prices)
+  #   prices[i] = lpp.pathPricer(lpp.paths[i], len)
+  # end
+  map!(x -> lpp.pathPricer(x, len), prices, lpp.paths)
 
-  for i = len-1:-1:2
+  @inbounds @simd for i = len-1:-1:2
     y = Float64[]
     x = Float64[]
 

@@ -57,7 +57,7 @@ function finalize!(mm::MarketModelComposite)
   allCashFlowTimes = Vector{Float64}()
 
   # now for each subproduct
-  for i in eachindex(mm.components)
+  @inbounds @simd for i in eachindex(mm.components)
     d = get_evolution(mm.components[i].product)
 
     # collect all possible cash flow times
@@ -78,7 +78,7 @@ function finalize!(mm::MarketModelComposite)
   append!(mm.cashFlowTimes, allCashFlowTimes)
 
   # and map each product's cash flow time into the total vector
-  for i in eachindex(mm.components)
+  @inbounds @simd for i in eachindex(mm.components)
     productTimes = possible_cash_flow_times(mm.components[i].product)
     mm.components[i].timeIndices = Int[findfirst(mm.cashFlowTimes, productTimes[j]) for j in eachindex(productTimes)]
   end
@@ -96,7 +96,7 @@ function next_time_step!(mm::MarketModelComposite, currentState::CurveState, num
   isDone = true
   n = 1
   offset = 0
-  for i in eachindex(mm.components)
+  @inbounds @simd for i in eachindex(mm.components)
     if mm.isInSubset[n][mm.currentIndex] && ~mm.components[i].isDone
       # make it evolve
       thisDone = next_time_step!(mm.components[i].product, currentState, mm.components[i].numberOfCashflows, mm.components[i].cashFlows)
@@ -132,8 +132,8 @@ end
 
 function number_of_products(mm::MarketModelComposite)
   res = 0
-  for i in eachindex(mm.components)
-    res += number_of_products(mm.components[i].product)
+  @simd for i in eachindex(mm.components)
+    @inbounds res += number_of_products(mm.components[i].product)
   end
 
   return res
@@ -141,8 +141,8 @@ end
 
 function max_number_of_cashflows_per_product_per_step(mm::MarketModelComposite)
   res = 0
-  for i in eachindex(mm.components)
-    res  = max(res, max_number_of_cashflows_per_product_per_step(mm.components[i].product))
+  @simd for i in eachindex(mm.components)
+    @inbounds res  = max(res, max_number_of_cashflows_per_product_per_step(mm.components[i].product))
   end
 
   return res
@@ -159,7 +159,7 @@ function get_evolution(mm::MarketModelComposite)
 end
 
 function reset!(mm::MarketModelComposite)
-  for i in eachindex(mm.components)
+  @inbounds @simd for i in eachindex(mm.components)
     reset!(mm.components[i].product)
     mm.components[i].isDone = false
   end

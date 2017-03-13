@@ -42,9 +42,9 @@ function LMMDriftCalculator(pseudo::Matrix{Float64}, displacements::Vector{Float
   C = pseudo * pT
 
   # Compute lower and upper extrema for (non reduced) drift calculation
-  for i = alive:numberOfRates
-    downs[i] = min(i+1, numeraire)
-    ups[i] = max(i+1, numeraire)
+  @simd for i = alive:numberOfRates
+    @inbounds downs[i] = min(i+1, numeraire)
+    @inbounds ups[i] = max(i+1, numeraire)
   end
 
   return LMMDriftCalculator(numberOfRates, numberOfFactors, isFullFactor, numeraire, alive, displacements, oneOverTaus, C, pseudo,
@@ -55,13 +55,13 @@ function compute_reduced!(lmm::LMMDriftCalculator, forwards::Vector{Float64}, dr
   # Compute drifts with factor reduction using pseudo square root of covariance matrix
 
   # precompute forwards factor
-  for i = lmm.alive:lmm.numberOfRates
-    lmm.tmp[i] = (forwards[i] + lmm.displacements[i]) / (lmm.oneOverTaus[i] + forwards[i])
+  @simd for i = lmm.alive:lmm.numberOfRates
+    @inbounds lmm.tmp[i] = (forwards[i] + lmm.displacements[i]) / (lmm.oneOverTaus[i] + forwards[i])
   end
 
   # Enforce initialization
-  for r = 1:lmm.numberOfFactors
-    lmm.e[r, max(1, lmm.numeraire-1)] = 0.0
+  @simd for r = 1:lmm.numberOfFactors
+    @inbounds lmm.e[r, max(1, lmm.numeraire-1)] = 0.0
   end
   # Now compute drifts: take the numeraire P_N (numeraire = N) as the reference point
   # divide the summation into 3 steps
@@ -74,7 +74,7 @@ function compute_reduced!(lmm::LMMDriftCalculator, forwards::Vector{Float64}, dr
 
   # 2nd Step: then, move backwards from N-2 (included) back to alive(included)
   # (if N=1, jump to 3rd Step, if N = numberOfRates, the e[r, N-1] are correctly initialized)
-  for i = lmm.numeraire - 2:-1:lmm.alive
+  @inbounds @simd for i = lmm.numeraire - 2:-1:lmm.alive
     drifts[i] = 0.0
     for r = 1:lmm.numberOfFactors
       lmm.e[r, i] = lmm.e[r, i+1] + lmm.tmp[i+1] * lmm.pseudo[i+1, r]
@@ -84,7 +84,7 @@ function compute_reduced!(lmm::LMMDriftCalculator, forwards::Vector{Float64}, dr
 
   # 3rd step: now move forward from N (included) up to n (excluded)
   # (if N = 0 this is the only relevant computation)
-  for i = lmm.numeraire:lmm.numberOfRates
+  @inbounds @simd for i = lmm.numeraire:lmm.numberOfRates
     drifts[i] = 0.0
     for r = 1:lmm.numberOfFactors
       if i == 1

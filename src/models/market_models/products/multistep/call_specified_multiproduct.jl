@@ -90,7 +90,7 @@ function next_time_step!(cs::CallSpecifiedMultiProduct, currentState::CurveState
   if cs.wasCalled
     if isRebateTime
       isDone = next_time_step!(cs.rebate, currentState, numberCashFlowsThisStep, genCashFlows)
-      for i in eachindex(numberCashFlowsThisStep)
+      @inbounds @simd for i in eachindex(numberCashFlowsThisStep)
         for j = 1:numberCashFlowsThisStep[i]
           genCashFlows[i][j].timeIndex += cs.rebateOffset
         end

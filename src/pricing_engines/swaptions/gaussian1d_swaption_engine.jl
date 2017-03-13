@@ -48,7 +48,7 @@ function _calculate!(pe::Gaussian1DSwaptionEngine, swaption::Swaption)
   npvp0 = Vector{Vector{Float64}}()
   npvp1 = Vector{Vector{Float64}}()
   if !isa(pe.probabilities, NoneProbabilities)
-    for i = 1:(idx - (minIdxAlive - 1) + 1)
+    @inbounds @simd for i = 1:(idx - (minIdxAlive - 1) + 1)
       npvTmp0 = zeros(2 * pe.integrationPoints + 1)
       npvTmp1 = zeros(2 * integrationPoints + 1)
       push!(npvp0, npvTmp0)
@@ -85,7 +85,7 @@ function _calculate!(pe::Gaussian1DSwaptionEngine, swaption::Swaption)
     #   numeraire(pe.model, expiry0Time, 0.0, pe.discountCurve)
     # end
 
-    for k = 1:(expiry0 > settlement ? length(npv0) : 1)
+    @inbounds @simd for k = 1:(expiry0 > settlement ? length(npv0) : 1)
       price = 0.0
 
       if expiry1Time != -1.0

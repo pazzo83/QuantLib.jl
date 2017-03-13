@@ -45,7 +45,7 @@ function LogNormalFwdRatePc(marketModel::AbstractMarketModel, factory::BrownianG
   calculators = Vector{LMMDriftCalculator}(steps)
   fixedDrifts = Vector{Vector{Float64}}(steps)
 
-  for j = 1:steps
+  @inbounds @simd for j = 1:steps
     A = marketModel.pseudoRoots[j]
     calculators[j] = LMMDriftCalculator(A, displacements, marketModel.evolution.rateTaus, numeraires[j], alive[j])
     fixed = Vector{Float64}(numberOfRates)
@@ -104,7 +104,7 @@ function advance_step!(lognorm::LogNormalFwdRatePc)
   fixedDrift = lognorm.fixedDrifts[lognorm.currentStep]
 
   alive = lognorm.alive[lognorm.currentStep]
-  for i = alive:lognorm.numberOfRates
+  @inbounds @simd for i = alive:lognorm.numberOfRates
     lognorm.logForwards[i] += lognorm.drifts1[i] + fixedDrift[i]
     lognorm.logForwards[i] += vecdot(A[i, :], lognorm.brownians)
     lognorm.forwards[i] = exp(lognorm.logForwards[i]) - lognorm.displacement[i]
@@ -114,7 +114,7 @@ function advance_step!(lognorm::LogNormalFwdRatePc)
   compute!(lognorm.calculators[lognorm.currentStep], lognorm.forwards, lognorm.drifts2)
 
   # d) correct forwards using both drifts
-  for i = alive:lognorm.numberOfRates
+  @inbounds @simd for i = alive:lognorm.numberOfRates
     lognorm.logForwards[i] += (lognorm.drifts2[i] - lognorm.drifts1[i]) / 2.0
     lognorm.forwards[i] = exp(lognorm.logForwards[i]) - lognorm.displacement[i]
   end

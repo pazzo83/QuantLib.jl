@@ -22,7 +22,7 @@ function VegaBumpCollection(volStructure::AbstractMarketModel, factorwiseBumping
 
   allBumps = VegaBumpCluster[]
 
-  for s = 1:steps
+  @inbounds @simd for s = 1:steps
     for r = volStructure.evolution.firstAliveRate[s]:rates
       if factorwiseBumping
         for f = 1:factors

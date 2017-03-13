@@ -8,7 +8,7 @@ function exponential_correlations(rateTimes::Vector{Float64}, longTermCorr::Floa
   nbRows = length(rateTimes)-1
   correlations = zeros(nbRows, nbRows)
 
-  for i = 1:nbRows
+  @inbounds @simd for i = 1:nbRows
     # Correlation is defined only between (alive) stochastic rates
     if time_ <= rateTimes[i]
       correlations[i, i] = 1.0
@@ -64,7 +64,7 @@ function ExponentialForwardCorrelation(rateTimes::Vector{Float64},
     correlations = similar(times, Matrix{Float64})
     time_ = times[1] / 2.0
     correlations[1] = exponential_correlations(rateTimes, longTermCorr, beta, gamma, time_)
-    for k = 2:length(times)
+    @inbounds @simd for k = 2:length(times)
       time_ = (times[k] + times[k-1]) / 2.0
       correlations[k] = exponential_correlations(rateTimes, longTermCorr, beta, gamma, time)
     end

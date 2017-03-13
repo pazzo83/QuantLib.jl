@@ -152,11 +152,11 @@ function discount_function{T <: Real}(method::ExponentialSplinesFitting, x::Vect
   kappa = x[N]
   coeff = 0.0
   if !method.constrainAtZero
-    for i = 1:N
+    @simd for i = 1:N
       @inbounds d += x[i] * exp(-kappa * (i) * t)
     end
   else
-    for i = 1:N - 1
+    @simd for i = 1:N - 1
       @inbounds d += x[i]  * exp(-kappa * (i + 1) * t)
       @inbounds coeff += x[i]
     end
@@ -171,12 +171,12 @@ function discount_function{T <: Real}(method::SimplePolynomialFitting, x::Vector
   N = method.size
 
   if !method.constrainAtZero
-    for i = 1:N
+    @simd for i = 1:N
       @inbounds d += x[i] * get_polynomial(BernsteinPolynomial(), i-1, i-1, t)
     end
   else
     d = 1.0
-    for i = 1:N
+    @simd for i = 1:N
       @inbounds d += x[i] * get_polynomial(BernsteinPolynomial(), i, i, t)
     end
   end
@@ -206,13 +206,13 @@ end
 function discount_function{T <: Real}(method::CubicBSplinesFitting, x::Vector{T}, t::Float64)
   d = 0.0
   if !method.constrainAtZero
-    for i = 1:method.size
+    @simd for i = 1:method.size
       @inbounds d += x[i] * spline_oper(method.splines, i, t)
     end
   else
     t_star = 0.0
     sum = 0.0
-    for i = 1:method.size
+    @simd for i = 1:method.size
       if i < method.N
         @inbounds d += x[i] * spline_oper(method.splines, i, t)
         @inbounds sum += x[i] * spline_oper(method.splines, i, t_star)

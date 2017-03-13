@@ -80,7 +80,7 @@ function main()
 
   npv_cube = zeros(length(portfolio), length(date_grid), N)
   # npv_cube = zeros(length(date_grid), length(portfolio), N)
-  discount_factors = Float64[discount(yts, time_grid[i]) for i in eachindex(time_grid)]'
+  discount_factors = Float64[discount(yts, time_grid[i]) for i in eachindex(time_grid)]
   # discount_factors = Float64[discount(yts, time_grid[i]) for i in eachindex(time_grid)]
 
   # Clone swaptions for updating pricing

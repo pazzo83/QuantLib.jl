@@ -28,9 +28,10 @@ function DiscretizedSwaption{DC <: DayCount}(swaption::Swaption, referenceDate::
   floatingPayDates = copy(swaption.swap.args.floatingPayDates)
   floatingResetDates = copy(swaption.swap.args.floatingResetDates)
 
-  for i = 1:n
-    exerciseTimes[i] = year_fraction(dc, referenceDate, dates[i])
-  end
+  # for i = 1:n
+  #   exerciseTimes[i] = year_fraction(dc, referenceDate, dates[i])
+  # end
+  map!(x -> year_fraction(dc, referenceDate, x), exerciseTimes, dates)
 
   # Date adjustments can get time vectors out of sync
   # Here we try and collapse similar dates which could cause a mispricing

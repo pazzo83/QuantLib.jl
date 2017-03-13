@@ -15,7 +15,7 @@ function SwapRateTrigger(rateTimes::Vector{Float64}, swapTriggers::Vector{Float6
 
   rateIndex = Vector{Int}(length(exerciseTimes))
   j = 1
-  for i in eachindex(exerciseTimes)
+  @inbounds @simd for i in eachindex(exerciseTimes)
     while j <= length(rateTimes) && rateTimes[j] < exerciseTimes[i]
       j += 1
     end

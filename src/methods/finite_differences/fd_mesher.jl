@@ -21,7 +21,7 @@ function FdmMesherComposite{F1D <: Fdm1DMesher}(xmesher::F1D, ymesher::F1D)
 end
 
 function iter_coords!(coord::Vector{Int}, dims::Vector{Int})
-  for i = 1:length(dims)
+  @inbounds for i in eachindex(dims)# = 1:length(dims)
     coord[i] += 1
     if coord[i] == dims[i] + 1
       coord[i] = 1
@@ -36,7 +36,7 @@ end
 function get_locations(mesher::FdmMesherComposite, direction::Int)
   coords = ones(Int, length(mesher.layout.dim))
   retVal = zeros(mesher.layout.size)
-  for i = 1:length(retVal)
+  @inbounds @simd for i in eachindex(retVal) # = 1:length(retVal)
     retVal[i] = mesher.meshers[direction].locations[coords[direction]]
     iter_coords!(coords, mesher.layout.dim)
   end
@@ -67,7 +67,7 @@ function FdmSimpleProcess1dMesher(sz::Int, process::StochasticProcess1D, maturit
   dminus = zeros(sz)
   dplus = zeros(sz)
   mp = mandatoryPoint == -1.0 ? process.x0 : mandatoryPoint
-  for l = 1:tAvgSteps
+  @inbounds @simd for l = 1:tAvgSteps
     t = (maturity * l) / tAvgSteps
 
     qMin = min(process.x0, evolve(process, 0.0, process.x0, t, norminvcdf(_eps)))
@@ -86,7 +86,7 @@ function FdmSimpleProcess1dMesher(sz::Int, process::StochasticProcess1D, maturit
   end
 
   locations /= tAvgSteps
-  for i = 1:sz - 1
+  @inbounds @simd for i = 1:sz - 1
     dminus[i + 1] = dplus[i] = locations[i + 1] - locations[i]
   end
 

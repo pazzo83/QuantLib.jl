@@ -1,3 +1,20 @@
+type BootstrapError{T <: BootstrapHelper, Y <: TermStructure} <: Function
+  i::Int
+  inst::T
+  ts::Y
+end
+
+function (be::BootstrapError)(g::Float64)
+  update_guess!(be.ts.trait, be.i, be.ts, g)
+  QuantLib.Math.update!(be.ts.interp, be.i, g)
+
+  return quote_error(be.inst)
+end
+
+quote_error{B <: BondHelper}(inst::B) = QuantLib.value(inst) - implied_quote(inst) # recalculate
+quote_error{R <: RateHelper}(rate::R) = QuantLib.value(rate) - implied_quote(rate)
+quote_error(rate::AbstractCDSHelper) = QuantLib.value(rate) - implied_quote(rate)
+
 get_pricing_engine{Y}(::Discount, yts::Y) = DiscountingBondEngine(yts)
 
 function apply_termstructure{R <: RateHelper, T <: TermStructure}(rate::R, ts::T)
@@ -50,13 +67,13 @@ function initialize{T <: TermStructure}(::IterativeBootstrap, ts::T)
   # build times and error vectors (which have the functions for the solver)
   ts.times[1] = time_from_reference(ts, ts.referenceDate)
   ts.dates[1] = ts.referenceDate
-  for i = 2:n
+  @simd for i = 2:n
     @inbounds ts.times[i] = time_from_reference(ts, maturity_date(ts.instruments[i - 1]))
     @inbounds ts.dates[i] = maturity_date(ts.instruments[i - 1])
     # set yield term Structure
     @inbounds ts.instruments[i - 1] = apply_termstructure(ts.instruments[i - 1], ts)
     # set error function
-    @inbounds ts.errors[i] = bootstrap_error(i, ts.instruments[i - 1], ts)
+    @inbounds ts.errors[i] = BootstrapError(i, ts.instruments[i - 1], ts)
   end
 
   # initialize interpolation
@@ -132,7 +149,3 @@ function bootstrap_error{T <: BootstrapHelper, Y <: TermStructure}(i::Int, inst:
 
   return bootstrap_error_inner
 end
-
-quote_error{B <: BondHelper}(inst::B) = QuantLib.value(inst) - implied_quote(inst) # recalculate
-quote_error{R <: RateHelper}(rate::R) = QuantLib.value(rate) - implied_quote(rate)
-quote_error(rate::AbstractCDSHelper) = QuantLib.value(rate) - implied_quote(rate)

@@ -19,7 +19,7 @@ function FdmDividendHandler(schedule::DividendSchedule, mesher::FdmMesher, refDa
   dividendTimes = zeros(schedLength)
   x = zeros(mesher.layout.dim[equityDirection])
 
-  for i = 1:schedLength
+  @inbounds @simd for i = 1:schedLength
     dividends = amount(schedule.dividends[i])
     dividendDates = date(schedule.dividends[i])
     dividendTimes = year_fraction(dc, refDate, date(schedule.dividends[i]))
@@ -28,7 +28,7 @@ function FdmDividendHandler(schedule::DividendSchedule, mesher::FdmMesher, refDa
   tmp = get_locations(mesher, equityDirection)
   spacing = mesher.layout.spacing[equityDirection]
 
-  for i = 1:length(x)
+  @inbounds @simd for i = 1:length(x)
     iter = ((i - 1) * spacing) + 1
     x[i] = exp(tmp[iter])
   end
@@ -64,7 +64,7 @@ function apply_to!(cond::FdmBermudanStepCondition, a::Vector{Float64}, t::Float6
 
     locations = zeros(dims)
 
-    for i = 1:layout.size
+    @inbounds @simd for i = 1:layout.size
       for j = 1:dims
         locations[dims] = get_location(cond.mesher, coords, j)
       end
@@ -167,8 +167,8 @@ build_AmericanStepCondition(intrinsicValues::Vector{Float64}) = CurveDependentSt
 apply_to_value(::AmericanStepCondition, current::Float64, intrinsic::Float64) = max(current, intrinsic)
 
 function apply_to!(cond::CurveDependentStepCondition, a::Vector{Float64}, ::Float64)
-  for i in eachindex(a)
-    a[i] = apply_to_value(cond, a[i], get_value(cond, a, i))
+  @simd for i in eachindex(a)
+    @inbounds a[i] = apply_to_value(cond, a[i], get_value(cond, a, i))
   end
 
   return cond, a

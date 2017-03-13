@@ -25,7 +25,7 @@ function rollback_impl!(model::FiniteDifferenceModel, a::Vector, from::Float64, 
     apply_to!(condition, a, from)
   end
 
-  for i = 1:steps
+  @inbounds @simd for i = 1:steps
     _now = t
     _next = t - dt
     hit = false

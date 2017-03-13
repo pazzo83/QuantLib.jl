@@ -24,8 +24,8 @@ function initialize!(ihc::InterpolatedHazardRateCurve)
   length(ihc.dates) == length(ihc.data) || error("dates / data mismatch")
 
   ihc.times[1] = 0.0
-  for i = 2:length(ihc.dates)
-    ihc.times[i] = year_fraction(ihc.dc, ihc.dates[1], ihc.dates[i])
+  @simd for i = 2:length(ihc.dates)
+    @inbounds ihc.times[i] = year_fraction(ihc.dc, ihc.dates[1], ihc.dates[i])
   end
 
   # initialize interpolator

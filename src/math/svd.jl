@@ -10,7 +10,7 @@ function svd_singular_val_creation!(::Type{Val{1}}, e::Vector{Float64}, s::Vecto
   # Deflate negligible s(p)
   f = e[p-1]
   e[p-1] = 0.0
-  @inbounds for j = p-1:-1:k
+  @inbounds @simd for j = p-1:-1:k
     t = hypot(s[j],f)
     cs = s[j]/t
     sn = f/t
@@ -34,7 +34,7 @@ function svd_singular_val_creation!(::Type{Val{2}}, e::Vector{Float64}, s::Vecto
   # Split at negligible s(k)
   f = e[k-1]
   e[k-1] = 0.0
-  @inbounds for j = k:p
+  @inbounds @simd for j = k:p
     t = hypot(s[j],f)
     cs = s[j]/t
     sn = f/t
@@ -82,7 +82,7 @@ function svd_singular_val_creation!(::Type{Val{3}}, e::Vector{Float64}, s::Vecto
   g = sk*ek
 
   # Chase zeros
-  @inbounds for j = k:p-1
+  @inbounds @simd for j = k:p-1
     t = hypot(f,g)
     cs = f/t
     sn = g/t
@@ -125,8 +125,8 @@ function svd_singular_val_creation!(::Type{Val{4}}, e::Vector{Float64}, s::Vecto
   # Make the singular values positive
   if s[k] <= 0.0
     s[k] = s[k] < 0.0 ? -s[k] : 0.0
-    for i = 1:pp+1
-      V[i,k] = -V[i,k]
+    @simd for i = 1:pp+1
+      @inbounds V[i,k] = -V[i,k]
     end
   end
 
@@ -312,7 +312,7 @@ function SVD(M::Matrix{Float64})
   end
 
   # Generate V
-  @inbounds for k = n:-1:1
+  @inbounds @simd for k = n:-1:1
     if k <= nrt && e[k] != 0.0
       @inbounds for j = k+1:n
         t = 0.0

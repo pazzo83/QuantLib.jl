@@ -35,8 +35,8 @@ get_size(bsm::BlackScholesLattice, i::Int) = get_size(bsm.tree, i)
 discount(bsm::BlackScholesLattice, ::Int, ::Int) = bsm.discountFactor
 
 function step_back!(bsm::BlackScholesLattice, i::Int, values::Vector{Float64}, newValues::Vector{Float64})
-  for j = 1:i
-    newValues[j] = (bsm.pd * values[j] + psm.pu * values[j+1]) * bsm.discountFactor
+  @simd for j = 1:i
+    @inbounds newValues[j] = (bsm.pd * values[j] + psm.pu * values[j+1]) * bsm.discountFactor
   end
 
   return newValues

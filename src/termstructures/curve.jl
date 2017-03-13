@@ -49,14 +49,14 @@ function value{C <: CostFunction, T}(cf::C, x::Vector{T})
   n = length(cf.curve.bonds)
 
   # for (i, bh) in enumerate(cf.curve.bonds)
-  for i=1:length(cf.curve.bonds)
+  @inbounds @simd for i in eachindex(cf.curve.bonds)
     bond = cf.curve.bonds[i].bond
     bond_settlement = get_settlement_date(bond)
     model_price = -accrued_amount(bond, bond_settlement)
     leg = bond.cashflows
     for k = cf.firstCashFlow[i]:length(leg.coupons)
       # @inbounds df = discount_function(cf.curve.fittingMethod, x, year_fraction(dc, ref_date, date(leg.coupons[k])))
-      @inbounds model_price += amount(leg.coupons[k]) * discount_function(cf.curve.fittingMethod, x, year_fraction(dc, ref_date, date(leg.coupons[k])))
+      model_price += amount(leg.coupons[k]) * discount_function(cf.curve.fittingMethod, x, year_fraction(dc, ref_date, date(leg.coupons[k])))
     end
 
     # redemption
@@ -69,7 +69,7 @@ function value{C <: CostFunction, T}(cf::C, x::Vector{T})
 
     market_price = bond.faceAmount
     price_error = model_price - market_price
-    @inbounds weighted_error = cf.curve.fittingMethod.commons.weights[i] * price_error
+    weighted_error = cf.curve.fittingMethod.commons.weights[i] * price_error
     squared_error += weighted_error * weighted_error
   end
 

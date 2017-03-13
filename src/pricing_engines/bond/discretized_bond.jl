@@ -23,16 +23,17 @@ function DiscretizedCallableFixedRateBond(bond::CallableFixedRateBond, reference
   redemptionTime = year_fraction(dc, referenceDate, args.redemptionDate)
   couponTimes = Vector{Float64}(length(args.couponDates))
 
-  for i in eachindex(couponTimes)
-    couponTimes[i] = year_fraction(dc, referenceDate, args.couponDates[i])
-  end
+  # for i in eachindex(couponTimes)
+  #   couponTimes[i] = year_fraction(dc, referenceDate, args.couponDates[i])
+  # end
+  map!(x -> year_fraction(dc, referenceDate, x), couponTimes, args.couponDates)
 
   callabilityTimes = Vector{Float64}(length(args.callabilityDates))
 
-  for i in eachindex(callabilityTimes)
-    callabilityTimes[i] = year_fraction(dc, referenceDate, args.callabilityDates[i])
-  end
-
+  # for i in eachindex(callabilityTimes)
+  #   callabilityTimes[i] = year_fraction(dc, referenceDate, args.callabilityDates[i])
+  # end
+  map!(x -> year_fraction(dc, referenceDate, x), callabilityTimes, args.callabilityDates)
   # similar to tree swaption engine, we collapse similar coupon and exercise dates to avoid mispricing.
   # Can remove if necessary
 
@@ -63,18 +64,18 @@ function mandatory_times(dcb::DiscretizedCallableFixedRateBond)
 end
 
 function apply_callability!(dcb::DiscretizedCallableFixedRateBond, ::Call, i::Int)
-  for j in eachindex(dcb.common.values)
-    dcb.common.values[j] = min(dcb.args.callabilityPrices[i], dcb.common.values[j])
-  end
-
+  # for j in eachindex(dcb.common.values)
+  #   dcb.common.values[j] = min(dcb.args.callabilityPrices[i], dcb.common.values[j])
+  # end
+  dcb.common.values = min(dcb.args.callabilityPrices[i], dcb.common.values)
   return dcb
 end
 
 function apply_callability!(dcb::DiscretizedCallableFixedRateBond, ::Put, i::Int)
-  for j in eachindex(dcb.common.values)
-    dcb.common.values[j] = max(dcb.common.values[j], dcb.args.callabilityPrices[i])
-  end
-
+  # for j in eachindex(dcb.common.values)
+  #   dcb.common.values[j] = max(dcb.common.values[j], dcb.args.callabilityPrices[i])
+  # end
+  dcb.common.values = max(dcb.args.callabilityPrices[i], dcb.common.values)
   return dcb
 end
 

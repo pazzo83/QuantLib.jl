@@ -197,9 +197,10 @@ function setup_args!(pe::FDMultiPeriodEngine, opt::VanillaOption)
   n = length(opt.exercise.dates)
 
   pe.stoppingTimes = zeros(n)
-  for i in eachindex(pe.stoppingTimes)
-    pe.stoppingTimes[i] = get_time(pe.process, opt.exercise.dates[i])
-  end
+  # for i in eachindex(pe.stoppingTimes)
+  #   pe.stoppingTimes[i] = get_time(pe.process, opt.exercise.dates[i])
+  # end
+  map!(x -> get_time(pe.process, x), pe.stoppingTimes, opt.exercise.dates)
 
   return pe
 end

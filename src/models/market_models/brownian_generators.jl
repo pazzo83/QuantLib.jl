@@ -59,8 +59,8 @@ end
 
 function next_path!(sob::SobolBrownianGenerator)
   vals, wgt = next_sequence!(sob.generator)
-  for i = 1:sob.factors
-    transform!(sob.bridge, vals[sob.orderedIndices[i]], sob.bridgedVariates[i])
+  @simd for i = 1:sob.factors
+    @inbounds transform!(sob.bridge, vals[sob.orderedIndices[i]], sob.bridgedVariates[i])
   end
 
   sob.lastStep = 1
@@ -69,8 +69,8 @@ function next_path!(sob::SobolBrownianGenerator)
 end
 
 function next_step!(sob::SobolBrownianGenerator, output::Vector{Float64})
-  for i = 1:sob.factors
-    output[i] = sob.bridgedVariates[i][sob.lastStep]
+  @simd for i = 1:sob.factors
+    @inbounds output[i] = sob.bridgedVariates[i][sob.lastStep]
   end
   sob.lastStep += 1
 

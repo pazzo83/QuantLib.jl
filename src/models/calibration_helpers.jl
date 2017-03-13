@@ -12,10 +12,12 @@ type CalibrationHelperCommon
   CalibrationHelperCommon() = new(0.0, RelativePriceError())
 end
 
-type ImpliedVolatilityHelper{C <: CalibrationHelper}
+type ImpliedVolatilityHelper{C <: CalibrationHelper} <: Function
   helper::C
   value::Float64
 end
+
+(iv::ImpliedVolatilityHelper)(x::Float64) = iv.value - black_price!(iv.helper, x)
 
 function operator(iv::ImpliedVolatilityHelper)
   function _inner(x::Float64)
@@ -33,7 +35,7 @@ function implied_volatility!(ch::CalibrationHelper, targetValue::Float64, accura
 
   solv = BrentSolver(maxEvals)
 
-  return solve(solv, operator(ivh), accuracy, ch.volatility.value, minVol, maxVol)
+  return solve(solv, ivh, accuracy, ch.volatility.value, minVol, maxVol)
 end
 
 function update_pricing_engine{C <: CalibrationHelper, P <: PricingEngine}(ch::C, pe::P)

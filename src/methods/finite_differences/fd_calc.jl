@@ -80,7 +80,7 @@ function inner_value(calc::FdmAffineModelSwapInnerValue, coords::Vector{Int}, i:
 
   npv = 0.0
   for j = 1:2
-    for i = 1:length(calc.swap.legs[j].coupons)
+    for i in eachindex(calc.swap.legs[j].coupons)# = 1:length(calc.swap.legs[j].coupons)
       cf = calc.swap.legs[j].coupons[i]
       if isa(cf, Coupon)
         npv += accrual_start_date(cf) >= iterExerciseDate ? amount(cf) * discount(calc.disTs, date(cf)) : 0.0

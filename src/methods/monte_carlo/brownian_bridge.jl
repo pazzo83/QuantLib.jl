@@ -13,7 +13,7 @@ end
 function BrownianBridge(tg::TimeGrid)
   size_ = length(tg.times) - 1
   t = zeros(size_)
-  for i in eachindex(t)
+  @inbounds @simd for i in eachindex(t)
     t[i] = tg[i + 1]
   end
   bb = BrownianBridge(size_, t, zeros(size_), zeros(Int, size_), zeros(Int, size_), zeros(Int, size_), zeros(size_), zeros(size_), zeros(size_))
@@ -24,7 +24,7 @@ end
 
 function BrownianBridge(steps::Int)
   t = Vector{Float64}(steps)
-  for i in eachindex(t)
+  @inbounds @simd for i in eachindex(t)
     t[i] = float(i)
   end
 
@@ -36,8 +36,8 @@ end
 
 function initialize!(bb::BrownianBridge)
   bb.sqrtdt[1] = sqrt(bb.t[1])
-  for i = 2:bb.size_
-    bb.sqrtdt[i] = sqrt(bb.t[i] - bb.t[i-1])
+  @simd for i = 2:bb.size_
+    @inbounds bb.sqrtdt[i] = sqrt(bb.t[i] - bb.t[i-1])
   end
 
   # mapVec is used to indicate which points are already constructed.
@@ -55,7 +55,7 @@ function initialize!(bb::BrownianBridge)
   bb.leftWeight[1] = bb.rightWeight[1] = 0.0
 
   j = 0
-  for i = 1:bb.size_ - 1
+  @inbounds @simd for i = 1:bb.size_ - 1
     # find the next unpopulated entry in the map
     while mapVec[j+1] != 0
       j += 1
@@ -97,7 +97,7 @@ function transform!(bb::BrownianBridge, randomVec::Vector{Float64}, output::Vect
   # we use the output to store the path
   output[bb.size_] = bb.stdDev[1] * randomVec[1]
 
-  for i = 2:bb.size_
+  @inbounds @simd for i = 2:bb.size_
     j = bb.leftIndex[i]
     k = bb.rightIndex[i]
     l = bb.bridgeIndex[i]
@@ -110,9 +110,9 @@ function transform!(bb::BrownianBridge, randomVec::Vector{Float64}, output::Vect
   end
 
   # after which we calculate the variations and normalize to unit times
-  for i = bb.size_:-1:2
-    output[i] -= output[i-1]
-    output[i] /= bb.sqrtdt[i]
+  @simd for i = bb.size_:-1:2
+    @inbounds output[i] -= output[i-1]
+    @inbounds output[i] /= bb.sqrtdt[i]
   end
 
   output[1] /= bb.sqrtdt[1]

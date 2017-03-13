@@ -46,7 +46,7 @@ function FlatVol(vols::Vector{Float64},
   covariance = Matrix{Float64}(numberOfRates, numberOfRates)
 
   kk = 1
-  for k = 1:numberOfSteps
+  @inbounds @simd for k = 1:numberOfSteps
     # one covariance per evolution step
     fill!(covariance, 0.0)
 

@@ -5,7 +5,7 @@ function evolved_matrices(::Type{TimeHomogeneousForwardCorrelation}, fwdCorrelat
   correlations = Matrix{Float64}[zeros(numberOfRates, numberOfRates) for i = 1:numberOfRates]
   # correlations = fill(zeros(numberOfRates, numberOfRates), numberOfRates)
 
-  for k in eachindex(correlations)
+  @inbounds @simd for k in eachindex(correlations)
     # proper diagonal values
     for i = k:numberOfRates
       correlations[k][i, i] = 1.0

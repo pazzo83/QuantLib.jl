@@ -90,8 +90,8 @@ function Schedule{B <: BusinessDayConvention, B1 <: BusinessDayConvention, C <: 
 
   dates[end] = terminationDate
   period = 1
-  for i = size - 1:-1:2
-    dates[i] = adjust(cal, convention, terminationDate - period * tenor.period)
+  @simd for i = size - 1:-1:2
+    @inbounds dates[i] = adjust(cal, convention, terminationDate - period * tenor.period)
     period += 1
   end
   # dt = effectiveDate

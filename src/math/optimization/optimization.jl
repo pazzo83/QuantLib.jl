@@ -29,7 +29,7 @@ function project(proj::Projection, params::Vector{Float64})
   projectedParams = Vector{Float64}(proj.numberOfFreeParams)
 
   i = 1
-  for j = 1:length(proj.fixParams)
+  @inbounds @simd for j = 1:length(proj.fixParams)
     if !proj.fixParams[j]
       projectedParams[i] = params[j]
       i += 1
@@ -42,7 +42,7 @@ end
 function include_params(proj::Projection, params::Vector{Float64})
   y = copy(proj.fixedParameters)
   i = 1
-  for j = 1:length(y)
+  @inbounds @simd for j = 1:length(y)
     if !proj.fixParams[j]
       y[j] = params[i]
       i += 1
@@ -76,7 +76,7 @@ test{T}(::NoConstraint, ::Vector{T}) = true
 test(c::ProjectedConstraint, x::Vector{Float64}) = test(c.constraint, include_params(c.projection, x))
 
 function test(::PositiveConstraint, x::Vector{Float64})
-  for i = 1:length(x)
+  @inbounds @simd for i = 1:length(x)
     if x[i] <= 0.0
       return false
     end
@@ -86,7 +86,7 @@ function test(::PositiveConstraint, x::Vector{Float64})
 end
 
 function test(c::BoundaryConstraint, x::Vector{Float64})
-  for i = 1:length(x)
+  @inbounds @simd for i = 1:length(x)
     if x[i] < c.low || x[i] > c.high
       return false
     end
@@ -119,7 +119,7 @@ end
 function get_jacobin!(cf::CostFunction, jac::Matrix{Float64}, x::Vector{Float64})
   eps_ = FINITE_DIFFERENCES_EPSILON
   xx = zeros(length(x))
-  for i = 1:length(x)
+  @inbounds @simd for i = 1:length(x)
     xx[i] += eps_
     fp = QuantLib.func_values(cf, xx)
     xx[i] -= 2.0 * eps_

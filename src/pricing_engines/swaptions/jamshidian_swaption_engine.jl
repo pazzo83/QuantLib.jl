@@ -24,9 +24,10 @@ function _calculate!(pe::JamshidianSwaptionEngine, swaption::Swaption)
 
   fixedPayTimes = zeros(length(swaption.swap.args.fixedPayDates))
   valueTime = year_fraction(dc, ref_date, swaption.swap.args.fixedResetDates[1])
-  for i = 1:length(fixedPayTimes)
-    fixedPayTimes[i] = year_fraction(dc, ref_date, swaption.swap.args.fixedPayDates[i])
-  end
+  # for i = 1:length(fixedPayTimes)
+  #   fixedPayTimes[i] = year_fraction(dc, ref_date, swaption.swap.args.fixedPayDates[i])
+  # end
+  map!(x -> year_fraction(dc, ref_date, x), fixedPayTimes, swaption.swap.args.fixedPayDates)
 
   finder = RStarFinder(tsmodel, swaption.swap.nominal, maturity, valueTime, fixedPayTimes, amounts)
 
@@ -34,7 +35,7 @@ function _calculate!(pe::JamshidianSwaptionEngine, swaption::Swaption)
   maxStrike = 10.0
   slv = BrentSolver(10000, true, true, minStrike, maxStrike)
 
-  rStar = solve(slv, operator(finder), 1e-8, 0.05, minStrike, maxStrike)
+  rStar = solve(slv, finder, 1e-8, 0.05, minStrike, maxStrike)
 
   w = isa(swaption.swap.swapT, Payer) ? Put() : Call()
 

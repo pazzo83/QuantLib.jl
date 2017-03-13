@@ -23,7 +23,7 @@ function NothingExerciseValue(rateTimes::Vector{Float64}, isExerciseTime::BitArr
   end
 
   numberOfExercises = 0
-  for i in eachindex(isExerciseTime)
+  @inbounds @simd for i in eachindex(isExerciseTime)
     if isExerciseTime[i]
       numberOfExercises += 1
     end

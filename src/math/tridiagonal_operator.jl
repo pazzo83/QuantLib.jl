@@ -48,14 +48,14 @@ function solve_for!(L::TridiagonalOperator, rhs::Vector{Float64}, result::Vector
   bet = L.diagonal[1]
   result[1] = rhs[1] / bet
 
-  for j = 2:L.n
+  @inbounds @simd for j = 2:L.n
     L.temp[j] = L.upperDiagonal[j - 1] / bet
     bet = L.diagonal[j] - L.lowerDiagonal[j - 1] * L.temp[j]
     result[j] = (rhs[j] - L.lowerDiagonal[j - 1] * result[j - 1]) / bet
   end
 
-  for j = L.n-1:-1:2
-    result[j] -= L.temp[j + 1] * result[j + 1]
+  @simd for j = L.n-1:-1:2
+    @inbounds result[j] -= L.temp[j + 1] * result[j + 1]
   end
 
   result[1] -= L.temp[2] * result[2]
@@ -69,8 +69,8 @@ function apply_to(L::TridiagonalOperator, v::Vector{Float64})
   res = L.diagonal .* v
 
   res[1] = L.upperDiagonal[1] * v[2]
-  for j = 2:L.n - 1
-    res[j] += L.lowerDiagonal[j-1] * v[j-1] + L.upperDiagonal[j] * v[j+1]
+  @simd for j = 2:L.n - 1
+    @inbounds res[j] += L.lowerDiagonal[j-1] * v[j-1] + L.upperDiagonal[j] * v[j+1]
   end
 
   res[end] += L.lowerDiagonal[end-1] * v[end-1]

@@ -7,7 +7,7 @@ function normalize_pseudo_root!(matrix::Matrix, pseudo::Matrix)
 
   pseudoCols = size(pseudo)[2]
   # row normalization
-  for i = 1:sz
+  @inbounds @simd for i = 1:sz
     norm = 0.0
     for j = 1:pseudoCols
       norm += pseudo[i,j] * pseudo[i, j]
@@ -46,7 +46,7 @@ function rank_reduced_sqrt(matrix::Matrix, maxRank::Int, componentRetainedPercen
   retainedFactors = 1
   i = 2
   while components < enough && i <= sz
-    components += eigenVals[i]
+    @inbounds components += eigenVals[i]
     retainedFactors += 1
     i += 1
   end
@@ -55,8 +55,8 @@ function rank_reduced_sqrt(matrix::Matrix, maxRank::Int, componentRetainedPercen
   retainedFactors = min(retainedFactors, maxRank)
 
   diagonal = zeros(sz, retainedFactors)
-  for i = 1:retainedFactors
-    diagonal[i, i] = sqrt(eigenVals[i])
+  @simd for i = 1:retainedFactors
+    @inbounds diagonal[i, i] = sqrt(eigenVals[i])
   end
 
   result = jd[:vectors] * diagonal
@@ -68,8 +68,8 @@ end
 
 function ql_norm_squared(v::Matrix{Float64}, row::Int)
   x = 0.0
-  for i = 1:size(v)[2]
-    x += v[row, i] * v[row, i]
+  @simd for i = 1:size(v)[2]
+    @inbounds x += v[row, i] * v[row, i]
   end
 
   return x
@@ -81,8 +81,8 @@ end
 
 function inner_product(v::Matrix{Float64}, row1::Int, w::Matrix{Float64}, row2::Int)
   x = 0.0
-  for i = 1:size(v)[2]
-    x += v[row1, i] * w[row2, i]
+  @simd for i = 1:size(v)[2]
+    @inbounds x += v[row1, i] * w[row2, i]
   end
 
   return x
@@ -106,7 +106,7 @@ function OrthogonalProjection(originalVectors::Matrix{Float64}, multiplierCutoff
   projectedVectors = Vector{Vector{Float64}}()
 
   currentVector = Vector{Float64}(dimension)
-  for j in eachindex(validVectors)
+  @inbounds @simd for j in eachindex(validVectors)
     if validVectors[j]
       for k = 1:numberVectors
         for m = 1:dimension
@@ -163,8 +163,8 @@ function OrthogonalProjection(originalVectors::Matrix{Float64}, multiplierCutoff
   end # end of j loop
 
   numberValidVectors = 0
-  for i in eachindex(validVectors)
-    numberValidVectors += validVectors[i] ? 1 : 0
+  @simd for i in eachindex(validVectors)
+    @inbounds numberValidVectors += validVectors[i] ? 1 : 0
   end
 
   return OrthogonalProjection(originalVectors, multiplierCutoff, numberVectors, numberValidVectors, dimension, validVectors, projectedVectors, orthoNormalizedVectors)

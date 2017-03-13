@@ -23,8 +23,8 @@ end
 function initialize!(idc::InterpolatedDiscountCurve)
   length(idc.dates) == length(idc.data) || error("dates / data mismatch")
   idc.times[1] = 0.0
-  for i = 2:length(idc.dates)
-    idc.times[i] = year_fraction(idc.dc, idc.dates[1], idc.dates[i])
+  @simd for i = 2:length(idc.dates)
+    @inbounds idc.times[i] = year_fraction(idc.dc, idc.dates[1], idc.dates[i])
   end
 
   # initialize interpolator

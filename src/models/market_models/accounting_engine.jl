@@ -44,7 +44,7 @@ function single_path_values!(ae::AccountingEngine, vals::Vector{Float64})
     # println("cfs: ", ae.cashFlowsGenerated)
 
     # for each product
-    for i = 1:ae.numberProducts
+    @inbounds @simd for i = 1:ae.numberProducts
       # and each cash flow
       cfs = ae.cashFlowsGenerated[i]
 
@@ -77,8 +77,8 @@ function single_path_values!(ae::AccountingEngine, vals::Vector{Float64})
     end
   end
 
-  for i in eachindex(ae.numerairesHeld)
-    vals[i] = ae.numerairesHeld[i] * ae.initialNumeraireValue
+  @simd for i in eachindex(ae.numerairesHeld)
+    @inbounds vals[i] = ae.numerairesHeld[i] * ae.initialNumeraireValue
   end
 
   return weight
@@ -88,7 +88,7 @@ function multiple_path_values!(ae::AccountingEngine, stats::GenericSequenceStats
   vals = Vector{Float64}(number_of_products(ae.product))
   QuantLib.Math.reset!(stats, length(vals), numberOfPaths)
 
-  for i = 1:numberOfPaths
+  @inbounds @simd for i = 1:numberOfPaths
     weight = single_path_values!(ae, vals)
     # println("vals ", vals)
     # if i > 2

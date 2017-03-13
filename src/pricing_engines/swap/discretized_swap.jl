@@ -19,14 +19,14 @@ function DiscretizedSwap{DC <: DayCount, ST <: SwapType}(nominal::Float64, swapT
   floatingResetTimes = zeros(float_n)
   floatingPayTimes = zeros(float_n)
 
-  for i = 1:fixed_n
-    fixedResetTimes[i] = year_fraction(dc, referenceDate, fixedResetDates[i])
-    fixedPayTimes[i] = year_fraction(dc, referenceDate, fixedPayDates[i])
+  @simd for i = 1:fixed_n
+    @inbounds fixedResetTimes[i] = year_fraction(dc, referenceDate, fixedResetDates[i])
+    @inbounds fixedPayTimes[i] = year_fraction(dc, referenceDate, fixedPayDates[i])
   end
 
-  for i = 1:float_n
-    floatingResetTimes[i] = year_fraction(dc, referenceDate, floatingResetDates[i])
-    floatingPayTimes[i] = year_fraction(dc, referenceDate, floatingPayDates[i])
+  @simd for i = 1:float_n
+    @inbounds floatingResetTimes[i] = year_fraction(dc, referenceDate, floatingResetDates[i])
+    @inbounds floatingPayTimes[i] = year_fraction(dc, referenceDate, floatingPayDates[i])
   end
 
   DiscretizedSwap(nominal, swapT, fixedResetTimes, fixedPayTimes, floatingResetTimes, floatingPayTimes, args, DiscretizedAssetCommon())
@@ -48,6 +48,11 @@ function reset!(dSwap::DiscretizedSwap, sz::Int)
   return dSwap
 end
 
+_pre_adjust_calc_floating(::Payer, val::Float64, addIt::Float64) = val + addIt
+_pre_adjust_calc_floating(::Receiver, val::Float64, addIt::Float64) = val - addIt
+_pre_adjust_calc_fixed(::Payer, val::Float64, addIt::Float64) = val - addIt
+_pre_adjust_calc_fixed(::Receiver, val::Float64, addIt::Float64) = val + addIt
+
 function pre_adjust_values_impl!(dSwap::DiscretizedSwap)
   # Floating payments
   for i in eachindex(dSwap.floatingResetTimes)
@@ -65,11 +70,11 @@ function pre_adjust_values_impl!(dSwap::DiscretizedSwap)
       @simd for j in eachindex(dSwap.common.values)
         @inbounds coup = nominal * (1.0 - bond.common.values[j]) + accruedSpread * bond.common.values[j]
 
-        if isa(dSwap.swapT, Payer)
-          @inbounds dSwap.common.values[j] += coup
-        else
-          @inbounds dSwap.common.values[j] -= coup
-        end
+        # if isa(dSwap.swapT, Payer)
+        #   @inbounds dSwap.common.values[j] += coup
+        # else
+        #   @inbounds dSwap.common.values[j] -= coup
+        @inbounds dSwap.common.values[j] = _pre_adjust_calc_floating(dSwap.swapT, dSwap.common.values[j], coup)
       end
     end
   end
@@ -85,18 +90,24 @@ function pre_adjust_values_impl!(dSwap::DiscretizedSwap)
       @inbounds fixedCoup = dSwap.args.fixedCoupons[i]
 
       @simd for j in eachindex(dSwap.common.values)
-        @inbounds coup = fixedCoup * bond.common.values[j]
-        if isa(dSwap.swapT, Payer)
-          @inbounds dSwap.common.values[j] -= coup
-        else
-          @inbounds dSwap.common.values[j] += coup
-        end
+        # @inbounds coup = fixedCoup * bond.common.values[j]
+        # if isa(dSwap.swapT, Payer)
+        #   @inbounds dSwap.common.values[j] -= coup
+        # else
+        #   @inbounds dSwap.common.values[j] += coup
+        # end
+        @inbounds dSwap.common.values[j] = _pre_adjust_calc_fixed(dSwap.swapT, dSwap.common.values[j], fixedCoup * bond.common.values[j])
       end
     end
   end
 
   return dSwap
 end
+
+_post_adjust_calc_floating(::Payer, val::Vector{Float64}, addIt::Float64) = val + addIt
+_post_adjust_calc_floating(::Receiver, val::Vector{Float64}, addIt::Float64) = val - addIt
+_post_adjust_calc_fixed(::Payer, val::Vector{Float64}, addIt::Float64) = val - addIt
+_post_adjust_calc_fixed(::Receiver, val::Vector{Float64}, addIt::Float64) = val + addIt
 
 function post_adjust_values_impl!(dSwap::DiscretizedSwap)
   # fixed coupons whose reset time is in the past won't be managed in pre_adjust_values
@@ -105,11 +116,12 @@ function post_adjust_values_impl!(dSwap::DiscretizedSwap)
     @inbounds _reset = dSwap.fixedResetTimes[i]
     if t >= 0.0 && is_on_time(dSwap, t) && _reset < 0.0
       fixedCoup = dSwap.args.fixedCoupons[i]
-      if isa(dSwap.swapT, Payer)
-        dSwap.common.values -= fixedCoup
-      else
-        dSwap.common.values += fixedCoup
-      end
+      # if isa(dSwap.swapT, Payer)
+      #   dSwap.common.values -= fixedCoup
+      # else
+      #   dSwap.common.values += fixedCoup
+      # end
+      @inbounds dSwap.common.values = _post_adjust_calc_fixed(dSwap.swapT, dSwap.common.values, dSwap.args.fixedCoupons[i])
     end
   end
 
@@ -118,13 +130,14 @@ function post_adjust_values_impl!(dSwap::DiscretizedSwap)
     @inbounds t = dSwap.floatingPayTimes[i]
     @inbounds _reset = dSwap.floatingResetTimes[i]
     if t >= 0.0 && is_on_time(dSwap, t) && _reset < 0.0
-      @inbounds currentFloatingCoup = dSwap.args.floatingCoupons[i]
+      # @inbounds currentFloatingCoup = dSwap.args.floatingCoupons[i]
 
-      if isa(dSwap.swapT, Payer)
-        dSwap.common.values += currentFloatingCoup
-      else
-        dSwap.common.values -= currentFloatingCoup
-      end
+      # if isa(dSwap.swapT, Payer)
+      #   dSwap.common.values += currentFloatingCoup
+      # else
+      #   dSwap.common.values -= currentFloatingCoup
+      # end
+      @inbounds dSwap.common.values = _post_adjust_calc_floating(dSwap.swapT, dSwap.common.values, dSwap.args.floatingCoupons[i])
     end
   end
 

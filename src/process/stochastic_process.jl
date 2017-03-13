@@ -49,7 +49,7 @@ end
 get_x0(::GsrProcess) = 0.0
 
 function flush_cache!(gsrP::GsrProcess)
-  for i in eachindex(gsrP.reversions)
+  @inbounds @simd for i in eachindex(gsrP.reversions)
     if abs(gsrP.reversions[i]) < 1e-4
       gsrP.revZero[i] = true
     else
@@ -97,7 +97,7 @@ function variance(process::GsrProcess, w::Float64, ::Float64, dt::Float64)
   end
 
   res = 0.0
-  for k = lower_index(process, w):upper_index(process, t) - 1
+  @inbounds @simd for k = lower_index(process, w):upper_index(process, t) - 1
     res2 = vol(process, k) * vol(process, k)
     res2 *= rev_zero(process, k) ? -(floored_time(process, k, w) - capped_time(process, k + 1, t)) :
                                   (-expm1(2.0 * rev(process, k) * (floored_time(process, k, w) - capped_time(process, k + 1, t)))) /
@@ -124,8 +124,8 @@ function expectationp1(process::GsrProcess, w::Float64, xw::Float64, dt::Float64
   end
 
   res2 = 1.0
-  for i = lower_index(process, w):upper_index(process, t) - 1
-    res2 *= exp(-rev(process, i) * (capped_time(process, i + 1, t) - floored_time(process, i, w)))
+  @simd for i = lower_index(process, w):upper_index(process, t) - 1
+    @inbounds res2 *= exp(-rev(process, i) * (capped_time(process, i + 1, t) - floored_time(process, i, w)))
   end
 
   process.cache1[key] = res2
@@ -145,7 +145,7 @@ function expectationp2(process::GsrProcess, w::Float64, dt::Float64)
 
   res = 0.0
   # int A(s, t)y(s)
-  for k = lower_index(process, w):upper_index(process, t) - 1
+  @inbounds @simd for k = lower_index(process, w):upper_index(process, t) - 1
     # l < k
     for l = 1:k - 1
       res2 = 1.0
@@ -198,7 +198,7 @@ function expectationp2(process::GsrProcess, w::Float64, dt::Float64)
   end
 
   # int -A(s, t) sigma^2 G(s, T)
-  for k = lower_index(process, w):upper_index(process, t) - 1
+  @inbounds @simd for k = lower_index(process, w):upper_index(process, t) - 1
     res2 = 0.0
     # l > k
     for l = k+1:upper_index(process, T) - 1
@@ -266,7 +266,7 @@ function G!(process::GsrProcess, t::Float64, w::Float64, ::Float64)
   end
 
   res = 0.0
-  for i = lower_index(process, t):upper_index(process, w) - 1
+  @inbounds @simd for i = lower_index(process, t):upper_index(process, w) - 1
     res2 = 1.0
     for j = lower_index(process, t):i - 1
       res2 *= exp(-rev(process, j) * (time2(process, j + 1) - floored_time(process, j, t)))
@@ -289,7 +289,7 @@ function y!(process::GsrProcess, t::Float64)
   end
 
   res = 0.0
-  for i = 1:upper_index(process, t) - 1
+  @inbounds @simd for i = 1:upper_index(process, t) - 1
     res2 = 1.0
     for j = i + 1:upper_index(process, t) - 1
       res2 *= exp(-2.0 * rev(process, j) * (capped_time(process, j + 1, t) - time2(process, j)))

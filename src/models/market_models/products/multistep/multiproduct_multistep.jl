@@ -7,9 +7,9 @@ function MultiProductMultiStepCommon(rateTimes::Vector{Float64})
   n = length(rateTimes) - 1
   evolutionTimes = zeros(n)
   relevanceRates = Vector{Pair{Int, Int}}(n)
-  for i in eachindex(evolutionTimes)
-    evolutionTimes[i] = rateTimes[i]
-    relevanceRates[i] = Pair(i, i+1)
+  @simd for i in eachindex(evolutionTimes)
+    @inbounds evolutionTimes[i] = rateTimes[i]
+    @inbounds relevanceRates[i] = Pair(i, i+1)
   end
 
   evolution = EvolutionDescription(rateTimes, evolutionTimes, relevanceRates)

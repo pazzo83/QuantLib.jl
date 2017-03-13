@@ -38,11 +38,11 @@ function GSR(ts::YieldTermStructure, volstepdates::Vector{Date}, volatilities::V
     reversion = PiecewiseConstantParameter(volsteptimes, NoConstraint())
   end
 
-  for i in eachindex(sigma.times)
+  @inbounds @simd for i in eachindex(sigma.times)
     set_params!(sigma, i, volatilities[i])
   end
 
-  for i in eachindex(get_data(reversion))
+  @inbounds @simd for i in eachindex(get_data(reversion))
     set_params!(reversion, i, reversions[i].value)
   end
 
@@ -59,7 +59,7 @@ end
 function update_times(ts::TermStructure, volstepdates::Vector{Date})
   volsteptimes = zeros(length(volstepdates))
   volsteptimesArray = zeros(length(volsteptimes))
-  for i in eachindex(volstepdates)
+  @inbounds @simd for i in eachindex(volstepdates)
     volsteptimes[i] = time_from_reference(ts, volstepdates[i])
     volsteptimesArray[i] = volsteptimes[i]
     if i == 1
@@ -82,11 +82,11 @@ function update_times!(model::GSR)
 end
 
 function update_state!(model::GSR)
-  for i in eachindex(get_data(model.sigma))
-    set_params!(model.sigma, i, model.volatilities[i].value)
+  @simd for i in eachindex(get_data(model.sigma))
+    @inbounds set_params!(model.sigma, i, model.volatilities[i].value)
   end
-  for i in eachindex(get_data(model.reversion))
-    set_params!(model.reversion, i, model.reversions[i].value)
+  @simd for i in eachindex(get_data(model.reversion))
+    @inbounds set_params!(model.reversion, i, model.reversions[i].value)
   end
 
   flush_cache!(model.stateProcess)
@@ -105,12 +105,12 @@ function set_params!(model::GSR, params::Vector{Float64})
   end
   n = length(get_data(model.reversion))
   # first set reversion
-  for i = 1:n
-    set_params!(model.reversion, i, params[i])
+  @simd for i = 1:n
+    @inbounds set_params!(model.reversion, i, params[i])
   end
   # now set sigma
-  for i = n + 1:length(get_data(model.sigma))+n
-    set_params!(model.sigma, i -n, params[i])
+  @simd for i = n + 1:length(get_data(model.sigma))+n
+    @inbounds set_params!(model.sigma, i -n, params[i])
   end
 
   generate_arguments!(model)
@@ -250,8 +250,8 @@ function y_grid(model::Gaussian1DModel, stdDevs::Float64, gridPoints::Int, T::Fl
 
   h = stdDevs / gridPoints
 
-  for j = -gridPoints:gridPoints
-   result[j + gridPoints + 1] = (e_t_T + stdDev_t_T * j * h - e_0_T) / stdDev_0_T
+  @simd for j = -gridPoints:gridPoints
+   @inbounds result[j + gridPoints + 1] = (e_t_T + stdDev_t_T * j * h - e_0_T) / stdDev_0_T
   end
 
   return result
@@ -259,7 +259,7 @@ end
 
 function calibrate_volatilities_iterative!{H <: CalibrationHelper}(model::GSR, helpers::Vector{H}, method::OptimizationMethod, endCriteria::EndCriteria,
                                           constraint::Constraint = PositiveConstraint(), weights::Vector{Float64} = Vector{Float64}())
-  for i in eachindex(helpers)
+  @inbounds @simd for i in eachindex(helpers)
     h = H[helpers[i]]
     calibrate!(model, h, method, endCriteria, constraint, weights, move_volatility(model, i))
   end

@@ -25,7 +25,7 @@ function TripleBandLinearOp(direction::Int, mesher::FdmMesher)
   newSpacing[1], newSpacing[direction] = newSpacing[direction], newSpacing[1] # swap
 
   coords = ones(Int, length(mesher.layout.dim))
-  for i = 1:sz
+  @inbounds @simd for i = 1:sz
     ## TripleBandLinearOp part
     i0[i] = neighborhood(mesher.layout, i, coords, direction, -1)
     i2[i] = neighborhood(mesher.layout, i, coords, direction, 1)
@@ -56,7 +56,7 @@ function FirstDerivativeOp(direction::Int, mesher::FdmMesher)
   newSpacing[1], newSpacing[direction] = newSpacing[direction], newSpacing[1] # swap
 
   coords = ones(Int, length(mesher.layout.dim))
-  for i = 1:sz
+  @inbounds @simd for i = 1:sz
     ## TripleBandLinearOp part
     i0[i] = neighborhood(mesher.layout, i, coords, direction, -1)
     i2[i] = neighborhood(mesher.layout, i, coords, direction, 1)
@@ -110,7 +110,7 @@ function SecondDerivativeOp(direction::Int, mesher::FdmMesher)
   newSpacing[1], newSpacing[direction] = newSpacing[direction], newSpacing[1] # swap
 
   coords = ones(Int, length(mesher.layout.dim))
-  for i = 1:sz
+  @inbounds @simd for i = 1:sz
     ## TripleBandLinearOp part
     i0[i] = neighborhood(mesher.layout, i, coords, direction, -1)
     i2[i] = neighborhood(mesher.layout, i, coords, direction, 1)
@@ -215,7 +215,7 @@ function solve_splitting(trpBandLinOp::TripleBandLinearOp, r::Vector{Float64}, a
 
   retArray[rim1] = r[rim1] * bet
 
-  for j = 2:layout.size
+  @inbounds @simd for j = 2:layout.size
     ri = trpBandLinOp.reverseIndex[j]
     tmp[j] = a * trpBandLinOp.upper[rim1] * bet
 
@@ -228,7 +228,7 @@ function solve_splitting(trpBandLinOp::TripleBandLinearOp, r::Vector{Float64}, a
     rim1 = ri
   end
 
-  for j = layout.size - 1:-1:2
+  @inbounds @simd for j = layout.size - 1:-1:2
     retArray[trpBandLinOp.reverseIndex[j]] -= tmp[j + 1] * retArray[trpBandLinOp.reverseIndex[j + 1]]
   end
 
@@ -281,7 +281,7 @@ function SecondOrderMixedDerivativeOp(d1::Int, d2::Int, mesher::FdmMesher)
   a22 = Vector{Float64}(sz)
 
   coords = ones(Int, length(mesher.layout.dim))
-  for i = 1:sz
+  @inbounds @simd for i = 1:sz
     # NinePointLinearOp part
     i10[i] = neighborhood(mesher.layout, i, coords, d2, -1)
     i01[i] = neighborhood(mesher.layout, i, coords, d1, -1)

@@ -33,7 +33,7 @@ function EvolutionDescription(rateTimes::Vector{Float64},
 
   currentEvolutionTime = 0.0
   firstAliveRateNum = 1
-  for j in eachindex(firstAliveRate)
+  @inbounds @simd for j in eachindex(firstAliveRate)
     while rateTimes[firstAliveRateNum] <= currentEvolutionTime
       firstAliveRateNum += 1
     end
@@ -60,7 +60,7 @@ function money_market_plus_measure(ev::EvolutionDescription, offset::Int)
   n = length(evolutionTimes)
   numeraires = Vector{Int}(n)
   j = 1
-  for i = 1:n
+  @inbounds @simd for i = 1:n
     while rateTimes[j] < evolutionTimes[i]
       j += 1
     end
@@ -79,7 +79,7 @@ function check_compatibility(evol::EvolutionDescription, numeraires::Vector{Int}
   length(numeraires) == n || error("size mismatch between numeraires and evolution times")
 
   rateTimes = evol.rateTimes
-  for i = 1:n-1
+  @inbounds @simd for i = 1:n-1
     rateTimes[numeraires[i]] >= evolutionTimes[i] || error("$(i+1) step, evolution time $(evolutionTimes[i]): the numeraire ($(numeraires[i]))
                                                         corresponding to the rate time $(rateTimes[numeraires[i]]) is expired")
   end

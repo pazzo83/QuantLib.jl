@@ -96,8 +96,8 @@ function get_grid(lat::TreeLattice1D, t::Float64)
   i = return_index(lat.tg, t)
   grid = zeros(get_size(lat.impl, i))
 
-  for j in eachindex(grid)
-    grid[j] = get_underlying(lat.impl, i, j)
+  @simd for j in eachindex(grid)
+    @inbounds grid[j] = get_underlying(lat.impl, i, j)
   end
 
   return grid

@@ -56,7 +56,7 @@ function derivatives_volatility!(voljacobian::VolatilityBumpInstrumentJacobian, 
     # it's a swaption
     thisPseudo = SwaptionPseudoDerivative(associated_model(voljacobian.bumps), voljacobian.swaptions[j].startIndex, voljacobian.swaptions[j].endIndex)
 
-    for k = 1:number_of_bumps(voljacobian.bumps)
+    @inbounds @simd for k = 1:number_of_bumps(voljacobian.bumps)
       v = 0.0
       for i = voljacobian.bumps.allBumps[k].stepBegin:voljacobian.bumps.allBumps[k].stepEnd
         fullDerivative = thisPseudo.volatilityDerivatives[i]
@@ -74,7 +74,7 @@ function derivatives_volatility!(voljacobian::VolatilityBumpInstrumentJacobian, 
 
     thisPseudo = CapPseudoDerivative(associated_model(voljacobian.bumps), voljacobian.caps[j].strike, voljacobian.caps[j].startIndex, voljacobian.caps[j].endIndex, 1.0)
 
-    for k = 1:number_of_bumps(voljacobian.bumps)
+    @inbounds @simd for k = 1:number_of_bumps(voljacobian.bumps)
       v = 0.0
       for i = voljacobian.bumps.allBumps[k].stepBegin:voljacobian.bumps.allBumps[k].stepEnd
         fullDerivative = thisPseudo.volatilityDerivatives[i]
@@ -88,8 +88,8 @@ function derivatives_volatility!(voljacobian::VolatilityBumpInstrumentJacobian, 
     end
   end
 
-  for k = 1:number_of_bumps(voljacobian.bumps)
-    voljacobian.bumpMatrix[initj, k] = voljacobian.onePercentBumps[initj][k] = 0.01 * voljacobian.derivatives[initj][k] / sizesq
+  @simd for k = 1:number_of_bumps(voljacobian.bumps)
+    @inbounds voljacobian.bumpMatrix[initj, k] = voljacobian.onePercentBumps[initj][k] = 0.01 * voljacobian.derivatives[initj][k] / sizesq
   end
 
   return voljacobian.derivatives[initj]
@@ -97,8 +97,8 @@ end
 
 function get_all_one_percent_bumps!(voljacobian::VolatilityBumpInstrumentJacobian)
   if ~voljacobian.allComputed
-    for i = 1:length(voljacobian.swaptions) + length(voljacobian.caps)
-      derivatives_volatility!(voljacobian, i)
+    @simd for i = 1:length(voljacobian.swaptions) + length(voljacobian.caps)
+      @inbounds derivatives_volatility!(voljacobian, i)
     end
   end
 
@@ -137,8 +137,8 @@ function get_vega_bumps!(obf::OrthogonalizedBumpFinder, theBumps::Vector{Vector{
 
   modelMatrix = zeros(numberRates, factors)
 
-  for i in eachindex(theBumps)
-    theBumps[i] = Matrix[copy(modelMatrix) for i = 1:numberRestrictedBumps]
+  @simd for i in eachindex(theBumps)
+    @inbounds theBumps[i] = Matrix[copy(modelMatrix) for i = 1:numberRestrictedBumps]
   end
 
   # for i = 1:numberSteps, j = 1:numberRestrictedBumps
@@ -148,7 +148,7 @@ function get_vega_bumps!(obf::OrthogonalizedBumpFinder, theBumps::Vector{Vector{
   bumpClusters = get_input_bumps(obf.derivativesProducer).allBumps
 
   bumpIndex = 1
-  for inst in eachindex(projector.validVectors)
+  @inbounds @simd for inst in eachindex(projector.validVectors)
     if projector.validVectors[inst]
       for cluster in eachindex(bumpClusters)
         magnitude = get_vector(projector, inst)[cluster]

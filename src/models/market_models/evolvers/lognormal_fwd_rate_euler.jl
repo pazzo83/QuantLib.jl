@@ -45,7 +45,7 @@ function LogNormalFwdRateEuler(marketModel::AbstractMarketModel, factory::Browni
   calculators = Vector{LMMDriftCalculator}(steps)
   fixedDrifts = Vector{Vector{Float64}}(steps)
 
-  for j = 1:steps
+  @inbounds @simd for j = 1:steps
     A = marketModel.pseudoRoots[j]
     calculators[j] = LMMDriftCalculator(A, displacements, marketModel.evolution.rateTaus, numeraires[j], alive[j])
     fixed = Vector{Float64}(numberOfRates)
@@ -68,7 +68,7 @@ end
 
 function set_forwards!(lognorm::LogNormalFwdRateEuler, forwards::Vector{Float64})
   length(forwards) == lognorm.numberOfRates || error("mismatch between forwards and rate times")
-  for i in eachindex(lognorm.initialLogForwards)
+  @inbounds @simd for i in eachindex(lognorm.initialLogForwards)
     lognorm.initialLogForwards[i] = log(forwards[i] + lognorm.displacement[i])
   end
 
@@ -100,7 +100,7 @@ function advance_step!(lognorm::LogNormalFwdRateEuler)
   fixedDrift = copy(lognorm.fixedDrifts[lognorm.currentStep])
 
   alive = lognorm.alive[lognorm.currentStep]
-  for i = alive:lognorm.numberOfRates
+  @inbounds @simd for i = alive:lognorm.numberOfRates
     lognorm.logForwards[i] += lognorm.drifts1[i] + fixedDrift[i]
     lognorm.logForwards[i] += vecdot(A[i, :], lognorm.brownians)
     lognorm.forwards[i] = exp(lognorm.logForwards[i]) - lognorm.displacement[i]

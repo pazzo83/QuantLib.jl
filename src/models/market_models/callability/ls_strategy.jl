@@ -41,7 +41,7 @@ function LongstaffSchwartzExerciseStrategy(basisSystem::MarketModelBasisSystem,
   exerciseTimes = Vector{Float64}()
   v = exercise.isExerciseTime
   exercises = idx = 1
-  for i in eachindex(relevantTimes)
+  @inbounds @simd for i in eachindex(relevantTimes)
     exerciseIndex[i] = exercises
     if isRebateTime[i]
       isExerciseTime[i] = v[idx]
@@ -55,13 +55,13 @@ function LongstaffSchwartzExerciseStrategy(basisSystem::MarketModelBasisSystem,
 
   rateTimes = evolution.rateTimes
   rebateTimes = possible_cash_flow_times(exercise)
-  rebateDiscounters = MarketModelDiscounter[MarketModelDiscounter(rebateTimes[i], rateTimes) for i in eachindex(rebateTimes)]
+  @inbounds rebateDiscounters = MarketModelDiscounter[MarketModelDiscounter(rebateTimes[i], rateTimes) for i in eachindex(rebateTimes)]
 
   controlTimes = possible_cash_flow_times(control)
-  controlDiscounters = MarketModelDiscounter[MarketModelDiscounter(controlTimes[i], rateTimes) for i in eachindex(controlTimes)]
+  @inbounds controlDiscounters = MarketModelDiscounter[MarketModelDiscounter(controlTimes[i], rateTimes) for i in eachindex(controlTimes)]
 
   basisSizes = number_of_functions(basisSystem)
-  basisValues = Vector{Float64}[Vector{Float64}(basisSizes[i]) for i in eachindex(basisSizes)]
+  @inbounds basisValues = Vector{Float64}[Vector{Float64}(basisSizes[i]) for i in eachindex(basisSizes)]
 
   return LongstaffSchwartzExerciseStrategy(basisSystem, basisCoefficients, exercise, control, numeraires, -1, 0.0, 0.0, exerciseTimes, relevantTimes,
                                           isBasisTime, isRebateTime, isControlTime, isExerciseTime, rebateDiscounters, controlDiscounters,

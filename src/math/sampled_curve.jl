@@ -15,9 +15,10 @@ set_log_grid!(curve::SampledCurve, min::Float64, max::Float64) = set_grid!(curve
 set_grid!(curve::SampledCurve, grid::Vector{Float64}) = curve.grid = grid
 
 function Math.sample!{T}(curve::SampledCurve, f::T)
-  for i in eachindex(curve.grid)
-    curve.values[i] = f(curve.grid[i])
-  end
+  # @simd for i in eachindex(curve.grid)
+  #   @inbounds curve.values[i] = f(curve.grid[i])
+  # end
+  map!(f, curve.values, curve.grid)
 
   return curve
 end

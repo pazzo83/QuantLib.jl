@@ -118,7 +118,7 @@ type Fdm2DimSolver{FD <: FdmLinearOpComposite} <: LazyObject
 
     coords = ones(Int, length(layout.dim))
 
-    for i = 1:layout.size
+    @inbounds @simd for i = 1:layout.size
       initialValues[i], solverDesc.calculator = avg_inner_value(solverDesc.calculator, coords, i, solverDesc.maturity)
 
       if coords[2] == 1

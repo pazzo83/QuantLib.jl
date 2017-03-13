@@ -13,7 +13,7 @@ function TransformedGrid(grid::Vector{Float64}, f::Function)
   dxp = zeros(n)
   dx = zeros(n)
 
-  for i = 2:n - 1
+  @inbounds @simd for i = 2:n - 1
     dxm[i] = transformedGrid[i] - transformedGrid[i-1]
     dxp[i] = transformedGrid[i+1] - transformedGrid[i]
     dx[i] = dxm[i] + dxp[i]

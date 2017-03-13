@@ -126,14 +126,14 @@ end
 function update!(interp::SplineCubicInterpolation)
   n = interp.n
 
-  for i = 1:n - 1
-    interp.dx[i] = interp.x_vals[i + 1] - interp.x_vals[i]
-    interp.S[i] = (interp.y_vals[i + 1] - interp.y_vals[i]) / interp.dx[i]
+  @simd for i = 1:n - 1
+    @inbounds interp.dx[i] = interp.x_vals[i + 1] - interp.x_vals[i]
+    @inbounds interp.S[i] = (interp.y_vals[i + 1] - interp.y_vals[i]) / interp.dx[i]
   end
 
-  for i = 2:n - 1
-    set_mid_row!(interp.L, i, interp.dx[i], 2.0 * (interp.dx[i] + interp.dx[i - 1]), interp.dx[i - 1])
-    interp.tmp[i] = 3.0 * (interp.dx[i] * interp.S[i - 1] + interp.dx[i - 1] * interp.S[i])
+  @simd for i = 2:n - 1
+    @inbounds set_mid_row!(interp.L, i, interp.dx[i], 2.0 * (interp.dx[i] + interp.dx[i - 1]), interp.dx[i - 1])
+    @inbounds interp.tmp[i] = 3.0 * (interp.dx[i] * interp.S[i - 1] + interp.dx[i - 1] * interp.S[i])
   end
 
   # update left boundary
@@ -149,7 +149,7 @@ function update!(interp::SplineCubicInterpolation)
   if interp.monotonic
     corretion = 0.0
     pm = pu = pd = M = 0.0
-    for i = 1:n
+    @inbounds @simd for i = 1:n
       if i == 1
         if interp.tmp[i] * interp.S[i] > 0.0
           correction = interp.tmp[i] / abs(interp.tmp[i]) * min(abs(interp.tmp[i]), abs(3.0 * interp.S[1]))
@@ -206,10 +206,10 @@ function update!(interp::SplineCubicInterpolation)
   end
 
   # coefficients
-  for i = 1:interp.n - 1
-    interp.a[i] = interp.tmp[i]
-    interp.b[i] = (3.0 * interp.S[i] - interp.tmp[i + 1] - 2.0 * interp.tmp[i]) / interp.dx[i]
-    interp.c[i] = (interp.tmp[i + 1] + interp.tmp[i] - 2.0 * interp.S[i]) / (interp.dx[i] * interp.dx[i])
+  @simd for i = 1:interp.n - 1
+    @inbounds interp.a[i] = interp.tmp[i]
+    @inbounds interp.b[i] = (3.0 * interp.S[i] - interp.tmp[i + 1] - 2.0 * interp.tmp[i]) / interp.dx[i]
+    @inbounds interp.c[i] = (interp.tmp[i + 1] + interp.tmp[i] - 2.0 * interp.S[i]) / (interp.dx[i] * interp.dx[i])
   end
 
   return interp

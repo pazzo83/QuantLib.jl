@@ -24,9 +24,9 @@ end
 # BackwardFlatInterpolation update
 function update!(interp::BackwardFlatInterpolation, idx::Int)
   interp.primitive[1] = 0.0
-  for i = 2:idx
-    dx = interp.x_vals[i] - interp.x_vals[i - 1]
-    interp.primitive[i] = interp.primitive[i - 1] + dx * interp.y_vals[i]
+  @simd for i = 2:idx
+    @inbounds dx = interp.x_vals[i] - interp.x_vals[i - 1]
+    @inbounds interp.primitive[i] = interp.primitive[i - 1] + dx * interp.y_vals[i]
   end
 
   return interp

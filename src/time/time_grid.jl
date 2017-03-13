@@ -18,7 +18,7 @@ function TimeGrid(times::Vector{Float64}, steps::Int)
   periodBegin = 0.0
   times = zeros(1)
 
-  for t in sortedUniqueTimes
+  @inbounds @simd for t in sortedUniqueTimes
     periodEnd = t
     if periodEnd != 0.0
       nSteps = Int(floor((periodEnd - periodBegin) / dtMax + 0.5))
@@ -43,8 +43,8 @@ function TimeGrid(endTime::Float64, steps::Int)
   endTime > 0.0 || error("negative times not allowed")
   dt = endTime / steps
   times = zeros(steps + 1)
-  for i in eachindex(times)
-    times[i] = dt * (i - 1)
+  @simd for i in eachindex(times)
+    @inbounds times[i] = dt * (i - 1)
   end
 
   mandatoryTimes = [endTime]

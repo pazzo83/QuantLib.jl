@@ -32,7 +32,7 @@ end
 # discount
 
 function generate_operator!(pdecc::PdeConstantCoeff, t::Float64, tg::TransformedGrid, L::TridiagonalOperator)
-  for i = 2:length(tg.grid) - 1
+  @inbounds @simd for i = 2:length(tg.grid) - 1
     sigma = pdecc.diffusion
     nu = pdecc.drift
     r = pdecc.discount

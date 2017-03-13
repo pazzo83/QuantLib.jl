@@ -28,7 +28,7 @@ max_number_of_cashflows_per_product_per_step(::MarketModelPathwiseCashRebate) = 
 reset!(mm::MarketModelPathwiseCashRebate) = mm.currentIndex = 1
 
 function next_time_step!(mm::MarketModelPathwiseCashRebate, ::CurveState, numberCashFlowsThisStep::Vector{Int}, cashFlowsGenerated::Vector{Vector{MarketModelPathWiseCashFlow}})
-  for i = 1:mm.numberOfProducts
+  @inbounds @simd for i = 1:mm.numberOfProducts
     numberCashFlowsThisStep[i] = 1
     cashFlowsGenerated[i][1].timeIndex = mm.currentIndex
     cashFlowsGenerated[i][1].amount[1] = mm.amounts[1, mm.currentIndex]

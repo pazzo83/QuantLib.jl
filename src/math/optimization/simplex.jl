@@ -8,7 +8,7 @@ function compute_simplex_size{T}(vert::Vector{Vector{T}})
   multiply_array_by_self!(center, 1 / length(vert))
 
   result = 0.0
-  @inbounds for i in vert
+  @inbounds @simd for i in vert
     tmp = i - center
     result += sqrt(dot(tmp, tmp))
   end
@@ -28,7 +28,7 @@ function minimize!(simplex::Simplex, p::Problem, end_criteria::EndCriteria)
   vertices = Vector{Vector{Float64}}(n + 1)
   fill!(vertices, x)
   direction = zeros(n)
-  for i = 1:n
+  @simd for i = 1:n
     @inbounds direction[i] = 1.0
     @inbounds vertices[i + 1] = update(p.constraint, vertices[i + 1], direction, simplex.lambda)
     # reset direction
@@ -37,7 +37,7 @@ function minimize!(simplex::Simplex, p::Problem, end_criteria::EndCriteria)
   # initialize function values at the vertices of the simplex
   values = zeros(n + 1)
   # values = Vector{DD}(n + 1)
-  for i=1:n+1
+  @simd for i=1:n+1
     @inbounds values[i] = value!(p, vertices[i])
   end
 
@@ -127,7 +127,7 @@ end
 centroid(p::Matrix) = reshape(mean(p, 2), size(p, 1))
 
 function dominates(x::Vector, y::Vector)
-  for i in 1:length(x)
+  @simd for i in 1:length(x)
     @inbounds if x[i] <= y[i]
       return false
     end
@@ -136,7 +136,7 @@ function dominates(x::Vector, y::Vector)
 end
 
 function dominates(x::Real, y::Vector)
-  for i in 1:length(y)
+  @simd for i in 1:length(y)
     @inbounds if x <= y[i]
       return false
     end

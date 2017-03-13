@@ -102,8 +102,8 @@ function ParallelEvolver{BC <: BoundaryCondition}(L::Vector{TridiagonalOperator}
   evolvers = Vector{typeof(evolv1)}(length(L))
   evolvers[1] = evolv1
 
-  for i = 2:length(L)
-    evolvers[i] = evolverFunc(L[i], FdmBoundaryConditionSet(bcs[:, i]))
+  @simd for i = 2:length(L)
+    @inbounds evolvers[i] = evolverFunc(L[i], FdmBoundaryConditionSet(bcs[:, i]))
   end
 
   return ParallelEvolver(evolvers)
@@ -139,18 +139,18 @@ function step!(evolver::HundsdorferScheme, a::Vector{Float64}, t::Float64)
 
   y0 = copy(y)
 
-  for i = 1:get_size(evolver.map)
-    rhs = y - evolver.theta * evolver.dt * apply_direction(evolver.map, i, a)
-    y = solve_splitting(evolver.map, i, rhs, -evolver.theta * evolver.dt)
+  @simd for i = 1:get_size(evolver.map)
+    @inbounds rhs = y - evolver.theta * evolver.dt * apply_direction(evolver.map, i, a)
+    @inbounds y = solve_splitting(evolver.map, i, rhs, -evolver.theta * evolver.dt)
   end
 
   apply_before_applying!(evolver.bcSet, evolver.map)
   yt = y0 + evolver.mu * evolver.dt * apply(evolver.map, y - a)
   apply_after_applying!(evolver.bcSet, yt)
 
-  for i = 1:get_size(evolver.map)
-    rhs = yt - evolver.theta * evolver.dt * apply_direction(evolver.map, i, y)
-    yt = solve_splitting(evolver.map, i, rhs, -evolver.theta * evolver.dt)
+  @simd for i = 1:get_size(evolver.map)
+    @inbounds rhs = yt - evolver.theta * evolver.dt * apply_direction(evolver.map, i, y)
+    @inbounds yt = solve_splitting(evolver.map, i, rhs, -evolver.theta * evolver.dt)
   end
 
   apply_after_solving!(evolver.bcSet, yt)
@@ -170,9 +170,9 @@ function step!(evolver::DouglasScheme, a::Vector{Float64}, t::Float64)
   y = a + evolver.dt * apply(evolver.map, a)
   apply_after_applying!(evolver.bcSet, y)
 
-  for i = 1:get_size(evolver.map)
-    rhs = y - evolver.theta * evolver.dt * apply_direction(evolver.map, i, a)
-    y = solve_splitting(evolver.map, i, rhs, -evolver.theta * evolver.dt)
+  @simd for i = 1:get_size(evolver.map)
+    @inbounds rhs = y - evolver.theta * evolver.dt * apply_direction(evolver.map, i, a)
+    @inbounds y = solve_splitting(evolver.map, i, rhs, -evolver.theta * evolver.dt)
   end
 
   apply_after_solving!(evolver.bcSet, y)

@@ -28,9 +28,9 @@ function _calculate!(pe::FdHullWhiteSwaptionEngine, swaption::Swaption)
   # 3. Inner Value calculator
   exerciseDates = swaption.exercise.dates
   t2d = Dict{Float64, Date}()
-  for i = 1:length(exerciseDates)
-    t = year_fraction(dc, refDate, exerciseDates[i])
-    t2d[t] = exerciseDates[i]
+  @simd for i = 1:length(exerciseDates)
+    @inbounds t = year_fraction(dc, refDate, exerciseDates[i])
+    @inbounds t2d[t] = exerciseDates[i]
   end
 
   disTs = pe.model.ts

@@ -57,4 +57,4 @@ function _calculate!{S <: Swap}(pe::DiscountingSwapEngine, swap::S)
   return swap
 end
 
-clone(pe::DiscountingSwapEngine, ts::TermStructure) = DiscountingSwapEngine(ts)
+clone(pe::DiscountingSwapEngine, ts::TermStructure) = DiscountingSwapEngine(ts, pe.includeSettlementDateFlows)

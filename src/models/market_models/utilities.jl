@@ -77,8 +77,8 @@ function MarketModelPathwiseDiscounter(paymentTime::Float64, rateTimes::Vector{F
   beforeWeight = 1.0 - (paymentTime - rateTimes[beforeTimeIdx]) / (rateTimes[beforeTimeIdx + 1] - rateTimes[beforeTimeIdx])
   postWeight = 1.0 - beforeWeight
   taus = Vector{Float64}(numberRates)
-  for i in eachindex(taus)
-    taus[i] = rateTimes[i+1] - rateTimes[i]
+  @simd for i in eachindex(taus)
+    @inbounds taus[i] = rateTimes[i+1] - rateTimes[i]
   end
 
   return MarketModelPathwiseDiscounter(beforeTimeIdx, numberRates, beforeWeight, postWeight, taus)
@@ -89,15 +89,15 @@ function get_factors(mmdisc::MarketModelPathwiseDiscounter, ::Matrix{Float64}, D
   preDF = Discounts[currentStep, mmdisc.beforeTimeIdx]
   postDF = Discounts[currentStep, mmdisc.beforeTimeIdx + 1]
 
-  for i = mmdisc.beforeTimeIdx+1:mmdisc.numberRates
-    factors[i+1] = 0.0
+  @simd for i = mmdisc.beforeTimeIdx+1:mmdisc.numberRates
+    @inbounds factors[i+1] = 0.0
   end
 
   if mmdisc.postWeight == 0.0
     factors[1] = preDF
 
-    for i = 1:mmdisc.beforeTimeIdx
-      factors[i+1] = -preDF * mmdisc.taus[i] * Discounts[currentStep, i+1] / Discounts[currentStep, i]
+    @simd for i = 1:mmdisc.beforeTimeIdx
+      @inbounds factors[i+1] = -preDF * mmdisc.taus[i] * Discounts[currentStep, i+1] / Discounts[currentStep, i]
     end
 
     factors[mmdisc.beforeTimeIdx + 1] = 0.0
@@ -109,8 +109,8 @@ function get_factors(mmdisc::MarketModelPathwiseDiscounter, ::Matrix{Float64}, D
 
   factors[1] = df
 
-  for i = 1:mmdisc.beforeTimeIdx
-    factors[i+1] = -df * mmdisc.taus[i] * Discounts[currentStep, i+1] / Discounts[currentStep, i]
+  @simd for i = 1:mmdisc.beforeTimeIdx
+    @inbounds factors[i+1] = -df * mmdisc.taus[i] * Discounts[currentStep, i+1] / Discounts[currentStep, i]
   end
 
   factors[mmdisc.beforeTimeIdx + 1] *= mmdisc.postWeight
@@ -133,8 +133,8 @@ function check_increasing_times_and_calculate_taus(times::Vector{Float64})
 
   taus = Vector{Float64}(nTimes - 1)
 
-  for i in eachindex(taus)
-    taus[i] = times[i+1] - times[i]
+  @simd for i in eachindex(taus)
+    @inbounds taus[i] = times[i+1] - times[i]
   end
 
   return taus
@@ -142,8 +142,8 @@ end
 
 function merge_times(times::Vector{Vector{Float64}})
   allTimes = Vector{Float64}()
-  for i in eachindex(times)
-    allTimes = vcat(allTimes, times[i])
+  @simd for i in eachindex(times)
+    @inbounds allTimes = vcat(allTimes, times[i])
   end
 
   sort!(allTimes)
@@ -151,7 +151,7 @@ function merge_times(times::Vector{Vector{Float64}})
 
   isPresent = similar(times, BitArray{1})
 
-  for i in eachindex(times)
+  @inbounds @simd for i in eachindex(times)
     isPresent[i] = BitArray{1}(length(times[i]))
     for j in eachindex(allTimes)
       isPresent[i][j] = findfirst(times[i], allTimes[j]) > 0 ? true : false
@@ -173,7 +173,7 @@ function is_in_subset(mainSet::Vector{Float64}, subSet::Vector{Float64})
 
   dimSet >= dimsubSet || error("set is required to be larger or equal than subset")
 
-  for i in eachindex(mainSet) # loop in set
+  @inbounds for i in eachindex(mainSet) # loop in set
     j = 1
     setElement = mainSet[i]
     while true # loop in subset

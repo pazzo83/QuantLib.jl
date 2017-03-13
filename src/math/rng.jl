@@ -41,7 +41,7 @@ SobolInverseCumulativeRSG(dimension::Int = 1, weight::Float64 = 1.0) = SobolInve
 function next_sequence!(rsg::InverseCumulativeRSG)
   # we can probably use map here with the norminvcdf
   # like this: map!(norminvcdf, rsg.values, rand(rsg, length(rsg.values)))
-  for i in eachindex(rsg.values)
+  @inbounds @simd for i in eachindex(rsg.values)
     x = rand(rsg.rng) # get random number
     rsg.values[i] = norminvcdf(x)
   end
@@ -64,8 +64,8 @@ end
 function next_sequence!(rsg::SobolInverseCumulativeRSG)
   seq = next(rsg.rng)
 
-  for i in eachindex(rsg.values)
-    rsg.values[i] = norminvcdf(seq[i])
+  @simd for i in eachindex(rsg.values)
+    @inbounds rsg.values[i] = norminvcdf(seq[i])
   end
 
   return rsg.values, rsg.weight

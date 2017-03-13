@@ -38,7 +38,7 @@ function get_next!(pg::PathGenerator, antithetic::Bool)
 
   pg.nextSample.value[1] = get_x0(pg.process)
 
-  for i = 2:length(pg.nextSample.value)
+  @inbounds @simd for i = 2:length(pg.nextSample.value)
     t = pg.timeGrid[i-1]
     dt = pg.timeGrid.dt[i - 1]
     pg.nextSample.value[i] = evolve(pg.process, t, pg.nextSample.value[i-1], dt, antithetic ? -pg.temp[i-1] : pg.temp[i-1])
