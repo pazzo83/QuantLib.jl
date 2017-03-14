@@ -5,7 +5,7 @@ type HullWhite{AffineModelType, T <: TermStructure} <: OneFactorModel{AffineMode
   sigma::ConstantParameter
   phi::HullWhiteFittingParameter
   ts::T
-  privateConstraint::PrivateConstraint
+  privateConstraint::PrivateConstraint{ConstantParameter}
   common::ModelCommon
 end
 
@@ -30,7 +30,7 @@ type HullWhiteDynamics{P <: Parameter} <: ShortRateDynamics
   sigma::Float64
 end
 
-HullWhiteDynamics{P <: Parameter}(fitting::P, a::Float64, sigma::Float64) = HullWhiteDynamics(OrnsteinUhlenbeckProcess(a, sigma), fitting, a, sigma)
+HullWhiteDynamics{P <: Parameter}(fitting::P, a::Float64, sigma::Float64) = HullWhiteDynamics{P}(OrnsteinUhlenbeckProcess(a, sigma), fitting, a, sigma)
 
 short_rate(dynamic::HullWhiteDynamics, t::Float64, x::Float64) = x + dynamic.fitting(t)
 
@@ -43,7 +43,7 @@ function tree(model::HullWhite, grid::TimeGrid)
   phi = TermStructureFittingParameter(model.ts)
   numericDynamics = HullWhiteDynamics(phi, get_a(model), get_sigma(model))
   trinomial = TrinomialTree(numericDynamics.process, grid)
-  numericTree = OneFactorShortRateTree{HullWhiteDynamics}(trinomial, numericDynamics, grid)
+  numericTree = OneFactorShortRateTree{HullWhiteDynamics, typeof(numericDynamics.process)}(trinomial, numericDynamics, grid)
 
   reset_param_impl!(phi)
 

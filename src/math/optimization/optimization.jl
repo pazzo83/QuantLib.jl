@@ -9,11 +9,11 @@ const FINITE_DIFFERENCES_EPSILON = 1e-8
 type Projection
   actualParameters::Vector{Float64}
   fixedParameters::Vector{Float64}
-  fixParams::BitArray
+  fixParams::BitArray{1}
   numberOfFreeParams::Int
 end
 
-function Projection(parameterValues::Vector{Float64}, fixParams::BitArray)
+function Projection(parameterValues::Vector{Float64}, fixParams::BitArray{1})
   # get num of free params
   numFree = 0
   for i in fixParams

@@ -1,11 +1,11 @@
-type TwoFactorShortRateTree{S <: ShortRateDynamics} <: ShortRateTree
-  tree1::TrinomialTree
-  tree2::TrinomialTree
+type TwoFactorShortRateTree{S <: ShortRateDynamics, P1 <: StochasticProcess, P2 <: StochasticProcess} <: ShortRateTree
+  tree1::TrinomialTree{P1}
+  tree2::TrinomialTree{P2}
   dynamics::S
-  treeLattice::TreeLattice2D
+  treeLattice::TreeLattice2D{TwoFactorShortRateTree{S, P1, P2}}
 
-  function TwoFactorShortRateTree{S}(tree1::TrinomialTree, tree2::TrinomialTree, dyn::S)
-    twoFactorTree = new(tree1, tree2, dyn)
+  function TwoFactorShortRateTree{S, P1, P2}(tree1::TrinomialTree{P1}, tree2::TrinomialTree{P2}, dyn::S)
+    twoFactorTree = new{S, P1, P2}(tree1, tree2, dyn)
     twoFactorTree.treeLattice = TreeLattice2D(tree1, tree2, dyn.correlation, twoFactorTree)
 
     return twoFactorTree
@@ -19,7 +19,7 @@ function tree(model::TwoFactorModel, grid::TimeGrid)
   tree1 = TrinomialTree(dyn.xProcess, grid)
   tree2 = TrinomialTree(dyn.yProcess, grid)
 
-  return TwoFactorShortRateTree{typeof(dyn)}(tree1, tree2, dyn)
+  return TwoFactorShortRateTree{typeof(dyn), typeof(dyn.xProcess), typeof(dyn.yProcess)}(tree1, tree2, dyn)
 end
 
 get_size(tr::TwoFactorShortRateTree, i::Int) = get_size(tr.treeLattice, i)
@@ -65,7 +65,7 @@ type G2{AffineModelType, T <: TermStructure} <: TwoFactorModel{AffineModelType}
   rho::ConstantParameter
   phi::G2FittingParameter
   ts::T
-  privateConstraint::PrivateConstraint
+  privateConstraint::PrivateConstraint{ConstantParameter}
   common::ModelCommon
 end
 

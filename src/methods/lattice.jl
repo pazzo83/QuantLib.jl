@@ -72,7 +72,7 @@ function TrinomialTree{S <: StochasticProcess}(process::S, timeGrid::TimeGrid, i
     jMax = branching.jMax
   end
 
-  return TrinomialTree(process, timeGrid, dx, branchings, isPositive)
+  return TrinomialTree{S}(process, timeGrid, dx, branchings, isPositive)
 end
 
 type TreeLattice1D{T <: TreeLattice} <: TreeLattice
@@ -89,7 +89,7 @@ function TreeLattice1D{T <: TreeLattice}(tg::TimeGrid, n::Int, impl::T)
 
   statePricesLimit = 1
 
-  return TreeLattice1D(tg, impl, statePrices, n, statePricesLimit)
+  return TreeLattice1D{T}(tg, impl, statePrices, n, statePricesLimit)
 end
 
 function get_grid(lat::TreeLattice1D, t::Float64)
@@ -198,13 +198,13 @@ function get_state_prices!(t::TreeLattice, i::Int)
 end
 
 function compute_state_prices!(t::TreeLattice, until::Int)
-  for i = t.statePricesLimit:until - 1
+  @inbounds @simd for i = t.statePricesLimit:until - 1
     push!(t.statePrices, zeros(get_size(t.impl, i + 1)))
     for j = 1:get_size(t.impl, i)
       disc = discount(t.impl, i, j)
-      @inbounds statePrice = t.statePrices[i][j]
-      @simd for l = 1:t.n
-        @inbounds t.statePrices[i + 1][descendant(t.impl, i, j, l)] += statePrice * disc * probability(t.impl, i, j, l)
+      statePrice = t.statePrices[i][j]
+      for l = 1:t.n
+        t.statePrices[i + 1][descendant(t.impl, i, j, l)] += statePrice * disc * probability(t.impl, i, j, l)
       end
     end
   end

@@ -305,7 +305,7 @@ end
 #                     swap.floatSchedule, swap.floatDayCount, swap.paymentConvention, swap.legs, swap.payer, pe, res, args)
 # end
 
-function clone(swap::VanillaSwap, pe::PricingEngine = swap.pricingEngine, ts::TermStructure = swap.iborIndex.ts)
+function clone{ST, DC_fix, DC_float, B, L, P}(swap::VanillaSwap{ST, DC_fix, DC_float, B, L, P}, pe::PricingEngine = swap.pricingEngine, ts::TermStructure = swap.iborIndex.ts)
   # is_new = pe != swap.pricingEngine || ts != swap.iborIndex.ts
 
   lazyMixin, res, args = pe == swap.pricingEngine ? (swap.lazyMixin, swap.results, swap.args) : (LazyMixin(), SwapResults(2), VanillaSwapArgs(swap.legs))
@@ -321,7 +321,8 @@ function clone(swap::VanillaSwap, pe::PricingEngine = swap.pricingEngine, ts::Te
     newLegs = swap.legs
   end
 
-  return VanillaSwap(lazyMixin, swap.swapT, swap.nominal, swap.fixedSchedule, swap.fixedRate, swap.fixedDayCount, newIbor, swap.spread,
+  return VanillaSwap{ST, DC_fix, DC_float, B, L, typeof(pe)}(lazyMixin,
+                    swap.swapT, swap.nominal, swap.fixedSchedule, swap.fixedRate, swap.fixedDayCount, newIbor, swap.spread,
                     swap.floatSchedule, swap.floatDayCount, swap.paymentConvention, newLegs, swap.payer, pe, res, args)
 end
 

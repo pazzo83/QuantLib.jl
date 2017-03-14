@@ -1,9 +1,9 @@
 type SettlementPhysical <: SettlementType end
 type SettlementCash <: SettlementType end
 
-type SwaptionResults{S <: AbstractString}
+type SwaptionResults
   value::Float64
-  additionalResults::Dict{S, Float64}
+  additionalResults::Dict{String, Float64}
 end
 
 SwaptionResults() = SwaptionResults(0.0, Dict("spreadCorrection" => 0.0, "strike" => 0.0, "atmForward" => 0.0, "annuity" => 0.0, "swapLength" => 0.0, "stdDev" => 0.0, "vega" => 0.0))
@@ -17,9 +17,9 @@ function reset!(results::SwaptionResults)
   return results
 end
 
-type Swaption{E <: Exercise, S <: SettlementType, P <: PricingEngine} <: Option
+type Swaption{E <: Exercise, S <: SettlementType, P <: PricingEngine, ST <: SwapType, DCfi <: DayCount, DCfl <: DayCount, B <: BusinessDayConvention, L <: Leg, SP <: PricingEngine} <: Option
   lazyMixin::LazyMixin
-  swap::VanillaSwap
+  swap::VanillaSwap{ST, DCfi, DCfl, B, L, SP}
   exercise::E
   delivery::S
   results::SwaptionResults
@@ -36,8 +36,11 @@ type Swaption{E <: Exercise, S <: SettlementType, P <: PricingEngine} <: Option
   #   new{E, S, P}(lz, swap, exercise, delivery, results, pricingEngine)
 end
 
-Swaption{E <: Exercise}(swap::VanillaSwap, exercise::E) = Swaption{E, SettlementPhysical, NullSwaptionEngine}(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults(), NullSwaptionEngine())
-Swaption{E <: Exercise, P <: PricingEngine}(swap::VanillaSwap, exercise::E, pe::P) = Swaption{E, SettlementPhysical, P}(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults(), pe)
+Swaption{E <: Exercise, ST <: SwapType, DCfi <: DayCount, DCfl <: DayCount, B <: BusinessDayConvention, L <: Leg, SP <: PricingEngine}(swap::VanillaSwap{ST, DCfi, DCfl, B, L, SP}, exercise::E) =
+          Swaption{E, SettlementPhysical, NullSwaptionEngine, ST, DCfi, DCfl, B, L, SP}(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults(), NullSwaptionEngine())
+
+Swaption{E <: Exercise, P <: PricingEngine, ST <: SwapType, DCfi <: DayCount, DCfl <: DayCount, B <: BusinessDayConvention, L <: Leg, SP <: PricingEngine}(swap::VanillaSwap{ST, DCfi, DCfl, B, L, SP}, exercise::E, pe::P) =
+        Swaption{E, SettlementPhysical, P, ST, DCfi, DCfl, B, L, SP}(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults(), pe)
 
 type NonstandardSwaption{E <: Exercise, S <: SettlementType, P <: PricingEngine} <: Option
   lazyMixin::LazyMixin

@@ -3,7 +3,7 @@ type BlackKarasinski{TermStructureConsistentModelType, T <: TermStructure} <: On
   a::ConstantParameter
   sigma::ConstantParameter
   ts::T
-  privateConstraint::PrivateConstraint
+  privateConstraint::PrivateConstraint{ConstantParameter}
   common::ModelCommon
 end
 
@@ -70,7 +70,7 @@ function tree(model::BlackKarasinski, grid::TimeGrid)
 
   numericDynamics = BlackKarasinskiDynamics(phi, get_a(model), get_sigma(model))
   trinomial = TrinomialTree(numericDynamics.process, grid)
-  numericTree = OneFactorShortRateTree{BlackKarasinskiDynamics}(trinomial, numericDynamics, grid)
+  numericTree = OneFactorShortRateTree{BlackKarasinskiDynamics, typeof(numericDynamics.process)}(trinomial, numericDynamics, grid)
 
   reset_param_impl!(phi)
 

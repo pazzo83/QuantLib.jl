@@ -1,5 +1,5 @@
-immutable IborIndex{S <: AbstractString, TP <: TenorPeriod, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
-  familyName::S
+immutable IborIndex{TP <: TenorPeriod, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
+  familyName::String
   tenor::TP
   fixingDays::Int
   currency::CUR
@@ -22,13 +22,13 @@ immutable IborIndex{S <: AbstractString, TP <: TenorPeriod, CUR <: AbstractCurre
   #                                                                                           endOfMonth, dc, ts)
 end
 
-IborIndex{S <: AbstractString, TP <: TenorPeriod, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::S, tenor::TP, fixingDays::Int, currency::CUR,
+IborIndex{TP <: TenorPeriod, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::String, tenor::TP, fixingDays::Int, currency::CUR,
           fixingCalendar::B, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) =
-          IborIndex{S, TP, CUR, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, convention, endOfMonth, dc, ts, Dict{Date, Float64}())
+          IborIndex{TP, CUR, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, convention, endOfMonth, dc, ts, Dict{Date, Float64}())
 
 
-immutable LiborIndex{S <: AbstractString, TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
-  familyName::S
+immutable LiborIndex{TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
+  familyName::String
   tenor::TP
   fixingDays::Int
   currency::Currency
@@ -47,12 +47,12 @@ immutable LiborIndex{S <: AbstractString, TP <: TenorPeriod, B <: BusinessCalend
 end
 
 # catch all constructor #
-LiborIndex{S <: AbstractString, TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::S, tenor::TP, fixingDays::Int, currency::Currency, fixingCalendar::B,
-                  jointCalendar::JointCalendar, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) = LiborIndex{S, TP, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, jointCalendar, convention,
+LiborIndex{TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::String, tenor::TP, fixingDays::Int, currency::Currency, fixingCalendar::B,
+                  jointCalendar::JointCalendar, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) = LiborIndex{TP, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, jointCalendar, convention,
                                                                                           endOfMonth, dc, ts, Dict{Date, Float64}())
 
 
-function LiborIndex(familyName::AbstractString, tenor::TenorPeriod, fixingDays::Int, currency::Currency, fixingCalendar::BusinessCalendar, dc::DayCount, yts::YieldTermStructure)
+function LiborIndex(familyName::String, tenor::TenorPeriod, fixingDays::Int, currency::Currency, fixingCalendar::BusinessCalendar, dc::DayCount, yts::YieldTermStructure)
   endOfMonth = libor_eom(tenor.period)
   conv = libor_conv(tenor.period)
   jc = JointCalendar(QuantLib.Time.UKLSECalendar(), fixingCalendar)
@@ -135,7 +135,8 @@ libor_eom(::Union{Base.Dates.Day, Base.Dates.Week}) = false
 libor_eom(::Union{Base.Dates.Month, Base.Dates.Year}) = true
 
 # clone methods #
-clone(idx::IborIndex, ts::TermStructure = idx.ts) = IborIndex(idx.familyName, idx.tenor, idx.fixingDays, idx.currency, idx.fixingCalendar, idx.convention, idx.endOfMonth, idx.dc, ts)
+clone{TP, CUR, B, C, DC, T}(idx::IborIndex{TP, CUR, B, C, DC, T}, ts::TermStructure = idx.ts) =
+      IborIndex(idx.familyName, idx.tenor, idx.fixingDays, idx.currency, idx.fixingCalendar, idx.convention, idx.endOfMonth, idx.dc, ts)
 clone(idx::LiborIndex, ts::TermStructure = idx.ts) = LiborIndex(idx.familyName, idx.tenor, idx.fixingDays, idx.currency, idx.fixingCalendar, idx.jointCalendar, idx.convention, idx.endOfMonth, idx.dc, ts)
 
 update_termstructure(idx::InterestRateIndex, ts::TermStructure) = clone(idx, ts)
