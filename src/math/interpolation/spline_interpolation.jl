@@ -15,7 +15,7 @@ type NaturalCubicSpline{T <: Number} <: Interpolation
 end
 
 # adapted from here: http://sepwww.stanford.edu/sep/sergey/128A/answers6.pdf
-function NaturalCubicSpline{T <: Real}(x_vert::Vector{T}, y_vert::Vector{T})
+function NaturalCubicSpline{T <: Number}(x_vert::Vector{T}, y_vert::Vector{T})
   n = length(x_vert)
   h = zeros(n - 1)
   b = zeros(n - 1)
@@ -44,7 +44,7 @@ function NaturalCubicSpline{T <: Real}(x_vert::Vector{T}, y_vert::Vector{T})
     c[i] *= 3.0
   end
 
-  return NaturalCubicSpline(x_vert, y_vert, b, c, d)
+  return NaturalCubicSpline{T}(x_vert, y_vert, b, c, d)
 end
 
 function (spl::NaturalCubicSpline)(my_x::Number)

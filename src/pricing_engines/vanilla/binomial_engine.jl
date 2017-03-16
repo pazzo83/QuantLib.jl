@@ -36,7 +36,7 @@ function _calculate!(pe::BinomialVanillaEngine, opt::VanillaOption)
   tree = pe.treeClass(bs, maturity, pe.timeSteps, payoff.strike)
   lattice = BlackScholesLattice(tree, r, maturity, pe.timeSteps)
 
-  option = DiscretizedVanillaOption(opt, pe.process, grid)
+  option = DiscretizedVanillaOption(opt, pe.process, grid, lattice.treeLattice)
 
   initialize!(option, lattice.treeLattice, maturity)
   rollback!(option, grid[3])

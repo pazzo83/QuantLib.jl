@@ -22,6 +22,15 @@ function tree(model::TwoFactorModel, grid::TimeGrid)
   return TwoFactorShortRateTree{typeof(dyn), typeof(dyn.xProcess), typeof(dyn.yProcess)}(tree1, tree2, dyn)
 end
 
+function rebuild_lattice!(lattice::TwoFactorShortRateTree, tg::TimeGrid)
+  rebuild_tree!(lattice.tree1, tg)
+  rebuild_tree!(lattice.tree2, tg)
+
+  # update tree lattice
+  lattice.treeLattice.tg = tg
+  return lattice
+end
+
 get_size(tr::TwoFactorShortRateTree, i::Int) = get_size(tr.treeLattice, i)
 
 descendant(tr::TwoFactorShortRateTree, i::Int, idx::Int, branch::Int) = descendant(tr.treeLattice, i, idx, branch)
@@ -107,7 +116,7 @@ end
 A(m::G2, t::Float64, T::Float64) = discount(m.ts, T) / discount(m.ts, t) * exp(0.5 * (V(m, T - t) - V(m, T) + V(m, t)))
 B(m::G2, x::Float64, t::Float64) = (1.0 - exp(-x * t)) / x
 
-type G2SwaptionPricingFunction
+type G2SwaptionPricingFunction <: Function
   a::Float64
   sigma::Float64
   b::Float64
@@ -157,6 +166,40 @@ function G2SwaptionPricingFunction(model::G2, w::Float64, startTime::Float64, pa
   end
 
   return G2SwaptionPricingFunction(a, sigma, b, eta, rho, w, startTime, fixedRate, sigmax, sigmay, rhoxy, mux, muy, payTimes, A_, Ba, Bb)
+end
+
+function (pricingFunc::G2SwaptionPricingFunction)(x::Float64)
+  phi = Normal()
+  n = length(pricingFunc.payTimes)
+
+  temp = (x - pricingFunc.mux) / pricingFunc.sigmax
+  txy = sqrt(1.0 - pricingFunc.rhoxy * pricingFunc.rhoxy)
+  lambda = zeros(n)
+
+  for i = 1:n
+    tau = i == 1 ? pricingFunc.payTimes[1] - pricingFunc.startTime : pricingFunc.payTimes[i] - pricingFunc.payTimes[i - 1]
+    c = i == n ? (1.0 + pricingFunc.fixedRate * tau) : pricingFunc.fixedRate * tau
+    lambda[i] = c * pricingFunc.A[i] * exp(-pricingFunc.Ba[i] * x)
+  end
+
+  func = SolvingFunction(lambda, pricingFunc.Bb)
+  s1d = BrentSolver(1000)
+
+  yb = solve(s1d, operator(func), 1e-6, 0.00, -100.0, 100.0)
+
+  h1 = (yb - pricingFunc.muy) / (pricingFunc.sigmay * txy) - pricingFunc.rhoxy * (x - pricingFunc.mux) / (pricingFunc.sigmax * txy)
+  val = cdf(phi, -pricingFunc.w * h1)
+
+  for i = 1:n
+    h2 = h1 + pricingFunc.Bb[i] * pricingFunc.sigmay * sqrt(1.0 - pricingFunc.rhoxy * pricingFunc.rhoxy)
+    kappa = -pricingFunc.Bb[i] * (pricingFunc.muy - 0.5 * txy * txy * pricingFunc.sigmay * pricingFunc.sigmay * pricingFunc.Bb[i] +
+            pricingFunc.rhoxy * pricingFunc.sigmay * (x - pricingFunc.mux) / pricingFunc.sigmax)
+
+    val -= lambda[i] * exp(kappa) * cdf(phi, -pricingFunc.w * h2)
+  end
+
+  blah = exp(-0.5 * temp * temp) * val / (pricingFunc.sigmax * sqrt(2.0 * pi))
+  return exp(-0.5 * temp * temp) * val / (pricingFunc.sigmax * sqrt(2.0 * pi))
 end
 
 function operator(pricingFunc::G2SwaptionPricingFunction)
@@ -212,7 +255,7 @@ function gen_swaption(model::G2, swaption::Swaption, fixedRate::Float64, range::
   lower = func.mux - range * func.sigmax
 
   integrator = SegmentIntegral(intervals)
-  return swaption.swap.nominal * w * discount(model.ts, startTime) * QuantLib.Math.operator(integrator, QuantLib.operator(func), lower, upper)
+  return swaption.swap.nominal * w * discount(model.ts, startTime) * integrator(func, lower, upper)
 end
 
 discount_bond(model::G2, t::Float64, T::Float64, x::Float64, y::Float64) = A(model, t, T) * exp(-B(model, get_a(model), (T - t)) * x - B(model, get_b(model), (T - t)) * y)

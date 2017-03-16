@@ -75,6 +75,59 @@ function TrinomialTree{S <: StochasticProcess}(process::S, timeGrid::TimeGrid, i
   return TrinomialTree{S}(process, timeGrid, dx, branchings, isPositive)
 end
 
+function rebuild_tree!(tt::TrinomialTree, timeGrid::TimeGrid)
+  x0 = tt.process.x0
+  dx = zeros(length(timeGrid.times))
+  nTimeSteps = length(timeGrid.times) - 1
+  jMin = 0
+  jMax = 0
+  branchings = Vector{Branching}(nTimeSteps)
+
+  for i = 1:nTimeSteps
+    t = timeGrid.times[i]
+    dt = timeGrid.dt[i]
+
+    # Variance must be independent of x
+    v2 = variance(tt.process, t, 0.0, dt)
+    v = sqrt(v2)
+    dx[i+1] = v * sqrt(3.0)
+
+    branching = Branching()
+
+    @simd for j =jMin:jMax
+      @inbounds x = x0 + j * dx[i]
+      m = expectation(tt.process, t, x, dt)
+      @inbounds temp = round(Int, floor((m - x0) / dx[i+1] + 0.5))
+
+      if tt.isPositive
+        @inbounds while (x0 + (temp - 1) * dx[i + 1] <= 0)
+          temp += 1
+        end
+      end
+
+      @inbounds e = m - (x0 + temp * dx[i + 1])
+      e2 = e * e
+      e3 = e * sqrt(3.0)
+
+      p1 = (1.0 + e2 / v2 - e3 / v) / 6.0
+      p2 = (2.0 - e2 / v2) / 3.0
+      p3 = (1.0 + e2 / v2 + e3 / v) / 6.0
+
+      add!(branching, temp, p1, p2, p3)
+    end
+
+    @inbounds branchings[i] = branching # check if we need copy
+
+    jMin = branching.jMin
+    jMax = branching.jMax
+  end
+  tt.dx = dx
+  tt.timeGrid = timeGrid
+  tt.branchings = branchings
+
+  return tt
+end
+
 type TreeLattice1D{T <: TreeLattice} <: TreeLattice
   tg::TimeGrid
   impl::T

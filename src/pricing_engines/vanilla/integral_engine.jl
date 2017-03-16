@@ -2,7 +2,7 @@ type IntegralEngine{B <: AbstractBlackScholesProcess} <: PricingEngine
   process::B
 end
 
-type Integrand{P <: StrikedTypePayoff} <: IntegrationFunction
+type Integrand{P <: StrikedTypePayoff} <: Function
   payoff::P
   s0::Float64
   drift::Float64

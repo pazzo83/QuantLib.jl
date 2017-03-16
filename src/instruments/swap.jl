@@ -100,14 +100,14 @@ function reset!(cr::CDSResults)
   return cr
 end
 
-type VanillaSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, L <: Leg, P <: PricingEngine} <: Swap
+type VanillaSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, L <: Leg, P <: PricingEngine, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} <: Swap
   lazyMixin::LazyMixin
   swapT::ST
   nominal::Float64
   fixedSchedule::Schedule
   fixedRate::Float64
   fixedDayCount::DC_fix
-  iborIndex::IborIndex
+  iborIndex::IborIndex{TP, CUR, IB, IC, IDC, IT}
   spread::Float64
   floatSchedule::Schedule
   floatDayCount::DC_float
@@ -120,8 +120,8 @@ type VanillaSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: 
 end
 
 # Constructors
-function VanillaSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, P <: PricingEngine}(swapT::ST, nominal::Float64, fixedSchedule::Schedule, fixedRate::Float64,
-                    fixedDayCount::DC_fix, iborIndex::IborIndex, spread::Float64, floatSchedule::Schedule, floatDayCount::DC_float, pricingEngine::P = NullPricingEngine(), paymentConvention::B = floatSchedule.convention)
+function VanillaSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, P <: PricingEngine, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure}(swapT::ST, nominal::Float64, fixedSchedule::Schedule, fixedRate::Float64,
+                    fixedDayCount::DC_fix, iborIndex::IborIndex{TP, CUR, IB, IC, IDC, IT}, spread::Float64, floatSchedule::Schedule, floatDayCount::DC_float, pricingEngine::P = NullPricingEngine(), paymentConvention::B = floatSchedule.convention)
   # build swap cashflows
   legs = Vector{Leg}(2)
   # first leg is fixed
@@ -133,7 +133,7 @@ function VanillaSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B
 
   results = SwapResults(2)
 
-  return VanillaSwap{ST, DC_fix, DC_float, B, Leg, P}(LazyMixin(), swapT, nominal, fixedSchedule, fixedRate, fixedDayCount, iborIndex, spread, floatSchedule, floatDayCount,
+  return VanillaSwap{ST, DC_fix, DC_float, B, Leg, P, TP, CUR, IB, IC, IDC, IT}(LazyMixin(), swapT, nominal, fixedSchedule, fixedRate, fixedDayCount, iborIndex, spread, floatSchedule, floatDayCount,
                     paymentConvention, legs, payer, pricingEngine, results, VanillaSwapArgs(legs))
 end
 
@@ -305,7 +305,7 @@ end
 #                     swap.floatSchedule, swap.floatDayCount, swap.paymentConvention, swap.legs, swap.payer, pe, res, args)
 # end
 
-function clone{ST, DC_fix, DC_float, B, L, P}(swap::VanillaSwap{ST, DC_fix, DC_float, B, L, P}, pe::PricingEngine = swap.pricingEngine, ts::TermStructure = swap.iborIndex.ts)
+function clone{ST, DC_fix, DC_float, B, L, P, TP, CUR, IB, IC, IDC, IT}(swap::VanillaSwap{ST, DC_fix, DC_float, B, L, P, TP, CUR, IB, IC, IDC, IT}, pe::PricingEngine = swap.pricingEngine, ts::TermStructure = swap.iborIndex.ts)
   # is_new = pe != swap.pricingEngine || ts != swap.iborIndex.ts
 
   lazyMixin, res, args = pe == swap.pricingEngine ? (swap.lazyMixin, swap.results, swap.args) : (LazyMixin(), SwapResults(2), VanillaSwapArgs(swap.legs))
@@ -321,12 +321,12 @@ function clone{ST, DC_fix, DC_float, B, L, P}(swap::VanillaSwap{ST, DC_fix, DC_f
     newLegs = swap.legs
   end
 
-  return VanillaSwap{ST, DC_fix, DC_float, B, L, typeof(pe)}(lazyMixin,
+  return VanillaSwap{ST, DC_fix, DC_float, B, L, typeof(pe), TP, CUR, IB, IC, IDC, typeof(ts)}(lazyMixin,
                     swap.swapT, swap.nominal, swap.fixedSchedule, swap.fixedRate, swap.fixedDayCount, newIbor, swap.spread,
                     swap.floatSchedule, swap.floatDayCount, swap.paymentConvention, newLegs, swap.payer, pe, res, args)
 end
 
-get_pricing_engine_type{ST, DC_fix, DC_float, B, L, P}(::VanillaSwap{ST, DC_fix, DC_float, B, L, P}) = P
+get_pricing_engine_type{ST, DC_fix, DC_float, B, L, P, TP, CUR, IB, IC, IDC, IT}(::VanillaSwap{ST, DC_fix, DC_float, B, L, P, TP, CUR, IB, IC, IDC, IT}) = P
 
 function update_ts_idx!(swap::VanillaSwap, ts::TermStructure)
   typeof(ts) == typeof(swap.iborIndex.ts) || error("Term Structure mismatch for swap between ts and index ts")

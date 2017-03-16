@@ -1,4 +1,4 @@
-type DiscretizedSwaption{E <: Exercise} <: DiscretizedOption
+type DiscretizedSwaption{E <: Exercise, L <: Lattice} <: DiscretizedOption
   underlying::DiscretizedSwap
   exercise::E
   exerciseTimes::Vector{Float64}
@@ -7,10 +7,10 @@ type DiscretizedSwaption{E <: Exercise} <: DiscretizedOption
   floatingPayDates::Vector{Date}
   floatingResetDates::Vector{Date}
   lastPayment::Float64
-  common::DiscretizedAssetCommon
+  common::DiscretizedAssetCommon{L}
 end
 
-function DiscretizedSwaption{DC <: DayCount}(swaption::Swaption, referenceDate::Date, dc::DC)
+function DiscretizedSwaption{DC <: DayCount, L <: Lattice}(swaption::Swaption, referenceDate::Date, dc::DC, lattice::L)
   dates = copy(swaption.exercise.dates)
   fixed_coups = swaption.swap.legs[1].coupons
   floating_coups = swaption.swap.legs[2].coupons
@@ -59,10 +59,11 @@ function DiscretizedSwaption{DC <: DayCount}(swaption::Swaption, referenceDate::
   lastFloatingPayment = year_fraction(dc, referenceDate, floatingPayDates[end])
 
   lastPayment = max(lastFixedPayment, lastFloatingPayment)
-  underlying = DiscretizedSwap(nominal, swapT, referenceDate, dc, fixedPayDates, fixedResetDates, floatingPayDates, floatingResetDates, swaption.swap.args)
+  underlying = DiscretizedSwap(nominal, swapT, referenceDate, dc, fixedPayDates, fixedResetDates, floatingPayDates, floatingResetDates, swaption.swap.args, lattice)
   exercise = swaption.exercise
 
-  DiscretizedSwaption(underlying, exercise, exerciseTimes, fixedPayDates, fixedResetDates, floatingPayDates, floatingResetDates, lastPayment, DiscretizedAssetCommon())
+  DiscretizedSwaption{typeof(exercise), L}(underlying, exercise, exerciseTimes, fixedPayDates, fixedResetDates,
+                                          floatingPayDates, floatingResetDates, lastPayment, DiscretizedAssetCommon(lattice))
 end
 
 function mandatory_times(discretizedSwaption::DiscretizedSwaption)

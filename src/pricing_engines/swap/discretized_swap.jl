@@ -1,4 +1,4 @@
-type DiscretizedSwap{ST <: SwapType} <: DiscretizedAsset
+type DiscretizedSwap{ST <: SwapType, L <: Lattice} <: DiscretizedAsset
   nominal::Float64
   swapT::ST
   fixedResetTimes::Vector{Float64}
@@ -6,11 +6,11 @@ type DiscretizedSwap{ST <: SwapType} <: DiscretizedAsset
   floatingResetTimes::Vector{Float64}
   floatingPayTimes::Vector{Float64}
   args::VanillaSwapArgs
-  common::DiscretizedAssetCommon
+  common::DiscretizedAssetCommon{L}
 end
 
-function DiscretizedSwap{DC <: DayCount, ST <: SwapType}(nominal::Float64, swapT::ST, referenceDate::Date, dc::DC, fixedPayDates::Vector{Date}, fixedResetDates::Vector{Date},
-                        floatingPayDates::Vector{Date}, floatingResetDates::Vector{Date}, args::VanillaSwapArgs)
+function DiscretizedSwap{DC <: DayCount, ST <: SwapType, L <: Lattice}(nominal::Float64, swapT::ST, referenceDate::Date, dc::DC, fixedPayDates::Vector{Date}, fixedResetDates::Vector{Date},
+                        floatingPayDates::Vector{Date}, floatingResetDates::Vector{Date}, args::VanillaSwapArgs, lattice::L)
   fixed_n = length(fixedPayDates)
   float_n = length(floatingPayDates)
 
@@ -29,7 +29,7 @@ function DiscretizedSwap{DC <: DayCount, ST <: SwapType}(nominal::Float64, swapT
     @inbounds floatingPayTimes[i] = year_fraction(dc, referenceDate, floatingPayDates[i])
   end
 
-  DiscretizedSwap(nominal, swapT, fixedResetTimes, fixedPayTimes, floatingResetTimes, floatingPayTimes, args, DiscretizedAssetCommon())
+  DiscretizedSwap{ST, L}(nominal, swapT, fixedResetTimes, fixedPayTimes, floatingResetTimes, floatingPayTimes, args, DiscretizedAssetCommon(lattice))
 end
 
 # methods #
@@ -58,7 +58,7 @@ function pre_adjust_values_impl!(dSwap::DiscretizedSwap)
   for i in eachindex(dSwap.floatingResetTimes)
     @inbounds t = dSwap.floatingResetTimes[i]
     if t >= 0.0 && is_on_time(dSwap, t)
-      bond = DiscretizedDiscountBond()
+      bond = DiscretizedDiscountBond(dSwap.common.method)
       initialize!(bond, dSwap.common.method, dSwap.floatingPayTimes[i])
       rollback!(bond, dSwap.common.time)
 
@@ -83,7 +83,7 @@ function pre_adjust_values_impl!(dSwap::DiscretizedSwap)
   for i in eachindex(dSwap.fixedResetTimes)
     t = dSwap.fixedResetTimes[i]
     if t >= 0.0 && is_on_time(dSwap, t)
-      bond = DiscretizedDiscountBond()
+      bond = DiscretizedDiscountBond(dSwap.common.method)
       initialize!(bond, dSwap.common.method, dSwap.fixedPayTimes[i])
       rollback!(bond, dSwap.common.time)
 

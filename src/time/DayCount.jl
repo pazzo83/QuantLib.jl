@@ -3,27 +3,27 @@ using Base.Dates
 
 abstract DayCount
 
-type Actual360 <:DayCount ; end
-type Actual365 <: DayCount ; end
+immutable Actual360 <:DayCount ; end
+immutable Actual365 <: DayCount ; end
 
 abstract Thirty360 <:DayCount
 
-type BondThirty360 <: Thirty360; end
-type EuroBondThirty360 <: Thirty360; end
-type ItalianThirty360 <: Thirty360; end
+immutable BondThirty360 <: Thirty360; end
+immutable EuroBondThirty360 <: Thirty360; end
+immutable ItalianThirty360 <: Thirty360; end
 
 typealias USAThirty360 BondThirty360
 typealias EuroThirty360 EuroBondThirty360
 
 abstract ActualActual <: DayCount
 
-type ISMAActualActual <: ActualActual; end
-type ISDAActualActual <: ActualActual; end
-type AFBActualActual <: ActualActual; end
+immutable ISMAActualActual <: ActualActual; end
+immutable ISDAActualActual <: ActualActual; end
+immutable AFBActualActual <: ActualActual; end
 
 typealias ActualActualBond ISMAActualActual
 
-type SimpleDayCount <: DayCount end
+immutable SimpleDayCount <: DayCount end
 
 # Day Counting
 # default day count method

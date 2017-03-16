@@ -2,13 +2,13 @@
 
 # Compounding Types
 abstract CompoundingType
-type ContinuousCompounding <: CompoundingType end # exp(r * t)
-type SimpleCompounding <: CompoundingType end     # (1+r*t)
-type CompoundedCompounding <: CompoundingType end # (1 + r)^t
-type SimpleThenCompounded <: CompoundingType end
+immutable ContinuousCompounding <: CompoundingType end # exp(r * t)
+immutable SimpleCompounding <: CompoundingType end     # (1+r*t)
+immutable CompoundedCompounding <: CompoundingType end # (1 + r)^t
+immutable SimpleThenCompounded <: CompoundingType end
 
 ## Durations ##
-type ModifiedDuration <: Duration end
+immutable ModifiedDuration <: Duration end
 
 type InterestRate{DC <: DayCount, C <: CompoundingType, F <: Frequency}
   rate::Float64

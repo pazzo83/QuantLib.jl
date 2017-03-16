@@ -1,5 +1,5 @@
-type Hundsdorfer <: FdmSchemeDescType end
-type Douglas <: FdmSchemeDescType end
+immutable Hundsdorfer <: FdmSchemeDescType end
+immutable Douglas <: FdmSchemeDescType end
 
 type FdmSchemeDesc{F <: FdmSchemeDescType}
   schemeType::F

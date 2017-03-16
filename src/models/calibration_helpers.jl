@@ -159,7 +159,7 @@ end
 
 function add_times_to!(swaptionHelper::SwaptionHelper, times::Vector{Float64})
   calculate!(swaptionHelper)
-  discretizedSwap = DiscretizedSwaption(swaptionHelper.swaption, reference_date(swaptionHelper.yts), swaptionHelper.yts.dc)
+  discretizedSwap = DiscretizedSwaption(swaptionHelper.swaption, reference_date(swaptionHelper.yts), swaptionHelper.yts.dc, NullLattice())
   times = vcat(times, mandatory_times(discretizedSwap))
   return times
 end
