@@ -1,12 +1,18 @@
-type MCSimulation{RSG <: AbstractRandomSequenceGenerator, T <: MCTrait}
+type MCSimulation{RSG <: AbstractRandomSequenceGenerator, T <: MCTrait, P <: AbstractPathPricer, S <: StochasticProcess1D}
   antitheticVariate::Bool
   controlVariate::Bool
   rsg::RSG
   mcTrait::T
-  mcModel::MonteCarloModel
+  mcModel::MonteCarloModel{P, RSG, S}
 
-  MCSimulation{RSG, T}(antitheticVariate::Bool, controlVariate::Bool, rsg::RSG, mcTrait::T) =
-              new{RSG, T}(antitheticVariate, controlVariate, rsg, mcTrait)
+  MCSimulation{RSG, T, P, S}(antitheticVariate::Bool, controlVariate::Bool, rsg::RSG, mcTrait::T, mcModel::MonteCarloModel{P, RSG, S}) =
+              new{RSG, T, P, S}(antitheticVariate, controlVariate, rsg, mcTrait, mcModel)
+end
+
+function MCSimulation{S <: StochasticProcess1D, RSG <: AbstractRandomSequenceGenerator, T <: MCTrait}(pe::MCEngine{S, RSG}, controlVariate::Bool, inst::Instrument, mcTrait::T)
+  # create model
+  model = MonteCarloModel(path_generator(pe, inst), path_pricer(pe, inst), gen_RiskStatistics(), pe.antitheticVariate)
+  return MCSimulation{RSG, T, typeof(model.pathPricer), S}(pe.antitheticVariate, controlVariate, pe.rsg, mcTrait, model)
 end
 
 max_error(err::Float64) = err
@@ -45,9 +51,9 @@ function get_value_with_samples!(mcsim::MCSimulation, samples::Int)
   return stats_mean(mcsim.mcModel.sampleAccumulator)
 end
 
-function _calculate!(mcsim::MCSimulation, pe::PricingEngine, inst::Instrument, requiredTolerance::Float64, requiredSamples::Int, maxSamples::Int)
+function _calculate!(mcsim::MCSimulation, requiredTolerance::Float64, requiredSamples::Int, maxSamples::Int)
   # TODO check if control variate
-  mcsim.mcModel = MonteCarloModel(path_generator(pe, inst), path_pricer(pe, inst), gen_RiskStatistics(), mcsim.antitheticVariate)
+  # mcsim.mcModel = MonteCarloModel(path_generator(pe, inst), path_pricer(pe, inst), gen_RiskStatistics(), mcsim.antitheticVariate)
 
   if requiredTolerance != -1.0
     if maxSamples != -1

@@ -1,9 +1,9 @@
-type CallableFixedRateBond{DC <: DayCount, P <: PricingEngine, P2 <: PricingEngine} <: AbstractCallableBond
+type CallableFixedRateBond{L <: Leg, DC <: DayCount, P <: PricingEngine, P2 <: PricingEngine} <: AbstractCallableBond
   lazyMixin::LazyMixin
   bondMixin::BondMixin
   faceAmount::Float64
   schedule::Schedule
-  cashflows::FixedRateLeg
+  cashflows::L
   dc::DC
   redemption::Float64
   startDate::Date
@@ -14,7 +14,7 @@ type CallableFixedRateBond{DC <: DayCount, P <: PricingEngine, P2 <: PricingEngi
   blackVolQuote::Quote
 end
 
-function CallableFixedRateBond{DC <: DayCount, P <: PricingEngine}(settlementDays::Int, faceAmount::Float64, schedule::Schedule, coupons::Union{Vector{Float64}, Float64},
+function CallableFixedRateBond{DC <: DayCount, P <: PricingEngine}(settlementDays::Int, faceAmount::Float64, schedule::Schedule, coupons::Vector{Float64},
                               accrualDayCounter::DC, paymentConvention::BusinessDayConvention, redemption::Float64, issueDate::Date,
                               putCallSchedule::CallabilitySchedule, pe::P)
   maturityDate = schedule.dates[end]
@@ -23,7 +23,8 @@ function CallableFixedRateBond{DC <: DayCount, P <: PricingEngine}(settlementDay
   isZeroCouponBond = length(coupons) == 1 && is_close(coupons[1], 0.0)
 
   if ~isZeroCouponBond
-    coups = FixedRateLeg(schedule, faceAmount, coupons, schedule.cal, paymentConvention, accrualDayCounter)
+    couprates = length(coupons) == 1 ? coupons[1] : coupons
+    coups = FixedRateLeg(schedule, faceAmount, couprates, schedule.cal, paymentConvention, accrualDayCounter)
   else
     # build redemption CashFlow
     redemptionDate = adjust(schedule.cal, paymentConvention, maturityDate)
@@ -33,7 +34,7 @@ function CallableFixedRateBond{DC <: DayCount, P <: PricingEngine}(settlementDay
   blackVolQuote = Quote(0.0)
   blackEngine = BlackCallableFixedRateBondEngine(blackVolQuote)
 
-  return CallableFixedRateBond{DC, P, BlackCallableFixedRateBondEngine}(LazyMixin(), BondMixin(settlementDays, issueDate, maturityDate), faceAmount, schedule, coups, accrualDayCounter, redemption,
+  return CallableFixedRateBond{typeof(coups), DC, P, BlackCallableFixedRateBondEngine}(LazyMixin(), BondMixin(settlementDays, issueDate, maturityDate), faceAmount, schedule, coups, accrualDayCounter, redemption,
                               schedule.dates[1], pe, 0.0, putCallSchedule, blackEngine, blackVolQuote)
 end
 
@@ -45,11 +46,8 @@ function accrued(bond::CallableFixedRateBond, d::Date)
   for i in eachindex(bond.cashflows.coupons)
     # the first coupon paying after d is the one we are after
     if ~has_occurred(bond.cashflows[i], d, false)
-      if isa(bond.cashflows[i], Coupon)
-        return accrued_amount(bond.cashflows[i], d) / notional(bond, d) * 100.0
-      else
-        return 0.0
-      end
+      # if isa(bond.cashflows[i], Coupon)
+      return accrued_amount(bond.cashflows[i], d) / notional(bond, d) * 100.0
     end
   end
 
@@ -72,7 +70,7 @@ function CallableBondArgs(bond::CallableFixedRateBond)
   settlement = settlement_date(bond)
   coupDates = Vector{Date}()
   coupAmts = Vector{Float64}()
-  for i = 1:length(bond.cashflows.coupons)-1
+  for i = 1:length(bond.cashflows.coupons)
     if ~has_occurred(bond.cashflows[i], settlement, false)
       push!(coupDates, date(bond.cashflows[i]))
       push!(coupAmts, amount(bond.cashflows[i]))

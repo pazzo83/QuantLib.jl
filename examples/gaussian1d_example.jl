@@ -98,7 +98,6 @@ function main()
   method = QuantLib.Math.LevenbergMarquardt()
 
   ec = QuantLib.Math.EndCriteria(1000, 10, 1.0e-8, 1.0e-8, 1.0e-8)
-
   calibrate_volatilities_iterative!(gsr, basket, method, ec)
 
   print_model_calibration(basket, get_volatilities(gsr))

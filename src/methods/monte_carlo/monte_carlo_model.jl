@@ -1,7 +1,7 @@
 type SingleVariate <: MCTrait end
 
-type MonteCarloModel{P <: AbstractPathPricer} <: AbstractMonteCarloModel
-  pathGenerator::PathGenerator
+type MonteCarloModel{P <: AbstractPathPricer, RSG <: AbstractRandomSequenceGenerator, S <: StochasticProcess1D} <: AbstractMonteCarloModel
+  pathGenerator::PathGenerator{RSG, S}
   pathPricer::P
   sampleAccumulator::RiskStatistics
   isAntitheticVariate::Bool

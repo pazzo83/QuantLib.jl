@@ -1,4 +1,4 @@
-type MCEuropeanEngine{S <: AbstractBlackScholesProcess} <: MCVanillaEngine
+type MCEuropeanEngine{S <: AbstractBlackScholesProcess, RSG <: AbstractRandomSequenceGenerator} <: MCVanillaEngine{S, RSG}
   process::S
   timeSteps::Int
   timeStepsPerYear::Int
@@ -7,23 +7,25 @@ type MCEuropeanEngine{S <: AbstractBlackScholesProcess} <: MCVanillaEngine
   requiredTolerance::Float64
   brownianBridge::Bool
   seed::Int
-  mcSimulation::MCSimulation
+  # mcSimulation::MCSimulation{RSG, T}
+  antitheticVariate::Bool
+  rsg::RSG
 end
 
-function MCEuropeanEngine{RSG <: AbstractRandomSequenceGenerator}(process::AbstractBlackScholesProcess; timeSteps::Int = -1, timeStepsPerYear::Int = -1, brownianBridge::Bool = false,
+function MCEuropeanEngine{S <: AbstractBlackScholesProcess, RSG <: AbstractRandomSequenceGenerator}(process::S; timeSteps::Int = -1, timeStepsPerYear::Int = -1, brownianBridge::Bool = false,
                           antitheticVariate::Bool = false, requiredSamples::Int = -1, requiredTolerance::Float64 = -1.0, maxSamples::Int = typemax(Int), seed::Int = 1, rsg::RSG = InverseCumulativeRSG(seed))
   # build mc sim
-  mcSim = MCSimulation{RSG, SingleVariate}(antitheticVariate, false, rsg, SingleVariate())
+  # mcSim = MCSimulation{RSG, SingleVariate}(antitheticVariate, false, rsg, SingleVariate())
 
-  return MCEuropeanEngine(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed, mcSim)
+  return MCEuropeanEngine{S, RSG}(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed, antitheticVariate, rsg)
 end
 
-type EuropeanPathPricer <: AbstractPathPricer
-  payoff::PlainVanillaPayoff
+type EuropeanPathPricer{OT <: OptionType} <: AbstractPathPricer
+  payoff::PlainVanillaPayoff{OT}
   discount::Float64
 end
 
-EuropeanPathPricer(optionType::OptionType, strike::Float64, disc::Float64) = EuropeanPathPricer(PlainVanillaPayoff(optionType, strike), disc)
+EuropeanPathPricer{OT <: OptionType}(optionType::OT, strike::Float64, disc::Float64) = EuropeanPathPricer{OT}(PlainVanillaPayoff(optionType, strike), disc)
 
 (pricer::EuropeanPathPricer)(path::Path) = pricer.payoff(path[end]) * pricer.discount
 
@@ -43,9 +45,9 @@ end
 function path_generator(pe::MCVanillaEngine, opt::VanillaOption)
   dimensions = get_factors(pe.process)
   grid = time_grid(pe, opt)
-  init_sequence_generator!(pe.mcSimulation.rsg, dimensions * (length(grid.times) - 1))
+  init_sequence_generator!(pe.rsg, dimensions * (length(grid.times) - 1))
 
-  return PathGenerator(pe.process, grid, pe.mcSimulation.rsg, pe.brownianBridge)
+  return PathGenerator(pe.process, grid, pe.rsg, pe.brownianBridge)
 end
 
 function path_pricer(pe::MCEuropeanEngine, opt::VanillaOption)
@@ -56,7 +58,8 @@ function path_pricer(pe::MCEuropeanEngine, opt::VanillaOption)
 end
 
 function _calculate!(pe::MCVanillaEngine, opt::VanillaOption)
-  _calculate!(pe.mcSimulation, pe, opt, pe.requiredTolerance, pe.requiredSamples, pe.maxSamples)
-  opt.results.value = stats_mean(pe.mcSimulation.mcModel.sampleAccumulator)
+  mcSim = MCSimulation(pe, false, opt, SingleVariate())
+  _calculate!(mcSim, pe.requiredTolerance, pe.requiredSamples, pe.maxSamples)
+  opt.results.value = stats_mean(mcSim.mcModel.sampleAccumulator)
   return pe, opt
 end

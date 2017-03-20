@@ -74,6 +74,7 @@ end
 
 function (finder::IRRFinder)(y::Float64)
   yld = InterestRate(y, finder.dc, finder.comp, finder.freq)
+  # @code_warntype npv(finder.leg, yld, finder.includeSettlementDateFlows, finder.settlementDate, finder.npvDate)
   NPV = npv(finder.leg, yld, finder.includeSettlementDateFlows, finder.settlementDate, finder.npvDate)
   return finder.npv - NPV
 end
@@ -170,7 +171,7 @@ get_reset_dates{C <: Coupon}(coups::Vector{C}) = Date[accrual_start_date(coup) f
 # end
 
 ## NPV METHODS ##
-function _npv_reduce(coup::Union{Coupon, SimpleCashFlow}, yts::YieldTermStructure, settlement_date::Date)
+function _npv_reduce(coup::Coupon, yts::YieldTermStructure, settlement_date::Date)
   if has_occurred(coup, settlement_date)
     return 0.0
   end
@@ -185,8 +186,10 @@ function npv(leg::Leg, yts::YieldTermStructure, settlement_date::Date, npv_date:
 
   totalNPV = mapreduce(x -> _npv_reduce(x, yts, settlement_date), +, leg)
 
-  # redemption - not needed with new iterator
-  # totalNPV += amount(leg.redemption) * discount(yts, leg.redemption.date)
+  # redemption
+  if ~isnull(leg.redemption)
+    totalNPV += amount(get(leg.redemption)) * discount(yts, date(get(leg.redemption)))
+  end
   return totalNPV / discount(yts, npv_date)
 end
 
@@ -206,17 +209,17 @@ function npv(leg::Leg, y::InterestRate, include_settlement_cf::Bool, settlement_
     coupon_date = date(cp)
     amount_ = amount(cp)
 
-    if isa(cp, Coupon)
-      ref_start_date = ref_period_start(cp)
-      ref_end_date = ref_period_end(cp)
-    else
-      if last_date == npv_date
-        ref_start_date = coupon_date - Dates.Year(1)
-      else
-        ref_start_date = last_date
-      end
-      ref_end_date = coupon_date
-    end
+    # if isa(cp, Coupon)
+    ref_start_date = ref_period_start(cp)
+    ref_end_date = ref_period_end(cp)
+    # else
+    #   if last_date == npv_date
+    #     ref_start_date = coupon_date - Dates.Year(1)
+    #   else
+    #     ref_start_date = last_date
+    #   end
+    #   ref_end_date = coupon_date
+    # end
 
     b = discount_factor(y, last_date, coupon_date, ref_start_date, ref_end_date)
 
@@ -226,15 +229,25 @@ function npv(leg::Leg, y::InterestRate, include_settlement_cf::Bool, settlement_
     totalNPV += amount_ * discount_
   end
 
-  # redemption - not needed with iterator
-  #redempt_date = leg.redemption.date
-  # amount = amount(leg.redemption)
+  # redemption
+  if ~isnull(leg.redemption)
+    if ~has_occurred(get(leg.redemption), settlement_date)
+      redempt_date = date(get(leg.redemption))
+      if last_date == npv_date
+        ref_start_date = redempt_date - Dates.Year(1)
+      else
+        ref_start_date = last_date
+      end
+      ref_end_date = redempt_date
 
-  # b = discount_factor(leg.redemption, last_date, redempt_date, last_date, redempt_date)
-  # discount *= b
-  # totalNPV += amount * discount
-
+      amount_ = amount(get(leg.redemption))
+      b = discount_factor(y, last_date, redempt_date, ref_start_date, ref_end_date)
+      discount_ *= b
+      totalNPV += amount_ * discount_
+    end
+  end
   # now we return total npv
+  # println(totalNPV)
   return totalNPV
 end
 
@@ -276,8 +289,15 @@ function npvbps(leg::Leg, yts::YieldTermStructure, settlement_date::Date, npv_da
 
     df = discount(yts, date(cp))
     npv += amount(cp) * df
-    if isa(cp, Coupon)
-      bps += cp.nominal * accrual_period(cp) * df
+    # if isa(cp, Coupon)
+    bps += cp.nominal * accrual_period(cp) * df
+    # end
+  end
+  # redemption is present
+  if ~isnull(leg.redemption)
+    if ~has_occurred(get(leg.redemption), settlement_date, includeSettlementDateFlows)
+      df = discount(yts, date(get(leg.redemption)))
+      npv += amount(get(leg.redemption)) * df
     end
   end
   d = discount(yts, npv_date)
@@ -295,7 +315,7 @@ modified_duration_calc(::SimpleThenCompounded, c::Float64, B::Float64, t::Float6
   t <= 1.0 / N ? modified_duration_calc(Simple(), c, B, t, r, N) : modified_duration_calc(CompoundedCompounding(), c, B, t, r, N)
 
 function duration(::ModifiedDuration, leg::Leg, y::InterestRate, dc::DayCount, include_settlement_cf::Bool, settlement_date::Date, npv_date::Date = Date())
-  if length(leg.coupons) == 0 # TODO make this applicable to redemption too
+  if (length(leg.coupons) == 0 && isnull(get(leg.redemption))) # TODO make this applicable to redemption too
     return 0.0
   end
 
@@ -317,17 +337,17 @@ function duration(::ModifiedDuration, leg::Leg, y::InterestRate, dc::DayCount, i
 
     c = amount(cp)
     coupon_date = date(cp)
-    if isa(cp, FixedRateCoupon)
-      ref_start_date = ref_period_start(cp)
-      ref_end_date = ref_period_end(cp)
-    else
-      if last_date == npv_date
-        ref_start_date = coupon_date - Dates.Year(1)
-      else
-        ref_start_date = last_date
-      end
-      ref_end_date = coupon_date
-    end
+    # if isa(cp, FixedRateCoupon)
+    ref_start_date = ref_period_start(cp)
+    ref_end_date = ref_period_end(cp)
+    # else
+    #   if last_date == npv_date
+    #     ref_start_date = coupon_date - Dates.Year(1)
+    #   else
+    #     ref_start_date = last_date
+    #   end
+    #   ref_end_date = coupon_date
+    # end
 
     t += year_fraction(dc, last_date, coupon_date, ref_start_date, ref_end_date)
 
@@ -337,6 +357,26 @@ function duration(::ModifiedDuration, leg::Leg, y::InterestRate, dc::DayCount, i
     dPdy -= modified_duration_calc(y.comp, c, B, t, r, N)
 
     last_date = coupon_date
+  end
+
+  if ~isnull(leg.redemption)
+    if ~has_occurred(get(leg.redemption), settlement_date)
+      c = amount(get(leg.redemption))
+      coupon_date = date(get(leg.redemption))
+      if last_date == npv_date
+        ref_start_date = coupon_date - Dates.Year(1)
+      else
+        ref_start_date = last_date
+      end
+      ref_end_date = coupon_date
+
+      t += year_fraction(dc, last_date, coupon_date, ref_start_date, ref_end_date)
+
+      B = discount_factor(y, t)
+      P += c * B
+
+      dPdy -= modified_duration_calc(y.comp, c, B, t, r, N)
+    end
   end
 
   if P == 0.0
@@ -388,9 +428,9 @@ function aggregate_rate(cf::Leg, _first::Int, _last::Int)
   result = 0.0
   i = _first
   while i < length(cf.coupons) && date(_next_cf) == paymentDate
-    if isa(_next_cf, Coupon)
-      result += calc_rate(_next_cf)
-    end
+    # if isa(_next_cf, Coupon)
+    result += calc_rate(_next_cf)
+    # end
 
     i += 1
     _next_cf = cf.coupons[i]
@@ -483,8 +523,12 @@ end
 
 function maturity_date(leg::Leg)
   # sort cashflows
-  sorted_cf = sort(leg.coupons, by=sort_cashflow)
-  return date_accrual_end(sorted_cf[end])
+  if ~isnull(leg.redemption)
+    return date_accrual_end(get(leg.redemption))
+  else
+    sorted_cf = sort(leg.coupons, by=sort_cashflow)
+    return date_accrual_end(sorted_cf[end])
+  end
 end
 
 # Yield Calculations ##
@@ -492,7 +536,7 @@ function yield(leg::Leg, npv::Float64, dc::DayCount, compounding::CompoundingTyp
               npv_date::Date, accuracy::Float64, max_iter::Int, guess::Float64)
   solver = NewtonSolver(max_iter)
   obj_fun = IRRFinder(leg, npv, dc, compounding, freq, include_settlement_cf, settlement_date, npv_date)
-
+  solve(solver, obj_fun, accuracy, guess, guess / 10.0)
   return solve(solver, obj_fun, accuracy, guess, guess / 10.0)
 end
 

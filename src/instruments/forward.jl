@@ -1,4 +1,4 @@
-type ForwardRateAgreement{DC <: DayCount, BC <: BusinessCalendar, C <: BusinessDayConvention, Y <: YieldTermStructure, P <: PositionType} <: AbstractForward
+type ForwardRateAgreement{DC <: DayCount, BC <: BusinessCalendar, C <: BusinessDayConvention, Y <: YieldTermStructure, P <: PositionType, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} <: AbstractForward
   lazyMixin::LazyMixin
   underlyingIncome::Float64
   underlyingSpotValue::Float64
@@ -11,14 +11,15 @@ type ForwardRateAgreement{DC <: DayCount, BC <: BusinessCalendar, C <: BusinessD
   maturityDate::Date
   discountCurve::Y
   fraType::P
-  forwardRate::InterestRate
-  strikeForwardRate::InterestRate
+  forwardRate::InterestRate{IDC, SimpleCompounding, Once}
+  strikeForwardRate::InterestRate{IDC, SimpleCompounding, Once}
   notionalAmount::Float64
-  iborIndex::IborIndex
+  iborIndex::IborIndex{TP, CUR, IB, IC, IDC, IT}
 end
 
-function ForwardRateAgreement(valueDate::Date, maturityDate::Date, position::PositionType, strikeForward::Float64, notionalAmount::Float64,
-                              iborIndex::IborIndex, discountCurve::YieldTermStructure)
+function ForwardRateAgreement{P <: PositionType, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure, Y <: YieldTermStructure}(valueDate::Date,
+                              maturityDate::Date, position::P, strikeForward::Float64, notionalAmount::Float64,
+                              iborIndex::IborIndex{TP, CUR, IB, IC, IDC, IT}, discountCurve::Y)
   calendar = iborIndex.fixingCalendar
   convention = iborIndex.convention
   settlementDays = iborIndex.fixingDays
@@ -30,8 +31,8 @@ function ForwardRateAgreement(valueDate::Date, maturityDate::Date, position::Pos
   strike = notionalAmount * compound_factor(strikeForwardRate, valueDate, maturityDate)
   payoff = ForwardTypePayoff(position, strike)
 
-  return ForwardRateAgreement(LazyMixin(), 0.0, 0.0, iborIndex.dc, calendar, convention, settlementDays, payoff, valueDate, maturityDate, discountCurve,
-                              position, forwardRate, strikeForwardRate, notionalAmount, iborIndex)
+  return ForwardRateAgreement{IDC, IB, IC, Y, P, TP, CUR, IB, IC, IDC, IT}(LazyMixin(), 0.0, 0.0, iborIndex.dc, calendar, convention, settlementDays, payoff, valueDate,
+                              maturityDate, discountCurve, position, forwardRate, strikeForwardRate, notionalAmount, iborIndex)
 end
 
 function spot_value(fra::ForwardRateAgreement)

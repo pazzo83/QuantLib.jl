@@ -4,7 +4,7 @@ type PathGenerator{RSG <: AbstractRandomSequenceGenerator, S <: StochasticProces
   dimension::Int
   timeGrid::TimeGrid
   process::S
-  nextSample::Sample
+  nextSample::Sample{Path}
   temp::Vector{Float64}
   bb::BrownianBridge
 end

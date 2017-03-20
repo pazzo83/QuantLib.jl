@@ -147,7 +147,7 @@ get_floating_spreads(swap::VanillaSwap) = swap.args.floatingSpreads
 get_fixed_coupons(swap::VanillaSwap) = swap.args.fixedCoupons
 get_floating_coupons(swap::VanillaSwap) = swap.args.floatingCoupons
 
-type NonstandardSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, L <: Leg, P <: PricingEngine} <: Swap
+type NonstandardSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, L <: Leg, P <: PricingEngine, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} <: Swap
   lazyMixin::LazyMixin
   swapT::ST
   fixedNominal::Vector{Float64}
@@ -155,7 +155,7 @@ type NonstandardSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B
   fixedSchedule::Schedule
   fixedRate::Vector{Float64}
   fixedDayCount::DC_fix
-  iborIndex::IborIndex
+  iborIndex::IborIndex{TP, CUR, IB, IC, IDC, IT}
   spread::Float64
   gearing::Float64
   floatSchedule::Schedule
@@ -171,7 +171,7 @@ type NonstandardSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B
 end
 
 # Constructor #
-function NonstandardSwap(vs::VanillaSwap)
+function NonstandardSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, P <: PricingEngine, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure}(vs::VanillaSwap{ST, DC_fix, DC_float, B, Leg, P, TP, CUR, IB, IC, IDC, IT})
   # build swap cashflows
   legs = Vector{Leg}(2)
   # first leg is fixed
@@ -186,7 +186,7 @@ function NonstandardSwap(vs::VanillaSwap)
   fixedSize = length(vs.legs[1].coupons)
   floatSize = length(vs.legs[2].coupons)
 
-  return NonstandardSwap(LazyMixin(), vs.swapT, fill(vs.nominal, fixedSize), fill(vs.nominal, floatSize), vs.fixedSchedule, fill(vs.fixedRate, fixedSize),
+  return NonstandardSwap{ST, DC_fix, DC_float, B, Leg, P, TP, CUR, IB, IC, IDC, IT}(LazyMixin(), vs.swapT, fill(vs.nominal, fixedSize), fill(vs.nominal, floatSize), vs.fixedSchedule, fill(vs.fixedRate, fixedSize),
                         vs.fixedDayCount, vs.iborIndex, vs.spread, 1.0, vs.floatSchedule, vs.floatDayCount, vs.paymentConvention, false, false, legs,
                         payer, vs.pricingEngine, results, NonstandardSwapArgs(legs))
 end
@@ -202,7 +202,7 @@ get_fixed_coupons(swap::NonstandardSwap) = swap.args.vSwapArgs.fixedCoupons
 get_floating_coupons(swap::NonstandardSwap) = swap.args.vSwapArgs.floatingCoupons
 
 # CDS #
-type CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvention, DC <: DayCount, P <: PricingEngine} <: Swap
+type CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvention, DC <: DayCount, P <: PricingEngine, C <: CompoundingType, F <: Frequency} <: Swap
   lazyMixin::LazyMixin
   side::S
   notional::Float64
@@ -210,7 +210,7 @@ type CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvention, DC <:
   schedule::Schedule
   convention::B
   dc::DC
-  leg::FixedRateLeg
+  leg::FixedRateLeg{DC, DC, C, F}
   upfrontPayment::SimpleCashFlow
   settlesAccrual::Bool
   paysAtDefaultTime::Bool
@@ -226,12 +226,12 @@ type CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvention, DC <:
                     schedule::Schedule,
                     convention::B,
                     dc::DC,
-                    leg::FixedRateLeg,
+                    leg::FixedRateLeg{DC, DC, C, F},
                     upfrontPayment::SimpleCashFlow,
                     settlesAccrual::Bool,
                     paysAtDefaultTime::Bool,
                     protectionStart::Date,
-                    pricingEngine::P) = new(lazyMixin, side, notional, spread, schedule, convention, dc, leg, upfrontPayment, settlesAccrual, paysAtDefaultTime, protectionStart, pricingEngine,
+                    pricingEngine::P) = new{S, B, DC, P, C, F}(lazyMixin, side, notional, spread, schedule, convention, dc, leg, upfrontPayment, settlesAccrual, paysAtDefaultTime, protectionStart, pricingEngine,
                                             FaceValueClaim(), CDSResults())
 end
 
@@ -242,7 +242,7 @@ function CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvention, D
 
   # build upfront payment
   upfrontPayment = SimpleCashFlow(0.0, schedule.dates[1])
-  return CreditDefaultSwap{S, B, DC, P}(LazyMixin(), side, notional, spread, schedule, convention, dc, leg, upfrontPayment, settlesAccrual, paysAtDefaultTime, protectionStart, pricingEngine)
+  return CreditDefaultSwap{S, B, DC, P, SimpleCompounding, typeof(schedule.tenor.freq)}(LazyMixin(), side, notional, spread, schedule, convention, dc, leg, upfrontPayment, settlesAccrual, paysAtDefaultTime, protectionStart, pricingEngine)
 end
 
 # Swap Helper methods

@@ -90,17 +90,17 @@ function implied_quote(rh::RateHelper)
   return fixing(rh.iborIndex, rh.iborIndex.ts, rh.fixingDate, true)
 end
 
-type FraRateHelper{D <: Dates.Period} <: RateHelper
+type FraRateHelper{D <: Dates.Period, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} <: RateHelper
   rate::Quote
   evaluationDate::Date
   periodToStart::D
-  iborIndex::IborIndex
+  iborIndex::IborIndex{TP, CUR, IB, IC, IDC, IT}
   fixingDate::Date
   earliestDate::Date
   latestDate::Date
 end
 
-function FraRateHelper(rate::Quote, monthsToStart::Int, monthsToEnd::Int, fixingDays::Int, calendar::BusinessCalendar, convention::BusinessDayConvention, endOfMonth::Bool, dc::DayCount)
+function FraRateHelper{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}(rate::Quote, monthsToStart::Int, monthsToEnd::Int, fixingDays::Int, calendar::B, convention::C, endOfMonth::Bool, dc::DC)
   periodToStart = Dates.Month(monthsToStart)
   iborIndex = IborIndex("no-fix", TenorPeriod(Dates.Month(monthsToEnd - monthsToStart)), fixingDays, NullCurrency(), calendar, convention, endOfMonth, dc)
   evaluationDate = settings.evaluation_date
@@ -112,7 +112,7 @@ function FraRateHelper(rate::Quote, monthsToStart::Int, monthsToEnd::Int, fixing
   latestDate = maturity_date(iborIndex, earliestDate)
   fixingDate = fixing_date(iborIndex, earliestDate)
 
-  return FraRateHelper(rate, evaluationDate, periodToStart, iborIndex, fixingDate, earliestDate, latestDate)
+  return FraRateHelper{Dates.Month, typeof(iborIndex.tenor), NullCurrency, B, C, DC, typeof(iborIndex.ts)}(rate, evaluationDate, periodToStart, iborIndex, fixingDate, earliestDate, latestDate)
 end
 
 maturity_date(fra::FraRateHelper) = fra.latestDate

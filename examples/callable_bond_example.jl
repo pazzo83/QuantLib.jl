@@ -29,7 +29,7 @@ function main()
 
   settlementDays = 3
   bondCal = QuantLib.Time.USGovernmentBondCalendar()
-  coupon = 0.0465
+  coupon = [0.0465]
   freq = QuantLib.Time.Quarterly()
   redemption = 100.0
   faceAmount = 100.0

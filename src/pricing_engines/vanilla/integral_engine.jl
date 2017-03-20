@@ -18,7 +18,6 @@ end
 function _calculate!(pe::IntegralEngine, opt::EuropeanOption)
   ex = opt.exercise
   payoff = opt.payoff
-
   variance = black_variance(pe.process.blackVolatility, ex.dates[end], payoff.strike)
 
   dividendDiscount = discount(pe.process.dividendYield, ex.dates[end])

@@ -39,7 +39,7 @@ abstract MCTrait
 abstract AbstractPathPricer
 abstract EarlyExercisePathPricer <: AbstractPathPricer
 abstract LsmBasisSystemPolynomType
-abstract LSMBasisSystemFunction
+abstract LSMBasisSystemFunction <: Function
 # abstract BoundaryCondition
 
 # Exercise
@@ -98,13 +98,14 @@ abstract PricingEngine
 abstract DiscretizedAsset
 abstract DiscretizedOption <: DiscretizedAsset
 abstract LatticeShortRateModelEngine{S} <: PricingEngine
-abstract AbstractHestonEngine <: PricingEngine
+abstract AbstractHestonEngine{HI} <: PricingEngine
 abstract AbstractFDVanillaEngine <: PricingEngine
 abstract FDMultiPeriodEngine <: AbstractFDVanillaEngine
 abstract FDStepConditionEngine <: AbstractFDVanillaEngine
 abstract AbstractVanillaEngine <: PricingEngine
-abstract MCVanillaEngine <: PricingEngine
-abstract MCLongstaffSchwartzEngine <: PricingEngine
+abstract MCEngine{S, RSG} <: PricingEngine
+abstract MCVanillaEngine{S, RSG} <: MCEngine{S, RSG}
+abstract MCLongstaffSchwartzEngine{S, P, RSG} <: MCEngine{S, RSG}
 
 # Cash Flows
 abstract CashFlows

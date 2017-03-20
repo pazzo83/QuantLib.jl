@@ -35,6 +35,7 @@ function discount_impl{C <: InterpolatedCurve}(curve::C, t::Float64)
   # println(curve.times)
 
   # do flat fwd extrapolation
+  return 0.0
 end
 
 function perform_calculations!{C <: InterpolatedCurve}(curve::C)
@@ -60,7 +61,9 @@ function value{C <: CostFunction, T}(cf::C, x::Vector{T})
     end
 
     # redemption
-    # @inbounds model_price += amount(leg.redemption) * discount_function(cf.curve.fittingMethod, x, year_fraction(dc, ref_date, date(leg.redemption)))
+    if ~isnull(leg.redemption)
+      @inbounds model_price += amount(get(leg.redemption)) * discount_function(cf.curve.fittingMethod, x, year_fraction(dc, ref_date, date(get(leg.redemption))))
+    end
 
     # adjust NPV for forward settlement
     if bond_settlement != ref_date
