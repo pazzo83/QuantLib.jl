@@ -8,11 +8,11 @@ num_evals(integration::HestonGaussLaguerre) = get_order(integration.integration)
 
 type Gatheral <: ComplexLogFormula end
 
-type AnalyticHestonEngine{C <: ComplexLogFormula, HI <: HestonIntegration} <: AbstractHestonEngine
+type AnalyticHestonEngine{C <: ComplexLogFormula} <: AbstractHestonEngine{HestonGaussLaguerre}
   model::HestonModel
   evaluations::Int
   cpxLog::C
-  integration::HI
+  integration::HestonGaussLaguerre
 end
 
 function AnalyticHestonEngine(hestonModel::HestonModel)
@@ -26,8 +26,8 @@ end
 add_on_term(engine::AnalyticHestonEngine, ::Real, ::Real, ::Int) = complex(0.0)
 
 # Helper #
-type FJHelper{I <: Integer, C <: ComplexLogFormula, A <: AbstractHestonEngine} <: IntegrationFunction
-  j::I
+type FJHelper{C <: ComplexLogFormula, A <: AbstractHestonEngine} <: IntegrationFunction
+  j::Int
   kappa::Float64
   theta::Float64
   sigma::Float64
@@ -40,7 +40,7 @@ type FJHelper{I <: Integer, C <: ComplexLogFormula, A <: AbstractHestonEngine} <
   sigma2::Float64
   rsigma::Float64
   t0::Float64
-  b::I
+  b::Int
   g_km1::Float64
   engine::A
 end
@@ -135,7 +135,7 @@ get_val(::Put, spotPrice::Float64, dividendDiscount::Float64, riskFreeDiscount::
 
 function do_calculation!(pe::AbstractHestonEngine, opt::EuropeanOption, riskFreeDiscount::Float64, dividendDiscount::Float64,
                         spotPrice::Float64, strikePrice::Float64, term::Float64, kappa::Float64, theta::Float64,
-                        sigma::Float64, v0::Float64, rho::Float64, payoff::PlainVanillaPayoff, integration::HestonIntegration,
+                        sigma::Float64, v0::Float64, rho::Float64, payoff::PlainVanillaPayoff, integration::HestonGaussLaguerre,
                         cpxLog::ComplexLogFormula, evaluations::Int)
   # calculation stuff
   ratio = riskFreeDiscount / dividendDiscount

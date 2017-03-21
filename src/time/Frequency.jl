@@ -3,19 +3,19 @@ using Base.Dates
 
 abstract Frequency
 
-type NoFrequency <: Frequency end
-type Once <: Frequency end
-type Annual <: Frequency end
-type Semiannual <: Frequency end
-type EveryFourthMonth <: Frequency end
-type Quarterly <: Frequency end
-type Bimonthly <: Frequency end
-type Monthly <: Frequency end
-type EveryFourthWeek <: Frequency end
-type Biweekly <: Frequency end
-type Weekly <: Frequency end
-type Daily <: Frequency end
-type OtherFrequency <: Frequency end
+immutable NoFrequency <: Frequency end
+immutable Once <: Frequency end
+immutable Annual <: Frequency end
+immutable Semiannual <: Frequency end
+immutable EveryFourthMonth <: Frequency end
+immutable Quarterly <: Frequency end
+immutable Bimonthly <: Frequency end
+immutable Monthly <: Frequency end
+immutable EveryFourthWeek <: Frequency end
+immutable Biweekly <: Frequency end
+immutable Weekly <: Frequency end
+immutable Daily <: Frequency end
+immutable OtherFrequency <: Frequency end
 
 # default value if no freq specified
 value(::Frequency) = -1

@@ -318,7 +318,6 @@ initialize_step_condition(pe::FDAmericanEngine) = build_AmericanStepCondition(pe
 function _calculate!(pe::FDStepConditionEngine, opt::VanillaOption)
   pe.exerciseDate = opt.exercise.dates[end]
   payoff = opt.payoff
-
   set_grid_limits!(pe, opt)
   initialize_initial_condition!(pe, opt)
   initialize_operator!(pe)

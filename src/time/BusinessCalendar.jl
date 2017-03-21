@@ -7,10 +7,10 @@ abstract WesternCalendar <: BusinessCalendar
 abstract OrthodoxCalendar <: BusinessCalendar
 
 # target calendar
-type TargetCalendar <: BusinessCalendar end
+immutable TargetCalendar <: BusinessCalendar end
 
 # for simply moving foward and backward in time
-type NullCalendar <: BusinessCalendar end
+immutable NullCalendar <: BusinessCalendar end
 
 type JointCalendar{B <: BusinessCalendar, C <: BusinessCalendar} <: BusinessCalendar
   cal1::B
@@ -20,22 +20,22 @@ end
 # US Calendars
 abstract UnitedStatesCalendar <: WesternCalendar
 
-type USSettlementCalendar <: UnitedStatesCalendar; end
-type USNYSECalendar <: UnitedStatesCalendar; end
-type USNERCCalendar <: UnitedStatesCalendar; end
-type USGovernmentBondCalendar <: UnitedStatesCalendar; end
+immutable USSettlementCalendar <: UnitedStatesCalendar; end
+immutable USNYSECalendar <: UnitedStatesCalendar; end
+immutable USNERCCalendar <: UnitedStatesCalendar; end
+immutable USGovernmentBondCalendar <: UnitedStatesCalendar; end
 
 # UK Calendars
 abstract UnitedKingdomCalendar <: WesternCalendar
 
-type UKSettlementCalendar <: UnitedKingdomCalendar end
-type UKLSECalendar <: UnitedKingdomCalendar end
-type UKLMECalendar <: UnitedKingdomCalendar end
+immutable UKSettlementCalendar <: UnitedKingdomCalendar end
+immutable UKLSECalendar <: UnitedKingdomCalendar end
+immutable UKLMECalendar <: UnitedKingdomCalendar end
 
 abstract BusinessDayConvention
-type Unadjusted <: BusinessDayConvention end
-type ModifiedFollowing <: BusinessDayConvention end
-type Following <: BusinessDayConvention end
+immutable Unadjusted <: BusinessDayConvention end
+immutable ModifiedFollowing <: BusinessDayConvention end
+immutable Following <: BusinessDayConvention end
 
 # easter functions
 function easter_rata(y::Int)

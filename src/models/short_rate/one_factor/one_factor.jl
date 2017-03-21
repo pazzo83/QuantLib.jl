@@ -13,11 +13,29 @@ type OneFactorShortRateTree{S <: ShortRateDynamics, P <: StochasticProcess} <: S
   end
 end
 
+function rebuild_lattice!(lattice::OneFactorShortRateTree, tg::TimeGrid)
+  println(lattice.tg)
+  rebuild_tree!(lattice.tree, tg)
+  lattice.tg = tg
+
+  # update treeLattice
+  lattice.treeLattice = TreeLattice1D(tg, get_size(lattice.tree, 2), lattice)
+  return lattice
+end
+
 get_size(tr::OneFactorShortRateTree, i::Int) = get_size(tr.tree, i)
 
 function discount(tr::OneFactorShortRateTree, i::Int, idx::Int)
   x = get_underlying(tr.tree, i, idx)
+  # r = 1.0
+  # try
   r = short_rate(tr.dynamics, tr.tg.times[i], x)
+  # catch e
+  #   println(e)
+  #   println(i)
+  #   println(tr.dynamics.fitting.values)
+  #   error("DIE")
+  # end
   return exp(-r * tr.tg.dt[i])
 end
 

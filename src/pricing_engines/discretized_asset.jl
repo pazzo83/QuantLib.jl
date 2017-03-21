@@ -10,7 +10,7 @@ type DiscretizedAssetCommon{L <: Lattice}
   #     new{Lattice}(t, v, lpa, lpoa)
 end
 
-DiscretizedAssetCommon() = DiscretizedAssetCommon{NullLattice}(0.0, zeros(0), eps(), eps(), NullLattice())
+DiscretizedAssetCommon{L <: Lattice}(lattice::L) = DiscretizedAssetCommon{L}(0.0, zeros(0), eps(), eps(), lattice)
 
 clone(das::DiscretizedAssetCommon, method::Lattice = das.method) = DiscretizedAssetCommon{typeof(method)}(das.time, das.values, das.latestPreAdjustment, das.latestPostAdjustment, method)
 
@@ -19,8 +19,9 @@ set_time!(a::DiscretizedAsset, t::Float64) = a.common.time = t
 get_values(a::DiscretizedAsset) = a.common.values
 
 function set_method!(a::DiscretizedAsset, method::Lattice)
-  new_common = clone(a.common, method)
-  a.common = new_common
+  # new_common = clone(a.common, method)
+  # a.common = new_common
+  a.common.method = method
 
   return a
 end

@@ -36,7 +36,7 @@ function operator(integrator::Integrator, f::Function, a::Float64, b::Float64)
   end
 end
 
-function (integrator::SegmentIntegral)(f::IntegrationFunction, a::Float64, b::Float64)
+function (integrator::SegmentIntegral)(f::Function, a::Float64, b::Float64)
   integrator.evals = 0
   if a == b
     return 0.0
@@ -50,7 +50,7 @@ function (integrator::SegmentIntegral)(f::IntegrationFunction, a::Float64, b::Fl
 end
 
 function Math.integrate(integrator::SegmentIntegral, f::Union{Function, IntegrationFunction}, a::Float64, b::Float64)
-  dx = (b - a) / integrator.intervals
+  dx = (b - a) / (integrator.intervals * 1.0)
   sum_ = 0.5 * (f(a) + f(b))
   end_ = b - 0.5 * dx
   x = a + dx

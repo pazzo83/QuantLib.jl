@@ -68,8 +68,7 @@ function initialize!(curve::FittedBondDiscountCurve)
 
    cf = bond.cashflows
    for k = 1:length(cf.coupons) # for redemption
-     # cf_to_use = k > length(cf.coupons) ? cf.redemption : cf.coupons[i]
-     if !has_occurred(cf.coupons[i], bond_settlement)
+     if !has_occurred(cf.coupons[k], bond_settlement)
        cost_f.firstCashFlow[i] = k
        break
      end

@@ -1,8 +1,8 @@
-type DiscretizedDiscountBond <: DiscretizedAsset
-  common::DiscretizedAssetCommon
+type DiscretizedDiscountBond{L <: Lattice} <: DiscretizedAsset
+  common::DiscretizedAssetCommon{L}
 end
 
-DiscretizedDiscountBond() = DiscretizedDiscountBond(DiscretizedAssetCommon())
+DiscretizedDiscountBond{L <: Lattice}(lattice::L) = DiscretizedDiscountBond(DiscretizedAssetCommon(lattice))
 
 function reset!(dBond::DiscretizedDiscountBond, sz::Int)
   dBond.common.values = ones(sz)
@@ -10,15 +10,15 @@ function reset!(dBond::DiscretizedDiscountBond, sz::Int)
   return dBond
 end
 
-type DiscretizedCallableFixedRateBond <: DiscretizedAsset
+type DiscretizedCallableFixedRateBond{L <: Lattice} <: DiscretizedAsset
   redemptionTime::Float64
   couponTimes::Vector{Float64}
   callabilityTimes::Vector{Float64}
   args::CallableBondArgs
-  common::DiscretizedAssetCommon
+  common::DiscretizedAssetCommon{L}
 end
 
-function DiscretizedCallableFixedRateBond(bond::CallableFixedRateBond, referenceDate::Date, dc::DayCount)
+function DiscretizedCallableFixedRateBond{L <: Lattice}(bond::CallableFixedRateBond, referenceDate::Date, dc::DayCount, lattice::L)
   args = CallableBondArgs(bond)
   redemptionTime = year_fraction(dc, referenceDate, args.redemptionDate)
   couponTimes = Vector{Float64}(length(args.couponDates))
@@ -43,7 +43,7 @@ function DiscretizedCallableFixedRateBond(bond::CallableFixedRateBond, reference
     end
   end
 
-  return DiscretizedCallableFixedRateBond(redemptionTime, couponTimes, callabilityTimes, args, DiscretizedAssetCommon())
+  return DiscretizedCallableFixedRateBond{L}(redemptionTime, couponTimes, callabilityTimes, args, DiscretizedAssetCommon(lattice))
 end
 
 function reset!(dcb::DiscretizedCallableFixedRateBond, sz::Int)

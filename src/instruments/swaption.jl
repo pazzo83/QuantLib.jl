@@ -17,9 +17,9 @@ function reset!(results::SwaptionResults)
   return results
 end
 
-type Swaption{E <: Exercise, S <: SettlementType, P <: PricingEngine, ST <: SwapType, DCfi <: DayCount, DCfl <: DayCount, B <: BusinessDayConvention, L <: Leg, SP <: PricingEngine} <: Option
+type Swaption{E <: Exercise, S <: SettlementType, P <: PricingEngine, ST <: SwapType, DCfi <: DayCount, DCfl <: DayCount, B <: BusinessDayConvention, L <: Leg, SP <: PricingEngine, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} <: Option
   lazyMixin::LazyMixin
-  swap::VanillaSwap{ST, DCfi, DCfl, B, L, SP}
+  swap::VanillaSwap{ST, DCfi, DCfl, B, L, SP, TP, CUR, IB, IC, IDC, IT}
   exercise::E
   delivery::S
   results::SwaptionResults
@@ -36,15 +36,15 @@ type Swaption{E <: Exercise, S <: SettlementType, P <: PricingEngine, ST <: Swap
   #   new{E, S, P}(lz, swap, exercise, delivery, results, pricingEngine)
 end
 
-Swaption{E <: Exercise, ST <: SwapType, DCfi <: DayCount, DCfl <: DayCount, B <: BusinessDayConvention, L <: Leg, SP <: PricingEngine}(swap::VanillaSwap{ST, DCfi, DCfl, B, L, SP}, exercise::E) =
-          Swaption{E, SettlementPhysical, NullSwaptionEngine, ST, DCfi, DCfl, B, L, SP}(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults(), NullSwaptionEngine())
+Swaption{E <: Exercise, ST <: SwapType, DCfi <: DayCount, DCfl <: DayCount, B <: BusinessDayConvention, L <: Leg, SP <: PricingEngine, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure}(swap::VanillaSwap{ST, DCfi, DCfl, B, L, SP, TP, CUR, IB, IC, IDC, IT}, exercise::E) =
+          Swaption{E, SettlementPhysical, NullSwaptionEngine, ST, DCfi, DCfl, B, L, SP, TP, CUR, IB, IC, IDC, IT}(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults(), NullSwaptionEngine())
 
-Swaption{E <: Exercise, P <: PricingEngine, ST <: SwapType, DCfi <: DayCount, DCfl <: DayCount, B <: BusinessDayConvention, L <: Leg, SP <: PricingEngine}(swap::VanillaSwap{ST, DCfi, DCfl, B, L, SP}, exercise::E, pe::P) =
-        Swaption{E, SettlementPhysical, P, ST, DCfi, DCfl, B, L, SP}(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults(), pe)
+Swaption{E <: Exercise, P <: PricingEngine, ST <: SwapType, DCfi <: DayCount, DCfl <: DayCount, B <: BusinessDayConvention, L <: Leg, SP <: PricingEngine, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure}(swap::VanillaSwap{ST, DCfi, DCfl, B, L, SP, TP, CUR, IB, IC, IDC, IT}, exercise::E, pe::P) =
+        Swaption{E, SettlementPhysical, P, ST, DCfi, DCfl, B, L, SP, TP, CUR, IB, IC, IDC, IT}(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults(), pe)
 
-type NonstandardSwaption{E <: Exercise, S <: SettlementType, P <: PricingEngine} <: Option
+type NonstandardSwaption{E <: Exercise, S <: SettlementType, P <: PricingEngine, ST <: SwapType, DCfi <: DayCount, DCfl <: DayCount, B <: BusinessDayConvention, L <: Leg, SP <: PricingEngine, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} <: Option
   lazyMixin::LazyMixin
-  swap::NonstandardSwap
+  swap::NonstandardSwap{ST, DCfi, DCfl, B, L, SP, TP, CUR, IB, IC, IDC, IT}
   exercise::E
   delivery::S
   results::SwaptionResults
@@ -55,8 +55,10 @@ type NonstandardSwaption{E <: Exercise, S <: SettlementType, P <: PricingEngine}
   # end
 end
 
-NonstandardSwaption{E <: Exercise}(swap::NonstandardSwap, exercise::E) = NonstandardSwaption{E, SettlementPhysical, NullSwaptionEngine}(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults(), NullSwaptionEngine())
-NonstandardSwaption{E <: Exercise, P <: PricingEngine}(swap::NonstandardSwap, exercise::E, pe::P) = NonstandardSwaption{E, SettlementPhysical, P}(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults(), pe)
+NonstandardSwaption{E <: Exercise, ST <: SwapType, DCfi <: DayCount, DCfl <: DayCount, B <: BusinessDayConvention, L <: Leg, SP <: PricingEngine, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure}(swap::NonstandardSwap{ST, DCfi, DCfl, B, L, SP, TP, CUR, IB, IC, IDC, IT}, exercise::E) =
+    NonstandardSwaption{E, SettlementPhysical, NullSwaptionEngine, ST, DCfi, DCfl, B, L, SP, TP, CUR, IB, IC, IDC, IT}(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults(), NullSwaptionEngine())
+NonstandardSwaption{E <: Exercise, P <: PricingEngine, ST <: SwapType, DCfi <: DayCount, DCfl <: DayCount, B <: BusinessDayConvention, L <: Leg, SP <: PricingEngine, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure}(swap::NonstandardSwap{ST, DCfi, DCfl, B, L, SP, TP, CUR, IB, IC, IDC, IT}, exercise::E, pe::P) =
+    NonstandardSwaption{E, SettlementPhysical, P, ST, DCfi, DCfl, B, L, SP, TP, CUR, IB, IC, IDC, IT}(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults(), pe)
 
 function perform_calculations!(swaption::Union{Swaption, NonstandardSwaption})
   reset!(swaption.results)

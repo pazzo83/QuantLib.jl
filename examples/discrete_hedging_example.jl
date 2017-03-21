@@ -1,16 +1,16 @@
 using QuantLib
 
 ## TYPES ##
-type ReplicationError
+type ReplicationError{OT <: OptionType}
   maturity::Float64
-  payoff::PlainVanillaPayoff
+  payoff::PlainVanillaPayoff{OT}
   s0::Float64
   sigma::Float64
   r::Float64
   vega::Float64
 end
 
-function ReplicationError(optionType::OptionType, maturity::Float64, strike::Float64, s0::Float64, sigma::Float64, r::Float64)
+function ReplicationError{OT <: OptionType}(optionType::OT, maturity::Float64, strike::Float64, s0::Float64, sigma::Float64, r::Float64)
   rDiscount = exp(-r * maturity)
   qDiscount = 1.0
   forward = s0 * rDiscount / rDiscount
@@ -21,7 +21,7 @@ function ReplicationError(optionType::OptionType, maturity::Float64, strike::Flo
 
   vega_ = vega(black, maturity)
 
-  return ReplicationError(maturity, payoff, s0, sigma, r, vega_)
+  return ReplicationError{OT}(maturity, payoff, s0, sigma, r, vega_)
 end
 
 type ReplicationPathPricer{OT <: OptionType} <: QuantLib.AbstractPathPricer
@@ -34,14 +34,14 @@ end
 
 ## Type Methods ##
 
-function call(rpp::ReplicationPathPricer, path::Path)
+function (rpp::ReplicationPathPricer)(path::Path)
   n = length(path)
   # discrete hedging interval
   dt = rpp.maturity / n
   # we assume the stock pays no dividend
   stockDividendYield = 0.0
   # starting...
-  t = 0
+  t = 0.0
   stock = path[1] # stock at t=0
   money_account = 0.0 # money_account at t=0
 
@@ -117,7 +117,7 @@ function compute(rp::ReplicationError, nTimeSteps::Int, nSamples::Int)
   brownianBridge = false
   myPathGenerator = PathGenerator(diffuse, rp.maturity, nTimeSteps, rsg, brownianBridge)
 
-  myPathPricer = ReplicationPathPricer(rp.payoff.optionType, rp.payoff.strike, rp.r, rp.maturity, rp.sigma)
+  myPathPricer = ReplicationPathPricer{typeof(rp.payoff.optionType)}(rp.payoff.optionType, rp.payoff.strike, rp.r, rp.maturity, rp.sigma)
   statsAccumulator = QuantLib.Math.gen_RiskStatistics()
 
   mcSim = MonteCarloModel(myPathGenerator, myPathPricer, statsAccumulator, false)

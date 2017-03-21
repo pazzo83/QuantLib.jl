@@ -1,10 +1,11 @@
-type TreeCallableFixedRateEngine{S <: ShortRateModel} <: LatticeShortRateModelEngine{S}
+type TreeCallableFixedRateEngine{S <: ShortRateModel, T <: ShortRateTree} <: LatticeShortRateModelEngine{S}
   model::S
   timeSteps::Int
-  common::LatticeShortRateModelEngineCommon
+  common::LatticeShortRateModelEngineCommon{T}
+  latticeBuilt::Bool
 
-  function TreeCallableFixedRateEngine{S}(model::S, timeSteps::Int)
-    te = new{S}(model, timeSteps)
+  function TreeCallableFixedRateEngine{S, T}(model::S, timeSteps::Int, common::LatticeShortRateModelEngineCommon{T}, latticeGen::Bool = true)
+    te = new{S, T}(model, timeSteps, common, latticeGen)
 
     add_observer!(model, te)
 
@@ -12,7 +13,13 @@ type TreeCallableFixedRateEngine{S <: ShortRateModel} <: LatticeShortRateModelEn
   end
 end
 
-TreeCallableFixedRateEngine{S <: ShortRateModel}(model::S, timeSteps::Int) = TreeCallableFixedRateEngine{S}(model, timeSteps)
+function TreeCallableFixedRateEngine{S <: ShortRateModel}(model::S, timeSteps::Int)
+  # create empty tree
+  tg = TimeGrid([1.0], 1)
+  lattice = tree(model, tg)
+  common = LatticeShortRateModelEngineCommon{typeof(lattice)}(tg, lattice)
+  TreeCallableFixedRateEngine{S, typeof(lattice)}(model, timeSteps, common, false)
+end
 
 function _calculate!(pe::TreeCallableFixedRateEngine, bond::CallableFixedRateBond)
   tsmodel = pe.model
@@ -20,16 +27,26 @@ function _calculate!(pe::TreeCallableFixedRateEngine, bond::CallableFixedRateBon
   refDate = reference_date(tsmodel.ts)
   dc = tsmodel.ts.dc
 
-  callableBond = DiscretizedCallableFixedRateBond(bond, refDate, dc)
+  callableBond = DiscretizedCallableFixedRateBond(bond, refDate, dc, pe.common.lattice.treeLattice)
 
-  if isdefined(pe, :common)
-    lattice = pe.common.lattice
-  else
+  if ~pe.latticeBuilt
     times = mandatory_times(callableBond)
     tg = TimeGrid(times, pe.timeSteps)
-    lattice = tree(pe.model, tg)
-    pe.common = LatticeShortRateModelEngineCommon(tg, lattice)
+    pe.common.tg = tg
+    update!(pe)
+    pe.latticeBuilt = true
   end
+
+  # if isdefined(pe, :common)
+  #   lattice = pe.common.lattice
+  # else
+  #   times = mandatory_times(callableBond)
+  #   tg = TimeGrid(times, pe.timeSteps)
+  #   lattice = tree(pe.model, tg)
+  #   pe.common = LatticeShortRateModelEngineCommon(tg, lattice)
+  # end
+
+  lattice = pe.common.lattice
 
   redemptionTime = year_fraction(dc, refDate, callableBond.args.redemptionDate)
 

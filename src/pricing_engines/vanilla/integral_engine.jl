@@ -2,7 +2,7 @@ type IntegralEngine{B <: AbstractBlackScholesProcess} <: PricingEngine
   process::B
 end
 
-type Integrand{P <: StrikedTypePayoff} <: IntegrationFunction
+type Integrand{P <: StrikedTypePayoff} <: Function
   payoff::P
   s0::Float64
   drift::Float64
@@ -18,7 +18,6 @@ end
 function _calculate!(pe::IntegralEngine, opt::EuropeanOption)
   ex = opt.exercise
   payoff = opt.payoff
-
   variance = black_variance(pe.process.blackVolatility, ex.dates[end], payoff.strike)
 
   dividendDiscount = discount(pe.process.dividendYield, ex.dates[end])

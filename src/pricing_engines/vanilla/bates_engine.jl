@@ -1,8 +1,8 @@
-type BatesEngine{C <: ComplexLogFormula, HI <: HestonIntegration} <: AbstractHestonEngine
+type BatesEngine{C <: ComplexLogFormula} <: AbstractHestonEngine{HestonGaussLaguerre}
   model::BatesModel
   evaluations::Int
   cpxLog::C
-  integration::HI
+  integration::HestonGaussLaguerre
 end
 
 function BatesEngine(batesModel::BatesModel)

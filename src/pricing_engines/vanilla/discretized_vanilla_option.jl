@@ -1,10 +1,10 @@
-type DiscretizedVanillaOption <: DiscretizedAsset
+type DiscretizedVanillaOption{L <: Lattice} <: DiscretizedAsset
   stoppingTimes::Vector{Float64}
   args::VanillaOptionArgs
-  common::DiscretizedAssetCommon
+  common::DiscretizedAssetCommon{L}
 end
 
-function DiscretizedVanillaOption(vanillaOption::VanillaOption, process::StochasticProcess, grid::TimeGrid)
+function DiscretizedVanillaOption{L <: Lattice}(vanillaOption::VanillaOption, process::StochasticProcess, grid::TimeGrid, lattice::L)
   stoppingTimes = zeros(length(vanillaOption.exercise.dates))
   @inbounds @simd for i in eachindex(stoppingTimes)
     stoppingTimes[i] = get_time(process, vanillaOption.exercise.dates[i])
@@ -15,7 +15,7 @@ function DiscretizedVanillaOption(vanillaOption::VanillaOption, process::Stochas
     end
   end
 
-  return DiscretizedVanillaOption(stoppingTimes, VanillaOptionArgs(vanillaOption.payoff, vanillaOption.exercise), DiscretizedAssetCommon())
+  return DiscretizedVanillaOption{L}(stoppingTimes, VanillaOptionArgs(vanillaOption.payoff, vanillaOption.exercise), DiscretizedAssetCommon(lattice))
 end
 
 function reset!(dvo::DiscretizedVanillaOption, sz::Int)

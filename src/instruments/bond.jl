@@ -18,12 +18,12 @@ get_settlement_days(bond::Bond) = bond.bondMixin.settlementDays
 get_issue_date(bond::Bond) = bond.bondMixin.issueDate
 get_maturity_date(bond::Bond) = bond.bondMixin.maturityDate
 
-type FixedRateBond{DC <: DayCount, P <: PricingEngine} <: Bond
+type FixedRateBond{DC <: DayCount, P <: PricingEngine, C <: CompoundingType, F <: Frequency} <: Bond
   lazyMixin::LazyMixin
   bondMixin::BondMixin
   faceAmount::Float64
   schedule::Schedule
-  cashflows::FixedRateLeg
+  cashflows::FixedRateLeg{DC, DC, C, F}
   dc::DC
   redemption::Float64
   startDate::Date
@@ -49,15 +49,15 @@ function FixedRateBond{DC <: DayCount, B <: BusinessDayConvention, C <: Business
 
   coups = FixedRateLeg(schedule, faceAmount, coup_rate, calendar, paymentConvention, dc)
 
-  return FixedRateBond{DC, P}(LazyMixin(), BondMixin(settlementDays, issueDate, maturityDate), faceAmount, schedule, coups, dc, redemption, schedule.dates[1], pricing_engine, 0.0)
+  return FixedRateBond{DC, P, SimpleCompounding, typeof(schedule.tenor.freq)}(LazyMixin(), BondMixin(settlementDays, issueDate, maturityDate), faceAmount, schedule, coups, dc, redemption, schedule.dates[1], pricing_engine, 0.0)
 end
 
-type FloatingRateBond{X <: InterestRateIndex, DC <: DayCount, P <: PricingEngine} <: Bond
+type FloatingRateBond{X <: InterestRateIndex, DC <: DayCount, P <: PricingEngine, ICP <: IborCouponPricer} <: Bond
   lazyMixin::LazyMixin
   bondMixin::BondMixin
   faceAmount::Float64
   schedule::Schedule
-  cashflows::IborLeg
+  cashflows::IborLeg{DC, X, ICP}
   iborIndex::X
   dc::DC
   fixingDays::Int
@@ -81,7 +81,7 @@ function FloatingRateBond{X <: InterestRateIndex, DC <: DayCount, B <: BusinessD
 
   coups = IborLeg(schedule, faceAmount, iborIndex, dc, convention, fixingDaysVect, gearings, spreads, caps, floors, inArrears;
                   add_redemption=true, cap_vol = cap_vol)
-  return FloatingRateBond{X, DC, P}(LazyMixin(), BondMixin(settlementDays, issueDate, maturityDate), faceAmount, schedule, coups, iborIndex, dc, fixingDays, gearings, spreads, caps, floors,
+  return FloatingRateBond{X, DC, P, get_pricer_type(coups)}(LazyMixin(), BondMixin(settlementDays, issueDate, maturityDate), faceAmount, schedule, coups, iborIndex, dc, fixingDays, gearings, spreads, caps, floors,
                           inArrears, redemption, pricingEngine, 0.0)
 end
 
@@ -168,7 +168,7 @@ dirty_price(bond::Bond, settlement_value::Float64, settlement_date::Date) = sett
 
 function clean_price(bond::Bond)
   calculate!(bond)
-  clean_price(bond, bond.settlementValue, settlement_date(bond))
+  return clean_price(bond, bond.settlementValue, settlement_date(bond))
 end
 
 dirty_price(bond::Bond) = dirty_price(bond, bond.settlementValue, settlement_date(bond))
@@ -182,7 +182,7 @@ function settlement_date(bond::Bond, d::Date = Date())
   return advance(Dates.Day(get_settlement_days(bond)), get_calendar(bond), d)
 end
 
-get_redemption(b::Bond) = b.cashflows.coupons[end]
+get_redemption(b::Bond) = isnull(b.cashflows.redemption) ? b.cashflows.coupons[end] : get(b.cashflows.redemption)
 get_frequency(b::Bond) = b.schedule.tenor.freq
 
 ## clone methods ##

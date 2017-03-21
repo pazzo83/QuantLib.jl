@@ -1,7 +1,7 @@
 # Bond Helpers
-type FixedRateBondHelper <: BondHelper
+type FixedRateBondHelper{DC <: DayCount, P <: PricingEngine} <: BondHelper
   price::Quote
-  bond::FixedRateBond
+  bond::FixedRateBond{DC, P}
 end
 value(b::FixedRateBondHelper) = b.price.value
 maturity_date(b::FixedRateBondHelper) = maturity_date(b.bond)
@@ -20,7 +20,7 @@ function clone(fixedRateBondHelper::FixedRateBondHelper, ts::TermStructure)
   # then we have to clone the bond
   newBond = clone(fixedRateBondHelper.bond, newPE)
 
-  return FixedRateBondHelper(fixedRateBondHelper.price, newBond)
+  return FixedRateBondHelper{typeof(newBond.dc), typeof(newPE)}(fixedRateBondHelper.price, newBond)
 end
 
 update_termstructure(bondHelper::FixedRateBondHelper, ts::TermStructure) = clone(bondHelper, ts)

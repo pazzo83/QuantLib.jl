@@ -67,7 +67,7 @@ function solve(solver::Solver1D, f::Function, accuracy::Float64, guess::Float64,
     eval_num += 1
   end
 
-  error("Cannot converge!")
+  return root
 end
 
 function solve(solver::Solver1D, f::Function, accuracy::Float64, guess::Float64, xMin::Float64, xMax::Float64)

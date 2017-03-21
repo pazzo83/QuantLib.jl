@@ -9,17 +9,17 @@ type FdmSolverDesc{F <: FdmMesher, C <: FdmInnerValueCalculator}
 end
 
 ## Solvers ##
-type FdmBackwardSolver
+type FdmBackwardSolver{F <: FdmSchemeDescType}
   map::FdmLinearOpComposite
   bcSet::FdmBoundaryConditionSet
   condition::FdmStepConditionComposite
-  schemeDesc::FdmSchemeDesc
+  schemeDesc::FdmSchemeDesc{F}
 end
 
-function FdmBackwardSolver(map::FdmLinearOpComposite, bcSet::FdmBoundaryConditionSet, schemeDesc::FdmSchemeDesc)
+function FdmBackwardSolver{F <: FdmSchemeDescType}(map::FdmLinearOpComposite, bcSet::FdmBoundaryConditionSet, schemeDesc::FdmSchemeDesc{F})
   condition = FdmStepConditionComposite(Vector{Float64}(), Vector{StepCondition}())
 
-  return FdmBackwardSolver(map, bcSet, condition, schemeDesc)
+  return FdmBackwardSolver{F}(map, bcSet, condition, schemeDesc)
 end
 
 function rollback!(bsolv::FdmBackwardSolver, schemeType::Hundsdorfer, rhs::Vector{Float64}, from::Float64, to::Float64, steps::Int, dampingSteps::Int)
@@ -54,19 +54,19 @@ function rollback!(bsolv::FdmBackwardSolver, schemeType::Douglas, rhs::Vector{Fl
   return bsolv, rhs
 end
 
-type Fdm1DimSolver{FD <: FdmLinearOpComposite} <: LazyObject
+type Fdm1DimSolver{FS <: FdmMesher, C <: FdmInnerValueCalculator, F <: FdmSchemeDescType, FD <: FdmLinearOpComposite} <: LazyObject
   lazyMixin::LazyMixin
-  solverDesc::FdmSolverDesc
-  schemeDesc::FdmSchemeDesc
+  solverDesc::FdmSolverDesc{FS, C}
+  schemeDesc::FdmSchemeDesc{F}
   op::FD
   thetaCondition::FdmSnapshotCondition
   conditions::FdmStepConditionComposite
   initialValues::Vector{Float64}
   resultValues::Vector{Float64}
   x::Vector{Float64}
-  interpolation::NaturalCubicSpline
+  interpolation::NaturalCubicSpline{Float64}
 
-  function Fdm1DimSolver{FD}(solverDesc::FdmSolverDesc, schemeDesc::FdmSchemeDesc, op::FD)
+  function Fdm1DimSolver{FS, C, F, FD}(solverDesc::FdmSolverDesc{FS, C}, schemeDesc::FdmSchemeDesc{F}, op::FD)
     thetaCondition = FdmSnapshotCondition(0.99 * min(1.0 / 365.0, length(solverDesc.condition.stoppingTimes) == 0 ? solverDesc.maturity : solverDesc.condition.stoppingTimes[1]))
     conditions = join_conditions_FdmStepConditionComposite(thetaCondition, solverDesc.condition)
 
@@ -85,14 +85,17 @@ type Fdm1DimSolver{FD <: FdmLinearOpComposite} <: LazyObject
       iter_coords!(coords, layout.dim)
     end
 
-    new(LazyMixin(), solverDesc, schemeDesc, op, thetaCondition, conditions, initialValues, resultValues, x)
+    new{FS, C, F, FD}(LazyMixin(), solverDesc, schemeDesc, op, thetaCondition, conditions, initialValues, resultValues, x)
   end
 end
 
-type Fdm2DimSolver{FD <: FdmLinearOpComposite} <: LazyObject
+Fdm1DimSolver{FS <: FdmMesher, C <: FdmInnerValueCalculator, F <: FdmSchemeDescType, FD <: FdmLinearOpComposite}(solverDesc::FdmSolverDesc{FS, C}, schemeDesc::FdmSchemeDesc{F}, op::FD) =
+              Fdm1DimSolver{FS, C, F, FD}(solverDesc, schemeDesc, op)
+
+type Fdm2DimSolver{FS <: FdmMesher, C <: FdmInnerValueCalculator, F <: FdmSchemeDescType, FD <: FdmLinearOpComposite} <: LazyObject
   lazyMixin::LazyMixin
-  solverDesc::FdmSolverDesc
-  schemeDesc::FdmSchemeDesc
+  solverDesc::FdmSolverDesc{FS, C}
+  schemeDesc::FdmSchemeDesc{F}
   op::FD
   thetaCondition::FdmSnapshotCondition
   conditions::FdmStepConditionComposite
@@ -102,7 +105,7 @@ type Fdm2DimSolver{FD <: FdmLinearOpComposite} <: LazyObject
   y::Vector{Float64}
   interpolation::BicubicSpline
 
-  function Fdm2DimSolver{FD}(solverDesc::FdmSolverDesc, schemeDesc::FdmSchemeDesc, op::FD)
+  function Fdm2DimSolver{FS, C, F, FD}(solverDesc::FdmSolverDesc{FS, C}, schemeDesc::FdmSchemeDesc{F}, op::FD)
     thetaCondition = FdmSnapshotCondition(0.99 * min(1.0 / 365.0, length(solverDesc.condition.stoppingTimes) == 0 ? solverDesc.maturity : solverDesc.condition.stoppingTimes[1]))
     conditions = join_conditions_FdmStepConditionComposite(thetaCondition, solverDesc.condition)
 
@@ -134,9 +137,12 @@ type Fdm2DimSolver{FD <: FdmLinearOpComposite} <: LazyObject
       iter_coords!(coords, layout.dim)
     end
 
-    return new{FD}(LazyMixin(), solverDesc, schemeDesc, op, thetaCondition, conditions, initialValues, resultValues, x, y)
+    return new{FS, C, F, FD}(LazyMixin(), solverDesc, schemeDesc, op, thetaCondition, conditions, initialValues, resultValues, x, y)
   end
 end
+
+Fdm2DimSolver{FS <: FdmMesher, C <: FdmInnerValueCalculator, F <: FdmSchemeDescType, FD <: FdmLinearOpComposite}(solverDesc::FdmSolverDesc{FS, C}, schemeDesc::FdmSchemeDesc{F}, op::FD) =
+              Fdm2DimSolver{FS, C, F, FD}(solverDesc, schemeDesc, op)
 
 get_interpolation(solv::Fdm1DimSolver, x::Float64) = solv.interpolation(x)
 get_interpolation(solv::Fdm2DimSolver, x::Float64, y::Float64) = solv.interpolation.spline(x, y)
@@ -173,33 +179,39 @@ function perform_calculations!(solv::Fdm2DimSolver)
   return solv
 end
 
-type FdmG2Solver <: LazyObject
+type FdmG2Solver{FS <: FdmMesher, C <: FdmInnerValueCalculator, F <: FdmSchemeDescType} <: LazyObject
   lazyMixin::LazyMixin
   model::G2
-  solverDesc::FdmSolverDesc
-  schemeDesc::FdmSchemeDesc
-  solver::Fdm2DimSolver
+  solverDesc::FdmSolverDesc{FS, C}
+  schemeDesc::FdmSchemeDesc{F}
+  solver::Fdm2DimSolver{FS, C, F, FdmG2Op}
 
-  function FdmG2Solver(model::G2, solverDesc::FdmSolverDesc, schemeDesc::FdmSchemeDesc)
+  function FdmG2Solver{FS, C, F}(model::G2, solverDesc::FdmSolverDesc{FS, C}, schemeDesc::FdmSchemeDesc{F})
     op = FdmG2Op(solverDesc.mesher, model, 1, 2)
-    solver = Fdm2DimSolver{FdmG2Op}(solverDesc, schemeDesc, op)
-    new(LazyMixin(), model, solverDesc, schemeDesc, solver)
+    solver = Fdm2DimSolver{FS, C, F, FdmG2Op}(solverDesc, schemeDesc, op)
+    new{FS, C, F}(LazyMixin(), model, solverDesc, schemeDesc, solver)
   end
 end
 
-type FdmHullWhiteSolver <: LazyObject
+FdmG2Solver{FS <: FdmMesher, C <: FdmInnerValueCalculator, F <: FdmSchemeDescType}(model::G2, solverDesc::FdmSolverDesc{FS, C}, schemeDesc::FdmSchemeDesc{F}) =
+            FdmG2Solver{FS, C, F}(model, solverDesc, schemeDesc)
+
+type FdmHullWhiteSolver{FS <: FdmMesher, C <: FdmInnerValueCalculator, F <: FdmSchemeDescType} <: LazyObject
   lazyMixin::LazyMixin
   model::HullWhite
-  solverDesc::FdmSolverDesc
-  schemeDesc::FdmSchemeDesc
-  solver::Fdm1DimSolver
+  solverDesc::FdmSolverDesc{FS, C}
+  schemeDesc::FdmSchemeDesc{F}
+  solver::Fdm1DimSolver{FS, C, F, FdmHullWhiteOp}
 
-  function FdmHullWhiteSolver(model::HullWhite, solverDesc::FdmSolverDesc, schemeDesc::FdmSchemeDesc)
+  function FdmHullWhiteSolver{FS, C, F}(model::HullWhite, solverDesc::FdmSolverDesc{FS, C}, schemeDesc::FdmSchemeDesc{F})
     op = FdmHullWhiteOp(solverDesc.mesher, model, 1)
-    solver = Fdm1DimSolver{FdmHullWhiteOp}(solverDesc, schemeDesc, op)
-    new(LazyMixin(), model, solverDesc, schemeDesc, solver)
+    solver = Fdm1DimSolver{FS, C, F, FdmHullWhiteOp}(solverDesc, schemeDesc, op)
+    new{FS, C, F}(LazyMixin(), model, solverDesc, schemeDesc, solver)
   end
 end
+
+FdmHullWhiteSolver{FS <: FdmMesher, C <: FdmInnerValueCalculator, F <: FdmSchemeDescType}(model::HullWhite, solverDesc::FdmSolverDesc{FS, C}, schemeDesc::FdmSchemeDesc{F}) =
+                  FdmHullWhiteSolver{FS, C, F}(model, solverDesc, schemeDesc)
 
 function value_at(solv::FdmG2Solver, x::Float64, y::Float64)
   return interpolate_at(solv.solver, x, y)

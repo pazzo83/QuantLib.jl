@@ -18,9 +18,9 @@ function next_twentieth(d::Date)
 end
 
 abstract DateGenerationRule
-type DateGenerationBackwards <: DateGenerationRule end
-type DateGenerationForwards <: DateGenerationRule end
-type DateGenerationTwentieth <: DateGenerationRule end
+immutable DateGenerationBackwards <: DateGenerationRule end
+immutable DateGenerationForwards <: DateGenerationRule end
+immutable DateGenerationTwentieth <: DateGenerationRule end
 
 type Schedule{B <: BusinessDayConvention, B1 <: BusinessDayConvention, D <: DateGenerationRule, C <: BusinessCalendar}
   effectiveDate::Date

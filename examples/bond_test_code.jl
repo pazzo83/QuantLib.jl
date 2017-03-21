@@ -344,6 +344,7 @@ function main()
 
   esf = ExponentialSplinesFitting(true, length(bonds))
   esf_fitted_curve = FittedBondDiscountCurve(0, issue_date, calendar, bonds, dc, esf, 1e-10, 5000, 1.0)
+  # @code_warntype initialize!(esf_fitted_curve)
   initialize!(esf_fitted_curve)
   calculate!(esf_fitted_curve)
 
@@ -400,9 +401,13 @@ function main()
       date_vec[i+1] = date(cf)
     end
 
+    if ~isnull(bh.bond.cashflows.redemption)
+      push!(date_vec, date(get(bh.bond.cashflows.redemption)))
+    end
+
     tenor = QuantLib.Time.year_fraction(dc, issue_date, date(bond.cashflows.coupons[end]))
     println(@sprintf(" %.2f  | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f ",
-            tenor, 100.0 * bond.cashflows.coupons[end-1].rate.rate, 100.0 * par_rate(yts, date_vec, dc), 100.0 * par_rate(esf_fitted_curve, date_vec, dc), 100.0 * par_rate(spf_fitted_curve, date_vec, dc),
+            tenor, 100.0 * bond.cashflows.coupons[end].rate.rate, 100.0 * par_rate(yts, date_vec, dc), 100.0 * par_rate(esf_fitted_curve, date_vec, dc), 100.0 * par_rate(spf_fitted_curve, date_vec, dc),
             100.0 * par_rate(nsf_fitted_curve, date_vec, dc), 100.0 * par_rate(cbsf_fitted_curve, date_vec, dc), 100.0 * par_rate(sf_fitted_curve, date_vec, dc)))
   end
 end

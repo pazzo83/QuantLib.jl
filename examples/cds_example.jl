@@ -23,7 +23,6 @@ function main()
             QuantLib.Time.Actual365(), recoveryRate, tsCurve) for i in eachindex(tenors)]
 
   hazardRateStructure = PiecewiseDefaultCurve(todays_date, insts, QuantLib.Time.Actual365(), QuantLib.Math.BackwardFlatInterpolation(), HazardRate(), 1.0e-12)
-
   hr_curve_data = nodes(hazardRateStructure)
 
   println(@sprintf("1Y Survival Probability: %.6f %%", survival_probability(hazardRateStructure, todays_date + Dates.Year(1)) * 100.0))

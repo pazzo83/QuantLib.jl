@@ -1,4 +1,4 @@
-type LongstaffSchwartzPathPricer{E <: EarlyExercisePathPricer, T} <: AbstractPathPricer
+type LongstaffSchwartzPathPricer{E <: EarlyExercisePathPricer} <: AbstractPathPricer
   calibrationPhase::Bool
   pathPricer::E
   coeff::Vector{Vector{Float64}}
@@ -6,7 +6,7 @@ type LongstaffSchwartzPathPricer{E <: EarlyExercisePathPricer, T} <: AbstractPat
   paths::Vector{Path}
   len::Int
   exerciseProbability::NonWeightedStatistics
-  v::Vector{T}
+  v::Vector{Function}
 end
 
 function LongstaffSchwartzPathPricer(tg::TimeGrid, ep::EarlyExercisePathPricer, yts::YieldTermStructure)
@@ -23,7 +23,7 @@ function LongstaffSchwartzPathPricer(tg::TimeGrid, ep::EarlyExercisePathPricer, 
   return LongstaffSchwartzPathPricer(true, ep, coeff, dF, paths, len, NonWeightedStatistics(), v)
 end
 
-type MCAmericanEngine{S <: AbstractBlackScholesProcess, P <: LsmBasisSystemPolynomType} <: MCLongstaffSchwartzEngine
+type MCAmericanEngine{S <: AbstractBlackScholesProcess, P <: LsmBasisSystemPolynomType, RSG <: AbstractRandomSequenceGenerator} <: MCLongstaffSchwartzEngine{S, P, RSG}
   process::S
   timeSteps::Int
   timeStepsPerYear::Int
@@ -35,29 +35,31 @@ type MCAmericanEngine{S <: AbstractBlackScholesProcess, P <: LsmBasisSystemPolyn
   nCalibrationSamples::Int
   polynomOrder::Int
   polynomType::P
-  mcSimulation::MCSimulation
+  # mcSimulation::MCSimulation{RSG, T}
+  antitheticVariate::Bool
+  rsg::RSG
   pathPricer::LongstaffSchwartzPathPricer
 
-  MCAmericanEngine{S, P}(process::S, timeSteps::Int, timeStepsPerYear::Int, requiredSamples::Int, maxSamples::Int, requiredTolerance::Float64, brownianBridge::Bool,
-                            seed::Int, nCalibrationSamples::Int, polynomOrder::Int, polynomType::P, mcSimulation::MCSimulation) =
-                            new{S, P}(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed,
-                                        nCalibrationSamples, polynomOrder, polynomType, mcSimulation)
+  MCAmericanEngine{S, P, RSG}(process::S, timeSteps::Int, timeStepsPerYear::Int, requiredSamples::Int, maxSamples::Int, requiredTolerance::Float64, brownianBridge::Bool,
+                            seed::Int, nCalibrationSamples::Int, polynomOrder::Int, polynomType::P, antitheticVariate::Bool, rsg::RSG) =
+                            new{S, P, RSG}(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed,
+                                        nCalibrationSamples, polynomOrder, polynomType, antitheticVariate, rsg)
 end
 
 function MCAmericanEngine{RSG <: AbstractRandomSequenceGenerator, S <: AbstractBlackScholesProcess}(process::S; timeSteps::Int = -1, timeStepsPerYear::Int = -1, brownianBridge::Bool = false,
                           antitheticVariate::Bool = false, requiredSamples::Int = -1, requiredTolerance::Float64 = -1.0, maxSamples::Int = typemax(Int), seed::Int = 0, rsg::RSG = InverseCumulativeRSG(seed),
                           nCalibrationSamples::Int = 2048, polynomOrder::Int = 2, polynomType::LsmBasisSystemPolynomType = Monomial())
   # build mc sim
-  mcSim = MCSimulation{RSG, SingleVariate}(antitheticVariate, false, rsg, SingleVariate())
+  # mcSim = MCSimulation{RSG, SingleVariate}(antitheticVariate, false, rsg, SingleVariate())
 
-  return MCAmericanEngine{S, typeof(polynomType)}(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed,
-                                                      nCalibrationSamples, polynomOrder, polynomType, mcSim)
+  return MCAmericanEngine{S, typeof(polynomType), RSG}(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed,
+                                                      nCalibrationSamples, polynomOrder, polynomType, antitheticVariate, rsg)
 end
 
-type AmericanPathPricer{P <: StrikedTypePayoff, T, T1} <: EarlyExercisePathPricer
+type AmericanPathPricer{OT <: OptionType} <: EarlyExercisePathPricer
   scalingValue::Float64
-  payoff::P
-  v::Vector{Union{T, T1}}
+  payoff::PlainVanillaPayoff{OT}
+  v::Vector{Function}
 end
 
 function get_payoff(app::AmericanPathPricer)
@@ -68,14 +70,14 @@ function get_payoff(app::AmericanPathPricer)
   return _get_payoff
 end
 
-function AmericanPathPricer{P <: StrikedTypePayoff, L <: LsmBasisSystemPolynomType}(payoff::P, polynomOrder::Int, polynomType::L)
-  T = get_type(polynomType)
-  v = Vector{Union{T, P}}(polynomOrder + 1)
+function AmericanPathPricer{OT <: OptionType, L <: LsmBasisSystemPolynomType}(payoff::PlainVanillaPayoff{OT}, polynomOrder::Int, polynomType::L)
+  # T = get_type(polynomType)
+  v = Vector{Function}(polynomOrder + 1)
   path_basis_system!(polynomType, polynomOrder, v)
 
   scalingVal = 1.0 / payoff.strike
 
-  app = AmericanPathPricer{P, T, Function}(scalingVal, payoff, v)
+  app = AmericanPathPricer{OT}(scalingVal, payoff, v)
 
   push!(app.v, get_payoff(app))
   return app
@@ -204,21 +206,22 @@ end
 function path_generator(pe::MCLongstaffSchwartzEngine, opt::VanillaOption)
   dimensions = get_factors(pe.process)
   grid = time_grid(pe, opt)
-  init_sequence_generator!(pe.mcSimulation.rsg, dimensions * (length(grid.times) - 1))
+  init_sequence_generator!(pe.rsg, dimensions * (length(grid.times) - 1))
 
-  return PathGenerator(pe.process, grid, pe.mcSimulation.rsg, pe.brownianBridge)
+  return PathGenerator(pe.process, grid, pe.rsg, pe.brownianBridge)
 end
 
 path_pricer(pe::MCLongstaffSchwartzEngine, ::VanillaOption) = pe.pathPricer
 
 function _calculate!(pe::MCLongstaffSchwartzEngine, opt::VanillaOption)
   pe.pathPricer = lsm_path_pricer(pe, opt)
-  pe.mcSimulation.mcModel = MonteCarloModel(path_generator(pe, opt), pe.pathPricer, gen_RiskStatistics(), pe.mcSimulation.antitheticVariate)
-  add_samples!(pe.mcSimulation.mcModel, pe.nCalibrationSamples, 1)
+  mcModel = MonteCarloModel(path_generator(pe, opt), pe.pathPricer, gen_RiskStatistics(), pe.antitheticVariate)
+  add_samples!(mcModel, pe.nCalibrationSamples, 1)
   # calibration
   calibrate!(pe.pathPricer)
-  _calculate!(pe.mcSimulation, pe, opt, pe.requiredTolerance, pe.requiredSamples, pe.maxSamples)
+  mcSim = MCSimulation(pe, false, opt, SingleVariate())
+  _calculate!(mcSim, pe.requiredTolerance, pe.requiredSamples, pe.maxSamples)
 
-  opt.results.value = stats_mean(pe.mcSimulation.mcModel.sampleAccumulator)
+  opt.results.value = stats_mean(mcSim.mcModel.sampleAccumulator)
   return pe, opt
 end

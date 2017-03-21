@@ -92,7 +92,7 @@ type FlatForwardTermStructure{B <: BusinessCalendar, DC <: DayCount, C <: Compou
   dc::DC
   comp::C
   freq::F
-  rate::InterestRate
+  rate::InterestRate{DC, C, F}
   jumpTimes::Vector{JumpTime}
   jumpDates::Vector{JumpDate}
 end
