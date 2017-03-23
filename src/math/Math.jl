@@ -4,11 +4,11 @@ module Math
 using Dierckx
 
 # types for derivatives, etc
-abstract FunctionType
+abstract type FunctionType end
 
-type Derivative <: FunctionType end
+struct Derivative <: FunctionType end
 
-type BernsteinPolynomial end
+struct BernsteinPolynomial end
 
 # misc function for comparison
 function is_close{T <: Number}(x::T, y::T, n::Int = 42)
@@ -75,7 +75,7 @@ end
 export is_close, close_enough, divide_array_by_self!, multiply_array_by_self!, get_factorial, get_polynomial, FunctionType, Derivative, BernsteinPolynomial
 
 # Splines
-type BSpline
+mutable struct BSpline
   p::Integer
   n::Integer
   knots::Vector{Float64}

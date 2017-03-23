@@ -1,11 +1,11 @@
 ## ONE FACTOR MODELS ##
-type OneFactorShortRateTree{S <: ShortRateDynamics, P <: StochasticProcess} <: ShortRateTree
+mutable struct OneFactorShortRateTree{S <: ShortRateDynamics, P <: StochasticProcess} <: ShortRateTree
   tree::TrinomialTree{P}
   dynamics::S
   tg::TimeGrid
   treeLattice::TreeLattice1D{OneFactorShortRateTree{S, P}}
 
-  function OneFactorShortRateTree{S, P}(tree::TrinomialTree{P}, dynamics::S, tg::TimeGrid)
+  function OneFactorShortRateTree{S, P}(tree::TrinomialTree{P}, dynamics::S, tg::TimeGrid) where {S, P}
     oneFactorTree = new{S, P}(tree, dynamics, tg)
     oneFactorTree.treeLattice = TreeLattice1D(tg, get_size(tree, 2), oneFactorTree)
 
@@ -29,7 +29,7 @@ function discount(tr::OneFactorShortRateTree, i::Int, idx::Int)
   x = get_underlying(tr.tree, i, idx)
   # r = 1.0
   # try
-  r = short_rate(tr.dynamics, tr.tg.times[i], x)
+  r = short_rate(tr.dynamics, tr.tg.times[i], x)::Float64
   # catch e
   #   println(e)
   #   println(i)
@@ -44,7 +44,7 @@ probability(tr::OneFactorShortRateTree, i::Int, idx::Int, branch::Int) = probabi
 
 get_params(m::OneFactorModel) = Float64[get_a(m), get_sigma(m)]
 
-type RStarFinder{M <: ShortRateModel} <: Function
+struct RStarFinder{M <: ShortRateModel} <: Function
   model::M
   strike::Float64
   maturity::Float64

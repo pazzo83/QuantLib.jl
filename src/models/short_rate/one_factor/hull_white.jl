@@ -1,11 +1,11 @@
 type HullWhite{AffineModelType, T <: TermStructure} <: OneFactorModel{AffineModelType}
   modT::AffineModelType
   r0::Float64
-  a::ConstantParameter
-  sigma::ConstantParameter
+  a::ConstantParameter{PositiveConstraint}
+  sigma::ConstantParameter{PositiveConstraint}
   phi::HullWhiteFittingParameter
   ts::T
-  privateConstraint::PrivateConstraint{ConstantParameter}
+  privateConstraint::PrivateConstraint{ConstantParameter{PositiveConstraint}}
   common::ModelCommon
 end
 
@@ -15,7 +15,7 @@ function HullWhite{T <: TermStructure}(ts::T, a::Float64 = 0.1, sigma::Float64 =
   a_const = ConstantParameter([a], PositiveConstraint())
   sigma_const = ConstantParameter([sigma], PositiveConstraint())
 
-  privateConstraint = PrivateConstraint(ConstantParameter[a_const, sigma_const])
+  privateConstraint = PrivateConstraint(ConstantParameter{PositiveConstraint}[a_const, sigma_const])
 
   phi  = HullWhiteFittingParameter(a, sigma, ts)
 

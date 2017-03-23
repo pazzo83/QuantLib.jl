@@ -1,18 +1,18 @@
 using StatsBase
 
-abstract AbstractStatistics
+abstract type AbstractStatistics end
 
-abstract StatsType
-type GaussianStatsType <: StatsType end
+abstract type StatsType end
+struct GaussianStatsType <: StatsType end
 
-type NonWeightedStatistics <: AbstractStatistics
+mutable struct NonWeightedStatistics <: AbstractStatistics
   samples::Vector{Float64}
   isSorted::Bool
 end
 
 NonWeightedStatistics() = NonWeightedStatistics(Vector{Float64}(), false)
 
-type GenericRiskStatistics{S <: StatsType} <: AbstractStatistics
+mutable struct GenericRiskStatistics{S <: StatsType} <: AbstractStatistics
   statsType::S
   samples::Vector{Float64}
   sampleWeights::StatsBase.WeightVec{Float64, Vector{Float64}}
@@ -22,9 +22,9 @@ end
 
 gen_RiskStatistics(dims::Int = 0) = GenericRiskStatistics(GaussianStatsType(), Vector{Float64}(dims), weights(Vector{Float64}(dims)), zeros(dims, 2), false)
 
-typealias RiskStatistics GenericRiskStatistics{GaussianStatsType}
+const RiskStatistics = GenericRiskStatistics{GaussianStatsType}
 
-type GenericSequenceStats{S <: AbstractStatistics} <: AbstractStatistics
+mutable struct GenericSequenceStats{S <: AbstractStatistics} <: AbstractStatistics
   dimension::Int
   stats::Vector{S}
   results::Vector{Float64}

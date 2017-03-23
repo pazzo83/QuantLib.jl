@@ -1,9 +1,9 @@
-abstract Integrator
-abstract GaussianQuadrature
-abstract GaussianOrthogonalPolynomial
-abstract IntegrationFunction
+abstract type Integrator end
+abstract type GaussianQuadrature end
+abstract type GaussianOrthogonalPolynomial end
+abstract type IntegrationFunction end
 
-type GaussLaguerrePolynomial <: GaussianOrthogonalPolynomial
+struct GaussLaguerrePolynomial <: GaussianOrthogonalPolynomial
   s::Float64
 end
 
@@ -12,7 +12,7 @@ get_beta(poly::GaussLaguerrePolynomial, i::Int) = i * (i + poly.s)
 get_mu_0(poly::GaussLaguerrePolynomial) = exp(lgamma(poly.s + 1.0))
 get_w(poly::GaussLaguerrePolynomial, x::Float64) = ^(x, poly.s) * exp(-x)
 
-type SegmentIntegral <: Integrator
+mutable struct SegmentIntegral <: Integrator
   absoluteAccuracy::Float64
   absoluteError::Float64
   maxEvals::Int
@@ -62,7 +62,7 @@ function Math.integrate(integrator::SegmentIntegral, f::Union{Function, Integrat
   return sum_ * dx
 end
 
-type GaussLaguerreIntegration <: GaussianQuadrature
+struct GaussLaguerreIntegration <: GaussianQuadrature
   x::Vector{Float64}
   w::Vector{Float64}
 end

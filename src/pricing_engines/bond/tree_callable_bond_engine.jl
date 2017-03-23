@@ -1,10 +1,13 @@
-type TreeCallableFixedRateEngine{S <: ShortRateModel, T <: ShortRateTree} <: LatticeShortRateModelEngine{S}
+mutable struct TreeCallableFixedRateEngine{S <: ShortRateModel, T <: ShortRateTree} <: LatticeShortRateModelEngine{S}
   model::S
   timeSteps::Int
   common::LatticeShortRateModelEngineCommon{T}
   latticeBuilt::Bool
 
-  function TreeCallableFixedRateEngine{S, T}(model::S, timeSteps::Int, common::LatticeShortRateModelEngineCommon{T}, latticeGen::Bool = true)
+  function TreeCallableFixedRateEngine{S, T}(model::S,
+                                            timeSteps::Int,
+                                            common::LatticeShortRateModelEngineCommon{T},
+                                            latticeGen::Bool = true) where {S, T}
     te = new{S, T}(model, timeSteps, common, latticeGen)
 
     add_observer!(model, te)

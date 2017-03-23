@@ -1,11 +1,11 @@
-abstract Interpolation
-abstract Interpolation2D <: Interpolation
+abstract type Interpolation end
+abstract type Interpolation2D <: Interpolation end
 
-abstract DerivativeApprox
-abstract BoundaryCondition
+abstract type DerivativeApprox end
+abstract type BoundaryCondition end
 
-type Spline <: DerivativeApprox end
-type Lagrange <: BoundaryCondition end
+struct Spline <: DerivativeApprox end
+struct Lagrange <: BoundaryCondition end
 
 # general interpolation methods #
 # update if value passed in

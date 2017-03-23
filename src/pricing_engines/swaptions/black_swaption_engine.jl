@@ -1,4 +1,4 @@
-type BlackSwaptionEngine{Y <: YieldTermStructure, S <: SwaptionVolatilityStructure, DC <: DayCount} <: PricingEngine
+mutable struct BlackSwaptionEngine{Y <: YieldTermStructure, S <: SwaptionVolatilityStructure, DC <: DayCount} <: PricingEngine
   yts::Y
   vol::Quote
   volStructure::S
@@ -10,7 +10,7 @@ BlackSwaptionEngine{Y <: YieldTermStructure, DC <: DayCount}(yts::Y, vol::Quote,
                     BlackSwaptionEngine(yts, vol, ConstantSwaptionVolatility(0, QuantLib.Time.NullCalendar(), QuantLib.Time.Following(), vol, dc), dc, displacement)
 
 # pricing methods #
-function black_formula{T <: OptionType}(optionType::T, strike::Float64, forward::Float64, stdDev::Float64, discount::Float64 = 1.0, displacement::Float64 = 0.0)
+function black_formula(optionType::OptionType, strike::Float64, forward::Float64, stdDev::Float64, discount::Float64 = 1.0, displacement::Float64 = 0.0)
   # TODO check requirements (see cpp)
   opt_type = QuantLib.value(optionType)
   if stdDev == 0.0

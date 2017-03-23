@@ -1,4 +1,4 @@
-type LongstaffSchwartzPathPricer{E <: EarlyExercisePathPricer} <: AbstractPathPricer
+mutable struct LongstaffSchwartzPathPricer{E <: EarlyExercisePathPricer} <: AbstractPathPricer
   calibrationPhase::Bool
   pathPricer::E
   coeff::Vector{Vector{Float64}}
@@ -23,7 +23,7 @@ function LongstaffSchwartzPathPricer(tg::TimeGrid, ep::EarlyExercisePathPricer, 
   return LongstaffSchwartzPathPricer(true, ep, coeff, dF, paths, len, NonWeightedStatistics(), v)
 end
 
-type MCAmericanEngine{S <: AbstractBlackScholesProcess, P <: LsmBasisSystemPolynomType, RSG <: AbstractRandomSequenceGenerator} <: MCLongstaffSchwartzEngine{S, P, RSG}
+mutable struct MCAmericanEngine{S <: AbstractBlackScholesProcess, P <: LsmBasisSystemPolynomType, RSG <: AbstractRandomSequenceGenerator} <: MCLongstaffSchwartzEngine{S, P, RSG}
   process::S
   timeSteps::Int
   timeStepsPerYear::Int
@@ -40,15 +40,36 @@ type MCAmericanEngine{S <: AbstractBlackScholesProcess, P <: LsmBasisSystemPolyn
   rsg::RSG
   pathPricer::LongstaffSchwartzPathPricer
 
-  MCAmericanEngine{S, P, RSG}(process::S, timeSteps::Int, timeStepsPerYear::Int, requiredSamples::Int, maxSamples::Int, requiredTolerance::Float64, brownianBridge::Bool,
-                            seed::Int, nCalibrationSamples::Int, polynomOrder::Int, polynomType::P, antitheticVariate::Bool, rsg::RSG) =
+  MCAmericanEngine{S, P, RSG}(process::S,
+                              timeSteps::Int,
+                              timeStepsPerYear::Int,
+                              requiredSamples::Int,
+                              maxSamples::Int,
+                              requiredTolerance::Float64,
+                              brownianBridge::Bool,
+                              seed::Int,
+                              nCalibrationSamples::Int,
+                              polynomOrder::Int,
+                              polynomType::P,
+                              antitheticVariate::Bool,
+                              rsg::RSG) where {S, P, RSG} =
                             new{S, P, RSG}(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed,
                                         nCalibrationSamples, polynomOrder, polynomType, antitheticVariate, rsg)
 end
 
-function MCAmericanEngine{RSG <: AbstractRandomSequenceGenerator, S <: AbstractBlackScholesProcess}(process::S; timeSteps::Int = -1, timeStepsPerYear::Int = -1, brownianBridge::Bool = false,
-                          antitheticVariate::Bool = false, requiredSamples::Int = -1, requiredTolerance::Float64 = -1.0, maxSamples::Int = typemax(Int), seed::Int = 0, rsg::RSG = InverseCumulativeRSG(seed),
-                          nCalibrationSamples::Int = 2048, polynomOrder::Int = 2, polynomType::LsmBasisSystemPolynomType = Monomial())
+function MCAmericanEngine{RSG <: AbstractRandomSequenceGenerator, S <: AbstractBlackScholesProcess}(process::S;
+                                                                                                    timeSteps::Int = -1,
+                                                                                                    timeStepsPerYear::Int = -1,
+                                                                                                    brownianBridge::Bool = false,
+                                                                                                    antitheticVariate::Bool = false,
+                                                                                                    requiredSamples::Int = -1,
+                                                                                                    requiredTolerance::Float64 = -1.0,
+                                                                                                    maxSamples::Int = typemax(Int),
+                                                                                                    seed::Int = 0,
+                                                                                                    rsg::RSG = InverseCumulativeRSG(seed),
+                                                                                                    nCalibrationSamples::Int = 2048,
+                                                                                                    polynomOrder::Int = 2,
+                                                                                                    polynomType::LsmBasisSystemPolynomType = Monomial())
   # build mc sim
   # mcSim = MCSimulation{RSG, SingleVariate}(antitheticVariate, false, rsg, SingleVariate())
 

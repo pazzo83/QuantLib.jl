@@ -1,9 +1,9 @@
 ## Main Finite Difference Model ##
-type FiniteDifferenceModel{T}
+mutable struct FiniteDifferenceModel{T}
   evolver::T
   stoppingTimes::Vector{Float64}
 
-  FiniteDifferenceModel{T}(evolver::T, stoppingTimes::Vector{Float64}) = new(evolver, sort(unique(stoppingTimes)))
+  FiniteDifferenceModel{T}(evolver::T, stoppingTimes::Vector{Float64}) where T = new(evolver, sort(unique(stoppingTimes)))
 end
 
 function FiniteDifferenceModel(L::TridiagonalOperator, BCs::Vector{BoundaryCondition}, evolverFunc::Function)

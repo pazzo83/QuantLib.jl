@@ -89,7 +89,7 @@ volatility_impl(const_opt_vol::ConstantOptionVolatility, ::Float64, ::Float64) =
 
 # Swaption Volatility methods
 function swap_length{V <: SwaptionVolatilityStructure}(swapVol::V, _start::Date, _end::Date)
-  result = round(float(_end - _start) / 365.25 * 12.0) # month unit
+  result = round(float(Dates.value(_end - _start)) / 365.25 * 12.0) # month unit
   result /= 12.0 # year unit
   return result
 end

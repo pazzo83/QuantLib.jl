@@ -1,16 +1,15 @@
 # Interest Rates
 
 # Compounding Types
-abstract CompoundingType
-immutable ContinuousCompounding <: CompoundingType end # exp(r * t)
-immutable SimpleCompounding <: CompoundingType end     # (1+r*t)
-immutable CompoundedCompounding <: CompoundingType end # (1 + r)^t
-immutable SimpleThenCompounded <: CompoundingType end
+struct ContinuousCompounding <: CompoundingType end # exp(r * t)
+struct SimpleCompounding <: CompoundingType end     # (1+r*t)
+struct CompoundedCompounding <: CompoundingType end # (1 + r)^t
+struct SimpleThenCompounded <: CompoundingType end
 
 ## Durations ##
-immutable ModifiedDuration <: Duration end
+struct ModifiedDuration <: Duration end
 
-type InterestRate{DC <: DayCount, C <: CompoundingType, F <: Frequency}
+struct InterestRate{DC <: DayCount, C <: CompoundingType, F <: Frequency}
   rate::Float64
   dc::DC
   comp::C

@@ -1,7 +1,7 @@
 # Solvers
-abstract Solver1D
+abstract type Solver1D end
 
-type SolverInfo
+struct SolverInfo
   maxEvals::Int
   lowerBoundEnforced::Bool
   upperBoundEnforced::Bool

@@ -1,6 +1,6 @@
 branches(::Type{AbstractBinomialTree}) = 2
 
-type BinomialTreeCommon
+mutable struct BinomialTreeCommon
   x0::Float64
   driftPerStep::Float64
   dt::Float64
@@ -19,11 +19,11 @@ function BinomialTreeCommon(process::StochasticProcess1D, endTime::Float64, step
   BinomialTreeCommon(x0, driftPerStep, dt, columns)
 end
 
-type Joshi4 <: BinomialTreeType end
-type LeisenReimer <: BinomialTreeType end
-type Tian <: BinomialTreeType end
+struct Joshi4 <: BinomialTreeType end
+struct LeisenReimer <: BinomialTreeType end
+struct Tian <: BinomialTreeType end
 
-type BinomialTree{T <: BinomialTreeType} <: AbstractBinomialTree
+mutable struct BinomialTree{T <: BinomialTreeType} <: AbstractBinomialTree
   up::Float64
   down::Float64
   pu::Float64
@@ -32,9 +32,9 @@ type BinomialTree{T <: BinomialTreeType} <: AbstractBinomialTree
   treeType::T
 end
 
-typealias Joshi4BinomialTree BinomialTree{Joshi4}
-typealias LeisenReimerBinomialTree BinomialTree{LeisenReimer}
-typealias TianBinomialTree BinomialTree{Tian}
+const Joshi4BinomialTree = BinomialTree{Joshi4}
+const LeisenReimerBinomialTree = BinomialTree{LeisenReimer}
+const TianBinomialTree = BinomialTree{Tian}
 
 function Tian(process::StochasticProcess1D, endTime::Float64, steps::Int, ::Float64)
   common = BinomialTreeCommon(process, endTime, steps)
@@ -108,17 +108,17 @@ function Joshi4(process::StochasticProcess1D, endTime::Float64, steps::Int, stri
   return BinomialTree{Joshi4}(up, down, pu, pd, common, Joshi4())
 end
 
-type JarrowRudd <: EqualProbabilitiesBinomialTreeType end
-type AdditiveEQP <: EqualProbabilitiesBinomialTreeType end
+struct JarrowRudd <: EqualProbabilitiesBinomialTreeType end
+struct AdditiveEQP <: EqualProbabilitiesBinomialTreeType end
 
-type EqualProbabilitiesBinomialTree{T <: EqualProbabilitiesBinomialTreeType} <: AbstractBinomialTree
+mutable struct EqualProbabilitiesBinomialTree{T <: EqualProbabilitiesBinomialTreeType} <: AbstractBinomialTree
   up::Float64
   common::BinomialTreeCommon
   treeType::T
 end
 
-typealias JarrowRuddBinomialTree EqualProbabilitiesBinomialTree{JarrowRudd}
-typealias AdditiveEQPBinomialTree EqualProbabilitiesBinomialTree{AdditiveEQP}
+const JarrowRuddBinomialTree = EqualProbabilitiesBinomialTree{JarrowRudd}
+const AdditiveEQPBinomialTree = EqualProbabilitiesBinomialTree{AdditiveEQP}
 
 # overloaded to build this alias
 function JarrowRudd(process::StochasticProcess1D, endTime::Float64, steps::Int, ::Float64)
@@ -135,10 +135,10 @@ function AdditiveEQP(process::StochasticProcess1D, endTime::Float64, steps::Int,
   return EqualProbabilitiesBinomialTree{AdditiveEQP}(up, common, AdditiveEQP())
 end
 
-type CoxRossRubinstein <: EqualJumpsBinomialTreeType end
-type Trigeorgis <: EqualJumpsBinomialTreeType end
+struct CoxRossRubinstein <: EqualJumpsBinomialTreeType end
+struct Trigeorgis <: EqualJumpsBinomialTreeType end
 
-type EqualJumpsBinomialTree{T <: EqualJumpsBinomialTreeType} <: AbstractBinomialTree
+mutable struct EqualJumpsBinomialTree{T <: EqualJumpsBinomialTreeType} <: AbstractBinomialTree
   dx::Float64
   pu::Float64
   pd::Float64
@@ -146,8 +146,8 @@ type EqualJumpsBinomialTree{T <: EqualJumpsBinomialTreeType} <: AbstractBinomial
   treeType::T
 end
 
-typealias CoxRossRubinsteinBinomialTree EqualJumpsBinomialTree{CoxRossRubinstein}
-typealias TrigeorgisBinomialTree EqualJumpsBinomialTree{Trigeorgis}
+const CoxRossRubinsteinBinomialTree = EqualJumpsBinomialTree{CoxRossRubinstein}
+const TrigeorgisBinomialTree = EqualJumpsBinomialTree{Trigeorgis}
 
 function CoxRossRubinstein(process::StochasticProcess1D, endTime::Float64, steps::Int, ::Float64)
   common = BinomialTreeCommon(process, endTime, steps)

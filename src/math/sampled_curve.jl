@@ -1,6 +1,6 @@
 import Base.copy
 
-type SampledCurve
+mutable struct SampledCurve
   grid::Vector{Float64}
   values::Vector{Float64}
 end

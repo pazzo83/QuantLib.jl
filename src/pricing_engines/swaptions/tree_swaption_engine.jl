@@ -1,4 +1,4 @@
-type TreeSwaptionEngine{S <: ShortRateModel, T <: ShortRateTree} <: LatticeShortRateModelEngine{S}
+mutable struct TreeSwaptionEngine{S <: ShortRateModel, T <: ShortRateTree} <: LatticeShortRateModelEngine{S}
   model::S
   timeSteps::Int
   common::LatticeShortRateModelEngineCommon{T}
@@ -15,7 +15,10 @@ type TreeSwaptionEngine{S <: ShortRateModel, T <: ShortRateTree} <: LatticeShort
   # call{S, I}(::Type{TreeSwaptionEngine}, m::S, tsteps::I, l::LatticeShortRateModelEngineCommon) = new{S, I, YieldTermStructure}(m, tsteps, l)
   #
   # call{S, I, Y}(::Type{TreeSwaptionEngine}, m::S, tsteps::I, l::LatticeShortRateModelEngineCommon, ts::Y) = new{S, I, T, Y}(m, tsteps, l, ts)
-  function TreeSwaptionEngine{S, T}(model::S, timeSteps::Int, common::LatticeShortRateModelEngineCommon{T}, latticeGen::Bool = true)
+  function TreeSwaptionEngine{S, T}(model::S,
+                                    timeSteps::Int,
+                                    common::LatticeShortRateModelEngineCommon{T},
+                                    latticeGen::Bool = true) where {S, T}
     ts = new{S, T}(model, timeSteps, common, latticeGen)
     add_observer!(model, ts)
 

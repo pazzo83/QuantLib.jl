@@ -1,4 +1,4 @@
-type TenorPeriod
+struct TenorPeriod
   period::Dates.Period
   freq::Frequency
 end
@@ -24,7 +24,7 @@ end
 TenorPeriod(p::Dates.Year) = TenorPeriod(p, Annual())
 
 function TenorPeriod(p::Dates.Month)
-  x = Int(p)
+  x = Dates.value(p)
   if x == 6
     return TenorPeriod(p, Semiannual())
   elseif x == 3
@@ -39,7 +39,7 @@ function TenorPeriod(p::Dates.Month)
 end
 
 function TenorPeriod(p::Dates.Week)
-  x = Int(p)
+  x = Dates.value(p)
   if x == 26
     return TenorPeriod(p, Biweekly())
   elseif x == 13

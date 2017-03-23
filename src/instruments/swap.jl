@@ -219,7 +219,7 @@ type CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvention, DC <:
   claim::FaceValueClaim
   results::CDSResults
 
-  CreditDefaultSwap(lazyMixin::LazyMixin,
+  CreditDefaultSwap{S, B, DC, P, C, F}(lazyMixin::LazyMixin,
                     side::S,
                     notional::Float64,
                     spread::Float64,
@@ -231,12 +231,21 @@ type CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvention, DC <:
                     settlesAccrual::Bool,
                     paysAtDefaultTime::Bool,
                     protectionStart::Date,
-                    pricingEngine::P) = new{S, B, DC, P, C, F}(lazyMixin, side, notional, spread, schedule, convention, dc, leg, upfrontPayment, settlesAccrual, paysAtDefaultTime, protectionStart, pricingEngine,
-                                            FaceValueClaim(), CDSResults())
+                    pricingEngine::P) where {S, B, DC, P, C, F} =
+                                            new{S, B, DC, P, C, F}(lazyMixin, side, notional, spread, schedule, convention, dc, leg, upfrontPayment, settlesAccrual,
+                                            paysAtDefaultTime, protectionStart, pricingEngine, FaceValueClaim(), CDSResults())
 end
 
-function CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvention, DC <: DayCount, P <: PricingEngine}(side::S, notional::Float64, spread::Float64, schedule::Schedule,
-                          convention::B, dc::DC, settlesAccrual::Bool, paysAtDefaultTime::Bool, protectionStart::Date, pricingEngine::P)
+function CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvention, DC <: DayCount, P <: PricingEngine}(side::S,
+                                                                                              notional::Float64,
+                                                                                              spread::Float64,
+                                                                                              schedule::Schedule,
+                                                                                              convention::B,
+                                                                                              dc::DC,
+                                                                                              settlesAccrual::Bool,
+                                                                                              paysAtDefaultTime::Bool,
+                                                                                              protectionStart::Date,
+                                                                                              pricingEngine::P)
   # build leg
   leg = FixedRateLeg(schedule, notional, spread, schedule.cal, convention, dc; add_redemption = false)
 
@@ -305,7 +314,9 @@ end
 #                     swap.floatSchedule, swap.floatDayCount, swap.paymentConvention, swap.legs, swap.payer, pe, res, args)
 # end
 
-function clone{ST, DC_fix, DC_float, B, L, P, TP, CUR, IB, IC, IDC, IT}(swap::VanillaSwap{ST, DC_fix, DC_float, B, L, P, TP, CUR, IB, IC, IDC, IT}, pe::PricingEngine = swap.pricingEngine, ts::TermStructure = swap.iborIndex.ts)
+function clone{ST, DC_fix, DC_float, B, L, P, TP, CUR, IB, IC, IDC, IT}(swap::VanillaSwap{ST, DC_fix, DC_float, B, L, P, TP, CUR, IB, IC, IDC, IT},
+                                                                        pe::PricingEngine = swap.pricingEngine,
+                                                                        ts::TermStructure = swap.iborIndex.ts)
   # is_new = pe != swap.pricingEngine || ts != swap.iborIndex.ts
 
   lazyMixin, res, args = pe == swap.pricingEngine ? (swap.lazyMixin, swap.results, swap.args) : (LazyMixin(), SwapResults(2), VanillaSwapArgs(swap.legs))

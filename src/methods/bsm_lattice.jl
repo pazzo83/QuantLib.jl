@@ -1,4 +1,4 @@
-type BlackScholesLattice{T <: AbstractBinomialTree} <: TreeLattice
+mutable struct BlackScholesLattice{T <: AbstractBinomialTree} <: TreeLattice
   tree::T
   riskFreeRate::Float64
   dt::Float64
@@ -7,7 +7,7 @@ type BlackScholesLattice{T <: AbstractBinomialTree} <: TreeLattice
   pu::Float64
   treeLattice::TreeLattice1D
 
-  function BlackScholesLattice(tree::T, riskFreeRate::Float64, endTime::Float64, steps::Int)
+  function BlackScholesLattice{T}(tree::T, riskFreeRate::Float64, endTime::Float64, steps::Int) where T
     dt = endTime / steps
     discountFactor = exp(-riskFreeRate * dt)
     pd = probability(tree, 0, 0, 0)

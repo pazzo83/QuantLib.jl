@@ -1,4 +1,4 @@
-immutable SVD
+struct SVD
   U::Matrix{Float64}
   V::Matrix{Float64}
   s::Vector{Float64}

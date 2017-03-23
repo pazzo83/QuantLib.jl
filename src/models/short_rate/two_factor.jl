@@ -1,10 +1,10 @@
-type TwoFactorShortRateTree{S <: ShortRateDynamics, P1 <: StochasticProcess, P2 <: StochasticProcess} <: ShortRateTree
+mutable struct TwoFactorShortRateTree{S <: ShortRateDynamics, P1 <: StochasticProcess, P2 <: StochasticProcess} <: ShortRateTree
   tree1::TrinomialTree{P1}
   tree2::TrinomialTree{P2}
   dynamics::S
   treeLattice::TreeLattice2D{TwoFactorShortRateTree{S, P1, P2}}
 
-  function TwoFactorShortRateTree{S, P1, P2}(tree1::TrinomialTree{P1}, tree2::TrinomialTree{P2}, dyn::S)
+  function TwoFactorShortRateTree{S, P1, P2}(tree1::TrinomialTree{P1}, tree2::TrinomialTree{P2}, dyn::S) where {S, P1, P2}
     twoFactorTree = new{S, P1, P2}(tree1, tree2, dyn)
     twoFactorTree.treeLattice = TreeLattice2D(tree1, tree2, dyn.correlation, twoFactorTree)
 
@@ -53,7 +53,7 @@ function discount(tr::TwoFactorShortRateTree, i::Int, idx::Int)
   return exp(-r * tr.treeLattice.tg.dt[i])
 end
 
-type G2Dynamics{P <: Parameter} <: ShortRateDynamics
+mutable struct G2Dynamics{P <: Parameter} <: ShortRateDynamics
   fitting::P
   xProcess::OrnsteinUhlenbeckProcess
   yProcess::OrnsteinUhlenbeckProcess
@@ -65,7 +65,7 @@ G2Dynamics{P <: Parameter}(fitting::P, a::Float64, sigma::Float64, b::Float64, e
 
 short_rate(dyn::G2Dynamics, t::Float64, x::Float64, y::Float64) = dyn.fitting(t) + x + y
 
-type G2{AffineModelType, T <: TermStructure} <: TwoFactorModel{AffineModelType}
+mutable struct G2{AffineModelType, T <: TermStructure} <: TwoFactorModel{AffineModelType}
   modT::AffineModelType
   a::ConstantParameter
   sigma::ConstantParameter
@@ -116,7 +116,7 @@ end
 A(m::G2, t::Float64, T::Float64) = discount(m.ts, T) / discount(m.ts, t) * exp(0.5 * (V(m, T - t) - V(m, T) + V(m, t)))
 B(m::G2, x::Float64, t::Float64) = (1.0 - exp(-x * t)) / x
 
-type G2SwaptionPricingFunction <: Function
+struct G2SwaptionPricingFunction <: Function
   a::Float64
   sigma::Float64
   b::Float64

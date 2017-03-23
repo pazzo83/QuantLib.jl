@@ -1,4 +1,4 @@
-type LevenbergMarquardt <: OptimizationMethod
+mutable struct LevenbergMarquardt <: OptimizationMethod
   epsfcn::Float64
   xtol::Float64
   gtol::Float64

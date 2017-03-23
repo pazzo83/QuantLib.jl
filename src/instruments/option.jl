@@ -1,9 +1,9 @@
 # type aliases
-typealias EuropeanOption Option{EuropeanExercise}
-typealias AmericanOption Option{AmericanExercise}
-typealias BermudanOption Option{BermudanExercise}
+const EuropeanOption = Option{EuropeanExercise}
+const AmericanOption = Option{AmericanExercise}
+const BermudanOption = Option{BermudanExercise}
 
-type OptionResults # Greeks
+mutable struct OptionResults # Greeks
   delta::Float64
   gamma::Float64
   theta::Float64
@@ -20,7 +20,7 @@ end
 
 OptionResults() = OptionResults(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 
-type VanillaOptionArgs{P <: StrikedTypePayoff, E <: Exercise}
+struct VanillaOptionArgs{P <: StrikedTypePayoff, E <: Exercise}
   payoff::P
   exercise::E
 end
@@ -42,7 +42,7 @@ function reset!(res::OptionResults)
   return res
 end
 
-type VanillaOption{S <: StrikedTypePayoff, E <: Exercise, P <: PricingEngine} <: OneAssetOption{E}
+mutable struct VanillaOption{S <: StrikedTypePayoff, E <: Exercise, P <: PricingEngine} <: OneAssetOption{E}
   lazyMixin::LazyMixin
   payoff::S
   exercise::E

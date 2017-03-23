@@ -5,7 +5,7 @@ using QuantLib.Time, QuantLib.Math
 
 # BlackIborCouponPricer() = BlackIborCouponPricer(0.0, 0.0, false)
 
-type CouponMixin{DC <: DayCount}
+mutable struct CouponMixin{DC <: DayCount}
   accrualStartDate::Date
   accrualEndDate::Date
   refPeriodStart::Date
@@ -32,7 +32,7 @@ function accrual_period(coup::Coupon)
 end
 
 ## types of cash flows ##
-type SimpleCashFlow <: CashFlow
+struct SimpleCashFlow <: CashFlow
   amount::Float64
   date::Date
 end
@@ -54,14 +54,13 @@ date(div::Dividend) = div.date
 date_accrual_end(div::Dividend) = div.date
 
 # legs to build cash flows
-abstract Leg <: CashFlows
 
-type ZeroCouponLeg <: Leg
+struct ZeroCouponLeg <: Leg
   redemption::SimpleCashFlow
 end
 
 ## Function wrapper for solvers ##
-type IRRFinder{L <: Leg, DC <: DayCount, C <: CompoundingType, F <: Frequency} <: Function
+mutable struct IRRFinder{L <: Leg, DC <: DayCount, C <: CompoundingType, F <: Frequency} <: Function
   leg::L
   npv::Float64
   dc::DC

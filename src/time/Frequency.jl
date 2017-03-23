@@ -1,21 +1,21 @@
 # Frequency
 using Base.Dates
 
-abstract Frequency
+abstract type Frequency end
 
-immutable NoFrequency <: Frequency end
-immutable Once <: Frequency end
-immutable Annual <: Frequency end
-immutable Semiannual <: Frequency end
-immutable EveryFourthMonth <: Frequency end
-immutable Quarterly <: Frequency end
-immutable Bimonthly <: Frequency end
-immutable Monthly <: Frequency end
-immutable EveryFourthWeek <: Frequency end
-immutable Biweekly <: Frequency end
-immutable Weekly <: Frequency end
-immutable Daily <: Frequency end
-immutable OtherFrequency <: Frequency end
+struct NoFrequency <: Frequency end
+struct Once <: Frequency end
+struct Annual <: Frequency end
+struct Semiannual <: Frequency end
+struct EveryFourthMonth <: Frequency end
+struct Quarterly <: Frequency end
+struct Bimonthly <: Frequency end
+struct Monthly <: Frequency end
+struct EveryFourthWeek <: Frequency end
+struct Biweekly <: Frequency end
+struct Weekly <: Frequency end
+struct Daily <: Frequency end
+struct OtherFrequency <: Frequency end
 
 # default value if no freq specified
 value(::Frequency) = -1

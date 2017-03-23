@@ -1,12 +1,12 @@
 using Dierckx
 
-type BicubicSpline
+mutable struct BicubicSpline
   spline::Dierckx.Spline2D
 end
 
 BicubicSpline{T <: Real}(x::Vector{T}, y::Vector{T}, z::Matrix{T}) = BicubicSpline(Dierckx.Spline2D(x, y, z))
 
-type NaturalCubicSpline{T <: Number} <: Interpolation
+mutable struct NaturalCubicSpline{T <: Number} <: Interpolation
   x_vert::Vector{T}
   y_vert::Vector{T}
   b::Vector{T}
@@ -66,7 +66,7 @@ function (spl::NaturalCubicSpline)(my_x::Number)
 end
 
 ## Cubic Interpolation ##
-type CubicInterpolation{D <: DerivativeApprox, B1 <: BoundaryCondition, B2 <: BoundaryCondition} <: Interpolation
+mutable struct CubicInterpolation{D <: DerivativeApprox, B1 <: BoundaryCondition, B2 <: BoundaryCondition} <: Interpolation
   derivativeApprox::D
   leftBoundaryCondition::B1
   rightBoundaryCondition::B2
@@ -98,7 +98,7 @@ end
 (interp::CubicInterpolation)(x::Float64) = value(interp, x)
 
 # type aliases #
-typealias SplineCubicInterpolation{D, B1, B2} CubicInterpolation{Spline, B1, B2} # First derivative approximation
+const SplineCubicInterpolation{D, B1, B2} = CubicInterpolation{Spline, B1, B2} # First derivative approximation
 
 function cubicInterpolationPolynomialDerivative(x_vals::Vector{Float64}, y_vals::Vector{Float64}, x::Float64)
   a, b, c, d = x_vals

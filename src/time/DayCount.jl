@@ -1,29 +1,29 @@
 # Day Count (adapted from Ito.jl and InterestRates.jl)
 using Base.Dates
 
-abstract DayCount
+abstract type DayCount end
 
-immutable Actual360 <:DayCount ; end
-immutable Actual365 <: DayCount ; end
+struct Actual360 <:DayCount ; end
+struct Actual365 <: DayCount ; end
 
-abstract Thirty360 <:DayCount
+abstract type Thirty360 <:DayCount end
 
-immutable BondThirty360 <: Thirty360; end
-immutable EuroBondThirty360 <: Thirty360; end
-immutable ItalianThirty360 <: Thirty360; end
+struct BondThirty360 <: Thirty360; end
+struct EuroBondThirty360 <: Thirty360; end
+struct ItalianThirty360 <: Thirty360; end
 
-typealias USAThirty360 BondThirty360
-typealias EuroThirty360 EuroBondThirty360
+const USAThirty360 = BondThirty360
+const EuroThirty360 = EuroBondThirty360
 
-abstract ActualActual <: DayCount
+abstract type ActualActual <: DayCount end
 
-immutable ISMAActualActual <: ActualActual; end
-immutable ISDAActualActual <: ActualActual; end
-immutable AFBActualActual <: ActualActual; end
+struct ISMAActualActual <: ActualActual; end
+struct ISDAActualActual <: ActualActual; end
+struct AFBActualActual <: ActualActual; end
 
-typealias ActualActualBond ISMAActualActual
+const ActualActualBond = ISMAActualActual
 
-immutable SimpleDayCount <: DayCount end
+struct SimpleDayCount <: DayCount end
 
 # Day Counting
 # default day count method
@@ -58,7 +58,7 @@ function day_count(c::EuroBondThirty360, d_start::Date, d_end::Date)
   return 360.0 * (yy2 - yy1) + 30.0 * (mm2 - mm1 - 1) + max(0, 30 - dd1) + min(30, dd2)
 end
 
-day_count(c::DayCount, d_start::Date, d_end::Date) = Int(d_end - d_start)
+day_count(c::DayCount, d_start::Date, d_end::Date) = Dates.value(d_end - d_start) # Int(d_end - d_start)
 
 # days per year
 days_per_year(::Union{Actual360, Thirty360}) = 360.0
@@ -79,7 +79,7 @@ function year_fraction(::SimpleDayCount, d_start::Date, d_end::Date, ::Date, ::D
   dm_end = Dates.Day(d_end)
 
   if dm_start == dm_end || (dm_start > dm_end && Dates.lastdayofmonth(d_end) == d_end) || (dm_start < dm_end && Dates.lastdayofmonth(d_start) == d_start)
-    return Int(Dates.Year(d_end) - Dates.Year(d_start)) +  (Int(Dates.Month(d_end)) - Int(Dates.Month(d_start))) / 12.0
+    return (Dates.Year(d_end) - Dates.Year(d_start)).value + (Dates.Month(d_end) - Dates.Month(d_start)).value / 12.0
   else
     return year_fraction(BondThirty360(), d_start, d_end)
   end
@@ -125,7 +125,7 @@ function year_fraction(dc::ISMAActualActual, d1::Date, d2::Date, d3::Date = Date
   ref_period_start = d3 != Date() ? d3 : d1
   ref_period_end = d4 != Date() ? d4 : d2
 
-  months = floor(Int, 0.5 + 12 * Int(ref_period_end - ref_period_start) / 365)
+  months = floor(Int, 0.5 + 12 * Dates.value(ref_period_end - ref_period_start) / 365)
 
   if months == 0
     ref_period_start = d1

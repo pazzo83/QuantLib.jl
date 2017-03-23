@@ -1,12 +1,12 @@
 using QuantLib
 
-abstract OptimizationMethod
-abstract CostFunction
-abstract Constraint
+abstract type OptimizationMethod end
+abstract type CostFunction end
+abstract type Constraint end
 
 const FINITE_DIFFERENCES_EPSILON = 1e-8
 
-type Projection
+mutable struct Projection
   actualParameters::Vector{Float64}
   fixedParameters::Vector{Float64}
   fixParams::BitArray{1}
@@ -51,19 +51,19 @@ function include_params(proj::Projection, params::Vector{Float64})
   return y
 end
 
-type NoConstraint <: Constraint end
-type PositiveConstraint <: Constraint end
-type BoundaryConstraint <: Constraint
+struct NoConstraint <: Constraint end
+struct PositiveConstraint <: Constraint end
+struct BoundaryConstraint <: Constraint
   low::Float64
   high::Float64
 end
 
-type ProjectedConstraint{C <: Constraint} <: Constraint
+struct ProjectedConstraint{C <: Constraint} <: Constraint
   constraint::C
   projection::Projection
 end
 
-type EndCriteria
+mutable struct EndCriteria
   maxIterations::Int
   maxStationaryStateIterations::Int
   rootEpsilon::Float64

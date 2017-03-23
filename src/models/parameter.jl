@@ -1,6 +1,6 @@
 # call{P <: Parameter}(param::P, t::Float64) = value(param, t)
 
-type ConstantParameter{C <: Constraint} <: Parameter
+mutable struct ConstantParameter{C <: Constraint} <: Parameter
   data::Vector{Float64}
   constraint::C
 end
@@ -9,7 +9,7 @@ get_data(c::ConstantParameter) = c.data
 set_params!(c::ConstantParameter, i::Int, val::Float64) = c.data[i] = val
 # call(c::ConstantParameter, t::Float64) = value(c, t)
 
-type G2FittingParameter{T <: TermStructure} <: Parameter
+mutable struct G2FittingParameter{T <: TermStructure} <: Parameter
   a::Float64
   sigma::Float64
   b::Float64
@@ -30,7 +30,7 @@ function value(param::G2FittingParameter, t::Float64)
   return val
 end
 
-type HullWhiteFittingParameter{T <: TermStructure} <: Parameter
+mutable struct HullWhiteFittingParameter{T <: TermStructure} <: Parameter
   a::Float64
   sigma::Float64
   ts::T
@@ -45,7 +45,7 @@ function value(param::HullWhiteFittingParameter, t::Float64)
   return forward + 0.5 * temp * temp
 end
 
-type TermStructureFittingParameter{T <: TermStructure} <: Parameter
+mutable struct TermStructureFittingParameter{T <: TermStructure} <: Parameter
   times::Vector{Float64}
   values::Vector{Float64}
   ts::T
@@ -74,11 +74,11 @@ function value(param::TermStructureFittingParameter, t::Float64)
   return param.values[idx]
 end
 
-type PiecewiseConstantParameter{C <: Constraint} <: Parameter
+mutable struct PiecewiseConstantParameter{C <: Constraint} <: Parameter
   times::Vector{Float64}
   constraint::C
 
-  function PiecewiseConstantParameter(times::Vector{Float64}, constraint::C)
+  function PiecewiseConstantParameter{C}(times::Vector{Float64}, constraint::C) where C
     retTimes = push!(times, 0.0)
     return new{C}(retTimes, constraint)
   end

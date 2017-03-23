@@ -1,41 +1,41 @@
 # Business Calendars (adapted from Ito.jl and BusinessDays.jl)
 using Base.Dates
 
-abstract BusinessCalendar
+abstract type BusinessCalendar end
 
-abstract WesternCalendar <: BusinessCalendar
-abstract OrthodoxCalendar <: BusinessCalendar
+abstract type WesternCalendar <: BusinessCalendar end
+abstract type  OrthodoxCalendar <: BusinessCalendar end
 
 # target calendar
-immutable TargetCalendar <: BusinessCalendar end
+struct TargetCalendar <: BusinessCalendar end
 
 # for simply moving foward and backward in time
-immutable NullCalendar <: BusinessCalendar end
+struct NullCalendar <: BusinessCalendar end
 
-type JointCalendar{B <: BusinessCalendar, C <: BusinessCalendar} <: BusinessCalendar
+mutable struct JointCalendar{B <: BusinessCalendar, C <: BusinessCalendar} <: BusinessCalendar
   cal1::B
   cal2::C
 end
 
 # US Calendars
-abstract UnitedStatesCalendar <: WesternCalendar
+abstract type UnitedStatesCalendar <: WesternCalendar end
 
-immutable USSettlementCalendar <: UnitedStatesCalendar; end
-immutable USNYSECalendar <: UnitedStatesCalendar; end
-immutable USNERCCalendar <: UnitedStatesCalendar; end
-immutable USGovernmentBondCalendar <: UnitedStatesCalendar; end
+struct USSettlementCalendar <: UnitedStatesCalendar; end
+struct USNYSECalendar <: UnitedStatesCalendar; end
+struct USNERCCalendar <: UnitedStatesCalendar; end
+struct USGovernmentBondCalendar <: UnitedStatesCalendar; end
 
 # UK Calendars
-abstract UnitedKingdomCalendar <: WesternCalendar
+abstract type UnitedKingdomCalendar <: WesternCalendar end
 
-immutable UKSettlementCalendar <: UnitedKingdomCalendar end
-immutable UKLSECalendar <: UnitedKingdomCalendar end
-immutable UKLMECalendar <: UnitedKingdomCalendar end
+struct UKSettlementCalendar <: UnitedKingdomCalendar end
+struct UKLSECalendar <: UnitedKingdomCalendar end
+struct UKLMECalendar <: UnitedKingdomCalendar end
 
-abstract BusinessDayConvention
-immutable Unadjusted <: BusinessDayConvention end
-immutable ModifiedFollowing <: BusinessDayConvention end
-immutable Following <: BusinessDayConvention end
+abstract type BusinessDayConvention end
+struct Unadjusted <: BusinessDayConvention end
+struct ModifiedFollowing <: BusinessDayConvention end
+struct Following <: BusinessDayConvention end
 
 # easter functions
 function easter_rata(y::Int)
@@ -79,7 +79,7 @@ end
 # advance{B <: BusinessDayConvention}(time_period::Union{Week, Month, Year}, cal::NullCalendar, dt::Date, ::B) = dt += time_period
 
 function advance(days::Day, cal::BusinessCalendar, dt::Date, biz_conv::BusinessDayConvention = Following())
-  n = Int(days)
+  n = days.value
   if n > 0
     while n > 0
       dt += Day(1)

@@ -1,19 +1,19 @@
 # @enum Side NoneSide UpperSide LowerSide
-type NoneSide <: BC_Side end
-type UpperSide <: BC_Side end
-type LowerSide <: BC_Side end
+struct NoneSide <: BC_Side end
+struct UpperSide <: BC_Side end
+struct LowerSide <: BC_Side end
 
-type DefaultBoundaryCondition <: BoundaryConditionType end
-type NeumannBCType <: BoundaryConditionType end
-type DirichletBCType <: BoundaryConditionType end
+struct DefaultBoundaryCondition <: BoundaryConditionType end
+struct NeumannBCType <: BoundaryConditionType end
+struct DirichletBCType <: BoundaryConditionType end
 
-type BoundaryCondition{B <: BoundaryConditionType, S <: BC_Side}
+mutable struct BoundaryCondition{B <: BoundaryConditionType, S <: BC_Side}
   condType::B
   value::Float64
   side::S
 end
 
-typealias NeumannBC{S} BoundaryCondition{NeumannBCType, S}
+const NeumannBC{S} = BoundaryCondition{NeumannBCType, S}
 build_NeumannBC(value::Float64, side::BC_Side) = BoundaryCondition(NeumannBCType(), value, side)
 
 set_time!(bc::NeumannBC, ::Float64) = bc # returns self

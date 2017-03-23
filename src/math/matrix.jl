@@ -1,5 +1,5 @@
-abstract SalvagingAlgo
-type NoneSalvagingAlgo <: SalvagingAlgo end
+abstract type SalvagingAlgo end
+struct NoneSalvagingAlgo <: SalvagingAlgo end
 
 function normalize_pseudo_root!(matrix::Matrix, pseudo::Matrix)
   sz = size(matrix)[1]
@@ -88,7 +88,7 @@ function inner_product(v::Matrix{Float64}, row1::Int, w::Matrix{Float64}, row2::
   return x
 end
 
-type OrthogonalProjection
+mutable struct OrthogonalProjection
   originalVectors::Matrix{Float64}
   multiplierCutoff::Float64
   numberVectors::Int

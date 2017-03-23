@@ -1,15 +1,15 @@
 # Basic model stuff
 # model types
-type AffineModelType <: ModelType end
-type TermStructureConsistentModelType <: ModelType end
-type CalibratedModelType <: ModelType end # general model type
+struct AffineModelType <: ModelType end
+struct TermStructureConsistentModelType <: ModelType end
+struct CalibratedModelType <: ModelType end # general model type
 
 # type aliases
-typealias AffineModel Model{AffineModelType}
-typealias TermStructureConsistentModel Model{TermStructureConsistentModelType}
-typealias CalibratedModel Model{CalibratedModelType}
+const AffineModel = Model{AffineModelType}
+const TermStructureConsistentModel = Model{TermStructureConsistentModelType}
+const CalibratedModel = Model{CalibratedModelType}
 
-type ModelCommon
+mutable struct ModelCommon
   observe::ObserverMixin
 end
 

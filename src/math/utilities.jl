@@ -1,15 +1,15 @@
-abstract EigenVectorCalculation
-abstract ShiftStrategy
+abstract type EigenVectorCalculation end
+abstract type ShiftStrategy end
 
-type WithEigenVector <: EigenVectorCalculation end
-type WithoutEigenVector <: EigenVectorCalculation end
-type OnlyFirstRowEigenVector <: EigenVectorCalculation end
+struct WithEigenVector <: EigenVectorCalculation end
+struct WithoutEigenVector <: EigenVectorCalculation end
+struct OnlyFirstRowEigenVector <: EigenVectorCalculation end
 
-type NoShift <: ShiftStrategy end
-type Overrelaxation <: ShiftStrategy end
-type CloseEigenValue <: ShiftStrategy end
+struct NoShift <: ShiftStrategy end
+struct Overrelaxation <: ShiftStrategy end
+struct CloseEigenValue <: ShiftStrategy end
 
-immutable TqrEigenDecomposition
+struct TqrEigenDecomposition
   iter::Int
   d::Vector{Float64}
   ev::Matrix{Float64}

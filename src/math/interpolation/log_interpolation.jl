@@ -1,10 +1,10 @@
-type LogInterpolation{IN <: Interpolation} <: Interpolation
+mutable struct LogInterpolation{IN <: Interpolation} <: Interpolation
   x_vals::Vector{Float64}
   y_vals::Vector{Float64}
   interpolator::IN
 end
 
-typealias LogLinearInterpolation LogInterpolation{LinearInterpolation}
+const LogLinearInterpolation = LogInterpolation{LinearInterpolation}
 
 function LogLinear(x_vals::Vector{Float64}, y_vals::Vector{Float64})
   # build log of y values, defaulting to 0 for initial state

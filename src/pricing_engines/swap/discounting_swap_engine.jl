@@ -1,4 +1,4 @@
-type DiscountingSwapEngine{Y <: YieldTermStructure} <: PricingEngine
+struct DiscountingSwapEngine{Y <: YieldTermStructure} <: PricingEngine
   yts::Y
   includeSettlementDateFlows::Bool
 
@@ -9,7 +9,7 @@ type DiscountingSwapEngine{Y <: YieldTermStructure} <: PricingEngine
   # function call{Y}(::Type{DiscountingSwapEngine}, yts::Y, includeSettlementDateFlows::Bool = true)
   #   new{Y}(yts, includeSettlementDateFlows)
   # end
-  DiscountingSwapEngine(yts, includeSettlementDateFlows) = new(yts, includeSettlementDateFlows)
+  DiscountingSwapEngine{Y}(yts::Y, includeSettlementDateFlows) where Y = new(yts, includeSettlementDateFlows)
 end
 
 DiscountingSwapEngine{Y <: YieldTermStructure}(yts::Y, includeSettlementDateFlows::Bool = true) = DiscountingSwapEngine{Y}(yts, includeSettlementDateFlows)

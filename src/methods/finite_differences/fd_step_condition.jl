@@ -1,9 +1,9 @@
 # Null
-type FdmNullStepCondition <: StepCondition end
+struct FdmNullStepCondition <: StepCondition end
 
 apply_to!(cond::FdmNullStepCondition, a::Vector{Float64}, ::Float64) = cond, a
 
-type FdmDividendHandler{F <: FdmMesher} <: StepCondition
+mutable struct FdmDividendHandler{F <: FdmMesher} <: StepCondition
   x::Vector{Float64}
   dividendTimes::Vector{Float64}
   dividendDates::Vector{Date}
@@ -36,12 +36,12 @@ function FdmDividendHandler(schedule::DividendSchedule, mesher::FdmMesher, refDa
   return FdmDividendHandler(x, dividendTimes, dividendDates, dividends, mesher, equityDirection)
 end
 
-type FdmAmericanStepCondition{F <: FdmMesher, C <: FdmInnerValueCalculator} <: StepCondition
+mutable struct FdmAmericanStepCondition{F <: FdmMesher, C <: FdmInnerValueCalculator} <: StepCondition
   mesher::F
   calculator::C
 end
 
-type FdmBermudanStepCondition{F <: FdmMesher, C <: FdmInnerValueCalculator} <: StepCondition
+mutable struct FdmBermudanStepCondition{F <: FdmMesher, C <: FdmInnerValueCalculator} <: StepCondition
   mesher::F
   calculator::C
   exerciseTimes::Vector{Float64}
@@ -81,7 +81,7 @@ function apply_to!(cond::FdmBermudanStepCondition, a::Vector{Float64}, t::Float6
   return cond, a
 end
 
-type FdmSnapshotCondition <: StepCondition
+mutable struct FdmSnapshotCondition <: StepCondition
   t::Float64
   a::Vector{Float64}
 end
@@ -96,7 +96,7 @@ function apply_to!(cond::FdmSnapshotCondition, a::Vector{Float64}, t::Float64)
   return cond, a
 end
 
-type FdmStepConditionComposite{C <: StepCondition} <: StepCondition
+mutable struct FdmStepConditionComposite{C <: StepCondition} <: StepCondition
   stoppingTimes::Vector{Float64}
   conditions::Vector{C}
 end
@@ -143,24 +143,24 @@ function apply_to!(cond::FdmStepConditionComposite, a::Vector{Float64}, t::Float
   return cond, a
 end
 
-type ArrayWrapper <: CurveWrapper
+mutable struct ArrayWrapper <: CurveWrapper
   value::Vector{Float64}
 end
 
 get_value(wrapper::ArrayWrapper, ::Vector{Float64}, idx::Int) = wrapper.value[idx]
 
-type PayoffWrapper{P <: StrikedTypePayoff} <: CurveWrapper
+mutable struct PayoffWrapper{P <: StrikedTypePayoff} <: CurveWrapper
   payoff::P
 end
 
-type AmericanStepConditionType <: StepType end
+struct AmericanStepConditionType <: StepType end
 
-type CurveDependentStepCondition{T <: StepType, C <: CurveWrapper} <: StepCondition
+mutable struct CurveDependentStepCondition{T <: StepType, C <: CurveWrapper} <: StepCondition
   stepType::T
   curveItem::C
 end
 
-typealias AmericanStepCondition{C} CurveDependentStepCondition{AmericanStepConditionType, C}
+const AmericanStepCondition{C} =  CurveDependentStepCondition{AmericanStepConditionType, C}
 
 build_AmericanStepCondition(intrinsicValues::Vector{Float64}) = CurveDependentStepCondition(AmericanStepConditionType(), ArrayWrapper(intrinsicValues))
 
@@ -176,7 +176,7 @@ end
 
 get_value(cond::CurveDependentStepCondition, a::Vector{Float64}, idx::Int) = get_value(cond.curveItem, a, idx)
 
-type StepConditionSet{C <: StepCondition} <: StepCondition
+mutable struct StepConditionSet{C <: StepCondition} <: StepCondition
   conditions::Vector{C}
 end
 

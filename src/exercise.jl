@@ -1,25 +1,29 @@
-type AmericanExercise <: EarlyExercise
+struct AmericanExercise <: EarlyExercise
   dates::Vector{Date}
 end
 
-type BermudanExercise <: EarlyExercise
+struct BermudanExercise <: EarlyExercise
   dates::Vector{Date}
 end
 
-type EuropeanExercise <: Exercise
+struct EuropeanExercise <: Exercise
   dates::Vector{Date}
 end
 
 EuropeanExercise(d::Date) = EuropeanExercise([d])
 AmericanExercise(d1::Date, d2::Date) = AmericanExercise(Date[d1, d2])
 
-type RebatedExercise{E <: Exercise, C <: BusinessCalendar, B <: BusinessDayConvention} <: Exercise
+struct RebatedExercise{E <: Exercise, C <: BusinessCalendar, B <: BusinessDayConvention} <: Exercise
   exercise::E
   rebate::Float64
   rebateSettlementDays::Int
   rebatePaymentCalendar::C
   rebatePaymentConvention::B
 
-  RebatedExercise(exercise::E, rebate::Float64 = 0.0, rebateSettlementDays::Int = 0, rebatePaymentCalendar::C = NullCalendar(),
-                rebatePaymentConvention::B = Following()) = new{E, C, B}(exercise, rebate, rebateSettlementDays, rebatePaymentCalendar, rebatePaymentConvention)
+  RebatedExercise{E, C, B}(exercise::E,
+                          rebate::Float64 = 0.0,
+                          rebateSettlementDays::Int = 0,
+                          rebatePaymentCalendar::C = NullCalendar(),
+                          rebatePaymentConvention::B = Following()) where {E, C, B} =
+                new{E, C, B}(exercise, rebate, rebateSettlementDays, rebatePaymentCalendar, rebatePaymentConvention)
 end

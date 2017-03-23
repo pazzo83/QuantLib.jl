@@ -1,8 +1,8 @@
 using StatsFuns
 using Sobol
 
-abstract AbstractRandomSequenceGenerator
-type PseudoRandomRSG <: AbstractRandomSequenceGenerator
+abstract type AbstractRandomSequenceGenerator end
+mutable struct PseudoRandomRSG <: AbstractRandomSequenceGenerator
   rng::MersenneTwister
   dimension::Int
   values::Vector{Float64}
@@ -11,7 +11,7 @@ end
 
 PseudoRandomRSG(seed::Int, dimension::Int = 1, weight::Float64 = 1.0) = PseudoRandomRSG(MersenneTwister(seed), dimension, zeros(dimension), weight)
 
-type InverseCumulativeRSG <: AbstractRandomSequenceGenerator
+mutable struct InverseCumulativeRSG <: AbstractRandomSequenceGenerator
   rng::MersenneTwister
   dimension::Int
   values::Vector{Float64}
@@ -20,7 +20,7 @@ end
 
 InverseCumulativeRSG(seed::Int, dimension::Int = 1, weight::Float64 = 1.0) = InverseCumulativeRSG(MersenneTwister(seed), dimension, zeros(dimension), weight)
 
-type SobolRSG <: AbstractRandomSequenceGenerator
+mutable struct SobolRSG <: AbstractRandomSequenceGenerator
   rng::Sobol.SobolSeq
   dimension::Int
   values::Vector{Float64}
@@ -29,7 +29,7 @@ end
 
 SobolRSG(dimension::Int = 1, weight::Float64 = 1.0) = SobolRSG(SobolSeq(dimension), dimension, zeros(dimension), weight)
 
-type SobolInverseCumulativeRSG <: AbstractRandomSequenceGenerator
+mutable struct SobolInverseCumulativeRSG <: AbstractRandomSequenceGenerator
   rng::Sobol.SobolSeq
   dimension::Int
   values::Vector{Float64}

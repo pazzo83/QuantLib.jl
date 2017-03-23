@@ -25,7 +25,7 @@ function calibrate_model{M <: ShortRateModel}(model::M, helpers::Vector{Swaption
     implied = implied_volatility!(helpers[i], npv, 1e-4, 1000, 0.05, 0.50)
     diff = implied - swaptionVols[k]
 
-    println(@sprintf("%i x %i: model %.5f%%, market: %.5f%% (%.5f%%)", i, Int(swaptionLengths[j]), implied * 100, swaptionVols[k] * 100, diff * 100))
+    println(@sprintf("%i x %i: model %.5f%%, market: %.5f%% (%.5f%%)", i, Dates.value(swaptionLengths[j]), implied * 100, swaptionVols[k] * 100, diff * 100))
   end
 end
 
