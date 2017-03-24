@@ -1,4 +1,4 @@
-immutable IborIndex{TP <: TenorPeriod, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
+struct IborIndex{TP <: TenorPeriod, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
   familyName::String
   tenor::TP
   fixingDays::Int
@@ -22,12 +22,18 @@ immutable IborIndex{TP <: TenorPeriod, CUR <: AbstractCurrency, B <: BusinessCal
   #                                                                                           endOfMonth, dc, ts)
 end
 
-IborIndex{TP <: TenorPeriod, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::String, tenor::TP, fixingDays::Int, currency::CUR,
-          fixingCalendar::B, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) =
+IborIndex{TP <: TenorPeriod, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::String,
+                                                                                                          tenor::TP,
+                                                                                                          fixingDays::Int,
+                                                                                                          currency::CUR,
+                                                                                                          fixingCalendar::B,
+                                                                                                          convention::C,
+                                                                                                          endOfMonth::Bool,
+                                                                                                          dc::DC, ts::T = NullTermStructure()) =
           IborIndex{TP, CUR, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, convention, endOfMonth, dc, ts, Dict{Date, Float64}())
 
 
-immutable LiborIndex{TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
+struct LiborIndex{TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
   familyName::String
   tenor::TP
   fixingDays::Int
@@ -47,9 +53,17 @@ immutable LiborIndex{TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayC
 end
 
 # catch all constructor #
-LiborIndex{TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::String, tenor::TP, fixingDays::Int, currency::Currency, fixingCalendar::B,
-                  jointCalendar::JointCalendar, convention::C, endOfMonth::Bool, dc::DC, ts::T = NullTermStructure()) = LiborIndex{TP, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, jointCalendar, convention,
-                                                                                          endOfMonth, dc, ts, Dict{Date, Float64}())
+LiborIndex{TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::String,
+                                                                                                              tenor::TP,
+                                                                                                              fixingDays::Int,
+                                                                                                              currency::Currency,
+                                                                                                              fixingCalendar::B,
+                                                                                                              jointCalendar::JointCalendar,
+                                                                                                              convention::C,
+                                                                                                              endOfMonth::Bool,
+                                                                                                              dc::DC,
+                                                                                                              ts::T = NullTermStructure()) =
+        LiborIndex{TP, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, jointCalendar, convention, endOfMonth, dc, ts, Dict{Date, Float64}())
 
 
 function LiborIndex(familyName::String, tenor::TenorPeriod, fixingDays::Int, currency::Currency, fixingCalendar::BusinessCalendar, dc::DayCount, yts::YieldTermStructure)
@@ -115,8 +129,10 @@ end
 maturity_date(idx::LiborIndex, d::Date) = advance(idx.tenor.period, idx.jointCalendar, d, idx.convention)
 
 # types of indexes
-euribor_index(tenor::TenorPeriod) = IborIndex("Euribor", tenor, 2, EURCurrency(), QuantLib.Time.TargetCalendar(), euribor_conv(tenor.period), euribor_eom(tenor.period), QuantLib.Time.Actual360())
-euribor_index(tenor::TenorPeriod, ts::TermStructure) = IborIndex("Euribor", tenor, 2, EURCurrency(), QuantLib.Time.TargetCalendar(), euribor_conv(tenor.period), euribor_eom(tenor.period), QuantLib.Time.Actual360(), ts)
+euribor_index(tenor::TenorPeriod) = IborIndex("Euribor", tenor, 2, EURCurrency(), QuantLib.Time.TargetCalendar(), euribor_conv(tenor.period),
+                                              euribor_eom(tenor.period), QuantLib.Time.Actual360())
+euribor_index(tenor::TenorPeriod, ts::TermStructure) = IborIndex("Euribor", tenor, 2, EURCurrency(), QuantLib.Time.TargetCalendar(), euribor_conv(tenor.period),
+                                                                  euribor_eom(tenor.period), QuantLib.Time.Actual360(), ts)
 
 function usd_libor_index(tenor::TenorPeriod, yts::YieldTermStructure)
   return LiborIndex("USDLibor", tenor, 2, USDCurrency(), QuantLib.Time.USSettlementCalendar(), QuantLib.Time.Actual360(), yts)

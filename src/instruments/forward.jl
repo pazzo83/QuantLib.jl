@@ -1,4 +1,4 @@
-type ForwardRateAgreement{DC <: DayCount, BC <: BusinessCalendar, C <: BusinessDayConvention, Y <: YieldTermStructure, P <: PositionType, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} <: AbstractForward
+mutable struct ForwardRateAgreement{DC <: DayCount, BC <: BusinessCalendar, C <: BusinessDayConvention, Y <: YieldTermStructure, P <: PositionType, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} <: AbstractForward
   lazyMixin::LazyMixin
   underlyingIncome::Float64
   underlyingSpotValue::Float64
@@ -17,9 +17,14 @@ type ForwardRateAgreement{DC <: DayCount, BC <: BusinessCalendar, C <: BusinessD
   iborIndex::IborIndex{TP, CUR, IB, IC, IDC, IT}
 end
 
-function ForwardRateAgreement{P <: PositionType, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure, Y <: YieldTermStructure}(valueDate::Date,
-                              maturityDate::Date, position::P, strikeForward::Float64, notionalAmount::Float64,
-                              iborIndex::IborIndex{TP, CUR, IB, IC, IDC, IT}, discountCurve::Y)
+function ForwardRateAgreement{P <: PositionType, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure, Y <: YieldTermStructure}(
+                              valueDate::Date,
+                              maturityDate::Date,
+                              position::P,
+                              strikeForward::Float64,
+                              notionalAmount::Float64,
+                              iborIndex::IborIndex{TP, CUR, IB, IC, IDC, IT},
+                              discountCurve::Y)
   calendar = iborIndex.fixingCalendar
   convention = iborIndex.convention
   settlementDays = iborIndex.fixingDays

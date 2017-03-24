@@ -8,7 +8,7 @@ end
 
 function TransformedGrid(grid::Vector{Float64}, f::Function)
   n = length(grid)
-  transformedGrid = f(grid)
+  transformedGrid = f.(grid)
   dxm = zeros(n)
   dxp = zeros(n)
   dx = zeros(n)

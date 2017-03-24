@@ -29,7 +29,7 @@ function discount(tr::OneFactorShortRateTree, i::Int, idx::Int)
   x = get_underlying(tr.tree, i, idx)
   # r = 1.0
   # try
-  r = short_rate(tr.dynamics, tr.tg.times[i], x)::Float64
+  r = short_rate(tr.dynamics, tr.tg.times[i], x)
   # catch e
   #   println(e)
   #   println(i)

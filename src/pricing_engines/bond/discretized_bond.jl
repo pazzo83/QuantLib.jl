@@ -67,7 +67,7 @@ function apply_callability!(dcb::DiscretizedCallableFixedRateBond, ::Call, i::In
   # for j in eachindex(dcb.common.values)
   #   dcb.common.values[j] = min(dcb.args.callabilityPrices[i], dcb.common.values[j])
   # end
-  dcb.common.values = min(dcb.args.callabilityPrices[i], dcb.common.values)
+  dcb.common.values = min.(dcb.args.callabilityPrices[i], dcb.common.values)
   return dcb
 end
 

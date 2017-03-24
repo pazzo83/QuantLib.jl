@@ -1,7 +1,7 @@
 ### Based off of Ito.jl
-immutable NullCurrency <: AbstractCurrency end
+struct NullCurrency <: AbstractCurrency end
 
-immutable Currency{S <: AbstractString, S2 <: AbstractString, S3 <: AbstractString} <: AbstractCurrency
+struct Currency{S <: AbstractString, S2 <: AbstractString, S3 <: AbstractString} <: AbstractCurrency
 	name::S
 	code::S
 	numeric::Int

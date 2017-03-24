@@ -1,4 +1,4 @@
-type CallableFixedRateBond{L <: Leg, DC <: DayCount, P <: PricingEngine, P2 <: PricingEngine} <: AbstractCallableBond
+mutable struct CallableFixedRateBond{L <: Leg, DC <: DayCount, P <: PricingEngine, P2 <: PricingEngine} <: AbstractCallableBond
   lazyMixin::LazyMixin
   bondMixin::BondMixin
   faceAmount::Float64
@@ -14,9 +14,16 @@ type CallableFixedRateBond{L <: Leg, DC <: DayCount, P <: PricingEngine, P2 <: P
   blackVolQuote::Quote
 end
 
-function CallableFixedRateBond{DC <: DayCount, P <: PricingEngine}(settlementDays::Int, faceAmount::Float64, schedule::Schedule, coupons::Vector{Float64},
-                              accrualDayCounter::DC, paymentConvention::BusinessDayConvention, redemption::Float64, issueDate::Date,
-                              putCallSchedule::CallabilitySchedule, pe::P)
+function CallableFixedRateBond{DC <: DayCount, P <: PricingEngine}(settlementDays::Int,
+                                                                  faceAmount::Float64,
+                                                                  schedule::Schedule,
+                                                                  coupons::Vector{Float64},
+                                                                  accrualDayCounter::DC,
+                                                                  paymentConvention::BusinessDayConvention,
+                                                                  redemption::Float64,
+                                                                  issueDate::Date,
+                                                                  putCallSchedule::CallabilitySchedule,
+                                                                  pe::P)
   maturityDate = schedule.dates[end]
 
   # build bond
@@ -54,7 +61,7 @@ function accrued(bond::CallableFixedRateBond, d::Date)
   return 0.0
 end
 
-type CallableBondArgs{F <: Frequency}
+mutable struct CallableBondArgs{F <: Frequency}
   couponDates::Vector{Date}
   couponAmounts::Vector{Float64}
   redemption::Float64

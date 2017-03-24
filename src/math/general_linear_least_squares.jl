@@ -53,7 +53,7 @@ function calculate!{T}(glls::GeneralLinearLeastSquares, x::Vector{Float64}, y::V
   end
   # println(glls.a)
   # error("DIE")
-  glls.err = sqrt(glls.err)
+  glls.err = sqrt.(glls.err)
   tmp = A * glls.a
   glls.residuals = tmp - y
 

@@ -1,5 +1,5 @@
-struct TenorPeriod
-  period::Dates.Period
+struct TenorPeriod{P <: Dates.Period}
+  period::P
   freq::Frequency
 end
 

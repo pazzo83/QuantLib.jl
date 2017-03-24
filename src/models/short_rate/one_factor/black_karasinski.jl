@@ -70,7 +70,7 @@ function tree(model::BlackKarasinski, grid::TimeGrid)
 
   numericDynamics = BlackKarasinskiDynamics(phi, get_a(model), get_sigma(model))
   trinomial = TrinomialTree(numericDynamics.process, grid)
-  numericTree = OneFactorShortRateTree{BlackKarasinskiDynamics, typeof(numericDynamics.process)}(trinomial, numericDynamics, grid)
+  numericTree = OneFactorShortRateTree{typeof(numericDynamics), typeof(numericDynamics.process)}(trinomial, numericDynamics, grid)
 
   reset_param_impl!(phi)
 

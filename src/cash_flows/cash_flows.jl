@@ -110,65 +110,6 @@ get_pay_dates{C <: Coupon}(coups::Vector{C}) = Date[date(coup) for coup in coups
 
 get_reset_dates{C <: Coupon}(coups::Vector{C}) = Date[accrual_start_date(coup) for coup in coups]
 
-
-## Pricer Methods ##
-# function initialize!(pricer::IborCouponPricer, coupon::IborCoupon)
-#   # stuff
-#   if !pricer.initialized
-#     payment_date = date(coupon)
-#     if payment_date > coupon.iborIndex.yts.referenceDate
-#       pricer.discount = discount(yts, payment_date)
-#     else
-#       pricer.discount = 1.0
-#     end
-#     pricer.spreadLegValue = coupon.spread * accrual_period(coupon) * pricer.discount
-#
-#     pricer.initialized = true
-#   end
-#
-#   return pricer
-# end
-#
-# function adjusted_fixing(pricer::BlackIborCouponPricer, coupon::IborCoupon, yts::YieldTermStructure, cap_vol::OptionletVolatilityStructure,
-#                         fixing::Float64 = index_fixing(coupon, yts))
-#   # stuff
-#   if !coupon.isInArrears
-#     return fixing
-#   end
-#
-#   d1 = coupon.fixingDate
-#   ref_date = cap_vol.referenceDate
-#
-#   if d1 <= ref_date
-#     return fixing
-#   end
-#
-#   d2 = value_date(coupon.iborIndex, d1)
-#   d3 = maturity_date(coupon.iborIndex, d2)
-#   tau = year_fraction(coupon.iborIndex.dc, d2, d3)
-#   variance = black_variance(cap_vol, d1, fixing)
-#   adjustment = fixing * fixing * variance * tau / (1.0 + fixing * tau)
-#   return fixing + adjustment
-# end
-#
-# function swaplet_price(pricer::BlackIborCouponPricer, coupon::IborCoupon, yts::YieldTermStructure, cap_vol::OptionletVolatilityStructure)
-#   swapl_price = adjusted_fixing(pricer, coupon, yts, cap_vol) * accrual_period(coupon) * pricer.discount
-#   return coupon.gearing * swapl_price + pricer.spreadLegValue
-# end
-#
-# swaplet_rate(pricer::BlackIborCouponPricer, coupon::IborCoupon, yts::YieldTermStructure, cap_vol::OptionletVolatilityStructure) =
-#   swaplet_price(pricer, coupon, yts) / (accrual_period(coupon) * pricer.discount)
-
-
-## Floating Rate Coupon Methods ##
-# function calc_rate(coupon::IborCoupon, yts::YieldTermStructure, cap_vol::OptionletVolatilityStructure)
-#   # first initialize pricer
-#   initialize!(coupon.pricer, coupon, yts)
-#
-#   # then get swaplet rate
-#   return swaplet_rate(coupon.pricer, coupon, yts, cap_vol)
-# end
-
 ## NPV METHODS ##
 function _npv_reduce(coup::Coupon, yts::YieldTermStructure, settlement_date::Date)
   if has_occurred(coup, settlement_date)
@@ -208,17 +149,8 @@ function npv(leg::Leg, y::InterestRate, include_settlement_cf::Bool, settlement_
     coupon_date = date(cp)
     amount_ = amount(cp)
 
-    # if isa(cp, Coupon)
     ref_start_date = ref_period_start(cp)
     ref_end_date = ref_period_end(cp)
-    # else
-    #   if last_date == npv_date
-    #     ref_start_date = coupon_date - Dates.Year(1)
-    #   else
-    #     ref_start_date = last_date
-    #   end
-    #   ref_end_date = coupon_date
-    # end
 
     b = discount_factor(y, last_date, coupon_date, ref_start_date, ref_end_date)
 
@@ -336,18 +268,8 @@ function duration(::ModifiedDuration, leg::Leg, y::InterestRate, dc::DayCount, i
 
     c = amount(cp)
     coupon_date = date(cp)
-    # if isa(cp, FixedRateCoupon)
     ref_start_date = ref_period_start(cp)
     ref_end_date = ref_period_end(cp)
-    # else
-    #   if last_date == npv_date
-    #     ref_start_date = coupon_date - Dates.Year(1)
-    #   else
-    #     ref_start_date = last_date
-    #   end
-    #   ref_end_date = coupon_date
-    # end
-
     t += year_fraction(dc, last_date, coupon_date, ref_start_date, ref_end_date)
 
     B = discount_factor(y, t)
@@ -535,7 +457,6 @@ function yield(leg::Leg, npv::Float64, dc::DayCount, compounding::CompoundingTyp
               npv_date::Date, accuracy::Float64, max_iter::Int, guess::Float64)
   solver = NewtonSolver(max_iter)
   obj_fun = IRRFinder(leg, npv, dc, compounding, freq, include_settlement_cf, settlement_date, npv_date)
-  solve(solver, obj_fun, accuracy, guess, guess / 10.0)
   return solve(solver, obj_fun, accuracy, guess, guess / 10.0)
 end
 

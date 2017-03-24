@@ -1,13 +1,21 @@
 using QuantLib.Time
 
-type FixedRateCoupon{DC <: DayCount, DCI <: DayCount, C <: CompoundingType, F <: Frequency} <: Coupon
+mutable struct FixedRateCoupon{DC <: DayCount, DCI <: DayCount, C <: CompoundingType, F <: Frequency} <: Coupon
   couponMixin::CouponMixin{DC}
   paymentDate::Date
   nominal::Float64
   rate::InterestRate{DCI, C, F}
 end
 
-FixedRateCoupon{DC <: DayCount, DCI <: DayCount, C <: CompoundingType, F <: Frequency}(paymentDate::Date, faceAmount::Float64, rate::InterestRate{DCI, C, F}, accrual_start::Date, accrual_end::Date, ref_start::Date, ref_end::Date, dc::DC, accrual::Float64) =
+FixedRateCoupon{DC <: DayCount, DCI <: DayCount, C <: CompoundingType, F <: Frequency}(paymentDate::Date,
+                                                                                      faceAmount::Float64,
+                                                                                      rate::InterestRate{DCI, C, F},
+                                                                                      accrual_start::Date,
+                                                                                      accrual_end::Date,
+                                                                                      ref_start::Date,
+                                                                                      ref_end::Date,
+                                                                                      dc::DC,
+                                                                                      accrual::Float64) =
                 FixedRateCoupon{DC, DCI, C, F}(CouponMixin{DC}(accrual_start, accrual_end, ref_start, ref_end, dc, accrual), paymentDate, faceAmount, rate)
 
 ## COUPON METHODS ##
@@ -16,12 +24,18 @@ amount(coup::FixedRateCoupon) =
 
 calc_rate(coup::FixedRateCoupon) = coup.rate.rate
 
-type FixedRateLeg{DC <: DayCount, DCI <: DayCount, C <: CompoundingType, F <: Frequency} <: Leg
+mutable struct FixedRateLeg{DC <: DayCount, DCI <: DayCount, C <: CompoundingType, F <: Frequency} <: Leg
   coupons::Vector{FixedRateCoupon{DC, DCI, C, F}}
   redemption::Nullable{SimpleCashFlow}
 end
 
-function FixedRateLeg(schedule::Schedule, faceAmount::Float64, rate::Float64, calendar::BusinessCalendar, paymentConvention::BusinessDayConvention, dc::DayCount; add_redemption::Bool = true)
+function FixedRateLeg(schedule::Schedule,
+                      faceAmount::Float64,
+                      rate::Float64,
+                      calendar::BusinessCalendar,
+                      paymentConvention::BusinessDayConvention,
+                      dc::DayCount;
+                      add_redemption::Bool = true)
   # n = add_redemption ? length(schedule.dates) : length(schedule.dates) - 1
   # coups = Vector{Union{FixedRateCoupon, SimpleCashFlow}}(n)
   #
@@ -56,8 +70,13 @@ function FixedRateLeg(schedule::Schedule, faceAmount::Float64, rate::Float64, ca
   FixedRateLeg(schedule, faceAmount, ratesVec, calendar, paymentConvention, dc; add_redemption = add_redemption)
 end
 
-function FixedRateLeg{DC <: DayCount}(schedule::Schedule, faceAmount::Float64, rates::Vector{Float64}, calendar::BusinessCalendar, paymentConvention::BusinessDayConvention, dc::DC;
-                      add_redemption::Bool = false)
+function FixedRateLeg{DC <: DayCount}(schedule::Schedule,
+                                      faceAmount::Float64,
+                                      rates::Vector{Float64},
+                                      calendar::BusinessCalendar,
+                                      paymentConvention::BusinessDayConvention,
+                                      dc::DC;
+                                      add_redemption::Bool = false)
   n = length(schedule.dates) - 1
   length(rates) == length(schedule.dates) - 1 || error("mismatch in coupon rates")
 
