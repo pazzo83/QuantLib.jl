@@ -48,4 +48,4 @@ bermudanOption = VanillaOption(payoff, bermudanExercise, fdBermudanPE)
 
 @test npv(europeanOption) == 3.8443077915968398
 @test npv(americanOption) == 4.459627613776478
-@test npv(bermudanOption) == 4.3608068625088645
+@test npv(bermudanOption) == 4.360806862508797

@@ -35,7 +35,7 @@ zcb = ZeroCouponBond(3, zcb_cal, 100.0, Date(2013, 8, 15), QuantLib.Time.Followi
 @test dirty_price(fixedrate_bond) == 94.67245111530346
 @test clean_price(fixedrate_bond) == 93.13169024573823
 
-@test QuantLib.get_redemption(fixedrate_bond) == fixedrate_bond.cashflows[end]
+@test QuantLib.get_redemption(fixedrate_bond) == get(fixedrate_bond.cashflows.redemption)
 @test QuantLib.get_frequency(fixedrate_bond) == QuantLib.Time.Semiannual()
 
 # Zero coupon bond calculations
@@ -71,7 +71,7 @@ mat = Date(2012, 9, 15)
 
 settlementDays = 3
 bondCal = QuantLib.Time.USGovernmentBondCalendar()
-coupon = 0.0465
+coupon = [0.0465]
 freq = QuantLib.Time.Quarterly()
 redemption = 100.0
 
@@ -92,5 +92,5 @@ engine0 = TreeCallableFixedRateEngine(hw0, gridIntervals)
 
 callableBond = CallableFixedRateBond(settlementDays, faceAmount, schedule, coupon, bondDayCount, paymentConvention, redemption, issue, callSchedule, engine0)
 
-@test clean_price(callableBond) == 96.46794584230878
+@test clean_price(callableBond) == 96.46794584230872
 @test QuantLib.yield(callableBond, bondDayCount, CompoundedCompounding(), freq, accuracy, maxIter) == 0.054753332138061515

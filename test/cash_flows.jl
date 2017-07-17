@@ -46,7 +46,7 @@ floating_bond = FloatingRateBond(settlement_days, face_amount, fb_schedule, libo
 @test ref_period_start(fixedrate_bond.cashflows.coupons[1]) == Date(2007, 5, 15)
 @test ref_period_end(fixedrate_bond.cashflows.coupons[1]) == Date(2007, 11, 15)
 @test QuantLib.accrual_period(fixedrate_bond.cashflows.coupons[1]) == 0.5
-@test QuantLib.get_latest_coupon(fixedrate_bond.cashflows) == fixedrate_bond.cashflows.coupons[end-1]
+@test QuantLib.get_latest_coupon(fixedrate_bond.cashflows) == fixedrate_bond.cashflows.coupons[end]
 
 # test NPV calculations
 @test npv(fixedrate_bond.cashflows, ts, ts.referenceDate, ts.referenceDate) == 94.67245111530346
