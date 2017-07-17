@@ -1,4 +1,4 @@
-type BatesModel{CalibratedModelType} <: Model{CalibratedModelType}
+mutable struct BatesModel{CalibratedModelType} <: Model{CalibratedModelType}
   modT::CalibratedModelType
   hestonModel::HestonModel
   nu::ConstantParameter

@@ -26,5 +26,5 @@ function perform_calculations!(inst::Instrument)
 end
 
 ## MISC TYPES ##
-type LongPosition <: PositionType end
-type ShortPosition <: PositionType end
+struct LongPosition <: PositionType end
+struct ShortPosition <: PositionType end

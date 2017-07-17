@@ -1,4 +1,4 @@
-type SwapRateTrigger <: ExerciseStrategy
+mutable struct SwapRateTrigger <: ExerciseStrategy
   rateTimes::Vector{Float64}
   swapTriggers::Vector{Float64}
   exerciseTimes::Vector{Float64}

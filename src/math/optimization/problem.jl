@@ -1,6 +1,6 @@
 using QuantLib
 
-type Problem{F <: CostFunction, C <: Constraint, T}
+mutable struct Problem{F <: CostFunction, C <: Constraint, T}
   costFunction::F
   constraint::C
   initialValue::Vector{T}

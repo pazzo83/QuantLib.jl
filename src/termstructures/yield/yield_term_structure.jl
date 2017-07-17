@@ -1,6 +1,6 @@
 # main term structures
 
-type NullYieldTermStructure <: YieldTermStructure end
+struct NullYieldTermStructure <: YieldTermStructure end
 
 # function calculate!{T <: TermStructure}(ts::T, recalculate::Bool=false)
 #   if !ts.calculated || recalculate
@@ -10,12 +10,12 @@ type NullYieldTermStructure <: YieldTermStructure end
 #   return ts
 # end
 
-type JumpDate
+struct JumpDate
   ts_quote::Quote
   ts_date::Date
 end
 
-type JumpTime
+struct JumpTime
   ts_quote::Quote
   ts_time::Float64
 end
@@ -84,7 +84,7 @@ function forward_rate{T <: YieldTermStructure, C <: CompoundingType, F <: Freque
 end
 
 ## FlatForwardTermStructure
-type FlatForwardTermStructure{B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency} <: YieldTermStructure
+mutable struct FlatForwardTermStructure{B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency} <: YieldTermStructure
   settlementDays::Int
   referenceDate::Date
   calendar::B

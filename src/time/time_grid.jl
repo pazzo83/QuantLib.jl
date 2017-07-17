@@ -2,7 +2,7 @@ using QuantLib
 
 import Base.getindex, Base.endof
 
-type TimeGrid
+mutable struct TimeGrid
   times::Vector{Float64}
   dt::Vector{Float64}
   mandatoryTimes::Vector{Float64}

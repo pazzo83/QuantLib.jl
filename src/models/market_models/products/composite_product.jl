@@ -1,4 +1,4 @@
-type SubProduct{M <: MarketModelMultiProduct}
+mutable struct SubProduct{M <: MarketModelMultiProduct}
   product::M
   multiplier::Float64
   numberOfCashflows::Vector{Int}
@@ -12,7 +12,7 @@ SubProduct(product::MarketModelMultiProduct, multiplier::Float64, isDone::Bool) 
           SubProduct(product, multiplier, Vector{Int}(), Vector{Vector{MarketModelCashFlow}}(), Vector{Int}(), isDone)
 
 
-type MarketModelComposite <: MarketModelMultiProduct
+mutable struct MarketModelComposite <: MarketModelMultiProduct
   components::Vector{SubProduct}
   rateTimes::Vector{Float64}
   evolutionTimes::Vector{Float64}

@@ -1,4 +1,4 @@
-type SwapRateHelper{PrT <: Dates.Period, PrS <: Dates.Period} <: RateHelper
+mutable struct SwapRateHelper{PrT <: Dates.Period, PrS <: Dates.Period} <: RateHelper
   rate::Quote
   tenor::PrT
   fwdStart::PrS
@@ -39,7 +39,7 @@ end
 
 maturity_date(sh::SwapRateHelper) = maturity_date(sh.swap)
 
-type DepositRateHelper{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount} <: RateHelper
+struct DepositRateHelper{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount} <: RateHelper
   rate::Quote
   tenor::TenorPeriod
   fixingDays::Int
@@ -90,7 +90,7 @@ function implied_quote(rh::RateHelper)
   return fixing(rh.iborIndex, rh.iborIndex.ts, rh.fixingDate, true)
 end
 
-type FraRateHelper{D <: Dates.Period, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} <: RateHelper
+struct FraRateHelper{D <: Dates.Period, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} <: RateHelper
   rate::Quote
   evaluationDate::Date
   periodToStart::D

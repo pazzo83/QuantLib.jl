@@ -8,6 +8,7 @@ This package aims to provide a pure Julia version of the popular open source lib
 ```julia
 Pkg.clone("https://github.com/pazzo83/QuantLib.jl.git")
 ```
+Note: only supports versions of Julia 0.6 and up
 
 The package essentially contains the main QuantLib module and two sub-modules for various time-based and math-based operations.  Below is a fairly up-to-date status of what is included.
 

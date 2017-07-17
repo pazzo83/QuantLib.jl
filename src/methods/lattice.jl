@@ -1,6 +1,6 @@
-type NullLattice <: Lattice end
+struct NullLattice <: Lattice end
 
-type Branching
+mutable struct Branching
   k::Vector{Int}
   probs::Vector{Vector{Float64}}
   kMin::Int
@@ -17,7 +17,7 @@ function Branching()
   return Branching(zeros(Int, 0), probs, typemax(Int), typemax(Int), typemin(Int), typemin(Int))
 end
 
-type TrinomialTree{S <: StochasticProcess} <: AbstractTree
+mutable struct TrinomialTree{S <: StochasticProcess} <: AbstractTree
   process::S
   timeGrid::TimeGrid
   dx::Vector{Float64}
@@ -128,7 +128,7 @@ function rebuild_tree!(tt::TrinomialTree, timeGrid::TimeGrid)
   return tt
 end
 
-type TreeLattice1D{T <: TreeLattice} <: TreeLattice
+mutable struct TreeLattice1D{T <: TreeLattice} <: TreeLattice
   tg::TimeGrid
   impl::T
   statePrices::Vector{Vector{Float64}}
@@ -156,7 +156,7 @@ function get_grid(lat::TreeLattice1D, t::Float64)
   return grid
 end
 
-type TreeLattice2D{T <: TreeLattice} <: TreeLattice
+mutable struct TreeLattice2D{T <: TreeLattice} <: TreeLattice
   tg::TimeGrid
   impl::T
   statePrices::Vector{Vector{Float64}}

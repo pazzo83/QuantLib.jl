@@ -1,4 +1,4 @@
-type NothingExerciseValue <: MarketModelExerciseValue
+mutable struct NothingExerciseValue <: MarketModelExerciseValue
   numberOfExercises::Int
   rateTimes::Vector{Float64}
   isExerciseTime::BitArray{1}

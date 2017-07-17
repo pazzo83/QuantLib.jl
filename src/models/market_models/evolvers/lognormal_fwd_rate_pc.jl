@@ -1,4 +1,4 @@
-type LogNormalFwdRatePc{M <: AbstractMarketModel, G <: BrownianGenerator} <: AbstractMarketModelEvolver
+mutable struct LogNormalFwdRatePc{M <: AbstractMarketModel, G <: BrownianGenerator} <: AbstractMarketModelEvolver
   marketModel::M
   numeraires::Vector{Int}
   initialStep::Int

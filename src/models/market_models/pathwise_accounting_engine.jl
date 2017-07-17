@@ -10,7 +10,7 @@
 # This implementation is different in that all the linear combinations by the bumps are done as late as possible,
 # whereas PathwiseVegasAccountingEngine does them as early as possible.
 
-type PathwiseVegasOuterAccountingEngine{P <: MarketModelPathwiseMultiProduct, M <: AbstractMarketModel}
+mutable struct PathwiseVegasOuterAccountingEngine{P <: MarketModelPathwiseMultiProduct, M <: AbstractMarketModel}
   evolver::LogNormalFwdRateEuler
   product::P
   pseudoRootStructure::M

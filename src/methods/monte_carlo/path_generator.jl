@@ -1,4 +1,4 @@
-type PathGenerator{RSG <: AbstractRandomSequenceGenerator, S <: StochasticProcess1D}
+mutable struct PathGenerator{RSG <: AbstractRandomSequenceGenerator, S <: StochasticProcess1D}
   brownianBridge::Bool
   generator::RSG
   dimension::Int

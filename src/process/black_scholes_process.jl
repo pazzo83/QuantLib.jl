@@ -1,7 +1,7 @@
-type GeneralBlackScholesType <: BlackScholesType end
-type BlackScholesMertonType <: BlackScholesType end
+struct GeneralBlackScholesType <: BlackScholesType end
+struct BlackScholesMertonType <: BlackScholesType end
 
-type GeneralizedBlackScholesProcess{Y1 <: YieldTermStructure, Y2 <: YieldTermStructure, B <: BlackVolTermStructure, D <: AbstractDiscretization, BST <: BlackScholesType} <: AbstractBlackScholesProcess
+struct GeneralizedBlackScholesProcess{Y1 <: YieldTermStructure, Y2 <: YieldTermStructure, B <: BlackVolTermStructure, D <: AbstractDiscretization, BST <: BlackScholesType} <: AbstractBlackScholesProcess
   x0::Quote
   riskFreeRate::Y1
   dividendYield::Y2

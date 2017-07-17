@@ -1,8 +1,8 @@
 # Curves
 
-type NullCurve <: Curve end
+struct NullCurve <: Curve end
 
-type FittingCost <: CostFunction
+mutable struct FittingCost <: CostFunction
   # value::Vector{Float64}
   # values::Vector{Float64}
   firstCashFlow::Vector{Int}

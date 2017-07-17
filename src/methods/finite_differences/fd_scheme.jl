@@ -1,17 +1,17 @@
-immutable Hundsdorfer <: FdmSchemeDescType end
-immutable Douglas <: FdmSchemeDescType end
+struct Hundsdorfer <: FdmSchemeDescType end
+struct Douglas <: FdmSchemeDescType end
 
-type FdmSchemeDesc{F <: FdmSchemeDescType}
+mutable struct FdmSchemeDesc{F <: FdmSchemeDescType}
   schemeType::F
   theta::Float64
   mu::Float64
 end
 
-FdmSchemeDesc(t::Hundsdorfer) = FdmSchemeDesc(t, 0.5 + sqrt(3.0) / 6.0, 0.5)
-FdmSchemeDesc(t::Douglas) = FdmSchemeDesc(t, 0.5, 0.0)
+FdmSchemeDesc(t::Hundsdorfer) = FdmSchemeDesc{Hundsdorfer}(t, 0.5 + sqrt(3.0) / 6.0, 0.5)
+FdmSchemeDesc(t::Douglas) = FdmSchemeDesc{Douglas}(t, 0.5, 0.0)
 
 ## Schemes ##
-type HundsdorferScheme <: FdScheme
+mutable struct HundsdorferScheme <: FdScheme
   theta::Float64
   mu::Float64
   map::FdmLinearOpComposite
@@ -21,7 +21,7 @@ end
 
 HundsdorferScheme(theta::Float64, mu::Float64, map::FdmLinearOpComposite, bcSet::FdmBoundaryConditionSet) = HundsdorferScheme(theta, mu, map, bcSet, 0.0)
 
-type DouglasScheme <: FdScheme
+mutable struct DouglasScheme <: FdScheme
   theta::Float64
   map::FdmLinearOpComposite
   bcSet::FdmBoundaryConditionSet
@@ -30,7 +30,7 @@ end
 
 DouglasScheme(theta::Float64, map::FdmLinearOpComposite, bcSet::FdmBoundaryConditionSet) = DouglasScheme(theta, map, bcSet, 0.0)
 
-type MixedScheme <: FdScheme
+mutable struct MixedScheme <: FdScheme
   L::TridiagonalOperator
   Ident::TridiagonalOperator
   dt::Float64
@@ -83,7 +83,7 @@ function step!(evolver::MixedScheme, a::Vector{Float64}, t::Float64)
     for i in eachindex(evolver.bcSet.conditions)
       apply_before_solving!(evolver.bcSet.conditions[i], evolver.implicitPart, a)
     end
-    solve_for!(evolver.implicitPart, a, a)
+    a[:] = solve_for(evolver.implicitPart, a)
     for i in eachindex(evolver.bcSet.conditions)
       apply_after_solving!(evolver.bcSet.conditions[i], a)
     end
@@ -92,7 +92,7 @@ function step!(evolver::MixedScheme, a::Vector{Float64}, t::Float64)
   return a, evolver
 end
 
-type ParallelEvolver{E <: FdScheme} <: FdScheme
+mutable struct ParallelEvolver{E <: FdScheme} <: FdScheme
   evolvers::Vector{E}
 end
 

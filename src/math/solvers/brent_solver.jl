@@ -1,4 +1,4 @@
-type BrentSolver <: Solver1D
+struct BrentSolver <: Solver1D
   solverInfo::SolverInfo
 end
 BrentSolver(maxEvals::Int = 100, lowerBoundEnforced::Bool = false, upperBoundEnforced::Bool = false, lowerBound::Float64 = 0.0, upperBound::Float64 = 0.0) =

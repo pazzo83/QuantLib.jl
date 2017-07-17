@@ -1,4 +1,4 @@
-type BlackCalculator{S <: StrikedTypePayoff}
+mutable struct BlackCalculator{S <: StrikedTypePayoff}
   payoff::S
   strike::Float64
   forward::Float64

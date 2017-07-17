@@ -1,4 +1,4 @@
-mutable struct Gaussian1DNonstandardSwaptionEngine{G <: Gaussian1DModel, Y <: YieldTermStructure, P <: GaussianProbabilities} <: PricingEngine
+struct Gaussian1DNonstandardSwaptionEngine{G <: Gaussian1DModel, Y <: YieldTermStructure, P <: GaussianProbabilities} <: PricingEngine
   model::G
   integrationPoints::Int
   stddevs::Float64

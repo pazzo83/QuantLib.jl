@@ -1,6 +1,6 @@
 # using FloatFloat
 
-type FittingMethodCommons{T <: Real}
+mutable struct FittingMethodCommons{T <: Real}
   solution::Vector{T}
   guessSolution::Vector{T}
   numberOfIterations::Int
@@ -24,7 +24,7 @@ function FittingMethodCommons(size::Int, gsize::Int)
   return FittingMethodCommons(solution, guessSolution, numberOfIterations, minimumCostValue, weights, costFunction)
 end
 
-type ExponentialSplinesFitting <: FittingMethod
+mutable struct ExponentialSplinesFitting <: FittingMethod
   constrainAtZero::Bool
   size::Int
   commons::FittingMethodCommons
@@ -42,7 +42,7 @@ function ExponentialSplinesFitting(constrainAtZero::Bool, size::Int)
   return ExponentialSplinesFitting(constrainAtZero, gsize, commons)
 end
 
-type SimplePolynomialFitting <: FittingMethod
+mutable struct SimplePolynomialFitting <: FittingMethod
   constrainAtZero::Bool
   degree::Int
   size::Int
@@ -61,7 +61,7 @@ function SimplePolynomialFitting(constrainAtZero::Bool, degree::Int, size::Int)
   return SimplePolynomialFitting(constrainAtZero, degree, gsize, commons)
 end
 
-type NelsonSiegelFitting <: FittingMethod
+mutable struct NelsonSiegelFitting <: FittingMethod
   constrainAtZero::Bool
   size::Int
   commons::FittingMethodCommons
@@ -76,7 +76,7 @@ function NelsonSiegelFitting(size::Int)
   return NelsonSiegelFitting(constrainAtZero, gsize, commons)
 end
 
-type SvenssonFitting <: FittingMethod
+mutable struct SvenssonFitting <: FittingMethod
   constrainAtZero::Bool
   size::Int
   commons::FittingMethodCommons
@@ -91,7 +91,7 @@ function SvenssonFitting(size::Int)
   return SvenssonFitting(constrainAtZero, gsize, commons)
 end
 
-type CubicBSplinesFitting <: FittingMethod
+mutable struct CubicBSplinesFitting <: FittingMethod
   constrainAtZero::Bool
   size::Int
   knots::Vector{Float64}

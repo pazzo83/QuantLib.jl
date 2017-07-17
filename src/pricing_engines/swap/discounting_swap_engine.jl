@@ -34,12 +34,12 @@ function _calculate!{S <: Swap}(pe::DiscountingSwapEngine, swap::S)
     swap.results.legNPV[i] *= swap.payer[i]
     swap.results.legBPS[i] *= swap.payer[i]
 
-    d1 = accrual_start_date(leg.coupons[1])
+    d1 = accrual_start_date(leg.coupons[1])::Date
     if d1 >= ref_date
       swap.results.startDiscounts[i] = discount(yts, d1)
     end
 
-    d2 = accrual_end_date(leg.coupons[end])
+    d2 = accrual_end_date(leg.coupons[end])::Date
     if (d2 >= ref_date)
       swap.results.endDiscounts[i] = discount(yts, d2)
     end

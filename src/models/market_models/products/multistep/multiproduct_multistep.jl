@@ -1,4 +1,4 @@
-type MultiProductMultiStepCommon
+struct MultiProductMultiStepCommon
   rateTimes::Vector{Float64}
   evolution::EvolutionDescription
 end
@@ -22,7 +22,7 @@ clone(mpmsc::MultiProductMultiStepCommon) = MultiProductMultiStepCommon(copy(mpm
 rate_times(mpms::MultiProductMultiStep) = mpms.common.rateTimes
 get_evolution(mpms::MultiProductMultiStep) = mpms.common.evolution
 
-type MultiStepInverseFloater <: MultiProductMultiStep
+mutable struct MultiStepInverseFloater <: MultiProductMultiStep
   common::MultiProductMultiStepCommon
   fixedAccruals::Vector{Float64}
   floatingAccruals::Vector{Float64}
@@ -52,7 +52,7 @@ function MultiStepInverseFloater(rateTimes::Vector{Float64},
                                 payer, multiplier, length(rateTimes), 1)
 end
 
-type ExerciseAdapter{M <: MarketModelExerciseValue} <: MultiProductMultiStep
+mutable struct ExerciseAdapter{M <: MarketModelExerciseValue} <: MultiProductMultiStep
   common::MultiProductMultiStepCommon
   exercise::M
   numberOfProducts::Int

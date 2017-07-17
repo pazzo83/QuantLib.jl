@@ -1,4 +1,4 @@
-type G2SwaptionEngine{AffineModelType, Y <: YieldTermStructure} <: PricingEngine
+struct G2SwaptionEngine{AffineModelType, Y <: YieldTermStructure} <: PricingEngine
   model::G2{AffineModelType, Y}
   range::Float64
   intervals::Int

@@ -1,4 +1,4 @@
-type FiniteDifferenceNewtonSafe <: Solver1D
+struct FiniteDifferenceNewtonSafe <: Solver1D
   solverInfo::SolverInfo
 end
 FiniteDifferenceNewtonSafe(maxEvals::Int = 100, lowerBoundEnforced::Bool = false, upperBoundEnforced::Bool = false, lowerBound::Float64 = 0.0, upperBound::Float64 = 0.0) =

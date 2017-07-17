@@ -1,4 +1,4 @@
-type AnalyticEuropeanEngine{P <: AbstractBlackScholesProcess} <: PricingEngine
+struct AnalyticEuropeanEngine{P <: AbstractBlackScholesProcess} <: PricingEngine
   process::P
 end
 

@@ -1,4 +1,4 @@
-type MCEuropeanEngine{S <: AbstractBlackScholesProcess, RSG <: AbstractRandomSequenceGenerator} <: MCVanillaEngine{S, RSG}
+mutable struct MCEuropeanEngine{S <: AbstractBlackScholesProcess, RSG <: AbstractRandomSequenceGenerator} <: MCVanillaEngine{S, RSG}
   process::S
   timeSteps::Int
   timeStepsPerYear::Int
@@ -20,7 +20,7 @@ function MCEuropeanEngine{S <: AbstractBlackScholesProcess, RSG <: AbstractRando
   return MCEuropeanEngine{S, RSG}(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed, antitheticVariate, rsg)
 end
 
-type EuropeanPathPricer{OT <: OptionType} <: AbstractPathPricer
+struct EuropeanPathPricer{OT <: OptionType} <: AbstractPathPricer
   payoff::PlainVanillaPayoff{OT}
   discount::Float64
 end

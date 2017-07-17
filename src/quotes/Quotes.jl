@@ -1,6 +1,6 @@
 # Quotes
 # module Quotes # not a module anymore
-type Quote
+mutable struct Quote
   value::Float64
   is_valid::Bool
 

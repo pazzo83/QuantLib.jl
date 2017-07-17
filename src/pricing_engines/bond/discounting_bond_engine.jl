@@ -1,4 +1,4 @@
-type DiscountingBondEngine{Y <: YieldTermStructure} <: PricingEngine
+struct DiscountingBondEngine{Y <: YieldTermStructure} <: PricingEngine
   yts::Y
 
   # function call(::Type{DiscountingBondEngine})

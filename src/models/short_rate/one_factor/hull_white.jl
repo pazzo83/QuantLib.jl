@@ -1,4 +1,4 @@
-type HullWhite{AffineModelType, T <: TermStructure} <: OneFactorModel{AffineModelType}
+mutable struct HullWhite{AffineModelType, T <: TermStructure} <: OneFactorModel{AffineModelType}
   modT::AffineModelType
   r0::Float64
   a::ConstantParameter{PositiveConstraint}
@@ -19,11 +19,11 @@ function HullWhite{T <: TermStructure}(ts::T, a::Float64 = 0.1, sigma::Float64 =
 
   phi  = HullWhiteFittingParameter(a, sigma, ts)
 
-  return HullWhite(AffineModelType(), r0, a_const, sigma_const, phi, ts, privateConstraint, ModelCommon()) #, ShortRateModelCommon())
+  return HullWhite{AffineModelType, T}(AffineModelType(), r0, a_const, sigma_const, phi, ts, privateConstraint, ModelCommon()) #, ShortRateModelCommon())
 end
 
 ## Dynamics ##
-type HullWhiteDynamics{P <: Parameter} <: ShortRateDynamics
+mutable struct HullWhiteDynamics{P <: Parameter} <: ShortRateDynamics
   process::OrnsteinUhlenbeckProcess
   fitting::P
   a::Float64

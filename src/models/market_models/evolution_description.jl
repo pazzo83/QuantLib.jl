@@ -1,4 +1,4 @@
-type EvolutionDescription
+struct EvolutionDescription
   numberOfRates::Int
   rateTimes::Vector{Float64}
   evolutionTimes::Vector{Float64}

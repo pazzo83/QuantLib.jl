@@ -1,4 +1,4 @@
-mutable struct BlackSwaptionEngine{Y <: YieldTermStructure, S <: SwaptionVolatilityStructure, DC <: DayCount} <: PricingEngine
+struct BlackSwaptionEngine{Y <: YieldTermStructure, S <: SwaptionVolatilityStructure, DC <: DayCount} <: PricingEngine
   yts::Y
   vol::Quote
   volStructure::S

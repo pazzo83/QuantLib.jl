@@ -1,4 +1,4 @@
-type InterpolatedHazardRateCurve{DC <: DayCount, P <: Interpolation, B <: BusinessCalendar} <: InterpolatedDefaultProbabilityCurve{P}
+mutable struct InterpolatedHazardRateCurve{DC <: DayCount, P <: Interpolation, B <: BusinessCalendar} <: InterpolatedDefaultProbabilityCurve{P}
   settlementDays::Int
   referenceDate::Date
   dc::DC

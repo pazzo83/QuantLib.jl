@@ -1,4 +1,4 @@
-type LongstaffSchwartzExerciseStrategy{M <: MarketModelBasisSystem, E <: MarketModelExerciseValue, E2 <: MarketModelExerciseValue} <: ExerciseStrategy
+mutable struct LongstaffSchwartzExerciseStrategy{M <: MarketModelBasisSystem, E <: MarketModelExerciseValue, E2 <: MarketModelExerciseValue} <: ExerciseStrategy
   basisSystem::M
   basisCoefficients::Vector{Vector{Float64}}
   exercise::E

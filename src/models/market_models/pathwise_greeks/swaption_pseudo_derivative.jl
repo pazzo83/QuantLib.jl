@@ -1,4 +1,4 @@
-type QuickCap
+struct QuickCap
   strike::Float64
   annuities::Vector{Float64}
   currentRates::Vector{Float64}
@@ -29,7 +29,7 @@ function get_vega(qc::QuickCap, vol::Float64)
   return vega_
 end
 
-type SwaptionPseudoDerivative{M <: AbstractMarketModel}
+struct SwaptionPseudoDerivative{M <: AbstractMarketModel}
   inputModel::M
   varianceDerivatives::Vector{Matrix{Float64}}
   volatilityDerivatives::Vector{Matrix{Float64}}
@@ -118,7 +118,7 @@ function SwaptionPseudoDerivative(inputModel::AbstractMarketModel, startIndex::I
   return SwaptionPseudoDerivative(inputModel, varianceDerivatives, volatilityDerivatives, impliedVolatility, expiry, variance_)
 end
 
-type CapPseudoDerivative{M <: AbstractMarketModel}
+struct CapPseudoDerivative{M <: AbstractMarketModel}
   inputModel::M
   volatilityDerivatives::Vector{Matrix{Float64}}
   priceDerivatives::Vector{Matrix{Float64}}

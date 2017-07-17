@@ -1,4 +1,4 @@
-type BatesProcess{Y1 <: YieldTermStructure, Y2 <: YieldTermStructure, D <: AbstractDiscretization, DH <: AbstractHestonDiscretization} <: AbstractHestonProcess
+struct BatesProcess{Y1 <: YieldTermStructure, Y2 <: YieldTermStructure, D <: AbstractDiscretization, DH <: AbstractHestonDiscretization} <: AbstractHestonProcess
   hestonProcess::HestonProcess{Y1, Y2, D, DH}
   lambda::Float64
   nu::Float64

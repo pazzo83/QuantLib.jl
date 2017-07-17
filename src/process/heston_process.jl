@@ -1,8 +1,8 @@
 # discretizations
-type QuadraticExponentialMartingale <: AbstractHestonDiscretization end
-type FullTruncation <: AbstractHestonDiscretization end
+struct QuadraticExponentialMartingale <: AbstractHestonDiscretization end
+struct FullTruncation <: AbstractHestonDiscretization end
 
-type HestonProcess{Y1 <: YieldTermStructure, Y2 <: YieldTermStructure, D <: AbstractDiscretization, DH <: AbstractHestonDiscretization} <: AbstractHestonProcess
+struct HestonProcess{Y1 <: YieldTermStructure, Y2 <: YieldTermStructure, D <: AbstractDiscretization, DH <: AbstractHestonDiscretization} <: AbstractHestonProcess
   s0::Quote
   riskFreeRate::Y1
   dividendYield::Y2

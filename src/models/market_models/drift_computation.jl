@@ -1,4 +1,4 @@
-type LMMDriftCalculator
+mutable struct LMMDriftCalculator
   numberOfRates::Int
   numberOfFactors::Int
   isFullFactor::Bool

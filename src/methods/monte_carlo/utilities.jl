@@ -1,4 +1,4 @@
-type NodeData
+mutable struct NodeData
   exerciseValue::Float64
   cumulatedCashFlows::Float64
   values::Vector{Float64}

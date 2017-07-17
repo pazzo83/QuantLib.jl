@@ -1,4 +1,4 @@
-type BjerksundStenslandApproximationEngine{B <: AbstractBlackScholesProcess} <: PricingEngine
+struct BjerksundStenslandApproximationEngine{B <: AbstractBlackScholesProcess} <: PricingEngine
   process::B
 end
 

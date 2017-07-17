@@ -1,4 +1,4 @@
-type TridiagonalOperator
+mutable struct TridiagonalOperator
   diagonal::Vector{Float64}
   lowerDiagonal::Vector{Float64}
   upperDiagonal::Vector{Float64}
@@ -54,12 +54,13 @@ function solve_for!(L::TridiagonalOperator, rhs::Vector{Float64}, result::Vector
     result[j] = (rhs[j] - L.lowerDiagonal[j - 1] * result[j - 1]) / bet
   end
 
-  @simd for j = L.n-1:-1:2
-    @inbounds result[j] -= L.temp[j + 1] * result[j + 1]
+  @inbounds @simd for j = L.n-1:-1:2
+    result[j] -= (L.temp[j + 1] * result[j + 1])
+    # println(result[j])
   end
-
+  # println(result)
+  # error("DIE")
   result[1] -= L.temp[2] * result[2]
-
   return L, result
 end
 

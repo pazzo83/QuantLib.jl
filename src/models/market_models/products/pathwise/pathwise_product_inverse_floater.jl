@@ -1,4 +1,4 @@
-type MarketModelPathwiseInverseFloater <: MarketModelPathwiseMultiProduct
+mutable struct MarketModelPathwiseInverseFloater <: MarketModelPathwiseMultiProduct
   rateTimes::Vector{Float64}
   fixedAccruals::Vector{Float64}
   floatingAccruals::Vector{Float64}

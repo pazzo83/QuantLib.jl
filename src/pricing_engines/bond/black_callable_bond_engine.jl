@@ -1,4 +1,4 @@
-type BlackCallableFixedRateBondEngine{V <: CallableBondVolatilityStructure} <: PricingEngine
+struct BlackCallableFixedRateBondEngine{V <: CallableBondVolatilityStructure} <: PricingEngine
   volatility::V
 end
 

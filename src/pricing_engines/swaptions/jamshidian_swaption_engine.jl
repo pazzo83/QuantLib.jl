@@ -1,4 +1,4 @@
-type JamshidianSwaptionEngine{S <: ShortRateModel} <: PricingEngine
+struct JamshidianSwaptionEngine{S <: ShortRateModel} <: PricingEngine
   model::S
   # ts::Y
 

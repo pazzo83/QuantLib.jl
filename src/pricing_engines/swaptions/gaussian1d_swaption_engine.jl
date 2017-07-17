@@ -3,7 +3,7 @@ struct NoneProbabilities <: GaussianProbabilities end
 struct NaiveProbabilities <: GaussianProbabilities end
 struct DigitalProbabilities <: GaussianProbabilities end
 
-mutable struct Gaussian1DSwaptionEngine{G <: Gaussian1DModel, Y <: YieldTermStructure, P <: GaussianProbabilities} <: PricingEngine
+struct Gaussian1DSwaptionEngine{G <: Gaussian1DModel, Y <: YieldTermStructure, P <: GaussianProbabilities} <: PricingEngine
   model::G
   integrationPoints::Int
   stddevs::Float64

@@ -1,4 +1,4 @@
-type DiscretizedDiscountBond{L <: Lattice} <: DiscretizedAsset
+mutable struct DiscretizedDiscountBond{L <: Lattice} <: DiscretizedAsset
   common::DiscretizedAssetCommon{L}
 end
 
@@ -10,7 +10,7 @@ function reset!(dBond::DiscretizedDiscountBond, sz::Int)
   return dBond
 end
 
-type DiscretizedCallableFixedRateBond{L <: Lattice} <: DiscretizedAsset
+mutable struct DiscretizedCallableFixedRateBond{L <: Lattice} <: DiscretizedAsset
   redemptionTime::Float64
   couponTimes::Vector{Float64}
   callabilityTimes::Vector{Float64}

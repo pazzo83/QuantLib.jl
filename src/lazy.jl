@@ -1,7 +1,7 @@
 ## Allows for lazy calculation (when requested)
 ## Also will have observer mixin in here
 
-type LazyMixin
+mutable struct LazyMixin
   calculated::Bool
   frozen::Bool
   observe::ObserverMixin

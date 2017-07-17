@@ -1,4 +1,4 @@
-type BlackConstantVol{BC <: BusinessCalendar, DC <: DayCount} <: BlackVolTermStructure
+mutable struct BlackConstantVol{BC <: BusinessCalendar, DC <: DayCount} <: BlackVolTermStructure
   referenceDate::Date
   settlementDays::Int
   calendar::BC

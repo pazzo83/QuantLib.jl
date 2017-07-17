@@ -1,6 +1,6 @@
 import Base.getindex, Base.setindex!, Base.length, Base.endof, Base.copy
 
-type Path
+struct Path
   tg::TimeGrid
   values::Vector{Float64}
   # TODO ensure values size is the same as tg size

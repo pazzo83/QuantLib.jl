@@ -1,4 +1,4 @@
-type BrownianBridge{I <: Integer}
+mutable struct BrownianBridge{I <: Integer}
   size_::I
   t::Vector{Float64}
   sqrtdt::Vector{Float64}

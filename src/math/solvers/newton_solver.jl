@@ -1,4 +1,4 @@
-type NewtonSolver <: Solver1D
+struct NewtonSolver <: Solver1D
   solverInfo::SolverInfo
 end
 NewtonSolver(maxEvals::Int = 100, lowerBoundEnforced::Bool = false, upperBoundEnforced::Bool = false, lowerBound::Float64 = 0.0, upperBound::Float64 = 0.0) =

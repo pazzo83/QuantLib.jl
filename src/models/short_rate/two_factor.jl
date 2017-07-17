@@ -185,7 +185,7 @@ function (pricingFunc::G2SwaptionPricingFunction)(x::Float64)
   func = SolvingFunction(lambda, pricingFunc.Bb)
   s1d = BrentSolver(1000)
 
-  yb = solve(s1d, operator(func), 1e-6, 0.00, -100.0, 100.0)
+  yb = solve(s1d, func, 1e-6, 0.00, -100.0, 100.0)
 
   h1 = (yb - pricingFunc.muy) / (pricingFunc.sigmay * txy) - pricingFunc.rhoxy * (x - pricingFunc.mux) / (pricingFunc.sigmax * txy)
   val = cdf(phi, -pricingFunc.w * h1)
@@ -202,42 +202,42 @@ function (pricingFunc::G2SwaptionPricingFunction)(x::Float64)
   return exp(-0.5 * temp * temp) * val / (pricingFunc.sigmax * sqrt(2.0 * pi))
 end
 
-function operator(pricingFunc::G2SwaptionPricingFunction)
-  phi = Normal()
-  n = length(pricingFunc.payTimes)
-  function _inner(x::Float64)
-    temp = (x - pricingFunc.mux) / pricingFunc.sigmax
-    txy = sqrt(1.0 - pricingFunc.rhoxy * pricingFunc.rhoxy)
-    lambda = zeros(n)
-
-    for i = 1:n
-      tau = i == 1 ? pricingFunc.payTimes[1] - pricingFunc.startTime : pricingFunc.payTimes[i] - pricingFunc.payTimes[i - 1]
-      c = i == n ? (1.0 + pricingFunc.fixedRate * tau) : pricingFunc.fixedRate * tau
-      lambda[i] = c * pricingFunc.A[i] * exp(-pricingFunc.Ba[i] * x)
-    end
-
-    func = SolvingFunction(lambda, pricingFunc.Bb)
-    s1d = BrentSolver(1000)
-
-    yb = solve(s1d, operator(func), 1e-6, 0.00, -100.0, 100.0)
-
-    h1 = (yb - pricingFunc.muy) / (pricingFunc.sigmay * txy) - pricingFunc.rhoxy * (x - pricingFunc.mux) / (pricingFunc.sigmax * txy)
-    val = cdf(phi, -pricingFunc.w * h1)
-
-    for i = 1:n
-      h2 = h1 + pricingFunc.Bb[i] * pricingFunc.sigmay * sqrt(1.0 - pricingFunc.rhoxy * pricingFunc.rhoxy)
-      kappa = -pricingFunc.Bb[i] * (pricingFunc.muy - 0.5 * txy * txy * pricingFunc.sigmay * pricingFunc.sigmay * pricingFunc.Bb[i] +
-              pricingFunc.rhoxy * pricingFunc.sigmay * (x - pricingFunc.mux) / pricingFunc.sigmax)
-
-      val -= lambda[i] * exp(kappa) * cdf(phi, -pricingFunc.w * h2)
-    end
-
-    blah = exp(-0.5 * temp * temp) * val / (pricingFunc.sigmax * sqrt(2.0 * pi))
-    return exp(-0.5 * temp * temp) * val / (pricingFunc.sigmax * sqrt(2.0 * pi))
-  end
-
-  return _inner
-end
+# function operator(pricingFunc::G2SwaptionPricingFunction)
+#   phi = Normal()
+#   n = length(pricingFunc.payTimes)
+#   function _inner(x::Float64)
+#     temp = (x - pricingFunc.mux) / pricingFunc.sigmax
+#     txy = sqrt(1.0 - pricingFunc.rhoxy * pricingFunc.rhoxy)
+#     lambda = zeros(n)
+#
+#     for i = 1:n
+#       tau = i == 1 ? pricingFunc.payTimes[1] - pricingFunc.startTime : pricingFunc.payTimes[i] - pricingFunc.payTimes[i - 1]
+#       c = i == n ? (1.0 + pricingFunc.fixedRate * tau) : pricingFunc.fixedRate * tau
+#       lambda[i] = c * pricingFunc.A[i] * exp(-pricingFunc.Ba[i] * x)
+#     end
+#
+#     func = SolvingFunction(lambda, pricingFunc.Bb)
+#     s1d = BrentSolver(1000)
+#
+#     yb = solve(s1d, func, 1e-6, 0.00, -100.0, 100.0)
+#
+#     h1 = (yb - pricingFunc.muy) / (pricingFunc.sigmay * txy) - pricingFunc.rhoxy * (x - pricingFunc.mux) / (pricingFunc.sigmax * txy)
+#     val = cdf(phi, -pricingFunc.w * h1)
+#
+#     for i = 1:n
+#       h2 = h1 + pricingFunc.Bb[i] * pricingFunc.sigmay * sqrt(1.0 - pricingFunc.rhoxy * pricingFunc.rhoxy)
+#       kappa = -pricingFunc.Bb[i] * (pricingFunc.muy - 0.5 * txy * txy * pricingFunc.sigmay * pricingFunc.sigmay * pricingFunc.Bb[i] +
+#               pricingFunc.rhoxy * pricingFunc.sigmay * (x - pricingFunc.mux) / pricingFunc.sigmax)
+#
+#       val -= lambda[i] * exp(kappa) * cdf(phi, -pricingFunc.w * h2)
+#     end
+#
+#     blah = exp(-0.5 * temp * temp) * val / (pricingFunc.sigmax * sqrt(2.0 * pi))
+#     return exp(-0.5 * temp * temp) * val / (pricingFunc.sigmax * sqrt(2.0 * pi))
+#   end
+#
+#   return _inner
+# end
 
 function gen_swaption(model::G2, swaption::Swaption, fixedRate::Float64, range::Float64, intervals::Int)
   settlement = reference_date(model.ts)

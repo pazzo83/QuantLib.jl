@@ -1,4 +1,4 @@
-type CallableBondConstantVol{C <: BusinessCalendar, DC <: DayCount, D <: Dates.Period} <: CallableBondVolatilityStructure
+struct CallableBondConstantVol{C <: BusinessCalendar, DC <: DayCount, D <: Dates.Period} <: CallableBondVolatilityStructure
   settlementDays::Int
   calendar::C
   volatility::Quote

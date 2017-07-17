@@ -1,4 +1,4 @@
-type LinearInterpolation <: Interpolation
+mutable struct LinearInterpolation <: Interpolation
   x_vals::Vector{Float64}
   y_vals::Vector{Float64}
   s::Vector{Float64}

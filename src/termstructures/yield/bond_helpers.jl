@@ -1,5 +1,5 @@
 # Bond Helpers
-type FixedRateBondHelper{DC <: DayCount, P <: PricingEngine} <: BondHelper
+mutable struct FixedRateBondHelper{DC <: DayCount, P <: PricingEngine} <: BondHelper
   price::Quote
   bond::FixedRateBond{DC, P}
 end

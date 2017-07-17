@@ -1,4 +1,4 @@
-type HestonGaussLaguerre <: HestonIntegration
+struct HestonGaussLaguerre <: HestonIntegration
   integration::GaussLaguerreIntegration
 end
 
@@ -6,9 +6,9 @@ HestonGaussLaguerre(intOrder::Int) = HestonGaussLaguerre(GaussLaguerreIntegratio
 
 num_evals(integration::HestonGaussLaguerre) = get_order(integration.integration)
 
-type Gatheral <: ComplexLogFormula end
+struct Gatheral <: ComplexLogFormula end
 
-type AnalyticHestonEngine{C <: ComplexLogFormula} <: AbstractHestonEngine{HestonGaussLaguerre}
+struct AnalyticHestonEngine{C <: ComplexLogFormula} <: AbstractHestonEngine{HestonGaussLaguerre}
   model::HestonModel
   evaluations::Int
   cpxLog::C
@@ -26,7 +26,7 @@ end
 add_on_term(engine::AnalyticHestonEngine, ::Real, ::Real, ::Int) = complex(0.0)
 
 # Helper #
-type FJHelper{C <: ComplexLogFormula, A <: AbstractHestonEngine} <: IntegrationFunction
+struct FJHelper{C <: ComplexLogFormula, A <: AbstractHestonEngine} <: IntegrationFunction
   j::Int
   kappa::Float64
   theta::Float64

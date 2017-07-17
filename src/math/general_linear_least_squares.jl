@@ -1,4 +1,4 @@
-type GeneralLinearLeastSquares
+mutable struct GeneralLinearLeastSquares
   a::Vector{Float64}
   err::Vector{Float64}
   residuals::Vector{Float64}

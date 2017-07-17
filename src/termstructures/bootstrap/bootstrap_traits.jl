@@ -6,8 +6,8 @@ const AVG_HAZARD_RATE = 0.01
 const MAX_HAZARD_RATE = 1.0
 
 # Discount bootstrap trait
-immutable Discount <: BootstrapTrait end
-immutable HazardRate <: BootstrapTrait end
+struct Discount <: BootstrapTrait end
+struct HazardRate <: BootstrapTrait end
 
 # Type aliases
 # typealias InterpolatedHazardRateCurve{P, T} InterpolatedDefaultProbabilityCurve{P, HazardRate}

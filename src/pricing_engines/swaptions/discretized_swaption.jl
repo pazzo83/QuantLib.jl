@@ -1,4 +1,4 @@
-type DiscretizedSwaption{E <: Exercise, L <: Lattice} <: DiscretizedOption
+mutable struct DiscretizedSwaption{E <: Exercise, L <: Lattice} <: DiscretizedOption
   underlying::DiscretizedSwap
   exercise::E
   exerciseTimes::Vector{Float64}

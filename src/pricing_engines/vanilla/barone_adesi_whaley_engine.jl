@@ -1,4 +1,4 @@
-type BaroneAdesiWhaleyApproximationEngine{B <: AbstractBlackScholesProcess} <: PricingEngine
+struct BaroneAdesiWhaleyApproximationEngine{B <: AbstractBlackScholesProcess} <: PricingEngine
   process::B
 end
 

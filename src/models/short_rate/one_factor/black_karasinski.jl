@@ -18,7 +18,7 @@ end
 
 generate_arguments!(m::BlackKarasinski) = m # do nothing
 
-type BlackKarasinskiDynamics{P <: Parameter} <: ShortRateDynamics
+mutable struct BlackKarasinskiDynamics{P <: Parameter} <: ShortRateDynamics
   process::OrnsteinUhlenbeckProcess
   fitting::P
   a::Float64
@@ -30,7 +30,7 @@ BlackKarasinskiDynamics{P <: Parameter}(fitting::P, a::Float64, sigma::Float64) 
 
 short_rate(dynamic::BlackKarasinskiDynamics, t::Float64, x::Float64) = exp(x + dynamic.fitting(t))
 
-immutable BlackKarasinskiHelper
+struct BlackKarasinskiHelper <: Function
   sz::Int
   xMin::Float64
   dx::Float64
@@ -47,22 +47,35 @@ function BlackKarasinskiHelper(i::Int, xMin::Float64, dx::Float64, discountBond:
   return BlackKarasinskiHelper(sz, xMin, dx, dt, discountBond, statePrices)
 end
 
-function operator(bkh::BlackKarasinskiHelper)
-  function _inner(theta::Float64)
-    val = bkh.discountBondPrice
-    x = bkh.xMin
+function (bkh::BlackKarasinskiHelper)(theta::Float64)
+  val = bkh.discountBondPrice
+  x = bkh.xMin
 
-    for j = 1:bkh.sz
-      disc = exp(-exp(theta + x) * bkh.dt)
-      val -= bkh.statePrices[j] * disc
-      x += bkh.dx
-    end
-
-    return val
+  @simd for j = 1:bkh.sz
+    disc = exp(-exp(theta + x) * bkh.dt)
+    val -= bkh.statePrices[j] * disc
+    x += bkh.dx
   end
 
-  return _inner
+  return val
 end
+
+# function operator(bkh::BlackKarasinskiHelper)
+#   function _inner(theta::Float64)
+#     val = bkh.discountBondPrice
+#     x = bkh.xMin
+#
+#     for j = 1:bkh.sz
+#       disc = exp(-exp(theta + x) * bkh.dt)
+#       val -= bkh.statePrices[j] * disc
+#       x += bkh.dx
+#     end
+#
+#     return val
+#   end
+#
+#   return _inner
+# end
 
 # tree methods #
 function tree(model::BlackKarasinski, grid::TimeGrid)
@@ -85,7 +98,7 @@ function tree(model::BlackKarasinski, grid::TimeGrid)
 
     solverHelper = BlackKarasinskiHelper(i, xMin, dx, discountBond, numericTree)
     slvr = BrentSolver(1000) # max evals = 1000
-    val = solve(slvr, operator(solverHelper), 1e-7, val, vMin, vMax)
+    val = solve(slvr, solverHelper, 1e-7, val, vMin, vMax)
 
     @inbounds set_params!(phi, grid.times[i], val)
   end

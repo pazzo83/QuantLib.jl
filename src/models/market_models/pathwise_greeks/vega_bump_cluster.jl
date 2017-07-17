@@ -1,4 +1,4 @@
-type VegaBumpCluster
+struct VegaBumpCluster
   factorBegin::Int
   factorEnd::Int
   rateBegin::Int
@@ -7,7 +7,7 @@ type VegaBumpCluster
   stepEnd::Int
 end
 
-type VegaBumpCollection{M <: AbstractMarketModel}
+struct VegaBumpCollection{M <: AbstractMarketModel}
   allBumps::Vector{VegaBumpCluster}
   associatedVolStructure::M
   checked::Bool

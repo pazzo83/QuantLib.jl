@@ -1,4 +1,4 @@
-type FdmLinearOpLayout
+struct FdmLinearOpLayout
   size::Int
   dim::Vector{Int}
   spacing::Vector{Int}
@@ -54,7 +54,7 @@ function neighborhood(mesherLayout::FdmLinearOpLayout, idx::Int, coords::Vector{
   return myIndex + coorOffset1 * mesherLayout.spacing[i1] + coorOffset2 * mesherLayout.spacing[i2]
 end
 
-type FdmBoundaryConditionSet
+mutable struct FdmBoundaryConditionSet
   conditions::Vector{BoundaryCondition}
 end
 

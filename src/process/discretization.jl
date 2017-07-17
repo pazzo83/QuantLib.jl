@@ -1,4 +1,4 @@
-type EulerDiscretization <: AbstractDiscretization end
+struct EulerDiscretization <: AbstractDiscretization end
 
 drift(euler::EulerDiscretization, process::StochasticProcess1D, t0::Float64, x0::Float64, dt::Float64) = drift(process, t0, x0) * dt
 

@@ -1,6 +1,6 @@
 using StatsFuns
 
-type FdmMesherComposite{FM1D <: Fdm1DMesher} <: FdmMesher
+struct FdmMesherComposite{FM1D <: Fdm1DMesher} <: FdmMesher
   layout::FdmLinearOpLayout
   meshers::Vector{FM1D} # this could change
 end
@@ -50,7 +50,7 @@ get_dminus(mesher::FdmMesherComposite, coords::Vector{Int}, direction::Int) = me
 get_dplus(mesher::FdmMesherComposite, coords::Vector{Int}, direction::Int) = mesher.meshers[direction].dplus[coords[direction]]
 
 ## Meshers ##
-type FdmSimpleProcess1dMesher{P <: StochasticProcess1D} <: Fdm1DMesher
+struct FdmSimpleProcess1dMesher{P <: StochasticProcess1D} <: Fdm1DMesher
   size::Int
   process::P
   maturity::Float64

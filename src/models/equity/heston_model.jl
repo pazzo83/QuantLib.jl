@@ -1,4 +1,4 @@
-type HestonModel{CalibratedModelType} <: Model{CalibratedModelType}
+mutable struct HestonModel{CalibratedModelType} <: Model{CalibratedModelType}
   modT::CalibratedModelType
   theta::ConstantParameter
   kappa::ConstantParameter

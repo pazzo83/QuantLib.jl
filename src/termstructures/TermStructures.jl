@@ -22,6 +22,6 @@ function reference_date(ts::TermStructure)
 end
 
 ## Null TS ##
-type NullTermStructure <: TermStructure end
-type NullDefaultProbabilityTermStructure <: AbstractDefaultProbabilityTermStructure end
+struct NullTermStructure <: TermStructure end
+struct NullDefaultProbabilityTermStructure <: AbstractDefaultProbabilityTermStructure end
 # end

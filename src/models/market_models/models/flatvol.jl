@@ -9,7 +9,7 @@ function flat_vol_covariance(t1::Float64, t2::Float64, T::Float64, S::Float64, v
   end
 end
 
-type FlatVol <: AbstractMarketModel
+struct FlatVol <: AbstractMarketModel
   covariance::Vector{Matrix{Float64}}
   totalCovariance::Vector{Matrix{Float64}}
   numberOfFactors::Int

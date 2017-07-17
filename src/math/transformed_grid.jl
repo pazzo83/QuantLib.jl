@@ -1,4 +1,4 @@
-type TransformedGrid
+struct TransformedGrid
   grid::Vector{Float64}
   transformedGrid::Vector{Float64}
   dxm::Vector{Float64}

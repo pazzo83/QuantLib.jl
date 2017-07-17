@@ -1,4 +1,4 @@
-type InterpolatedDiscountCurve{DC <: DayCount, P <: Interpolation, B <: BusinessCalendar} <: InterpolatedCurve{P}
+mutable struct InterpolatedDiscountCurve{DC <: DayCount, P <: Interpolation, B <: BusinessCalendar} <: InterpolatedCurve{P}
   settlementDays::Int
   referenceDate::Date
   dc::DC

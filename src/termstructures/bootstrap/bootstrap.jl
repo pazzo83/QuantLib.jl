@@ -1,4 +1,4 @@
-type BootstrapError{T <: BootstrapHelper, Y <: TermStructure} <: Function
+mutable struct BootstrapError{T <: BootstrapHelper, Y <: TermStructure} <: Function
   i::Int
   inst::T
   ts::Y
@@ -39,7 +39,7 @@ function apply_termstructure(cds::AbstractCDSHelper, ts::TermStructure)
 end
 
 # BOOTSTRAPPING
-type IterativeBootstrap <: Bootstrap
+mutable struct IterativeBootstrap <: Bootstrap
   firstSolver::BrentSolver
   solver::FiniteDifferenceNewtonSafe
 

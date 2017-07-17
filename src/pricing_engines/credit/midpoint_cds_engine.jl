@@ -1,4 +1,4 @@
-type MidPointCdsEngine{P <: AbstractDefaultProbabilityTermStructure, Y <: YieldTermStructure} <: PricingEngine
+struct MidPointCdsEngine{P <: AbstractDefaultProbabilityTermStructure, Y <: YieldTermStructure} <: PricingEngine
   probability::P
   recoveryRate::Float64
   discountCurve::Y
@@ -38,7 +38,7 @@ function _calculate!(pe::MidPointCdsEngine, swap::CreditDefaultSwap)
     end
 
     effectiveStartDate = (startDate <= today_ && today_ <= endDate) ? today_ : startDate
-    defaultDate = effectiveStartDate + Dates.Day(floor(Int(endDate - effectiveStartDate) / 2)) # midpoint
+    defaultDate = effectiveStartDate + Dates.Day(floor((endDate - effectiveStartDate).value / 2)) # midpoint
 
     S = survival_probability(pe.probability, paymentDate)
     P = default_probability(pe.probability, effectiveStartDate, endDate)

@@ -124,7 +124,7 @@ export SVD
 include("svd.jl")
 
 # tridiagonal_operator.jl
-export TridiagonalOperator, TridiagIdentity, set_mid_row!, set_last_row!, set_first_row!, apply_to, solve_for!
+export TridiagonalOperator, TridiagIdentity, set_mid_row!, set_last_row!, set_first_row!, apply_to, solve_for!, solve_for
 include("tridiagonal_operator.jl")
 
 # matrix.jl

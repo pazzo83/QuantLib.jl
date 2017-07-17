@@ -1,15 +1,15 @@
-type VolatilityBumpInstrumentJacobianSwaption
+struct VolatilityBumpInstrumentJacobianSwaption
   startIndex::Int
   endIndex::Int
 end
 
-type VolatilityBumpInstrumentJacobianCap
+struct VolatilityBumpInstrumentJacobianCap
   startIndex::Int
   endIndex::Int
   strike::Float64
 end
 
-type VolatilityBumpInstrumentJacobian
+mutable struct VolatilityBumpInstrumentJacobian
   bumps::VegaBumpCollection
   swaptions::Vector{VolatilityBumpInstrumentJacobianSwaption}
   caps::Vector{VolatilityBumpInstrumentJacobianCap}
@@ -108,7 +108,7 @@ function get_all_one_percent_bumps!(voljacobian::VolatilityBumpInstrumentJacobia
 end
 
 
-type OrthogonalizedBumpFinder
+mutable struct OrthogonalizedBumpFinder
   derivativesProducer::VolatilityBumpInstrumentJacobian
   multiplierCutoff::Float64
   tolerance::Float64

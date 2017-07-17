@@ -1,4 +1,4 @@
-type Simplex <: OptimizationMethod
+struct Simplex <: OptimizationMethod
   lambda::Float64
 end
 

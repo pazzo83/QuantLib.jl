@@ -1,6 +1,6 @@
-type Monomial <: LsmBasisSystemPolynomType end
+struct Monomial <: LsmBasisSystemPolynomType end
 
-type MonomialFunction{I <: Integer} <: LSMBasisSystemFunction
+struct MonomialFunction{I <: Integer} <: LSMBasisSystemFunction
   order::I
 end
 

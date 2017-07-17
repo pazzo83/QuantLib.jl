@@ -1,5 +1,5 @@
 # Observer pattern (can be an observer or something that is observable)
-type ObserverMixin
+mutable struct ObserverMixin
   observers::Vector
   observables::Vector
 end

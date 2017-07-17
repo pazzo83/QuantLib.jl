@@ -1,4 +1,4 @@
-type CallSpecifiedPathwiseMultiProduct{M <: MarketModelPathwiseMultiProduct, E <: ExerciseStrategy, M2 <: MarketModelPathwiseMultiProduct} <: MarketModelPathwiseMultiProduct
+mutable struct CallSpecifiedPathwiseMultiProduct{M <: MarketModelPathwiseMultiProduct, E <: ExerciseStrategy, M2 <: MarketModelPathwiseMultiProduct} <: MarketModelPathwiseMultiProduct
   underlying::M
   strategy::E
   rebate::M2

@@ -44,7 +44,7 @@ date_accrual_end(cf::SimpleCashFlow) = cf.date
 date(coup::Coupon) = coup.paymentDate
 date_accrual_end(coup::Coupon) = accrual_end_date(coup)
 
-type Dividend <: CashFlow
+struct Dividend <: CashFlow
   amount::Float64
   date::Date
 end
@@ -208,7 +208,7 @@ function npv(leg::ZeroCouponLeg, y::InterestRate, include_settlement_cf::Bool, s
   return totalNPV
 end
 
-function npvbps(leg::Leg, yts::YieldTermStructure, settlement_date::Date, npv_date::Date, includeSettlementDateFlows::Bool = true)
+function npvbps(leg::L, yts::YieldTermStructure, settlement_date::Date, npv_date::Date, includeSettlementDateFlows::Bool = true) where L <: Leg
   npv = 0.0
   bps = 0.0
 

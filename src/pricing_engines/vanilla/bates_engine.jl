@@ -1,4 +1,4 @@
-type BatesEngine{C <: ComplexLogFormula} <: AbstractHestonEngine{HestonGaussLaguerre}
+struct BatesEngine{C <: ComplexLogFormula} <: AbstractHestonEngine{HestonGaussLaguerre}
   model::BatesModel
   evaluations::Int
   cpxLog::C

@@ -1,4 +1,4 @@
-type OrnsteinUhlenbeckProcess <: StochasticProcess1D
+struct OrnsteinUhlenbeckProcess <: StochasticProcess1D
   speed::Float64
   vol::Float64
   x0::Float64
@@ -22,7 +22,7 @@ end
 
 std_deviation(process::OrnsteinUhlenbeckProcess, t::Float64, x0::Float64, dt::Float64) = sqrt(variance(process, t, x0, dt))
 
-type GsrProcess <: StochasticProcess1D
+mutable struct GsrProcess <: StochasticProcess1D
   times::Vector{Float64}
   vols::Vector{Float64}
   reversions::Vector{Float64}

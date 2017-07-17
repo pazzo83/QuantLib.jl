@@ -1,7 +1,7 @@
 ## ShortRateTree methods ##
 get_state_prices!(tree::ShortRateTree, i::Int) = get_state_prices!(tree.treeLattice, i)
 
-type PrivateConstraint{P <: Parameter} <: Constraint
+struct PrivateConstraint{P <: Parameter} <: Constraint
   arguments::Vector{P}
 end
 
@@ -28,29 +28,37 @@ function QuantLib.Math.test(c::PrivateConstraint, x::Vector{Float64})
   return true
 end
 
-type CalibrationFunction{M <: ShortRateModel, C <: CalibrationHelper} <: CostFunction
+mutable struct CalibrationFunction{M <: ShortRateModel, C <: CalibrationHelper} <: CostFunction
   model::M
   helpers::Vector{C}
   weights::Vector{Float64}
   projection::Projection
 end
 
-type SolvingFunction
+struct SolvingFunction <: Function
   lambda::Vector{Float64}
   Bb::Vector{Float64}
 end
 
-function operator(solvFunc::SolvingFunction)
-  function _inner(y::Float64)
-    value_ = 1.0
-    for i = 1:length(solvFunc.lambda)
-      value_ -= solvFunc.lambda[i] * exp(-solvFunc.Bb[i] * y)
-    end
-    return value_
+function (solvFunc::SolvingFunction)(y::Float64)
+  value_ = 1.0
+  for i = 1:length(solvFunc.lambda)
+    value_ -= solvFunc.lambda[i] * exp(-solvFunc.Bb[i] * y)
   end
-
-  return _inner
+  return value_
 end
+
+# function operator(solvFunc::SolvingFunction)
+#   function _inner(y::Float64)
+#     value_ = 1.0
+#     for i = 1:length(solvFunc.lambda)
+#       value_ -= solvFunc.lambda[i] * exp(-solvFunc.Bb[i] * y)
+#     end
+#     return value_
+#   end
+#
+#   return _inner
+# end
 
 function func_values(calibF::CalibrationFunction, params::Vector{Float64})
   set_params!(calibF.model, include_params(calibF.projection, params))

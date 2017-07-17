@@ -24,7 +24,7 @@ function exponential_correlations(rateTimes::Vector{Float64}, longTermCorr::Floa
   return correlations
 end
 
-type ExponentialForwardCorrelation <: PiecewiseConstantCorrelation
+struct ExponentialForwardCorrelation <: PiecewiseConstantCorrelation
   numberOfRates::Int
   longTermCorr::Float64
   beta::Float64

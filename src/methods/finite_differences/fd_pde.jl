@@ -1,4 +1,4 @@
-type PdeBSM{B <: AbstractBlackScholesProcess}
+struct PdeBSM{B <: AbstractBlackScholesProcess}
   process::B
 end
 
@@ -12,7 +12,7 @@ function discount(pde::PdeBSM, t::Float64, ::Float64)
   return forward_rate(pde.process.riskFreeRate, t, t, ContinuousCompounding(), NoFrequency()).rate
 end
 
-type PdeConstantCoeff
+mutable struct PdeConstantCoeff
   diffusion::Float64
   drift::Float64
   discount::Float64

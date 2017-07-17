@@ -1,4 +1,4 @@
-type AccountingEngine{E <: AbstractMarketModelEvolver, P <: MarketModelMultiProduct}
+mutable struct AccountingEngine{E <: AbstractMarketModelEvolver, P <: MarketModelMultiProduct}
   evolver::E
   product::P
   initialNumeraireValue::Float64

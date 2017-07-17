@@ -1,4 +1,4 @@
-type TimeHomogeneousForwardCorrelation end
+struct TimeHomogeneousForwardCorrelation end
 
 function evolved_matrices(::Type{TimeHomogeneousForwardCorrelation}, fwdCorrelation::Matrix{Float64})
   numberOfRates = size(fwdCorrelation)[1]

@@ -1,4 +1,4 @@
-type CallSpecifiedMultiProduct{M <: MarketModelMultiProduct, E <: ExerciseStrategy, M2 <: MarketModelMultiProduct} <: MarketModelMultiProduct
+mutable struct CallSpecifiedMultiProduct{M <: MarketModelMultiProduct, E <: ExerciseStrategy, M2 <: MarketModelMultiProduct} <: MarketModelMultiProduct
   underlying::M
   strategy::E
   rebate::M2

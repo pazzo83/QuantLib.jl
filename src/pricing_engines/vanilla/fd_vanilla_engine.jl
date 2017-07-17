@@ -1,4 +1,4 @@
-type FDEuropeanEngine{B <: AbstractBlackScholesProcess} <: AbstractFDVanillaEngine
+mutable struct FDEuropeanEngine{B <: AbstractBlackScholesProcess} <: AbstractFDVanillaEngine
   process::B
   timeSteps::Int
   gridPoints::Int
@@ -25,7 +25,7 @@ function FDEuropeanEngine(process::AbstractBlackScholesProcess, fdEvolverFunc::F
                           intrinsicValues, BCs, sMin, center, sMax, prices, fdEvolverFunc)
 end
 
-type FDBermudanEngine{B <: AbstractBlackScholesProcess} <: FDMultiPeriodEngine
+mutable struct FDBermudanEngine{B <: AbstractBlackScholesProcess} <: FDMultiPeriodEngine
   process::B
   timeSteps::Int
   gridPoints::Int
@@ -56,7 +56,7 @@ function FDBermudanEngine(process::AbstractBlackScholesProcess, fdEvolverFunc::F
                           intrinsicValues, BCs, sMin, center, sMax, prices, stoppingTimes, timeStepPerPeriod, fdEvolverFunc)
 end
 
-type FDAmericanEngine{B <: AbstractBlackScholesProcess} <: FDStepConditionEngine
+mutable struct FDAmericanEngine{B <: AbstractBlackScholesProcess} <: FDStepConditionEngine
   process::B
   timeSteps::Int
   gridPoints::Int

@@ -1,9 +1,9 @@
-type NullOptionletVolatilityStructure <: OptionletVolatilityStructure end
+struct NullOptionletVolatilityStructure <: OptionletVolatilityStructure end
 
-type ShiftedLognormalVolType <: VolatilityType end
-type NormalVolType <: VolatilityType end
+struct ShiftedLognormalVolType <: VolatilityType end
+struct NormalVolType <: VolatilityType end
 
-type FlatSmileSection{DC <: DayCount, V <: VolatilityType} <: AbstractSmileSection
+mutable struct FlatSmileSection{DC <: DayCount, V <: VolatilityType} <: AbstractSmileSection
   exerciseDate::Date
   exerciseTime::Float64
   vol::Float64
@@ -25,7 +25,7 @@ end
 volatility_impl(smile::FlatSmileSection, ::Float64) = smile.vol
 volatility(smile::AbstractSmileSection, rate::Float64) = volatility_impl(smile, rate)
 
-type ConstantOptionVolatility{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount} <: OptionletVolatilityStructure
+mutable struct ConstantOptionVolatility{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount} <: OptionletVolatilityStructure
   settlementDays::Int
   referenceDate::Date
   calendar::B
@@ -41,7 +41,7 @@ function ConstantOptionVolatility{B <: BusinessCalendar, C <: BusinessDayConvent
 end
 
 # Swaption Volatility structures
-type ConstantSwaptionVolatility{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount} <: SwaptionVolatilityStructure
+mutable struct ConstantSwaptionVolatility{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount} <: SwaptionVolatilityStructure
   settlementDays::Int
   referenceDate::Date
   calendar::B
@@ -55,7 +55,7 @@ ConstantSwaptionVolatility{B <: BusinessCalendar, C <: BusinessDayConvention, DC
                           ConstantSwaptionVolatility{B, C, DC}(settlementDays, Date(), cal, bdc, volatility, dc)
 
 # Local Vol Term Structure #
-type LocalConstantVol{DC <: DayCount} <: LocalVolTermStructure
+mutable struct LocalConstantVol{DC <: DayCount} <: LocalVolTermStructure
   referenceDate::Date
   settlementDays::Int
   volatility::Quote

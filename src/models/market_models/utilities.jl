@@ -1,4 +1,4 @@
-type MarketModelCashFlow
+mutable struct MarketModelCashFlow
   timeIndex::Int
   amount::Float64
 end
@@ -6,7 +6,7 @@ end
 MarketModelCashFlow() = MarketModelCashFlow(1, 0.0)
 clone(mmcf::MarketModelCashFlow) = MarketModelCashFlow(mmcf.timeIndex, mmcf.amount)
 
-type MarketModelPathWiseCashFlow
+mutable struct MarketModelPathWiseCashFlow
   timeIndex::Int
   amount::Vector{Float64}
 end
@@ -14,7 +14,7 @@ end
 MarketModelPathWiseCashFlow(n::Int) = MarketModelPathWiseCashFlow(1, zeros(n))
 
 ## Discounter ##
-type MarketModelDiscounter
+struct MarketModelDiscounter
   beforeSize::Int
   beforeWeight::Float64
 end
@@ -55,7 +55,7 @@ function numeraire_bonds(mmd::MarketModelDiscounter, curveState::CurveState, num
   return ^(preDF, mmd.beforeWeight) * ^(postDF, 1.0 - mmd.beforeWeight)
 end
 
-type MarketModelPathwiseDiscounter
+struct MarketModelPathwiseDiscounter
   beforeTimeIdx::Int
   numberRates::Int
   beforeWeight::Float64

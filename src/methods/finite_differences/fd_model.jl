@@ -24,7 +24,6 @@ function rollback_impl!(model::FiniteDifferenceModel, a::Vector, from::Float64, 
   if length(model.stoppingTimes) > 0 && model.stoppingTimes[end] == from
     apply_to!(condition, a, from)
   end
-
   @inbounds @simd for i = 1:steps
     _now = t
     _next = t - dt

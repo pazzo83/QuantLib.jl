@@ -1,4 +1,4 @@
-type TripleBandLinearOp{FM <: FdmMesher}
+mutable struct TripleBandLinearOp{FM <: FdmMesher}
   direction::Int
   mesher::FM
   i0::Vector{Int}
@@ -237,7 +237,7 @@ function solve_splitting(trpBandLinOp::TripleBandLinearOp, r::Vector{Float64}, a
   return retArray
 end
 
-type SecondOrderMixedDerivativeOp{FD <: FdmMesher} <: NinePointLinearOp
+mutable struct SecondOrderMixedDerivativeOp{FD <: FdmMesher} <: NinePointLinearOp
   d1::Int
   d2::Int
   i00::Vector{Int}
@@ -406,7 +406,7 @@ function apply(ninePointLin::NinePointLinearOp, u::Vector{Float64})
   return retVal
 end
 
-type FdmG2Op <: FdmLinearOpComposite
+mutable struct FdmG2Op <: FdmLinearOpComposite
   direction1::Int
   direction2::Int
   x::Vector{Float64}
@@ -437,7 +437,7 @@ function FdmG2Op(mesher::FdmMesher, model::G2, direction1::Int, direction2::Int)
   return FdmG2Op(direction1, direction2, x, y, dxMap, dyMap, corrMap, mapX, mapY, model)
 end
 
-type FdmHullWhiteOp <: FdmLinearOpComposite
+mutable struct FdmHullWhiteOp <: FdmLinearOpComposite
   direction::Int
   x::Vector{Float64}
   dzMap::TripleBandLinearOp

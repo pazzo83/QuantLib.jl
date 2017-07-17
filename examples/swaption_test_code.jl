@@ -153,9 +153,9 @@ function main()
 
   bermudanExercise = BermudanExercise(bermudanDates)
 
-  bermudanSwaption = Swaption(atmSwap, bermudanExercise)
+  bermudanSwaption = Swaption(atmSwap, bermudanExercise, TreeSwaptionEngine(modelG2, 50))
 
-  bermudanSwaption = update_pricing_engine(bermudanSwaption, TreeSwaptionEngine(modelG2, 50))
+  # bermudanSwaption = update_pricing_engine(bermudanSwaption, TreeSwaptionEngine(modelG2, 50))
 
   println(@sprintf("G2 (tree):       %.6f", npv(bermudanSwaption)))
 

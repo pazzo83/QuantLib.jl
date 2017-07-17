@@ -1,6 +1,6 @@
-type SingleVariate <: MCTrait end
+struct SingleVariate <: MCTrait end
 
-type MonteCarloModel{P <: AbstractPathPricer, RSG <: AbstractRandomSequenceGenerator, S <: StochasticProcess1D} <: AbstractMonteCarloModel
+mutable struct MonteCarloModel{P <: AbstractPathPricer, RSG <: AbstractRandomSequenceGenerator, S <: StochasticProcess1D} <: AbstractMonteCarloModel
   pathGenerator::PathGenerator{RSG, S}
   pathPricer::P
   sampleAccumulator::RiskStatistics

@@ -1,4 +1,4 @@
-type FdHullWhiteSwaptionEngine{Y <: TermStructure, F <: FdmSchemeDescType} <: PricingEngine
+struct FdHullWhiteSwaptionEngine{Y <: TermStructure, F <: FdmSchemeDescType} <: PricingEngine
   model::HullWhite{AffineModelType, Y}
   tGrid::Int
   xGrid::Int
@@ -8,9 +8,13 @@ type FdHullWhiteSwaptionEngine{Y <: TermStructure, F <: FdmSchemeDescType} <: Pr
   ts::Y
 end
 
-FdHullWhiteSwaptionEngine{F <: FdmSchemeDescType}(model::HullWhite, tGrid::Int = 100, xGrid::Int = 100, dampingSteps::Int = 0, invEps::Float64 = 1e-5,
-                  schemeDesc::FdmSchemeDesc{F} = FdmSchemeDesc(Douglas())) =
-                  FdHullWhiteSwaptionEngine{typeof(model.ts), F}(model, tGrid, xGrid, dampingSteps, invEps, schemeDesc, model.ts)
+FdHullWhiteSwaptionEngine{F <: FdmSchemeDescType, Y <: TermStructure}(model::HullWhite{AffineModelType, Y},
+                                                                      tGrid::Int = 100,
+                                                                      xGrid::Int = 100,
+                                                                      dampingSteps::Int = 0,
+                                                                      invEps::Float64 = 1e-5,
+                                                                      schemeDesc::FdmSchemeDesc{F} = FdmSchemeDesc(Douglas())) =
+                  FdHullWhiteSwaptionEngine{Y, F}(model, tGrid, xGrid, dampingSteps, invEps, schemeDesc, model.ts)
 # methods #
 function _calculate!(pe::FdHullWhiteSwaptionEngine, swaption::Swaption)
   # 1. Term structure

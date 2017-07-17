@@ -1,4 +1,4 @@
-type BackwardFlatInterpolation <: Interpolation
+mutable struct BackwardFlatInterpolation <: Interpolation
   x_vals::Vector{Float64}
   y_vals::Vector{Float64}
   primitive::Vector{Float64}

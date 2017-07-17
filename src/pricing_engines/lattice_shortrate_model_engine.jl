@@ -1,4 +1,4 @@
-type LatticeShortRateModelEngineCommon{T <: ShortRateTree}
+mutable struct LatticeShortRateModelEngineCommon{T <: ShortRateTree}
   tg::TimeGrid
   lattice::T
 end

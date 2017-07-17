@@ -1,4 +1,4 @@
-type MarketModelPathwiseCashRebate <: MarketModelPathwiseMultiProduct
+mutable struct MarketModelPathwiseCashRebate <: MarketModelPathwiseMultiProduct
   evolution::EvolutionDescription
   paymentTimes::Vector{Float64}
   amounts::Matrix{Float64}

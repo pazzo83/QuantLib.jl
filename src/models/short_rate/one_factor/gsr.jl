@@ -1,4 +1,4 @@
-immutable CachedSwapKey
+struct CachedSwapKey
   index::SwapIndex
   fixing::Date
   tenor::Dates.Period
@@ -7,7 +7,7 @@ end
 Base.isequal(A::CachedSwapKey, B::CachedSwapKey) = A.index == B.index && A.fixing == B.fixing && A.tenor == B.tenor
 # Base.hash(A::CachedSwapKey) = hash(A.index + A.fixing + A.tenor)
 
-type GSR{TermStructureConsistentModelType, P <: StochasticProcess1D, PARAM1 <: Parameter, PARAM2 <: Parameter, T <: YieldTermStructure} <: Gaussian1DModel{TermStructureConsistentModelType}
+mutable struct GSR{TermStructureConsistentModelType, P <: StochasticProcess1D, PARAM1 <: Parameter, PARAM2 <: Parameter, T <: YieldTermStructure} <: Gaussian1DModel{TermStructureConsistentModelType}
   lazyMixin::LazyMixin
   modT::TermStructureConsistentModelType
   stateProcess::P

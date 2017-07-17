@@ -1,4 +1,4 @@
-type SwapForwardMappings end
+struct SwapForwardMappings end
 
 function coterminal_swap_forward_jacobian(::SwapForwardMappings, cs::CurveState)
   n = cs.numberOfRates

@@ -1,4 +1,4 @@
-type BinomialVanillaEngine{P <: AbstractBlackScholesProcess, T <: BinomialTreeType} <: AbstractVanillaEngine
+struct BinomialVanillaEngine{P <: AbstractBlackScholesProcess, T <: BinomialTreeType} <: AbstractVanillaEngine
   process::P
   timeSteps::Int
   treeClass::Type{T}

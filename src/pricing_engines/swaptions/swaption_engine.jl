@@ -1,5 +1,5 @@
 # general swaption engine types and methods
-type NullSwaptionEngine <: PricingEngine end
+struct NullSwaptionEngine <: PricingEngine end
 
 _calculate!(::NullSwaptionEngine, ::Swaption) = error("Must set valid pricing engine, use update_pricing_engine")
 

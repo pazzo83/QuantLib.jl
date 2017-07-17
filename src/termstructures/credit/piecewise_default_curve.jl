@@ -1,4 +1,4 @@
-type PiecewiseDefaultCurve{B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap} <: InterpolatedDefaultProbabilityCurve{P}
+mutable struct PiecewiseDefaultCurve{B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap} <: InterpolatedDefaultProbabilityCurve{P}
   lazyMixin::LazyMixin
   settlementDays::Int
   referenceDate::Date

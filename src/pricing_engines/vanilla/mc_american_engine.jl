@@ -77,7 +77,7 @@ function MCAmericanEngine{RSG <: AbstractRandomSequenceGenerator, S <: AbstractB
                                                       nCalibrationSamples, polynomOrder, polynomType, antitheticVariate, rsg)
 end
 
-type AmericanPathPricer{OT <: OptionType} <: EarlyExercisePathPricer
+struct AmericanPathPricer{OT <: OptionType} <: EarlyExercisePathPricer
   scalingValue::Float64
   payoff::PlainVanillaPayoff{OT}
   v::Vector{Function}

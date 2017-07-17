@@ -1,4 +1,4 @@
-type LMMCurveState <: CurveState
+mutable struct LMMCurveState <: CurveState
   numberOfRates::Int
   rateTimes::Vector{Float64}
   rateTaus::Vector{Float64}

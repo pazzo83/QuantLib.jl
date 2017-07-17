@@ -1,11 +1,11 @@
-type RelativePriceError <: CalibrationErrorType end
-type PriceError <: CalibrationErrorType end
-type ImpliedVolError <: CalibrationErrorType end
+struct RelativePriceError <: CalibrationErrorType end
+struct PriceError <: CalibrationErrorType end
+struct ImpliedVolError <: CalibrationErrorType end
 
-type NaiveBasketType <: CalibrationBasketType end
-type MaturityStrikeByDeltaGammaBasketType <: CalibrationBasketType end
+struct NaiveBasketType <: CalibrationBasketType end
+struct MaturityStrikeByDeltaGammaBasketType <: CalibrationBasketType end
 
-type CalibrationHelperCommon{CE <: CalibrationErrorType}
+mutable struct CalibrationHelperCommon{CE <: CalibrationErrorType}
   marketValue::Float64
   calibrationErrorType::CE
 
@@ -14,20 +14,20 @@ end
 
 CalibrationHelperCommon() = CalibrationHelperCommon{RelativePriceError}(0.0, RelativePriceError())
 
-type ImpliedVolatilityHelper{C <: CalibrationHelper} <: Function
+mutable struct ImpliedVolatilityHelper{C <: CalibrationHelper} <: Function
   helper::C
   value::Float64
 end
 
 (iv::ImpliedVolatilityHelper)(x::Float64) = iv.value - black_price!(iv.helper, x)
 
-function operator(iv::ImpliedVolatilityHelper)
-  function _inner(x::Float64)
-    return iv.value - black_price!(iv.helper, x)
-  end
-
-  return _inner
-end
+# function operator(iv::ImpliedVolatilityHelper)
+#   function _inner(x::Float64)
+#     return iv.value - black_price!(iv.helper, x)
+#   end
+#
+#   return _inner
+# end
 
 calibration_error{C <: CalibrationHelper}(::RelativePriceError, helper::C) =
   abs(helper.calibCommon.marketValue - model_value!(helper)) / helper.calibCommon.marketValue
@@ -51,7 +51,7 @@ function update_pricing_engine{C <: CalibrationHelper, P <: PricingEngine}(ch::C
   return newCh
 end
 
-type SwaptionHelper{Dm <: Dates.Period, Dl <: Dates.Period, TP <: TenorPeriod, DC_fix <: DayCount, DC_float <: DayCount, T <: YieldTermStructure, P <: PricingEngine, CE <: CalibrationErrorType, ST <: SwapType, B <: BusinessDayConvention, SP <: PricingEngine, STP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} <: CalibrationHelper
+mutable struct SwaptionHelper{Dm <: Dates.Period, Dl <: Dates.Period, TP <: TenorPeriod, DC_fix <: DayCount, DC_float <: DayCount, T <: YieldTermStructure, P <: PricingEngine, CE <: CalibrationErrorType, ST <: SwapType, B <: BusinessDayConvention, SP <: PricingEngine, STP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} <: CalibrationHelper
   lazyMixin::LazyMixin
   exerciseDate::Date
   endDate::Date

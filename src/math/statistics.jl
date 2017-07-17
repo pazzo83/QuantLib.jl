@@ -15,7 +15,7 @@ NonWeightedStatistics() = NonWeightedStatistics(Vector{Float64}(), false)
 mutable struct GenericRiskStatistics{S <: StatsType} <: AbstractStatistics
   statsType::S
   samples::Vector{Float64}
-  sampleWeights::StatsBase.WeightVec{Float64, Vector{Float64}}
+  sampleWeights::StatsBase.Weights{Float64, Float64, Vector{Float64}}
   samplesMatrix::Matrix{Float64}
   isSorted::Bool
 end

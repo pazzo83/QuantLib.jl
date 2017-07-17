@@ -1,4 +1,4 @@
-type DiscretizedVanillaOption{L <: Lattice} <: DiscretizedAsset
+mutable struct DiscretizedVanillaOption{L <: Lattice} <: DiscretizedAsset
   stoppingTimes::Vector{Float64}
   args::VanillaOptionArgs
   common::DiscretizedAssetCommon{L}

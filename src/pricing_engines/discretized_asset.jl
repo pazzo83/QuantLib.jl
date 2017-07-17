@@ -1,5 +1,5 @@
 ## Discretized Asset types ond methods ##
-type DiscretizedAssetCommon{L <: Lattice}
+mutable struct DiscretizedAssetCommon{L <: Lattice}
   time::Float64
   values::Vector{Float64}
   latestPreAdjustment::Float64

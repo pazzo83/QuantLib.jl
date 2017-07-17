@@ -1,4 +1,4 @@
-type RatePseudoRootJacobianAllElements
+mutable struct RatePseudoRootJacobianAllElements
   pseudoRoot::Matrix{Float64}
   aliveIndex::Int
   taus::Vector{Float64}

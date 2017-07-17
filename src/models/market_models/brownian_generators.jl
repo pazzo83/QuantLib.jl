@@ -1,8 +1,8 @@
-type SobolDiagonalOrdering <: SobolOrdering end
-type SobolStepsOrdering <: SobolOrdering end
-type SobolFactorsOrdering <: SobolOrdering end
+struct SobolDiagonalOrdering <: SobolOrdering end
+struct SobolStepsOrdering <: SobolOrdering end
+struct SobolFactorsOrdering <: SobolOrdering end
 
-type SobolBrownianGenerator{O <: SobolOrdering} <: BrownianGenerator
+mutable struct SobolBrownianGenerator{O <: SobolOrdering} <: BrownianGenerator
   factors::Int
   steps::Int
   ordering::O
