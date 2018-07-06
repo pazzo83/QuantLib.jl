@@ -101,11 +101,12 @@ struct Concentrating1dMesher <: Fdm1DMesher
   dminus::Vector{Float64}
 end
 
-function Concentrating1dMesher(s::Real, e::Real, sz::Size, cPoints::Tuple{Float64,Float64}=(typemax(Float64), typemax(Floa64)), requireCPoint::Bool)
+function Concentrating1dMesher(s::Float64, e::Float64, sz::Int64,
+  cPoints::Tuple{Float64,Float64}=(typemax(Float64), typemax(Floa64)),
+  requireCPoint::Bool=false)
   locations = zeros(sz)
   dplus = zeros(sz)
   dminus = zeros(sz)
-
   e > s || error("end must be lager than start")
 
   cPoint = cPoints[1]
