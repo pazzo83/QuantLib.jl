@@ -94,3 +94,59 @@ function FdmSimpleProcess1dMesher(sz::Int, process::StochasticProcess1D, maturit
 
   return FdmSimpleProcess1dMesher(sz, process, maturity, tAvgSteps, _eps, mandatoryPoint, locations, dplus, dminus)
 end
+
+struct Concentrating1dMesher <: Fdm1DMesher
+  locations::Vector{Float64}
+  dplus::Vector{Float64}
+  dminus::Vector{Float64}
+end
+
+function Concentrating1dMesher(s::Float64, e::Float64, sz::Int64,
+  cPoints::Tuple{Float64,Float64}=(typemax(Float64), typemax(Float64)),
+  requireCPoint::Bool=false)
+  locations = zeros(sz)
+  dplus = zeros(sz)
+  dminus = zeros(sz)
+  e > s || error("end must be lager than start")
+
+  cPoint = cPoints[1]
+  density = cPoints[2]*(e-s)
+
+  ( cPoint == typemax(Float64) || (cPoint >= s && cPoint <= e) ) || error("cPoint must be between start and end")
+  ( density == typemax(Float64) || density > 0.0 ) || error("density > 0 required")
+  ( cPoint == typemax(Float64) || density != typemax(Float64) ) || error("density must be given if cPoint is given")
+  ( !requireCPoint || cPoint != typemax(Float64) ) || error("cPoint is required in grid but not given")
+
+  dx = 1.0/(sz - 1)
+  if cPoint != typemax(Float64)
+    u, z = Vector{Float64}(), Vector{Float64}()
+    c1 = asinh((s-cPoint)/density)
+    c2 = asinh((e-cPoint)/density)
+    if requireCPoint
+      push!(u, 0.0)
+      push!(z, 0.0)
+      if !is_close(cPoint, s) && !is_close(cPoint, e)
+        z0 = -c1 / (c2 -c1)
+        u0 = max( min( floor(z0 * (sz - 1) + 0.5), (sz) - 2 ), 1) / (sz - 1)
+        push!(u, u0)
+        push!(z, z0)
+      end
+      push!(u, 1.0)
+      push!(z, 1.0)
+      transform = Math.LinearInterpolation(u, z, zeros(3))
+      Math.update!(transform, 3)
+    end
+
+    li = requireCPoint ? Math.value.(transform, ((1:sz)-1)*dx) : ((1:sz)-1)*dx
+    locations = cPoint + density*sinh.(c1*(1.0 - li) + c2*li)
+  else
+    locations = Vector{Float64}(s + (0:sz-1)*dx*(e-s))
+  end
+  locations[1] = s
+  locations[end] = e
+  dplus[1:end-1] = locations[2:end] - locations[1:end-1]
+  dminus[2:end] = locations[2:end] - locations[1:end-1]
+  dplus[end] = typemax(Float64)
+  dminus[1] = typemax(Float64)
+  return Concentrating1dMesher(locations, dplus, dminus)
+end
