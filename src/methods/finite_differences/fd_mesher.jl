@@ -138,7 +138,7 @@ function Concentrating1dMesher(s::Float64, e::Float64, sz::Int64,
     end
 
     li = requireCPoint ? Math.value.(transform, ((1:sz)-1)*dx) : ((1:sz)-1)*dx
-    locations = cPoint + density*sinh(c1*(1.0 - li) + c2*li)
+    locations = cPoint + density*sinh.(c1*(1.0 - li) + c2*li)
   else
     locations = Vector{Float64}(s + (0:sz-1)*dx*(e-s))
   end
