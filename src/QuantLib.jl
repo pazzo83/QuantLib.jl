@@ -473,7 +473,7 @@ include("pricing_engines/vanilla/mc_american_engine.jl")
 # # Helpers NOW IN TERM STRUCTURE
 # include("helpers/bond_helpers.jl")
 
-type Settings
+mutable struct Settings
   evaluation_date::Date
   counter::Int
 end
