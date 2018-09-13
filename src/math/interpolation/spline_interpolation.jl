@@ -4,7 +4,7 @@ mutable struct BicubicSpline
   spline::Dierckx.Spline2D
 end
 
-BicubicSpline{T <: Real}(x::Vector{T}, y::Vector{T}, z::Matrix{T}) = BicubicSpline(Dierckx.Spline2D(x, y, z))
+BicubicSpline(x::Vector{T}, y::Vector{T}, z::Matrix{T}) where {T <: Real} = BicubicSpline(Dierckx.Spline2D(x, y, z))
 
 mutable struct NaturalCubicSpline{T <: Number} <: Interpolation
   x_vert::Vector{T}
@@ -15,7 +15,7 @@ mutable struct NaturalCubicSpline{T <: Number} <: Interpolation
 end
 
 # adapted from here: http://sepwww.stanford.edu/sep/sergey/128A/answers6.pdf
-function NaturalCubicSpline{T <: Number}(x_vert::Vector{T}, y_vert::Vector{T})
+function NaturalCubicSpline(x_vert::Vector{T}, y_vert::Vector{T}) where {T <: Number}
   n = length(x_vert)
   h = zeros(n - 1)
   b = zeros(n - 1)

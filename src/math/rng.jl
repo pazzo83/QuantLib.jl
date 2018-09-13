@@ -1,5 +1,6 @@
 using StatsFuns
 using Sobol
+using Random
 
 abstract type AbstractRandomSequenceGenerator end
 mutable struct PseudoRandomRSG <: AbstractRandomSequenceGenerator

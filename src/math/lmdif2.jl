@@ -1,7 +1,7 @@
 const MACHEP = 1.2e-16
 const DWARF = 1.0e-38
 
-function jacFcnDefault!{I <: Integer}(m::I, n::I, x::Vector{Float64}, fvec::Vector{Float64}, fjac::Matrix{Float64}, eps_::Float64, wa::Vector{Float64}, fcn!::Function)
+function jacFcnDefault!(m::Int, n::Int, x::Vector{Float64}, fvec::Vector{Float64}, fjac::Matrix{Float64}, eps_::Float64, wa::Vector{Float64}, fcn!::Function)
   for j = 1:n
     temp = x[j]
     step = max(eps_ * eps_, eps_ * abs(temp))
@@ -18,7 +18,7 @@ function jacFcnDefault!{I <: Integer}(m::I, n::I, x::Vector{Float64}, fvec::Vect
   return fjac
 end
 
-function lm_qrsolv!{I <: Integer}(n::I, r::Matrix{Float64}, ldr::I, pivot::Vector{I}, diagonal::Vector{Float64}, qtb::Vector{Float64}, x::Vector{Float64}, sdiag::Vector{Float64}, W::Vector{Float64})
+function lm_qrsolv!(n::Int, r::Matrix{Float64}, ldr::Int, pivot::Vector{Int}, diagonal::Vector{Float64}, qtb::Vector{Float64}, x::Vector{Float64}, sdiag::Vector{Float64}, W::Vector{Float64})
 
   # Copy R and Q'* b to preserve input and initialize S
   # In particular, save the diagonal elements of R in x
@@ -111,7 +111,7 @@ function lm_qrsolv!{I <: Integer}(n::I, r::Matrix{Float64}, ldr::I, pivot::Vecto
 end
 
 
-function lm_lmpar!{I <: Integer}(n::I, r::Matrix{Float64}, ldr::I, pivot::Vector{I}, diagonal::Vector{Float64}, qtb::Vector{Float64}, delta::Float64, par::Float64,
+function lm_lmpar!(n::Int, r::Matrix{Float64}, ldr::Int, pivot::Vector{Int}, diagonal::Vector{Float64}, qtb::Vector{Float64}, delta::Float64, par::Float64,
                   x::Vector{Float64}, sdiag::Vector{Float64}, aux::Vector{Float64}, xdi::Vector{Float64})
 
   # Compute and store in x the Gauss-Newton direction.  If the jacobian is rank-deficient, obtain a least-squares solution
@@ -248,8 +248,8 @@ function lm_lmpar!{I <: Integer}(n::I, r::Matrix{Float64}, ldr::I, pivot::Vector
   return par
 end
 
-function lmdif2!{I <: Integer}(n::I, m::I, x::Vector{Float64}, mode::I, factor_::Float64, info_::I, epsfcn::Float64, ftol::Float64, xtol::Float64, gtol::Float64,
-                maxIter::I, fcn!::Function, jacFcn!::Function = jacFcnDefault!)
+function lmdif2!(n::Int, m::Int, x::Vector{Float64}, mode::Int, factor_::Float64, info_::Int, epsfcn::Float64, ftol::Float64, xtol::Float64, gtol::Float64,
+                maxIter::Int, fcn!::Function, jacFcn!::Function = jacFcnDefault!)
   converged = false
   x_converged = false
   g_converged = false

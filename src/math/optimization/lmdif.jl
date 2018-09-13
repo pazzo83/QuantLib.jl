@@ -2,8 +2,8 @@ const MACHEP = 1.2e-16
 const DWARF = 1.0e-38
 
 function enorm(n::Int, x::Vector{Float64})
-  const rdwarf = 3.834e-20
-  const rgiant = 1.304e19
+  rdwarf = 3.834e-20
+  rgiant = 1.304e19
 
   s1 = s2 = s3 = x1max = x3max = 0.0
 

@@ -5,7 +5,7 @@ mutable struct GeneralLinearLeastSquares
   standardErrors::Vector{Float64}
 end
 
-function GeneralLinearLeastSquares{T}(x::Vector{Float64}, y::Vector{Float64}, v::Vector{T})
+function GeneralLinearLeastSquares(x::Vector{Float64}, y::Vector{Float64}, v::Vector{T}) where {T}
   n = length(v)
 
   a = zeros(n)
@@ -18,7 +18,7 @@ function GeneralLinearLeastSquares{T}(x::Vector{Float64}, y::Vector{Float64}, v:
   return glls
 end
 
-function calculate!{T}(glls::GeneralLinearLeastSquares, x::Vector{Float64}, y::Vector{Float64}, v::Vector{T})
+function calculate!(glls::GeneralLinearLeastSquares, x::Vector{Float64}, y::Vector{Float64}, v::Vector{T}) where {T}
   n = length(glls.residuals)
   m = length(glls.err)
 

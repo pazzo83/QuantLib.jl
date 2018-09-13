@@ -11,7 +11,7 @@ struct Derivative <: FunctionType end
 struct BernsteinPolynomial end
 
 # misc function for comparison
-function is_close{T <: Number}(x::T, y::T, n::Int = 42)
+function is_close(x::T, y::T, n::Int = 42) where {T <: Number}
   if x == y
     return true
   end
@@ -26,7 +26,7 @@ function is_close{T <: Number}(x::T, y::T, n::Int = 42)
   return diff <= tol * abs(x) && diff <= tol * abs(y)
 end
 
-function close_enough{T <: Number}(x::T, y::T, n::Int = 42)
+function close_enough(x::T, y::T, n::Int = 42) where {T <: Number}
   if x == y
     return true
   end
@@ -42,7 +42,7 @@ function close_enough{T <: Number}(x::T, y::T, n::Int = 42)
 end
 
 # misc functions - prob put in own file
-function divide_array_by_self!{T, N <: Number}(a::Vector{T}, x::N)
+function divide_array_by_self!(a::Vector{T}, x::N) where {T, N <: Number}
   for i = 1:length(a)
     a[i] = a[i] / x
   end
@@ -50,7 +50,7 @@ function divide_array_by_self!{T, N <: Number}(a::Vector{T}, x::N)
   return a
 end
 
-function multiply_array_by_self!{T, N <: Number}(a::Vector{T}, x::N)
+function multiply_array_by_self!(a::Vector{T}, x::N) where {T, N <: Number}
   for i = 1:length(a)
     a[i] = a[i] * x
   end
@@ -58,7 +58,7 @@ function multiply_array_by_self!{T, N <: Number}(a::Vector{T}, x::N)
   return a
 end
 
-function get_factorial{I <: Integer}(i::I)
+function get_factorial(i::Int)
   if i > 20
     return Float64(factorial(BigInt(i)))
   else
@@ -81,12 +81,12 @@ mutable struct BSpline
   knots::Vector{Float64}
 end
 
-function spline_oper{I <: Integer}(spline::BSpline, i::I, x::Float64)
+function spline_oper(spline::BSpline, i::Int, x::Float64)
   i <= spline.n || error("i must not be greater than spline.n $i $(spline.n)")
   return N(spline, i, spline.p, x)
 end
 
-function N{I <: Integer}(spline::BSpline, i::I, p::I, x::Float64)
+function N(spline::BSpline, i::Int, p::Int, x::Float64)
   if p == 0
     return (spline.knots[i] <= x && x < spline.knots[i + 1]) ? 1.0 : 0.0
   else

@@ -86,7 +86,7 @@ function solve(solver::Solver1D, f::Function, accuracy::Float64, guess::Float64,
   return _solve(solver, f, accuracy, xMin, xMax, fxMin, fxMax, guess, eval_num)
 end
 
-function enforced_bounds{S <: Solver1D}(solver::S, x::Float64)
+function enforced_bounds(solver::Solver1D, x::Float64)
   if solver.solverInfo.lowerBoundEnforced && x < solver.solverInfo.lowerBound
     return solver.solverInfo.lowerBound
   end

@@ -5,14 +5,14 @@ module QuantLib
 # functions overridden from based
 import Base.findprev, Base.findnext
 
-function findprev(testf::Function, A, start::Integer, val)
+function findprev(testf::Function, A::Vector{Int}, start::Int, val)
   for i = start:-1:1
     @inbounds testf(A[i], val) && return i
   end
   0
 end
 
-function findnext(testf::Function, A, start::Integer, val)
+function findnext(testf::Function, A::Vector{Int}, start::Int, val)
   @inbounds for i = start:length(A)
     if testf(A[i], val)
       return i
@@ -21,7 +21,7 @@ function findnext(testf::Function, A, start::Integer, val)
   return 0
 end
 
-function upper_bound{T}(vec::Vector{T}, x::T)
+function upper_bound(vec::Vector{T}, x::T) where {T}
   if x > vec[end]
     return length(vec) + 1
   end
@@ -473,17 +473,17 @@ include("pricing_engines/vanilla/mc_american_engine.jl")
 # # Helpers NOW IN TERM STRUCTURE
 # include("helpers/bond_helpers.jl")
 
-mutable struct Settings
-  evaluation_date::Date
-  counter::Int
-end
+# mutable struct Settings
+#   evaluation_date::Date
+#   counter::Int
+# end
 
-settings = Settings(Date(), 0)
+# settings = Settings(Date(), 0)
 
-function set_eval_date!(sett::Settings, d::Date)
-  sett.evaluation_date = d
-end
+# function set_eval_date!(sett::Settings, d::Date)
+#   sett.evaluation_date = d
+# end
 
-export Settings, settings, set_eval_date!
+# export Settings, settings, set_eval_date!
 
 end
