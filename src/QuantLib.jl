@@ -1,4 +1,5 @@
 # QuantLib
+__precompile__()
 module QuantLib
 
 # functions overridden from based
