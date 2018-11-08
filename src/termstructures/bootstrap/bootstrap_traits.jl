@@ -18,7 +18,7 @@ max_iterations(::Discount) = 100
 initial_value(::HazardRate) = AVG_HAZARD_RATE
 max_iterations(::HazardRate) = 30
 
-function guess{T <: TermStructure}(::Discount, i::Int, ts::T, valid::Bool)
+function guess(::Discount, i::Int, ts::TermStructure, valid::Bool)
   if valid
     # return previous iteration value
     return ts.data[i]
@@ -33,7 +33,7 @@ function guess{T <: TermStructure}(::Discount, i::Int, ts::T, valid::Bool)
   return exp(-r * ts.times[i])
 end
 
-function min_value_after{T <: TermStructure}(::Discount, i::Int, ts::T, valid::Bool)
+function min_value_after(::Discount, i::Int, ts::TermStructure, valid::Bool)
   if valid
     return ts.data[end] / 2.0
   end
@@ -42,13 +42,13 @@ function min_value_after{T <: TermStructure}(::Discount, i::Int, ts::T, valid::B
   return ts.data[i - 1] * exp( -max_rate * dt)
 end
 
-function max_value_after{T <: TermStructure}(::Discount, i::Int, ts::T, ::Bool)
+function max_value_after(::Discount, i::Int, ts::TermStructure, ::Bool)
   dt = ts.times[i] - ts.times[i - 1]
   return ts.data[i - 1] * exp(max_rate * dt)
   #return ts.data[i - 1]
 end
 
-function update_guess!{T <: TermStructure}(::Discount, i::Int, ts::T, discount::Float64)
+function update_guess!(::Discount, i::Int, ts::TermStructure, discount::Float64)
   ts.data[i] = discount
   return ts
 end
