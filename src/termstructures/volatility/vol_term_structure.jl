@@ -17,7 +17,7 @@ mutable struct FlatSmileSection{DC <: DayCount, V <: VolatilityType} <: Abstract
   isFloating::Bool
 end
 
-function FlatSmileSection{DC <: DayCount}(d::Date, vol::Float64, dc::DC, referenceDate::Date = Date(0), atmLevel::Float64 = -1.0, shift::Float64 = 0.0)
+function FlatSmileSection(d::Date, vol::Float64, dc::DC, referenceDate::Date = Date(0), atmLevel::Float64 = -1.0, shift::Float64 = 0.0) where {DC <: DayCount}
   d >= referenceDate || error("Exercise Date must be greater than reference date")
   exerciseTime = year_fraction(dc, referenceDate, d)
   isFloating = referenceDate == Date(0)
@@ -36,7 +36,7 @@ mutable struct ConstantOptionVolatility{B <: BusinessCalendar, C <: BusinessDayC
   dc::DC
 end
 
-function ConstantOptionVolatility{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}(settlementDays::Int, calendar::B, bdc::C, volatility::Float64, dc::DC)
+function ConstantOptionVolatility(settlementDays::Int, calendar::B, bdc::C, volatility::Float64, dc::DC) where {B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}
   today = settings.evaluation_date
   ref_date = advance(Dates.Day(settlementDays), calendar, today, bdc)
   ConstantOptionVolatility{B, C, DC}(settlementDays, ref_date, calendar, bdc, volatility, dc)
@@ -53,7 +53,7 @@ mutable struct ConstantSwaptionVolatility{B <: BusinessCalendar, C <: BusinessDa
 end
 
 # floating reference date, floating market data
-ConstantSwaptionVolatility{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}(settlementDays::Int, cal::B, bdc::C, volatility::Quote, dc::DC) =
+ConstantSwaptionVolatility(settlementDays::Int, cal::B, bdc::C, volatility::Quote, dc::DC) where {B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount} =
                           ConstantSwaptionVolatility{B, C, DC}(settlementDays, Date(0), cal, bdc, volatility, dc)
 
 # Local Vol Term Structure #
@@ -90,13 +90,13 @@ volatility_impl(ovs::OptionletVolatilityStructure, option_date::Date, strike::Fl
 volatility_impl(const_opt_vol::ConstantOptionVolatility, ::Float64, ::Float64) = const_opt_vol.volatility
 
 # Swaption Volatility methods
-function swap_length{V <: SwaptionVolatilityStructure}(swapVol::V, _start::Date, _end::Date)
+function swap_length(swapVol::SwaptionVolatilityStructure, _start::Date, _end::Date)
   result = round(float(Dates.value(_end - _start)) / 365.25 * 12.0) # month unit
   result /= 12.0 # year unit
   return result
 end
 
-function calc_volatility{V <: SwaptionVolatilityStructure}(swapVol::V, optionDate::Date, swapLength::Float64, strike::Float64)
+function calc_volatility(swapVol::SwaptionVolatilityStructure, optionDate::Date, swapLength::Float64, strike::Float64)
   # TODO add checks
   optionTime = time_from_reference(swapVol, optionDate)
   return volatility_impl(swapVol, optionTime, swapLength, strike)
@@ -104,7 +104,7 @@ end
 
 volatility_impl(swapVol::ConstantSwaptionVolatility, ::Float64, ::Float64, ::Float64) = swapVol.volatility.value
 
-function black_variance{V <: SwaptionVolatilityStructure}(swapVol::V, optionDate::Date, swapLength::Float64, strike::Float64)
+function black_variance(swapVol::SwaptionVolatilityStructure, optionDate::Date, swapLength::Float64, strike::Float64)
   v = calc_volatility(swapVol, optionDate, swapLength, strike)
   optionTime = time_from_reference(swapVol, optionDate)
   return v * v * optionTime
