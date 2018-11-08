@@ -17,8 +17,8 @@ mutable struct PiecewiseDefaultCurve{B <: BootstrapHelper, DC <: DayCount, P <: 
   validCurve::Bool
 end
 
-function PiecewiseDefaultCurve{B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap}(referenceDate::Date, instruments::Vector{B}, dc::DC, interp::P, trait::T,
-                                accuracy::Float64, boot::BT = IterativeBootstrap())
+function PiecewiseDefaultCurve(referenceDate::Date, instruments::Vector{B}, dc::DC, interp::P, trait::T,
+                                accuracy::Float64, boot::BT = IterativeBootstrap()) where {B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap}
   # get the initial length of instruments
   n = length(instruments)
   # create an initial state of the curve
