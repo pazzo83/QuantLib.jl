@@ -34,7 +34,7 @@ mutable struct VanillaSwapArgs
   floatingCoupons::Vector{Float64}
 end
 
-function VanillaSwapArgs{L <: Leg}(legs::Vector{L})
+function VanillaSwapArgs(legs::Vector{L}) where {L <: Leg}
   fixedCoups = legs[1].coupons
   floatingCoups = legs[2].coupons
   fixedCoupons = [amount(coup) for coup in fixedCoups]
@@ -65,7 +65,7 @@ mutable struct NonstandardSwapArgs
   floatingGearings::Vector{Float64}
 end
 
-function NonstandardSwapArgs{L <: Leg}(legs::Vector{L})
+function NonstandardSwapArgs(legs::Vector{L}) where {L <: Leg}
   vSwapArgs = VanillaSwapArgs(legs)
   fixedIsRedemptionFlow = Bool[!check_coupon(cf) for cf in legs[1].coupons]
   floatingIsRedemptionFlow = Bool[!check_coupon(cf) for cf in legs[2].coupons]
