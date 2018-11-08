@@ -20,12 +20,12 @@ get_settlement_days(bond::Bond) = bond.bondMixin.settlementDays
 get_issue_date(bond::Bond) = bond.bondMixin.issueDate
 get_maturity_date(bond::Bond) = bond.bondMixin.maturityDate
 
-mutable struct FixedRateBond{DC <: DayCount, P <: PricingEngine, C <: CompoundingType, F <: Frequency, FC <: FixedRateCoupon{DC, DC, C, F}} <: Bond
+mutable struct FixedRateBond{DC <: DayCount, P <: PricingEngine, C <: CompoundingType, F <: Frequency} <: Bond
   lazyMixin::LazyMixin
   bondMixin::BondMixin
   faceAmount::Float64
   schedule::Schedule
-  cashflows::FixedRateLeg{FC}
+  cashflows::FixedRateLeg{FixedRateCoupon{DC, InterestRate{DC, C, F}}}
   dc::DC
   redemption::Float64
   startDate::Date
@@ -58,9 +58,8 @@ function FixedRateBond(settlementDays::Int,
   # coups[end] = SimpleCashFlow(redemption, maturityDate)
 
   coups = FixedRateLeg(schedule, faceAmount, coup_rate, calendar, paymentConvention, dc)
-  F = typeof(schedule.tenor.freq)
 
-  return FixedRateBond{DC, P, SimpleCompounding, F, FixedRateCoupon{DC, DC, C, F}}(LazyMixin(), BondMixin(settlementDays, issueDate, maturityDate), faceAmount, schedule, coups, dc, redemption, schedule.dates[1], pricing_engine, 0.0)
+  return FixedRateBond{DC, P, SimpleCompounding, typeof(schedule.tenor.freq)}(LazyMixin(), BondMixin(settlementDays, issueDate, maturityDate), faceAmount, schedule, coups, dc, redemption, schedule.dates[1], pricing_engine, 0.0)
 end
 
 mutable struct FloatingRateBond{X <: InterestRateIndex, DC <: DayCount, P <: PricingEngine, ICP <: IborCouponPricer} <: Bond

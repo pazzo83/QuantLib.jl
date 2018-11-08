@@ -79,8 +79,9 @@ function FixedRateLeg(schedule::Schedule,
                       add_redemption::Bool = false) where {DC <: DayCount}
   n = length(schedule.dates) - 1
   length(rates) == length(schedule.dates) - 1 || error("mismatch in coupon rates")
-
-  coups = Vector{FixedRateCoupon{DC, DC, SimpleCompounding, typeof(schedule.tenor.freq)}}(n)
+  
+  coup_type = FixedRateCoupon{DC, InterestRate{DC, SimpleCompounding, typeof(schedule.tenor.freq)}}
+  coups = Vector{coup_type}(n)
 
   start_date = schedule.dates[1]
   end_date = schedule.dates[2]
@@ -108,7 +109,7 @@ function FixedRateLeg(schedule::Schedule,
     redempt = nothing
   end
 
-  return FixedRateLeg{FixedRateCoupon{DC, DC, SimpleCompounding, typeof(schedule.tenor.freq)}}(coups, redempt)
+  return FixedRateLeg{coup_type}(coups, redempt)
 end
 
 # Coupon methods
