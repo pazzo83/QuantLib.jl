@@ -192,7 +192,7 @@ mutable struct FdmG2Solver{FS <: FdmSolverDesc, F <: FdmSchemeDescType} <: LazyO
   model::G2
   solverDesc::FS
   schemeDesc::FdmSchemeDesc{F}
-  solver::Fdm2DimSolver{FSolve, F, FdmG2Op}
+  solver::Fdm2DimSolver{FS, F, FdmG2Op}
 
   function FdmG2Solver{FS, F}(model::G2,
                                 solverDesc::FS,
