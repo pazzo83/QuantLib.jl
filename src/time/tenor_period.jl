@@ -1,3 +1,5 @@
+using Dates
+
 struct TenorPeriod{P <: Dates.Period}
   period::P
   freq::Frequency

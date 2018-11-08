@@ -1,5 +1,5 @@
 # Business Calendars (adapted from Ito.jl and BusinessDays.jl)
-using Base.Dates
+using Dates
 
 abstract type BusinessCalendar end
 

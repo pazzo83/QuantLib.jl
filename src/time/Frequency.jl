@@ -1,5 +1,5 @@
 # Frequency
-using Base.Dates
+using Dates
 
 abstract type Frequency end
 

@@ -1,4 +1,4 @@
-using Base.Dates
+using Dates
 
 # helper methods
 function next_twentieth(d::Date)

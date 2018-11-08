@@ -1,5 +1,5 @@
 # Day Count (adapted from Ito.jl and InterestRates.jl)
-using Base.Dates
+using Dates
 
 abstract type DayCount end
 
