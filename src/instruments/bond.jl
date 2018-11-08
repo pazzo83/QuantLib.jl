@@ -25,7 +25,7 @@ mutable struct FixedRateBond{DC <: DayCount, P <: PricingEngine, C <: Compoundin
   bondMixin::BondMixin
   faceAmount::Float64
   schedule::Schedule
-  cashflows::FixedRateLeg{DC, DC, C, F}
+  cashflows::FixedRateLeg{FixedRateCoupon{DC, DC, C, F}}
   dc::DC
   redemption::Float64
   startDate::Date
