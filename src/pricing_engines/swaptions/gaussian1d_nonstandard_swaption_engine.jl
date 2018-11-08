@@ -1,3 +1,5 @@
+using Dates
+
 struct Gaussian1DNonstandardSwaptionEngine{G <: Gaussian1DModel, Y <: YieldTermStructure, P <: GaussianProbabilities} <: PricingEngine
   model::G
   integrationPoints::Int
@@ -68,7 +70,7 @@ function _calculate!(pe::Gaussian1DNonstandardSwaptionEngine, swaption::Nonstand
   end
   # end probability computation
 
-  expiry0 = expiry1 = Date()
+  expiry0 = expiry1 = Date(0)
   expiry0Time = expiry1Time = -1.0
 
   while true

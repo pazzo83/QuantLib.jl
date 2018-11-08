@@ -1,4 +1,5 @@
 # TermStructures module
+using Dates
 # module TermStructures
 # core TermStructure methods
 function check_range(ts::TermStructure, date::Date)
@@ -14,7 +15,7 @@ max_date(ts::TermStructure) = ts.referenceDate + Date.Year(100)
 time_from_reference(ts::TermStructure, date::Date) = year_fraction(ts.dc, reference_date(ts), date, Date(), Date())
 
 function reference_date(ts::TermStructure)
-  if ts.referenceDate == Date()
+  if ts.referenceDate == Date(0)
     ts.referenceDate = advance(Dates.Day(ts.settlementDays), ts.calendar, settings.evaluation_date)
   end
 

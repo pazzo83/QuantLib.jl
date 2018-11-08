@@ -1,4 +1,6 @@
 # Gaussian One-D engines #
+using Dates
+
 struct NoneProbabilities <: GaussianProbabilities end
 struct NaiveProbabilities <: GaussianProbabilities end
 struct DigitalProbabilities <: GaussianProbabilities end
@@ -67,7 +69,7 @@ function _calculate!(pe::Gaussian1DSwaptionEngine, swaption::Swaption)
   end
   # end probability computation
 
-  expiry0 = expiry1 = Date()
+  expiry0 = expiry1 = Date(0)
   expiry0Time = expiry1Time = -1.0
 
   while true

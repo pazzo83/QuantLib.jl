@@ -1,3 +1,5 @@
+using Dates
+
 mutable struct PiecewiseYieldCurve{B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap} <: InterpolatedCurve{P}
   lazyMixin::LazyMixin
   settlementDays::Int

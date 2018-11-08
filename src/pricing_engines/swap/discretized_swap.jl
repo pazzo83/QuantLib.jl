@@ -1,3 +1,5 @@
+using Dates
+
 mutable struct DiscretizedSwap{ST <: SwapType, L <: Lattice} <: DiscretizedAsset
   nominal::Float64
   swapT::ST

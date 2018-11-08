@@ -1,3 +1,5 @@
+using Dates
+
 struct DiscountingSwapEngine{Y <: YieldTermStructure} <: PricingEngine
   yts::Y
   includeSettlementDateFlows::Bool

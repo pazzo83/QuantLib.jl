@@ -1,3 +1,5 @@
+using Dates
+
 mutable struct SpreadCDSHelper{P <: Dates.Period, C <: BusinessCalendar, F <: Frequency, PC <: BusinessDayConvention, DC <: DayCount, YTS <: YieldTermStructure, PROB <: AbstractDefaultProbabilityTermStructure} <: AbstractCDSHelper
   runningSpread::Quote
   tenor::P

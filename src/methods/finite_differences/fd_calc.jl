@@ -1,3 +1,5 @@
+using Dates
+
 mutable struct FdmAffineModelTermStructure{B <: BusinessCalendar, DC <: DayCount, A <: AffineModel} <: YieldTermStructure
   settlement_days::Int
   referenceDate::Date

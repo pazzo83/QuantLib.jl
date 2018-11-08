@@ -1,3 +1,5 @@
+using Dates
+
 mutable struct BlackConstantVol{BC <: BusinessCalendar, DC <: DayCount} <: BlackVolTermStructure
   referenceDate::Date
   settlementDays::Int

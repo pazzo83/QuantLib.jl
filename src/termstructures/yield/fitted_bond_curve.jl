@@ -1,3 +1,5 @@
+using Dates
+
 mutable struct FittedBondDiscountCurve{C <: BusinessCalendar, B <: BondHelper, DC <: DayCount, F <: FittingMethod} <: Curve
   lazyMixin::LazyMixin
   settlementDays::Int

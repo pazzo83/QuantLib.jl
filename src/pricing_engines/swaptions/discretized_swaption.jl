@@ -1,3 +1,5 @@
+using Dates
+
 mutable struct DiscretizedSwaption{E <: Exercise, L <: Lattice} <: DiscretizedOption
   underlying::DiscretizedSwap
   exercise::E

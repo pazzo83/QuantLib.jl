@@ -1,4 +1,5 @@
 # main term structures
+using Dates
 
 struct NullYieldTermStructure <: YieldTermStructure end
 
@@ -107,7 +108,7 @@ FlatForwardTermStructure(referenceDate::Date, calendar::B, forward::Quote, dc::D
                         FlatForwardTermStructure{B, DC, C, F}(0, referenceDate, calendar, forward, dc, comp, freq)
 
 FlatForwardTermStructure(settlementDays::Int, calendar::B, forward::Quote, dc::DC, comp::C = ContinuousCompounding(), freq::F = QuantLib.Time.Annual()) where {B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency} =
-                        FlatForwardTermStructure{B, DC, C, F}(settlementDays, Date(), calendar, forward, dc, comp, freq)
+                        FlatForwardTermStructure{B, DC, C, F}(settlementDays, Date(0), calendar, forward, dc, comp, freq)
 
 FlatForwardTermStructure(referenceDate::Date, forward::Float64, dc::DC) where {DC <: DayCount} =
                         FlatForwardTermStructure{TargetCalendar, DC, ContinuousCompounding, Annual}(0, referenceDate, TargetCalendar(), Quote(forward), dc, ContinuousCompounding(), Annual())

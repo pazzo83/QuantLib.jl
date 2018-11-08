@@ -1,3 +1,5 @@
+using Dates
+
 struct AmericanExercise <: EarlyExercise
   dates::Vector{Date}
 end

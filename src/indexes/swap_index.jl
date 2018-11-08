@@ -1,3 +1,5 @@
+using Dates
+
 struct SwapIndex{TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure, II <: IborIndex} <: InterestRateIndex
   familyName::String
   tenor::TP

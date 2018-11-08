@@ -1,3 +1,5 @@
+using Dates
+
 mutable struct ForwardRateAgreement{DC <: DayCount, BC <: BusinessCalendar, C <: BusinessDayConvention, Y <: YieldTermStructure, P <: PositionType, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} <: AbstractForward
   lazyMixin::LazyMixin
   underlyingIncome::Float64
