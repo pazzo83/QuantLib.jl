@@ -91,9 +91,9 @@ mutable struct Fdm1DimSolver{FS <: FdmSolverDesc, F <: FdmSchemeDescType, FD <: 
   end
 end
 
-Fdm1DimSolver{FS <: FdmSolverDesc, F <: FdmSchemeDescType, FD <: FdmLinearOpComposite}(solverDesc::FS,
-                                                                                      schemeDesc::FdmSchemeDesc{F},
-                                                                                      op::FD) =
+Fdm1DimSolver(solverDesc::FS,
+              schemeDesc::FdmSchemeDesc{F},
+              op::FD) where {FS <: FdmSolverDesc, F <: FdmSchemeDescType, FD <: FdmLinearOpComposite} =
               Fdm1DimSolver{FS, F, FD}(solverDesc, schemeDesc, op)
 
 mutable struct Fdm2DimSolver{FS <: FdmSolverDesc, F <: FdmSchemeDescType, FD <: FdmLinearOpComposite} <: LazyObject
@@ -147,9 +147,9 @@ mutable struct Fdm2DimSolver{FS <: FdmSolverDesc, F <: FdmSchemeDescType, FD <: 
   end
 end
 
-Fdm2DimSolver{FS <: FdmSolverDesc, F <: FdmSchemeDescType, FD <: FdmLinearOpComposite}(solverDesc::FS,
-                                                                                      schemeDesc::FdmSchemeDesc{F},
-                                                                                      op::FD) =
+Fdm2DimSolver(solverDesc::FS,
+              schemeDesc::FdmSchemeDesc{F},
+              op::FD) where {FS <: FdmSolverDesc, F <: FdmSchemeDescType, FD <: FdmLinearOpComposite} =
               Fdm2DimSolver{FS, F, FD}(solverDesc, schemeDesc, op)
 
 get_interpolation(solv::Fdm1DimSolver, x::Float64) = solv.interpolation(x)
@@ -203,9 +203,9 @@ mutable struct FdmG2Solver{FS <: FdmMesher, C <: FdmInnerValueCalculator, F <: F
   end
 end
 
-FdmG2Solver{FS <: FdmMesher, C <: FdmInnerValueCalculator, F <: FdmSchemeDescType}(model::G2,
-                                                                                  solverDesc::FdmSolverDesc{FS, C},
-                                                                                  schemeDesc::FdmSchemeDesc{F}) =
+FdmG2Solver(model::G2,
+            solverDesc::FdmSolverDesc{FS, C},
+            schemeDesc::FdmSchemeDesc{F}) where {FS <: FdmMesher, C <: FdmInnerValueCalculator, F <: FdmSchemeDescType} =
             FdmG2Solver{FS, C, F}(model, solverDesc, schemeDesc)
 
 mutable struct FdmHullWhiteSolver{FS <: FdmSolverDesc, F <: FdmSchemeDescType} <: LazyObject
@@ -224,7 +224,7 @@ mutable struct FdmHullWhiteSolver{FS <: FdmSolverDesc, F <: FdmSchemeDescType} <
   end
 end
 
-FdmHullWhiteSolver{FS <: FdmSolverDesc, F <: FdmSchemeDescType}(model::HullWhite, solverDesc::FS, schemeDesc::FdmSchemeDesc{F}) =
+FdmHullWhiteSolver(model::HullWhite, solverDesc::FS, schemeDesc::FdmSchemeDesc{F}) where {FS <: FdmSolverDesc, F <: FdmSchemeDescType} =
                   FdmHullWhiteSolver{FS, F}(model, solverDesc, schemeDesc)
 
 function value_at(solv::FdmG2Solver, x::Float64, y::Float64)
