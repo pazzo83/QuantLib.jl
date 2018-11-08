@@ -473,9 +473,17 @@ end
 #
 # Base.done(f::FixedRateLeg, state) = length(f.coupons) + 1 < state
 
-Base.start(f::Leg) = 1
-Base.next(f::Leg, state) = f.coupons[state], state + 1
-Base.done(f::Leg, state) = length(f.coupons) == state - 1
+# Base.start(f::Leg) = 1
+# Base.next(f::Leg, state) = f.coupons[state], state + 1
+# Base.done(f::Leg, state) = length(f.coupons) == state - 1
+
+function Base.iterate(f::Leg, state=1)
+  if length(f.coupons) == state - 1
+      return nothing
+  end
+
+  return f.coupons[state], state + 1
+end
 
 Base.getindex(f::Leg, i::Int) = f.coupons[i]
 Base.lastindex(f::Leg) = lastindex(f.coupons)

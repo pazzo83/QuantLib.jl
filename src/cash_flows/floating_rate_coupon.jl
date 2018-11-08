@@ -1,5 +1,4 @@
 using QuantLib.Time, QuantLib.Math
-using Dates
 
 const BASIS_POINT = 0.0001
 
