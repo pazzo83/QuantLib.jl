@@ -37,21 +37,20 @@ mutable struct SpreadCDSHelper{P <: Dates.Period, C <: BusinessCalendar, F <: Fr
 end
 
 # Catch all constructor
-SpreadCDSHelper{P <: Dates.Period, C <: BusinessCalendar, F <: Frequency, PC <: BusinessDayConvention, DC <: DayCount, YTS <: YieldTermStructure, PROB <: AbstractDefaultProbabilityTermStructure}(
-                                                                                                      runningSpread::Quote,
-                                                                                                      tenor::P,
-                                                                                                      settlementDays::Int,
-                                                                                                      calendar::C,
-                                                                                                      frequency::F,
-                                                                                                      paymentConvention::PC,
-                                                                                                      dc::DC,
-                                                                                                      recoveryRate::Float64,
-                                                                                                      schedule::Schedule,
-                                                                                                      discountCurve::YTS,
-                                                                                                      settlesAccrual::Bool,
-                                                                                                      paysAtDefaultTime::Bool,
-                                                                                                      protectionStart::Date,
-                                                                                                      probability::PROB = NullDefaultProbabilityTermStructure()) =
+SpreadCDSHelper(runningSpread::Quote,
+                tenor::P,
+                settlementDays::Int,
+                calendar::C,
+                frequency::F,
+                paymentConvention::PC,
+                dc::DC,
+                recoveryRate::Float64,
+                schedule::Schedule,
+                discountCurve::YTS,
+                settlesAccrual::Bool,
+                paysAtDefaultTime::Bool,
+                protectionStart::Date,
+                probability::PROB = NullDefaultProbabilityTermStructure()) where {P <: Dates.Period, C <: BusinessCalendar, F <: Frequency, PC <: BusinessDayConvention, DC <: DayCount, YTS <: YieldTermStructure, PROB <: AbstractDefaultProbabilityTermStructure} =
 
                 SpreadCDSHelper{P, C, F, PC, DC, YTS, PROB}(runningSpread, tenor, settlementDays, calendar, frequency, paymentConvention, dc, recoveryRate, schedule,
                                 discountCurve, settlesAccrual, paysAtDefaultTime, protectionStart, probability)
