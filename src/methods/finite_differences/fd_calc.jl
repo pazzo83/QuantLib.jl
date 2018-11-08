@@ -11,11 +11,11 @@ mutable struct FdmAffineModelTermStructure{B <: BusinessCalendar, DC <: DayCount
   t::Float64
 end
 
-FdmAffineModelTermStructure{B <: BusinessCalendar, DC <: DayCount, A <: AffineModel}(referenceDate::Date,
-                                                                                    cal::B, dc::DC,
-                                                                                    modelReferenceDate::Date,
-                                                                                    model::A,
-                                                                                    r::Vector{Float64}) =
+FdmAffineModelTermStructure(referenceDate::Date,
+                            cal::B, dc::DC,
+                            modelReferenceDate::Date,
+                            model::A,
+                            r::Vector{Float64}) where {B <: BusinessCalendar, DC <: DayCount, A <: AffineModel} =
                             FdmAffineModelTermStructure{B, DC, A}(0, referenceDate, cal, dc, modelReferenceDate, model, r,
                                                                   year_fraction(dc, modelReferenceDate, referenceDate))
 
