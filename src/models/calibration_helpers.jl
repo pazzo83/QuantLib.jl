@@ -69,7 +69,7 @@ mutable struct SwaptionHelper{Dm <: Dates.Period, Dl <: Dates.Period, TP <: Teno
   calibCommon::CalibrationHelperCommon{CE}
   yts::T
   pricingEngine::P
-  swaption::Swaption{EuropeanExercise, SettlementPhysical, P, ST, DC_fix, DC_float, B, Leg, SP, STP, CUR, IB, IC, IDC, IT}
+  swaption::Swaption{EuropeanExercise, SettlementPhysical, P, Swap{ST, DC_fix, DC_float, B, Leg, SP, STP, CUR, IB, IC, IDC, IT}}
 
 
 
