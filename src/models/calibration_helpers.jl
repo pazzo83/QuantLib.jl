@@ -245,7 +245,7 @@ end
 
 # clone functions #
 function clone(swaptionHelper::SwaptionHelper{Dm, Dl, TP, DC_fix, DC_float, T, P, CE, ST, B, SP, II}, 
-              pe::P2 = swaptionHelper.pricingEngine) where {Dm, Dl, TP, DC_fix, DC_float, T, P, CE, ST, B, SP, II}
+              pe::P2 = swaptionHelper.pricingEngine) where {Dm, Dl, TP, DC_fix, DC_float, T, P, CE, ST, B, SP, II, P2}
   lazyMixin, calibCommon = pe == swaptionHelper.pricingEngine ? (swaptionHelper.lazyMixin, swaptionHelper.calibCommon) : (LazyMixin(), CalibrationHelperCommon())
   swaption = build_swaption(swaptionHelper, pe)
   newSwaptionHelper = SwaptionHelper{Dm, Dl, TP, DC_fix, DC_float, T, P2, CE, ST, B, SP, II}(lazyMixin, swaptionHelper.exerciseDate, swaptionHelper.endDate, swaptionHelper.maturity, swaptionHelper.swapLength,
