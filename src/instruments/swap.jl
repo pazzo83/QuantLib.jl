@@ -345,7 +345,7 @@ function clone(swap::VanillaSwap{ST, DC_fix, DC_float, B, L, P, II}, pe::Pricing
                     swap.floatSchedule, swap.floatDayCount, swap.paymentConvention, newLegs, swap.payer, pe, res, args)
 end
 
-get_pricing_engine_type{ST, DC_fix, DC_float, B, L, P, TP, CUR, IB, IC, IDC, IT}(::VanillaSwap{ST, DC_fix, DC_float, B, L, P, TP, CUR, IB, IC, IDC, IT}) = P
+get_pricing_engine_type(::VanillaSwap{ST, DC_fix, DC_float, B, L, P, II}) where {ST, DC_fix, DC_float, B, L, P, II} = P
 
 function update_ts_idx!(swap::VanillaSwap, ts::TermStructure)
   typeof(ts) == typeof(swap.iborIndex.ts) || error("Term Structure mismatch for swap between ts and index ts")

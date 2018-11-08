@@ -53,7 +53,7 @@ end
 VanillaOption(payoff::S, exercise::E, pe::P) where {S <: StrikedTypePayoff, E <: Exercise, P <: PricingEngine} =
               VanillaOption{S, E, P}(LazyMixin(), payoff, exercise, pe, OptionResults())
 
-get_pricing_engine_type{S, E, P}(::VanillaOption{S, E, P}) = P
+get_pricing_engine_type(::VanillaOption{S, E, P}) where {S, E, P} = P
 
 function clone(opt::VanillaOption, pe::P = opt.pricingEngine) where {P <: PricingEngine}
   lazyMixin, res = pe == opt.pricingEngine ? (opt.lazyMixin, opt.results) : (LazyMixin(), OptionResults())
