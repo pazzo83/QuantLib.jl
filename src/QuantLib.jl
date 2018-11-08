@@ -40,6 +40,7 @@ include("math/Math.jl")
 include("time/Time.jl")
 
 # MAIN MODULE CODE
+using Dates
 using QuantLib.Math, QuantLib.Time
 using Distributions
 
