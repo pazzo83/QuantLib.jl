@@ -1,3 +1,5 @@
+using Dates
+
 mutable struct SwapRateHelper{PrT <: Dates.Period, PrS <: Dates.Period} <: RateHelper
   rate::Quote
   tenor::PrT
@@ -22,7 +24,7 @@ function SwapRateHelper(rate::Float64, tenor::PrT, cal::C, fixedFrequency::F, fi
   # fixed_rate = 0.0
 
   ref_date = adjust(floatingCal, floatConvention, settings.evaluation_date)
-  spot_date = advance(Base.Dates.Day(settlementDays), floatingCal, ref_date, floatConvention)
+  spot_date = advance(Dates.Day(settlementDays), floatingCal, ref_date, floatConvention)
   start_date = adjust(floatingCal, floatConvention, spot_date + fwdStart)
   ## TODO Float end of month (defaults to false)
   end_date = start_date + tenor

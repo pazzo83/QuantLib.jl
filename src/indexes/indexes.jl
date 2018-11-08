@@ -1,3 +1,5 @@
+using Dates
+
 struct IborIndex{TP <: TenorPeriod, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} <: InterestRateIndex
   familyName::String
   tenor::TP
@@ -138,17 +140,17 @@ function usd_libor_index(tenor::TenorPeriod, yts::YieldTermStructure)
   return LiborIndex("USDLibor", tenor, 2, USDCurrency(), QuantLib.Time.USSettlementCalendar(), QuantLib.Time.Actual360(), yts)
 end
 
-euribor_conv(::Union{Base.Dates.Day, Base.Dates.Week}) = QuantLib.Time.Following()
-euribor_conv(::Union{Base.Dates.Month, Base.Dates.Year}) = QuantLib.Time.ModifiedFollowing()
+euribor_conv(::Union{Dates.Day, Dates.Week}) = QuantLib.Time.Following()
+euribor_conv(::Union{Dates.Month, Dates.Year}) = QuantLib.Time.ModifiedFollowing()
 
-euribor_eom(::Union{Base.Dates.Day, Base.Dates.Week}) = false
-euribor_eom(::Union{Base.Dates.Month, Base.Dates.Year}) = true
+euribor_eom(::Union{Dates.Day, Dates.Week}) = false
+euribor_eom(::Union{Dates.Month, Dates.Year}) = true
 
-libor_conv(::Union{Base.Dates.Day, Base.Dates.Week}) = QuantLib.Time.Following()
-libor_conv(::Union{Base.Dates.Month, Base.Dates.Year}) = QuantLib.Time.ModifiedFollowing()
+libor_conv(::Union{Dates.Day, Dates.Week}) = QuantLib.Time.Following()
+libor_conv(::Union{Dates.Month, Dates.Year}) = QuantLib.Time.ModifiedFollowing()
 
-libor_eom(::Union{Base.Dates.Day, Base.Dates.Week}) = false
-libor_eom(::Union{Base.Dates.Month, Base.Dates.Year}) = true
+libor_eom(::Union{Dates.Day, Dates.Week}) = false
+libor_eom(::Union{Dates.Month, Dates.Year}) = true
 
 # clone methods #
 clone(idx::IborIndex{TP, CUR, B, C, DC, T}, ts::TermStructure = idx.ts) where {TP, CUR, B, C, DC, T} =

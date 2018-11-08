@@ -1,3 +1,5 @@
+using Dates
+
 struct CachedSwapKey
   index::SwapIndex
   fixing::Date

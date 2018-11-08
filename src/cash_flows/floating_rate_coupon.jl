@@ -1,4 +1,5 @@
 using QuantLib.Time, QuantLib.Math
+using Dates
 
 const BASIS_POINT = 0.0001
 
@@ -56,13 +57,13 @@ function IborCoupon(paymentDate::Date,
   _fixing_date = isInArrears ? fixing_date(iborIndex, endDate) : fixing_date(iborIndex, startDate)
   fixing_cal = iborIndex.fixingCalendar
   idx_fixing_days = iborIndex.fixingDays
-  fixing_val_date = advance(Base.Dates.Day(idx_fixing_days), fixing_cal, _fixing_date, iborIndex.convention)
+  fixing_val_date = advance(Dates.Day(idx_fixing_days), fixing_cal, _fixing_date, iborIndex.convention)
 
   if isInArrears
     fixing_end_date = maturity_date(iborIndex, fixing_val_date)
   else
-    next_fixing = advance(-Base.Dates.Day(fixingDays), fixing_cal, endDate, iborIndex.convention)
-    fixing_end_date = advance(Base.Dates.Day(idx_fixing_days), fixing_cal, next_fixing, iborIndex.convention)
+    next_fixing = advance(-Dates.Day(fixingDays), fixing_cal, endDate, iborIndex.convention)
+    fixing_end_date = advance(Dates.Day(idx_fixing_days), fixing_cal, next_fixing, iborIndex.convention)
   end
 
   spanning_time = year_fraction(iborIndex.dc, fixing_val_date, fixing_end_date)
