@@ -1,4 +1,4 @@
-type BlackKarasinski{TermStructureConsistentModelType, T <: TermStructure} <: OneFactorModel{TermStructureConsistentModelType}
+mutable struct BlackKarasinski{TermStructureConsistentModelType, T <: TermStructure} <: OneFactorModel{TermStructureConsistentModelType}
   modT::TermStructureConsistentModelType
   a::ConstantParameter
   sigma::ConstantParameter
