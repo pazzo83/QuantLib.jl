@@ -169,11 +169,11 @@ function Schedule(effectiveDate::Date,
 end
 
 # helpers
-function get_size(p::Base.Dates.Month, ed::Date, td::Date)
+function get_size(p::Dates.Month, ed::Date, td::Date)
   return Int(ceil(ceil(Dates.value(td - ed) / 30) / Dates.value(p)))
 end
 
-function get_size(p::Base.Dates.Year, ed::Date, td::Date)
+function get_size(p::Dates.Year, ed::Date, td::Date)
   # ed_day, ed_month = monthday(ed)
   # td_day, td_month = monthday(td)
   if monthday(ed) == monthday(td)
