@@ -134,9 +134,9 @@ is_holiday(joint::JointCalendar, dt::Date) = is_holiday(joint.cal1, dt) || is_ho
 
 function is_holiday(::USSettlementCalendar , dt::Date)
 
-	const yy = year(dt)
-	const mm = month(dt)
-	const dd = day(dt)
+	yy = year(dt)
+	mm = month(dt)
+	dd = day(dt)
 
 	if (
 			# New Year's Day
@@ -179,9 +179,9 @@ function is_holiday(::USSettlementCalendar , dt::Date)
 end
 
 function is_holiday(::USGovernmentBondCalendar, dt::Date)
-  const yy = year(dt)
-	const mm = month(dt)
-	const dd = day(dt)
+  yy = year(dt)
+	mm = month(dt)
+	dd = day(dt)
 	if (
 			# New Year's Day
 			adjustweekendholidayUS(Date(yy, 1, 1)) == dt
@@ -226,9 +226,9 @@ function is_holiday(::USGovernmentBondCalendar, dt::Date)
 end
 
 function is_holiday(::USNYSECalendar, dt::Date)
-  const yy = year(dt)
-	const mm = month(dt)
-	const dd = day(dt)
+  yy = year(dt)
+	mm = month(dt)
+	dd = day(dt)
 	if (
 			# New Year's Day
 			adjustweekendholidayUS(Date(yy, 1, 1)) == dt
@@ -298,9 +298,9 @@ end
 
 ## UK Calendar functions
 function is_holiday(c::Union{UKSettlementCalendar, UKLSECalendar}, dt::Date)
-  const yy = year(dt)
-	const mm = month(dt)
-	const dd = day(dt)
+  yy = year(dt)
+	mm = month(dt)
+	dd = day(dt)
 
 	if (
     # New Year's Day
@@ -354,10 +354,10 @@ function is_holiday(c::Union{UKSettlementCalendar, UKLSECalendar}, dt::Date)
 end
 
 function is_holiday(::TargetCalendar, dt::Date)
-  const yy = year(dt)
-	const mm = month(dt)
-	const dd = day(dt)
-  const easter_sun = easter_date(yy)
+  yy = year(dt)
+	mm = month(dt)
+	dd = day(dt)
+  easter_sun = easter_date(yy)
 
   if (
     # New Years Day
