@@ -49,14 +49,14 @@ struct Schedule{B <: BusinessDayConvention, B1 <: BusinessDayConvention, D <: Da
   end
 end
 
-function Schedule{B <: BusinessDayConvention, B1 <: BusinessDayConvention, C <: BusinessCalendar}(effectiveDate::Date,
-                                                                                                  terminationDate::Date,
-                                                                                                  tenor::TenorPeriod,
-                                                                                                  convention::B,
-                                                                                                  termDateConvention::B1,
-                                                                                                  rule::DateGenerationForwards,
-                                                                                                  endOfMonth::Bool,
-                                                                                                  cal::C = TargetCalendar())
+function Schedule(effectiveDate::Date,
+                  terminationDate::Date,
+                  tenor::TenorPeriod,
+                  convention::B,
+                  termDateConvention::B1,
+                  rule::DateGenerationForwards,
+                  endOfMonth::Bool,
+                  cal::C = TargetCalendar()) where {B <: BusinessDayConvention, B1 <: BusinessDayConvention, C <: BusinessCalendar}
   # dt = effectiveDate
   # num_dates = 1
   #
@@ -95,14 +95,14 @@ function Schedule{B <: BusinessDayConvention, B1 <: BusinessDayConvention, C <: 
   return Schedule{B, B1, DateGenerationForwards, C}(effectiveDate, terminationDate, tenor, convention, termDateConvention, rule, endOfMonth, dates, cal)
 end
 
-function Schedule{B <: BusinessDayConvention, B1 <: BusinessDayConvention, C <: BusinessCalendar}(effectiveDate::Date,
-                                                                                                  terminationDate::Date,
-                                                                                                  tenor::TenorPeriod,
-                                                                                                  convention::B,
-                                                                                                  termDateConvention::B1,
-                                                                                                  rule::DateGenerationBackwards,
-                                                                                                  endOfMonth::Bool,
-                                                                                                  cal::C = TargetCalendar())
+function Schedule(effectiveDate::Date,
+                  terminationDate::Date,
+                  tenor::TenorPeriod,
+                  convention::B,
+                  termDateConvention::B1,
+                  rule::DateGenerationBackwards,
+                  endOfMonth::Bool,
+                  cal::C = TargetCalendar()) where {B <: BusinessDayConvention, B1 <: BusinessDayConvention, C <: BusinessCalendar}
   size = get_size(tenor.period, effectiveDate, terminationDate)
   dates = Vector{Date}(size)
   dates[1] = effectiveDate
@@ -131,14 +131,14 @@ function Schedule{B <: BusinessDayConvention, B1 <: BusinessDayConvention, C <: 
   return Schedule{B, B1, DateGenerationBackwards, C}(effectiveDate, terminationDate, tenor, convention, termDateConvention, rule, endOfMonth, dates, cal)
 end
 
-function Schedule{B <: BusinessDayConvention, B1 <: BusinessDayConvention, C <: BusinessCalendar}(effectiveDate::Date,
-                                                                                                  terminationDate::Date,
-                                                                                                  tenor::TenorPeriod,
-                                                                                                  convention::B,
-                                                                                                  termDateConvention::B1,
-                                                                                                  rule::DateGenerationTwentieth,
-                                                                                                  endOfMonth::Bool,
-                                                                                                  cal::C = TargetCalendar())
+function Schedule(effectiveDate::Date,
+                  terminationDate::Date,
+                  tenor::TenorPeriod,
+                  convention::B,
+                  termDateConvention::B1,
+                  rule::DateGenerationTwentieth,
+                  endOfMonth::Bool,
+                  cal::C = TargetCalendar()) where {B <: BusinessDayConvention, B1 <: BusinessDayConvention, C <: BusinessCalendar}
 
   dates = Vector{Date}()
   dt = effectiveDate

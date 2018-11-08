@@ -7,13 +7,13 @@ type BlackKarasinski{TermStructureConsistentModelType, T <: TermStructure} <: On
   common::ModelCommon
 end
 
-function BlackKarasinski(ts::TermStructure, a::Float64 = 0.1, sigma = 0.1)
+function BlackKarasinski(ts::T, a::Float64 = 0.1, sigma = 0.1) where {T <: TermStructure}
   a_const = ConstantParameter([a], PositiveConstraint())
   sigma_const = ConstantParameter([sigma], PositiveConstraint())
 
   privateConstraint = PrivateConstraint(ConstantParameter[a_const, sigma_const])
 
-  return BlackKarasinski(TermStructureConsistentModelType(), a_const, sigma_const, ts, privateConstraint, ModelCommon()) # ShortRateModelCommon())
+  return BlackKarasinski{TermStructureConsistentModelType, T}(TermStructureConsistentModelType(), a_const, sigma_const, ts, privateConstraint, ModelCommon()) # ShortRateModelCommon())
 end
 
 generate_arguments!(m::BlackKarasinski) = m # do nothing
@@ -26,7 +26,7 @@ mutable struct BlackKarasinskiDynamics{P <: Parameter} <: ShortRateDynamics
 end
 
 # Dynamics #
-BlackKarasinskiDynamics{P <: Parameter}(fitting::P, a::Float64, sigma::Float64) = BlackKarasinskiDynamics(OrnsteinUhlenbeckProcess(a, sigma), fitting, a, sigma)
+BlackKarasinskiDynamics(fitting::P, a::Float64, sigma::Float64) where {P <: Parameter} = BlackKarasinskiDynamics{P}(OrnsteinUhlenbeckProcess(a, sigma), fitting, a, sigma)
 
 short_rate(dynamic::BlackKarasinskiDynamics, t::Float64, x::Float64) = exp(x + dynamic.fitting(t))
 

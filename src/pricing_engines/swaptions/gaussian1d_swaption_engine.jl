@@ -13,23 +13,23 @@ struct Gaussian1DSwaptionEngine{G <: Gaussian1DModel, Y <: YieldTermStructure, P
   probabilities::P
 
   Gaussian1DSwaptionEngine{G, Y, P}(model::G,
-                                    integrationPoints::Int,
-                                    stddevs::Float64,
-                                    extrapolatePayoff::Bool,
-                                    flatPayoffExtrapolation::Bool,
-                                    discountCurve::Y,
-                                    probabilities::P) where {G, Y, P} =
+                          integrationPoints::Int,
+                          stddevs::Float64,
+                          extrapolatePayoff::Bool,
+                          flatPayoffExtrapolation::Bool,
+                          discountCurve::Y,
+                          probabilities::P) where {G, Y, P} =
     new{G, Y, P}(model, integrationPoints, stddevs, extrapolatePayoff, flatPayoffExtrapolation, discountCurve, probabilities)
 end
 
-Gaussian1DSwaptionEngine{G <: Gaussian1DModel, Y <: YieldTermStructure, P <: GaussianProbabilities}(model::G,
-                                                                                                    integrationPoints::Int = 64,
-                                                                                                    stddevs::Float64 = 7.0,
-                                                                                                    extrapolatePayoff::Bool = true,
-                                                                                                    flatPayoffExtrapolation::Bool = false,
-                                                                                                    discountCurve::Y = NullYieldTermStructure(),
-                                                                                                    probabilities::P = NoneProbabilities()) =
-                        Gaussian1DSwaptionEngine{G, Y, P}(model, integrationPoints, stddevs, extrapolatePayoff, flatPayoffExtrapolation, discountCurve, probabilities)
+Gaussian1DSwaptionEngine(model::G,
+                        integrationPoints::Int = 64,
+                        stddevs::Float64 = 7.0,
+                        extrapolatePayoff::Bool = true,
+                        flatPayoffExtrapolation::Bool = false,
+                        discountCurve::Y = NullYieldTermStructure(),
+                        probabilities::P = NoneProbabilities()) where {G <: Gaussian1DModel, Y <: YieldTermStructure, P <: GaussianProbabilities} =
+                          Gaussian1DSwaptionEngine{G, Y, P}(model, integrationPoints, stddevs, extrapolatePayoff, flatPayoffExtrapolation, discountCurve, probabilities)
 # methods #
 function _calculate!(pe::Gaussian1DSwaptionEngine, swaption::Swaption)
   isa(swaption.delivery, SettlementPhysical) || error("cash-settled swaptions not yet implemented")

@@ -14,16 +14,16 @@ mutable struct CallableFixedRateBond{L <: Leg, DC <: DayCount, P <: PricingEngin
   blackVolQuote::Quote
 end
 
-function CallableFixedRateBond{DC <: DayCount, P <: PricingEngine}(settlementDays::Int,
-                                                                  faceAmount::Float64,
-                                                                  schedule::Schedule,
-                                                                  coupons::Vector{Float64},
-                                                                  accrualDayCounter::DC,
-                                                                  paymentConvention::BusinessDayConvention,
-                                                                  redemption::Float64,
-                                                                  issueDate::Date,
-                                                                  putCallSchedule::CallabilitySchedule,
-                                                                  pe::P)
+function CallableFixedRateBond(settlementDays::Int,
+                              faceAmount::Float64,
+                              schedule::Schedule,
+                              coupons::Vector{Float64},
+                              accrualDayCounter::DC,
+                              paymentConvention::BusinessDayConvention,
+                              redemption::Float64,
+                              issueDate::Date,
+                              putCallSchedule::CallabilitySchedule,
+                              pe::P) where {DC <: DayCount, P <: PricingEngine}
   maturityDate = schedule.dates[end]
 
   # build bond

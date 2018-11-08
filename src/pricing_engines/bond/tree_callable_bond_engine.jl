@@ -16,7 +16,7 @@ mutable struct TreeCallableFixedRateEngine{S <: ShortRateModel, T <: ShortRateTr
   end
 end
 
-function TreeCallableFixedRateEngine{S <: ShortRateModel}(model::S, timeSteps::Int)
+function TreeCallableFixedRateEngine(model::S, timeSteps::Int) where {S <: ShortRateModel}
   # create empty tree
   tg = TimeGrid([1.0], 1)
   lattice = tree(model, tg)

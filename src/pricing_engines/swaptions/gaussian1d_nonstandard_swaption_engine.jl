@@ -9,24 +9,24 @@ struct Gaussian1DNonstandardSwaptionEngine{G <: Gaussian1DModel, Y <: YieldTermS
   probabilities::P
 
   Gaussian1DNonstandardSwaptionEngine{G, Y, P}(model::G,
-                                              integrationPoints::Int,
-                                              stddevs::Float64,
-                                              extrapolatePayoff::Bool,
-                                              flatPayoffExtrapolation::Bool,
-                                              oas::Quote,
-                                              discountCurve::Y,
-                                              probabilities::P) where {G, Y, P} =
+                                      integrationPoints::Int,
+                                      stddevs::Float64,
+                                      extrapolatePayoff::Bool,
+                                      flatPayoffExtrapolation::Bool,
+                                      oas::Quote,
+                                      discountCurve::Y,
+                                      probabilities::P) where {G, Y, P} =
     new{G, Y, P}(model, integrationPoints, stddevs, extrapolatePayoff, flatPayoffExtrapolation, oas, discountCurve, probabilities)
 end
 
-Gaussian1DNonstandardSwaptionEngine{G <: Gaussian1DModel, Y <: YieldTermStructure, P <: GaussianProbabilities}(model::G,
-                                                                                                              integrationPoints::Int = 64,
-                                                                                                              stddevs::Float64 = 7.0,
-                                                                                                              extrapolatePayoff::Bool = true,
-                                                                                                              flatPayoffExtrapolation::Bool = false,
-                                                                                                              oas::Quote = Quote(-1.0),
-                                                                                                              discountCurve::Y = NullYieldTermStructure(),
-                                                                                                              probabilities::P = NoneProbabilities()) =
+Gaussian1DNonstandardSwaptionEngine(model::G,
+                                    integrationPoints::Int = 64,
+                                    stddevs::Float64 = 7.0,
+                                    extrapolatePayoff::Bool = true,
+                                    flatPayoffExtrapolation::Bool = false,
+                                    oas::Quote = Quote(-1.0),
+                                    discountCurve::Y = NullYieldTermStructure(),
+                                    probabilities::P = NoneProbabilities()) where {G <: Gaussian1DModel, Y <: YieldTermStructure, P <: GaussianProbabilities} =
                         Gaussian1DNonstandardSwaptionEngine{G, Y, P}(model, integrationPoints, stddevs, extrapolatePayoff, flatPayoffExtrapolation, oas,
                                                                     discountCurve, probabilities)
 

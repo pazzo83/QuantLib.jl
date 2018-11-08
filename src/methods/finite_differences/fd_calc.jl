@@ -56,22 +56,22 @@ mutable struct FdmAffineModelSwapInnerValue{M1 <: Model, M2 <: Model, FM <: FdmM
                               new{M1, M2, FM}(disModel, fwdModel, swap, exerciseDates, mesher, direction, disTs, fwdTs)
 end
 
-FdmAffineModelSwapInnerValue{M1 <: Model, M2 <: Model, FM <: FdmMesher}(disModel::M1,
-                                                                        fwdModel::M2,
-                                                                        swap::VanillaSwap,
-                                                                        exerciseDates::Dict{Float64, Date},
-                                                                        mesher::FM,
-                                                                        direction::Int) =
+FdmAffineModelSwapInnerValue(disModel::M1,
+                            fwdModel::M2,
+                            swap::VanillaSwap,
+                            exerciseDates::Dict{Float64, Date},
+                            mesher::FM,
+                            direction::Int) where {M1 <: Model, M2 <: Model, FM <: FdmMesher} =
                             FdmAffineModelSwapInnerValue{M1, M2, FM}(disModel, fwdModel, swap, exerciseDates, mesher, direction)
 
-FdmAffineModelSwapInnerValue{M1 <: Model, M2 <: Model, FM <: FdmMesher}(disModel::M1,
-                                                                        fwdModel::M2,
-                                                                        swap::VanillaSwap,
-                                                                        exerciseDates::Dict{Float64, Date},
-                                                                        mesher::FM,
-                                                                        direction::Int,
-                                                                        disTs::FdmAffineModelTermStructure,
-                                                                        fwdTs::FdmAffineModelTermStructure) =
+FdmAffineModelSwapInnerValue(disModel::M1,
+                            fwdModel::M2,
+                            swap::VanillaSwap,
+                            exerciseDates::Dict{Float64, Date},
+                            mesher::FM,
+                            direction::Int,
+                            disTs::FdmAffineModelTermStructure,
+                            fwdTs::FdmAffineModelTermStructure) where {M1 <: Model, M2 <: Model, FM <: FdmMesher} =
                             FdmAffineModelSwapInnerValue{M1, M2, FM}(disModel, fwdModel, swap, exerciseDates, mesher, direction, disTs, fwdTs)
 
 function get_state(::G2, calc::FdmAffineModelSwapInnerValue, coords::Vector{Int}, ::Float64)

@@ -6,8 +6,10 @@ struct BlackSwaptionEngine{Y <: YieldTermStructure, S <: SwaptionVolatilityStruc
   displacement::Float64
 end
 
-BlackSwaptionEngine{Y <: YieldTermStructure, DC <: DayCount}(yts::Y, vol::Quote, dc::DC, displacement::Float64 = 0.0) =
-                    BlackSwaptionEngine(yts, vol, ConstantSwaptionVolatility(0, QuantLib.Time.NullCalendar(), QuantLib.Time.Following(), vol, dc), dc, displacement)
+function BlackSwaptionEngine(yts::Y, vol::Quote, dc::DC, displacement::Float64 = 0.0) where {Y <: YieldTermStructure, DC <: DayCount}
+  cwv = ConstantSwaptionVolatility(0, QuantLib.Time.NullCalendar(), QuantLib.Time.Following(), vol, dc)
+  BlackSwaptionEngine{Y, typeof(cwv), DC}(yts, vol, cwv, dc, displacement)
+end
 
 # pricing methods #
 function black_formula(optionType::OptionType, strike::Float64, forward::Float64, stdDev::Float64, discount::Float64 = 1.0, displacement::Float64 = 0.0)

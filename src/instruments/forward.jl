@@ -17,14 +17,13 @@ mutable struct ForwardRateAgreement{DC <: DayCount, BC <: BusinessCalendar, C <:
   iborIndex::IborIndex{TP, CUR, IB, IC, IDC, IT}
 end
 
-function ForwardRateAgreement{P <: PositionType, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure, Y <: YieldTermStructure}(
-                              valueDate::Date,
+function ForwardRateAgreement(valueDate::Date,
                               maturityDate::Date,
                               position::P,
                               strikeForward::Float64,
                               notionalAmount::Float64,
                               iborIndex::IborIndex{TP, CUR, IB, IC, IDC, IT},
-                              discountCurve::Y)
+                              discountCurve::Y) where {P <: PositionType, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure, Y <: YieldTermStructure}
   calendar = iborIndex.fixingCalendar
   convention = iborIndex.convention
   settlementDays = iborIndex.fixingDays

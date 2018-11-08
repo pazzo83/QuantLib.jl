@@ -15,12 +15,12 @@ mutable struct PiecewiseYieldCurve{B <: BootstrapHelper, DC <: DayCount, P <: In
   validCurve::Bool
 end
 
-function PiecewiseYieldCurve{B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap}(referenceDate::Date, instruments::Vector{B}, dc::DC, interp::P, trait::T,
-                                accuracy::Float64, boot::BT = IterativeBootstrap())
+function PiecewiseYieldCurve(referenceDate::Date, instruments::Vector{B}, dc::DC, interp::P, trait::T, accuracy::Float64, 
+                            boot::BT = IterativeBootstrap()) where {B <: BootstrapHelper, DC <: DayCount, P <: Interpolation, T <: BootstrapTrait, BT <: Bootstrap}
   # get the initial length of instruments
   n = length(instruments)
   # create an initial state of the curve
-  pyc = PiecewiseYieldCurve(LazyMixin(),
+  pyc = PiecewiseYieldCurve{B, DC, P, T, BT}(LazyMixin(),
                             0,
                             referenceDate,
                             instruments,

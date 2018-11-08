@@ -5,18 +5,18 @@ mutable struct MCSimulation{RSG <: AbstractRandomSequenceGenerator, T <: MCTrait
   mcTrait::T
   mcModel::MonteCarloModel{P, RSG, S}
 
-  MCSimulation{RSG, T, P, S}(antitheticVariate::Bool,
-                            controlVariate::Bool,
-                            rsg::RSG,
-                            mcTrait::T,
-                            mcModel::MonteCarloModel{P, RSG, S}) where {RSG, T, P, S} =
-              new{RSG, T, P, S}(antitheticVariate, controlVariate, rsg, mcTrait, mcModel)
+  # MCSimulation(antitheticVariate::Bool,
+  #             controlVariate::Bool,
+  #             rsg::RSG,
+  #             mcTrait::T,
+  #             mcModel::MonteCarloModel{P, RSG, S}) where {RSG, T, P, S} =
+  #             new{RSG, T, P, S}(antitheticVariate, controlVariate, rsg, mcTrait, mcModel)
 end
 
-function MCSimulation{S <: StochasticProcess1D, RSG <: AbstractRandomSequenceGenerator, T <: MCTrait}(pe::MCEngine{S, RSG},
-                                                                                                      controlVariate::Bool,
-                                                                                                      inst::Instrument,
-                                                                                                      mcTrait::T)
+function MCSimulation(pe::MCEngine{S, RSG},
+                      controlVariate::Bool,
+                      inst::Instrument,
+                      mcTrait::T) where {S <: StochasticProcess1D, RSG <: AbstractRandomSequenceGenerator, T <: MCTrait}
   # create model
   model = MonteCarloModel(path_generator(pe, inst), path_pricer(pe, inst), gen_RiskStatistics(), pe.antitheticVariate)
   return MCSimulation{RSG, T, typeof(model.pathPricer), S}(pe.antitheticVariate, controlVariate, pe.rsg, mcTrait, model)

@@ -142,7 +142,7 @@ function SecondDerivativeOp(direction::Int, mesher::FdmMesher)
   return TripleBandLinearOp(direction, mesher, i0, i2, reverseIndex, lower, _diag, upper)
 end
 
-function mult!{T <: Number}(trpBandLinOp::TripleBandLinearOp, u::Vector{T})
+function mult!(trpBandLinOp::TripleBandLinearOp, u::Vector{T}) where {T <: Number}
   # probably should protect for array dims here
   trpBandLinOp.lower = trpBandLinOp.lower .* u
   trpBandLinOp._diag = trpBandLinOp._diag .* u
@@ -260,7 +260,7 @@ mutable struct SecondOrderMixedDerivativeOp{FD <: FdmMesher} <: NinePointLinearO
   mesher::FD
 end
 
-function SecondOrderMixedDerivativeOp(d1::Int, d2::Int, mesher::FdmMesher)
+function SecondOrderMixedDerivativeOp(d1::Int, d2::Int, mesher::FD) where {FD <: FdmMesher}
   sz = mesher.layout.size
   i00 = Vector{Int}(sz)
   i10 = Vector{Int}(sz)
@@ -379,10 +379,10 @@ function SecondOrderMixedDerivativeOp(d1::Int, d2::Int, mesher::FdmMesher)
     iter_coords!(coords, mesher.layout.dim)
   end
 
-  return SecondOrderMixedDerivativeOp(d1, d2, i00, i10, i20, i01, i21, i02, i12, i22, a00, a10, a20, a01, a11, a21, a02, a12, a22, mesher)
+  return SecondOrderMixedDerivativeOp{FD}(d1, d2, i00, i10, i20, i01, i21, i02, i12, i22, a00, a10, a20, a01, a11, a21, a02, a12, a22, mesher)
 end
 
-function mult!{T <: Number}(ninePointLin::NinePointLinearOp, u::Vector{T})
+function mult!(ninePointLin::NinePointLinearOp, u::Vector{T}) where {T <: Number}
   ninePointLin.a11 = ninePointLin.a11 .* u
   ninePointLin.a01 = ninePointLin.a01 .* u
   ninePointLin.a10 = ninePointLin.a10 .* u
@@ -406,20 +406,20 @@ function apply(ninePointLin::NinePointLinearOp, u::Vector{Float64})
   return retVal
 end
 
-mutable struct FdmG2Op <: FdmLinearOpComposite
+mutable struct FdmG2Op{FD <: FdmMesher} <: FdmLinearOpComposite
   direction1::Int
   direction2::Int
   x::Vector{Float64}
   y::Vector{Float64}
-  dxMap::TripleBandLinearOp
-  dyMap::TripleBandLinearOp
-  corrMap::SecondOrderMixedDerivativeOp
-  mapX::TripleBandLinearOp
-  mapY::TripleBandLinearOp
+  dxMap::TripleBandLinearOp{FD}
+  dyMap::TripleBandLinearOp{FD}
+  corrMap::SecondOrderMixedDerivativeOp{FD}
+  mapX::TripleBandLinearOp{FD}
+  mapY::TripleBandLinearOp{FD}
   model::G2
 end
 
-function FdmG2Op(mesher::FdmMesher, model::G2, direction1::Int, direction2::Int)
+function FdmG2Op(mesher::FD, model::G2, direction1::Int, direction2::Int) where {FD <: FdmMesher}
   x = get_locations(mesher, direction1)
   y = get_locations(mesher, direction2)
 
@@ -434,18 +434,18 @@ function FdmG2Op(mesher::FdmMesher, model::G2, direction1::Int, direction2::Int)
   mapX = TripleBandLinearOp(direction1, mesher)
   mapY = TripleBandLinearOp(direction2, mesher)
 
-  return FdmG2Op(direction1, direction2, x, y, dxMap, dyMap, corrMap, mapX, mapY, model)
+  return FdmG2Op{FD}(direction1, direction2, x, y, dxMap, dyMap, corrMap, mapX, mapY, model)
 end
 
-mutable struct FdmHullWhiteOp <: FdmLinearOpComposite
+mutable struct FdmHullWhiteOp{FD <: FdmMesher} <: FdmLinearOpComposite
   direction::Int
   x::Vector{Float64}
-  dzMap::TripleBandLinearOp
-  mapT::TripleBandLinearOp
+  dzMap::TripleBandLinearOp{FD}
+  mapT::TripleBandLinearOp{FD}
   model::HullWhite
 end
 
-function FdmHullWhiteOp(mesher::FdmMesher, model::HullWhite, direction::Int)
+function FdmHullWhiteOp(mesher::FD, model::HullWhite, direction::Int) where {FD <: FdmMesher}
   x = get_locations(mesher, direction)
 
   dzMap = add!(mult!(FirstDerivativeOp(direction, mesher), (-x * get_a(model))),
@@ -453,7 +453,7 @@ function FdmHullWhiteOp(mesher::FdmMesher, model::HullWhite, direction::Int)
 
   mapT = TripleBandLinearOp(direction, mesher)
 
-  return FdmHullWhiteOp(direction, x, dzMap, mapT, model)
+  return FdmHullWhiteOp{FD}(direction, x, dzMap, mapT, model)
 end
 
 # OP methods #

@@ -29,7 +29,7 @@ end
 #   return _inner
 # end
 
-calibration_error{C <: CalibrationHelper}(::RelativePriceError, helper::C) =
+calibration_error(::RelativePriceError, helper::CalibrationHelper) =
   abs(helper.calibCommon.marketValue - model_value!(helper)) / helper.calibCommon.marketValue
 
 # function calibration_error{C <: CalibrationHelper}(::RelativePriceError, helper::C)
@@ -45,7 +45,7 @@ function implied_volatility!(ch::CalibrationHelper, targetValue::Float64, accura
   return solve(solv, ivh, accuracy, ch.volatility.value, minVol, maxVol)
 end
 
-function update_pricing_engine{C <: CalibrationHelper, P <: PricingEngine}(ch::C, pe::P)
+function update_pricing_engine(ch::CalibrationHelper, pe::PricingEngine)
   newCh = clone(ch, pe)
 
   return newCh
@@ -81,28 +81,29 @@ mutable struct SwaptionHelper{Dm <: Dates.Period, Dl <: Dates.Period, TP <: Teno
   #               fixedLegTenor, fixedLegDayCount, floatingLegDayCount, strike, nominal, shift, exerciseRate, calibCommon, yts, pe, swaption)
 end
 
-function SwaptionHelper{Dm, Dl, TP, DC_fix, DC_float, T, P, CE, STP, CUR, IB, IC, IDC, IT}(lazyMixin::LazyMixin, exerciseDate::Date, endDate::Date, maturity::Dm,
-              swapLength::Dl, volatility::Quote, iborIndex::IborIndex{STP, CUR, IB, IC, IDC, IT}, fixedLegTenor::TP, fixedLegDayCount::DC_fix, floatingLegDayCount::DC_float,
-              strike::Float64, nominal::Float64, shift::Float64, exerciseRate::Float64, calibCommon::CalibrationHelperCommon{CE}, yts::T, pe::P)
+function SwaptionHelper(lazyMixin::LazyMixin, exerciseDate::Date, endDate::Date, maturity::Dm, swapLength::Dl, volatility::Quote, iborIndex::IborIndex{STP, CUR, IB, IC, IDC, IT}, 
+                        fixedLegTenor::TP, fixedLegDayCount::DC_fix, floatingLegDayCount::DC_float, strike::Float64, nominal::Float64, shift::Float64, exerciseRate::Float64, 
+                        calibCommon::CalibrationHelperCommon{CE}, yts::T, 
+                        pe::P) where {Dm <: Dates.Period, Dl <: Dates.Period, TP <: TenorPeriod, DC_fix <: DayCount, DC_float <: DayCount, T <: YieldTermStructure, P <: PricingEngine, CE <: CalibrationErrorType, STP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure}
 
   swaption = build_swaption(exerciseDate, endDate, maturity, swapLength, iborIndex, fixedLegTenor, fixedLegDayCount, floatingLegDayCount, strike, nominal, exerciseRate, yts, pe)
 
-  SwaptionHelper{Dm, Dl, TP, DC_fix, DC_float, T, P, CE, typeof(swaption.swap.swapT), typeof(swaption.swap.paymentConvention), typeof(swaption.swap.pricingEngine), STP, CUR, IB, IC, IDC, IT}(lazyMixin, exerciseDate,
+  SwaptionHelper{Dm, Dl, TP, DC_fix, DC_float, T, P, CE, typeof(swaption.swap.swapT), typeof(swaption.swap.paymentConvention), P, STP, CUR, IB, IC, IDC, IT}(lazyMixin, exerciseDate,
   endDate, maturity, swapLength, volatility, iborIndex, fixedLegTenor, fixedLegDayCount, floatingLegDayCount, strike, nominal, shift, exerciseRate, calibCommon, yts, pe,
   swaption)
 end
 
-SwaptionHelper{Dm <: Dates.Period, Dl <: Dates.Period, TP <: TenorPeriod, DC_fix <: DayCount, DC_float <: DayCount, T <: YieldTermStructure, P <: PricingEngine, STP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure}(maturity::Dm,
-              swapLength::Dl, volatility::Quote, iborIndex::IborIndex{STP, CUR, IB, IC, IDC, IT}, fixedLegTenor::TP, fixedLegDayCount::DC_fix, floatingLegDayCount::DC_float,
-              yts::T, pe::P, strike::Float64 = -1.0, nominal::Float64 = 1.0, shift::Float64 = 0.0, exerciseRate::Float64 = 0.0) =
+SwaptionHelper(maturity::Dm, swapLength::Dl, volatility::Quote, iborIndex::IborIndex{STP, CUR, IB, IC, IDC, IT}, fixedLegTenor::TP, fixedLegDayCount::DC_fix, floatingLegDayCount::DC_float,
+              yts::T, pe::P, strike::Float64 = -1.0, nominal::Float64 = 1.0, shift::Float64 = 0.0, 
+              exerciseRate::Float64 = 0.0) where {Dm <: Dates.Period, Dl <: Dates.Period, TP <: TenorPeriod, DC_fix <: DayCount, DC_float <: DayCount, T <: YieldTermStructure, P <: PricingEngine, STP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} =
               SwaptionHelper(LazyMixin(), Date(), Date(), maturity, swapLength, volatility, iborIndex, fixedLegTenor,
-              fixedLegDayCount, floatingLegDayCount, strike, nominal, shift, exerciseRate, CalibrationHelperCommon(), yts, pe)
+                fixedLegDayCount, floatingLegDayCount, strike, nominal, shift, exerciseRate, CalibrationHelperCommon(), yts, pe)
 
-SwaptionHelper{TP <: TenorPeriod, DC_fix <: DayCount, DC_float <: DayCount, T <: YieldTermStructure, P <: PricingEngine, STP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure}(expiryDate::Date,
-              endDate::Date, volatility::Quote, iborIndex::IborIndex{STP, CUR, IB, IC, IDC, IT}, fixedLegTenor::TP, fixedLegDayCount::DC_fix, floatingLegDayCount::DC_float,
-              yts::T, pe::P = NullSwaptionEngine(), strike::Float64 = -1.0, nominal::Float64 = 1.0, shift::Float64 = 0.0, exerciseRate::Float64 = 0.0) =
+SwaptionHelper(expiryDate::Date, endDate::Date, volatility::Quote, iborIndex::IborIndex{STP, CUR, IB, IC, IDC, IT}, fixedLegTenor::TP, fixedLegDayCount::DC_fix, floatingLegDayCount::DC_float,
+              yts::T, pe::P = NullSwaptionEngine(), strike::Float64 = -1.0, nominal::Float64 = 1.0, shift::Float64 = 0.0, 
+              exerciseRate::Float64 = 0.0) where {TP <: TenorPeriod, DC_fix <: DayCount, DC_float <: DayCount, T <: YieldTermStructure, P <: PricingEngine, STP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} =
               SwaptionHelper(LazyMixin(), expiryDate, endDate, Dates.Day(0), Dates.Day(0), volatility, iborIndex, fixedLegTenor,
-              fixedLegDayCount, floatingLegDayCount, strike, nominal, shift, exerciseRate, CalibrationHelperCommon(), yts, pe)
+                fixedLegDayCount, floatingLegDayCount, strike, nominal, shift, exerciseRate, CalibrationHelperCommon(), yts, pe)
 
 # SwaptionHelper{Dm <: Dates.Period, Dl <: Dates.Period, TP <: TenorPeriod, DC_fix <: DayCount, DC_float <: DayCount, T <: YieldTermStructure, P <: PricingEngine, CE <: CalibrationErrorType, ST <: SwapType, B <: BusinessDayConvention, SP <: PricingEngine, STP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure}(lazyMixin::LazyMixin,
 #               exerciseDate::Date, endDate::Date, maturity::Dm, swapLength::Dl, volatility::Quote, iborIndex::IborIndex{STP, CUR, IB, IC, IDC, IT}, fixedLegTenor::TP,
@@ -243,7 +244,8 @@ function build_swaption(sh::SwaptionHelper, pe::PricingEngine)
 end
 
 # clone functions #
-function clone{Dm, Dl, TP, DC_fix, DC_float, T, P, CE, ST, B, SP, STP, CUR, IB, IC, IDC, IT, P2}(swaptionHelper::SwaptionHelper{Dm, Dl, TP, DC_fix, DC_float, T, P, CE, ST, B, SP, STP, CUR, IB, IC, IDC, IT}, pe::P2 = swaptionHelper.pricingEngine)
+function clone(swaptionHelper::SwaptionHelper{Dm, Dl, TP, DC_fix, DC_float, T, P, CE, ST, B, SP, STP, CUR, IB, IC, IDC, IT}, 
+              pe::P2 = swaptionHelper.pricingEngine) where {Dm, Dl, TP, DC_fix, DC_float, T, P, CE, ST, B, SP, STP, CUR, IB, IC, IDC, IT, P2}
   lazyMixin, calibCommon = pe == swaptionHelper.pricingEngine ? (swaptionHelper.lazyMixin, swaptionHelper.calibCommon) : (LazyMixin(), CalibrationHelperCommon())
   swaption = build_swaption(swaptionHelper, pe)
   newSwaptionHelper = SwaptionHelper{Dm, Dl, TP, DC_fix, DC_float, T, P2, CE, ST, B, SP, STP, CUR, IB, IC, IDC, IT}(lazyMixin, swaptionHelper.exerciseDate, swaptionHelper.endDate, swaptionHelper.maturity, swaptionHelper.swapLength,

@@ -1,6 +1,6 @@
 using Optim
 
-function lmfit{I <: Integer}(f::Function, p0::Vector{Float64}, maxIter::I)
+function lmfit(f::Function, p0::Vector{Float64}, maxIter::Int)
 	# this is a convenience function for the curve_fit() methods
 	# which assume f(p) is the cost functionj i.e. the residual of a
 	# model where

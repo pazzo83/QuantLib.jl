@@ -7,7 +7,7 @@ value(b::FixedRateBondHelper) = b.price.value
 maturity_date(b::FixedRateBondHelper) = maturity_date(b.bond)
 
 # bond helper functions
-function implied_quote{B <: BondHelper}(bond_h::B, clean::Bool = true)
+function implied_quote(bond_h::BondHelper, clean::Bool = true)
   bond = bond_h.bond
   recalculate!(bond)
   settlement_value = bond.settlementValue

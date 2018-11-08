@@ -9,12 +9,12 @@ mutable struct LazyMixin
   LazyMixin() = new(false, false, ObserverMixin())
 end
 
-is_calculated{L <: LazyObject}(lazy::L) = lazy.lazyMixin.calculated
-is_frozen{L <: LazyObject}(lazy::L) = lazy.lazyMixin.frozen
+is_calculated(lazy::LazyObject) = lazy.lazyMixin.calculated
+is_frozen(lazy::LazyObject) = lazy.lazyMixin.frozen
 
-calculated!{L <: LazyObject}(lazy::L, setting::Bool = true) = lazy.lazyMixin.calculated = setting
+calculated!(lazy::LazyObject, setting::Bool = true) = lazy.lazyMixin.calculated = setting
 
-function calculate!{L <: LazyObject}(lazy::L)
+function calculate!(lazy::LazyObject)
   if !is_calculated(lazy)
     calculated!(lazy)
     perform_calculations!(lazy)
@@ -23,7 +23,7 @@ function calculate!{L <: LazyObject}(lazy::L)
   return lazy
 end
 
-function recalculate!{L <: LazyObject}(lazy::L)
+function recalculate!(lazy::LazyObject)
   calculated!(lazy, false)
   calculate!(lazy)
 

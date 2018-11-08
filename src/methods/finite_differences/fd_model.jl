@@ -11,7 +11,7 @@ function FiniteDifferenceModel(L::TridiagonalOperator, BCs::Vector{BoundaryCondi
   return FiniteDifferenceModel{typeof(evolver)}(evolver, Vector{Float64}())
 end
 
-function FiniteDifferenceModel{BC <: BoundaryCondition}(L::Vector{TridiagonalOperator}, BCs::Matrix{BC}, evolverFunc::Function)
+function FiniteDifferenceModel(L::Vector{TridiagonalOperator}, BCs::Matrix{BC}, evolverFunc::Function) where {BC <: BoundaryCondition}
   evolver = ParallelEvolver(L, BCs, evolverFunc)
   return FiniteDifferenceModel{ParallelEvolver}(evolver, Vector{Float64}())
 end

@@ -12,7 +12,7 @@ mutable struct FdmDividendHandler{F <: FdmMesher} <: StepCondition
   equityDirection::Int
 end
 
-function FdmDividendHandler(schedule::DividendSchedule, mesher::FdmMesher, refDate::Date, dc::DayCount, equityDirection::Int)
+function FdmDividendHandler(schedule::DividendSchedule, mesher::F, refDate::Date, dc::DayCount, equityDirection::Int) where {F <: FdmMesher}
   schedLength = length(schedule.dividends)
   dividends = zeros(schedLength)
   dividendDates = Vector{Date}(schedLength)
@@ -33,7 +33,7 @@ function FdmDividendHandler(schedule::DividendSchedule, mesher::FdmMesher, refDa
     x[i] = exp(tmp[iter])
   end
 
-  return FdmDividendHandler(x, dividendTimes, dividendDates, dividends, mesher, equityDirection)
+  return FdmDividendHandler{F}(x, dividendTimes, dividendDates, dividends, mesher, equityDirection)
 end
 
 mutable struct FdmAmericanStepCondition{F <: FdmMesher, C <: FdmInnerValueCalculator} <: StepCondition
@@ -47,13 +47,13 @@ mutable struct FdmBermudanStepCondition{F <: FdmMesher, C <: FdmInnerValueCalcul
   exerciseTimes::Vector{Float64}
 end
 
-function FdmBermudanStepCondition(exerciseDates::Vector{Date}, refDate::Date, dc::DayCount, mesher::FdmMesher, calculator::FdmInnerValueCalculator)
+function FdmBermudanStepCondition(exerciseDates::Vector{Date}, refDate::Date, dc::DayCount, mesher::F, calculator::C) where {F <: FdmMesher, C <: FdmInnerValueCalculator}
   exerciseTimes = zeros(length(exerciseDates))
   for i = 1:length(exerciseTimes)
     exerciseTimes[i] = year_fraction(dc, refDate, exerciseDates[i])
   end
 
-  return FdmBermudanStepCondition(mesher, calculator, exerciseTimes)
+  return FdmBermudanStepCondition{F, C}(mesher, calculator, exerciseTimes)
 end
 
 function apply_to!(cond::FdmBermudanStepCondition, a::Vector{Float64}, t::Float64)
@@ -162,7 +162,7 @@ end
 
 const AmericanStepCondition{C} =  CurveDependentStepCondition{AmericanStepConditionType, C}
 
-build_AmericanStepCondition(intrinsicValues::Vector{Float64}) = CurveDependentStepCondition(AmericanStepConditionType(), ArrayWrapper(intrinsicValues))
+build_AmericanStepCondition(intrinsicValues::Vector{Float64}) = CurveDependentStepCondition{AmericanStepConditionType, ArrayWrapper}(AmericanStepConditionType(), ArrayWrapper(intrinsicValues))
 
 apply_to_value(::AmericanStepCondition, current::Float64, intrinsic::Float64) = max(current, intrinsic)
 

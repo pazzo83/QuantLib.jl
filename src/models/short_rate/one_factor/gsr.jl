@@ -257,8 +257,8 @@ function y_grid(model::Gaussian1DModel, stdDevs::Float64, gridPoints::Int, T::Fl
   return result
 end
 
-function calibrate_volatilities_iterative!{H <: CalibrationHelper}(model::GSR, helpers::Vector{H}, method::OptimizationMethod, endCriteria::EndCriteria,
-                                          constraint::Constraint = PositiveConstraint(), weights::Vector{Float64} = Vector{Float64}())
+function calibrate_volatilities_iterative!(model::GSR, helpers::Vector{H}, method::OptimizationMethod, endCriteria::EndCriteria,
+                                          constraint::Constraint = PositiveConstraint(), weights::Vector{Float64} = Vector{Float64}()) where {H <: CalibrationHelper}
   @inbounds @simd for i in eachindex(helpers)
     h = H[helpers[i]]
     calibrate!(model, h, method, endCriteria, constraint, weights, move_volatility(model, i))

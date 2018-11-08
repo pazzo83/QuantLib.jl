@@ -4,7 +4,7 @@ mutable struct DiscretizedVanillaOption{L <: Lattice} <: DiscretizedAsset
   common::DiscretizedAssetCommon{L}
 end
 
-function DiscretizedVanillaOption{L <: Lattice}(vanillaOption::VanillaOption, process::StochasticProcess, grid::TimeGrid, lattice::L)
+function DiscretizedVanillaOption(vanillaOption::VanillaOption, process::StochasticProcess, grid::TimeGrid, lattice::L) where {L <: Lattice}
   stoppingTimes = zeros(length(vanillaOption.exercise.dates))
   @inbounds @simd for i in eachindex(stoppingTimes)
     stoppingTimes[i] = get_time(process, vanillaOption.exercise.dates[i])

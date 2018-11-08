@@ -8,8 +8,8 @@ mutable struct SubProduct{M <: MarketModelMultiProduct}
 end
 
 # product is already cloned
-SubProduct(product::MarketModelMultiProduct, multiplier::Float64, isDone::Bool) =
-          SubProduct(product, multiplier, Vector{Int}(), Vector{Vector{MarketModelCashFlow}}(), Vector{Int}(), isDone)
+SubProduct(product::M, multiplier::Float64, isDone::Bool) where {M <: MarketModelMultiProduct} =
+          SubProduct{M}(product, multiplier, Vector{Int}(), Vector{Vector{MarketModelCashFlow}}(), Vector{Int}(), isDone)
 
 
 mutable struct MarketModelComposite <: MarketModelMultiProduct

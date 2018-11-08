@@ -20,7 +20,7 @@ function AnalyticHestonEngine(hestonModel::HestonModel)
   cpxLog = Gatheral()
   integration = HestonGaussLaguerre(144)
 
-  return AnalyticHestonEngine(hestonModel, evals, cpxLog, integration)
+  return AnalyticHestonEngine{Gatheral}(hestonModel, evals, cpxLog, integration)
 end
 
 add_on_term(engine::AnalyticHestonEngine, ::Real, ::Real, ::Int) = complex(0.0)

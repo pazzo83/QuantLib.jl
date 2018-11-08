@@ -51,7 +51,7 @@ mutable struct TermStructureFittingParameter{T <: TermStructure} <: Parameter
   ts::T
 end
 
-TermStructureFittingParameter{T <: TermStructure}(ts::T) = TermStructureFittingParameter{T}(zeros(0), zeros(0), ts)
+TermStructureFittingParameter(ts::T) where {T <: TermStructure} = TermStructureFittingParameter{T}(zeros(0), zeros(0), ts)
 
 (tsp::TermStructureFittingParameter)(t::Float64) = value(tsp, t)
 
@@ -84,13 +84,13 @@ mutable struct PiecewiseConstantParameter{C <: Constraint} <: Parameter
   end
 end
 
-PiecewiseConstantParameter{C <: Constraint}(times::Vector{Float64}, constraint::C) = PiecewiseConstantParameter{C}(times, constraint)
+PiecewiseConstantParameter(times::Vector{Float64}, constraint::C) where {C <: Constraint} = PiecewiseConstantParameter{C}(times, constraint)
 
 # call(p::PiecewiseConstantParameter, t::Float64) = value(p, t)
 
 set_params!(param::PiecewiseConstantParameter, i::Int, val::Float64) = param.times[i] = val
 get_data(param::PiecewiseConstantParameter) = param.times
 
-NullParameter{P <: DataType}(_type::P) = _type([0.0], NoConstraint())
+NullParameter(_type::DataType) = _type([0.0], NoConstraint())
 
 test_params(c::ConstantParameter, params::Vector{Float64}) = QuantLib.Math.test(c.constraint, params)

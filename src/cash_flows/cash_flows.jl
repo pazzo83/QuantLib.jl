@@ -100,15 +100,15 @@ function operator(finder::IRRFinder)
   return _inner
 end
 
-get_latest_coupon{L <: Leg}(leg::L) = get_latest_coupon(leg, leg.coupons[end])
-get_latest_coupon{L <: Leg}(leg::L, simp::SimpleCashFlow) = leg.coupons[end - 1]
-get_latest_coupon{L <: Leg, C <: Coupon}(leg::L, coup::C) = coup
+get_latest_coupon(leg::Leg) = get_latest_coupon(leg, leg.coupons[end])
+get_latest_coupon(leg::Leg, simp::SimpleCashFlow) = leg.coupons[end - 1]
+get_latest_coupon(leg::Leg, coup::Coupon) = coup
 
-check_coupon{C <: CashFlow}(x::C) = isa(x, Coupon)
+check_coupon(x::CashFlow) = isa(x, Coupon)
 
-get_pay_dates{C <: Coupon}(coups::Vector{C}) = Date[date(coup) for coup in coups]
+get_pay_dates(coups::Vector{Coupon}) = Date[date(coup) for coup in coups]
 
-get_reset_dates{C <: Coupon}(coups::Vector{C}) = Date[accrual_start_date(coup) for coup in coups]
+get_reset_dates(coups::Vector{Coupon}) = Date[accrual_start_date(coup) for coup in coups]
 
 ## NPV METHODS ##
 function _npv_reduce(coup::Coupon, yts::YieldTermStructure, settlement_date::Date)
@@ -208,7 +208,7 @@ function npv(leg::ZeroCouponLeg, y::InterestRate, include_settlement_cf::Bool, s
   return totalNPV
 end
 
-function npvbps(leg::L, yts::YieldTermStructure, settlement_date::Date, npv_date::Date, includeSettlementDateFlows::Bool = true) where L <: Leg
+function npvbps(leg::L, yts::YieldTermStructure, settlement_date::Date, npv_date::Date, includeSettlementDateFlows::Bool = true) where {L <: Leg}
   npv = 0.0
   bps = 0.0
 

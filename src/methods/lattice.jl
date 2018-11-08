@@ -136,7 +136,7 @@ mutable struct TreeLattice1D{T <: TreeLattice} <: TreeLattice
   statePricesLimit::Int
 end
 
-function TreeLattice1D{T <: TreeLattice}(tg::TimeGrid, n::Int, impl::T)
+function TreeLattice1D(tg::TimeGrid, n::Int, impl::T) where {T <: TreeLattice}
   statePrices = Vector{Vector{Float64}}(1)
   statePrices[1] = ones(1)
 
@@ -168,7 +168,7 @@ mutable struct TreeLattice2D{T <: TreeLattice} <: TreeLattice
   rho::Float64
 end
 
-function TreeLattice2D{T <: TreeLattice}(tree1::TrinomialTree, tree2::TrinomialTree, correlation::Float64, impl::T)
+function TreeLattice2D(tree1::TrinomialTree, tree2::TrinomialTree, correlation::Float64, impl::T) where {T <: TreeLattice}
   tg = tree1.timeGrid
   statePrices = Vector{Vector{Float64}}(1)
   statePrices[1] = ones(1)
@@ -201,7 +201,7 @@ function TreeLattice2D{T <: TreeLattice}(tree1::TrinomialTree, tree2::TrinomialT
     m[3,3] =  5.0
   end
 
-  return TreeLattice2D(tg, impl, statePrices, n, statePricesLimit, tree1, tree2, m, rho)
+  return TreeLattice2D{T}(tg, impl, statePrices, n, statePricesLimit, tree1, tree2, m, rho)
 end
 
 get_size(tr::TreeLattice2D, i::Int) = get_size(tr.tree1, i) * get_size(tr.tree2, i)

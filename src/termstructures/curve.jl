@@ -9,7 +9,7 @@ mutable struct FittingCost <: CostFunction
   curve::Curve
 end
 
-function FittingCost{C <: Curve}(size::Int, curve::C)
+function FittingCost(size::Int, curve::Curve)
   # value = Vector{Float64}()
   # values = Vector{Float64}()
   firstCashFlow = zeros(Int, size)
@@ -18,13 +18,13 @@ function FittingCost{C <: Curve}(size::Int, curve::C)
 end
 
 # Interpolated Curve methods #
-max_date{C <: InterpolatedCurve}(curve::C) = curve.dates[end]
+max_date(curve::InterpolatedCurve) = curve.dates[end]
 
-function discount{C <: Curve}(curve::C, t::Float64)
+function discount(curve::Curve, t::Float64)
   return discount_impl(curve, t)
 end
 
-function discount_impl{C <: InterpolatedCurve}(curve::C, t::Float64)
+function discount_impl(curve::InterpolatedCurve, t::Float64)
   calculate!(curve)
   if t <= curve.times[end]
     return QuantLib.Math.value(curve.interp, t)
@@ -38,12 +38,12 @@ function discount_impl{C <: InterpolatedCurve}(curve::C, t::Float64)
   return 0.0
 end
 
-function perform_calculations!{C <: InterpolatedCurve}(curve::C)
+function perform_calculations!(curve::InterpolatedCurve)
   _calculate!(curve.boot, curve)
   return curve
 end
 
-function value{C <: CostFunction, T}(cf::C, x::Vector{T})
+function value(cf::CostFunction, x::Vector{T}) where {T}
   ref_date = cf.curve.referenceDate
   dc = cf.curve.dc
   squared_error = 0.0

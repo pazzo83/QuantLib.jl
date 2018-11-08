@@ -1,11 +1,11 @@
-mutable struct TwoFactorShortRateTree{S <: ShortRateDynamics, P1 <: StochasticProcess, P2 <: StochasticProcess} <: ShortRateTree
-  tree1::TrinomialTree{P1}
-  tree2::TrinomialTree{P2}
+mutable struct TwoFactorShortRateTree{S <: ShortRateDynamics, T1 <: TrinomialTree, T2 <: TrinomialTree} <: ShortRateTree
+  tree1::T1
+  tree2::T2
   dynamics::S
-  treeLattice::TreeLattice2D{TwoFactorShortRateTree{S, P1, P2}}
+  treeLattice::TreeLattice2D{TwoFactorShortRateTree{S, T1, T2}}
 
-  function TwoFactorShortRateTree{S, P1, P2}(tree1::TrinomialTree{P1}, tree2::TrinomialTree{P2}, dyn::S) where {S, P1, P2}
-    twoFactorTree = new{S, P1, P2}(tree1, tree2, dyn)
+  function TwoFactorShortRateTree{S, P1, P2}(tree1::T1, tree2::T2, dyn::S) where {S, T1, T2}
+    twoFactorTree = new{S, T1, T2}(tree1, tree2, dyn)
     twoFactorTree.treeLattice = TreeLattice2D(tree1, tree2, dyn.correlation, twoFactorTree)
 
     return twoFactorTree
@@ -60,7 +60,7 @@ mutable struct G2Dynamics{P <: Parameter} <: ShortRateDynamics
   correlation::Float64
 end
 
-G2Dynamics{P <: Parameter}(fitting::P, a::Float64, sigma::Float64, b::Float64, eta::Float64, rho::Float64) =
+G2Dynamics(fitting::P, a::Float64, sigma::Float64, b::Float64, eta::Float64, rho::Float64) where {P <: Parameter} =
           G2Dynamics{P}(fitting, OrnsteinUhlenbeckProcess(a, sigma), OrnsteinUhlenbeckProcess(b, eta), rho)
 
 short_rate(dyn::G2Dynamics, t::Float64, x::Float64, y::Float64) = dyn.fitting(t) + x + y
@@ -78,7 +78,7 @@ mutable struct G2{AffineModelType, T <: TermStructure} <: TwoFactorModel{AffineM
   common::ModelCommon
 end
 
-function G2{T <: TermStructure}(ts::T, a::Float64 = 0.1, sigma::Float64 = 0.01, b::Float64 = 0.1, eta::Float64 = 0.01, rho::Float64 = -0.75)
+function G2(ts::T, a::Float64 = 0.1, sigma::Float64 = 0.01, b::Float64 = 0.1, eta::Float64 = 0.01, rho::Float64 = -0.75) where {T <: TermStructure}
   a_const = ConstantParameter([a], PositiveConstraint())
   sigma_const = ConstantParameter([sigma], PositiveConstraint())
   b_const = ConstantParameter([b], PositiveConstraint())

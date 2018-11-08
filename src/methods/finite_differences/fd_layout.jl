@@ -12,7 +12,7 @@ function FdmLinearOpLayout(dim::Vector{Int})
   return FdmLinearOpLayout(sz, dim, spacing)
 end
 
-function get_layout_from_meshers{F1D <: Fdm1DMesher}(mesherVec::Vector{F1D})
+function get_layout_from_meshers(mesherVec::Vector{F1D}) where {F1D <: Fdm1DMesher}
   dim = zeros(Int, length(mesherVec))
   @simd for i in eachindex(dim)# = 1:length(dim)
     @inbounds dim[i] = mesherVec[i].size

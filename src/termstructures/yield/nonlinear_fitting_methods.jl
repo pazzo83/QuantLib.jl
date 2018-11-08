@@ -146,7 +146,7 @@ guess_size(fitting::ExponentialSplinesFitting) = fitting.constrainAtZero ? 9 : 1
 guess_size(fitting::SimplePolynomialFitting) = fitting.constrainAtZero ? fitting.degree : fitting.degree + 1
 
 # Discount functions
-function discount_function{T <: Real}(method::ExponentialSplinesFitting, x::Vector{T}, t::Float64)
+function discount_function(method::ExponentialSplinesFitting, x::Vector{T}, t::Float64) where {T <: Real}
   d = 0.0
   N = guess_size(method)
   kappa = x[N]
@@ -166,7 +166,7 @@ function discount_function{T <: Real}(method::ExponentialSplinesFitting, x::Vect
   return d
 end
 
-function discount_function{T <: Real}(method::SimplePolynomialFitting, x::Vector{T}, t::Float64)
+function discount_function(method::SimplePolynomialFitting, x::Vector{T}, t::Float64) where {T <: Real}
   d = 0.0
   N = method.size
 
@@ -184,7 +184,7 @@ function discount_function{T <: Real}(method::SimplePolynomialFitting, x::Vector
   return d
 end
 
-function discount_function{T <: Real}(method::NelsonSiegelFitting, x::Vector{T}, t::Float64)
+function discount_function(method::NelsonSiegelFitting, x::Vector{T}, t::Float64) where {T <: Real}
   kappa = x[method.size]
   @inbounds zero_rate = x[1] + (x[2] + x[3]) * (1.0 - exp(-kappa * t)) / ((kappa + QuantLib.Math.EPS_VAL) * (t + QuantLib.Math.EPS_VAL)) - (x[3]) * exp(-kappa * t)
   d = exp(-zero_rate * t)
@@ -192,7 +192,7 @@ function discount_function{T <: Real}(method::NelsonSiegelFitting, x::Vector{T},
   return d
 end
 
-function discount_function{T <: Real}(method::SvenssonFitting, x::Vector{T}, t::Float64)
+function discount_function(method::SvenssonFitting, x::Vector{T}, t::Float64) where {T <: Real}
   kappa = x[method.size - 1]
   kappa_1 = x[method.size]
   eps_v = QuantLib.Math.EPS_VAL
@@ -203,7 +203,7 @@ function discount_function{T <: Real}(method::SvenssonFitting, x::Vector{T}, t::
   return d
 end
 
-function discount_function{T <: Real}(method::CubicBSplinesFitting, x::Vector{T}, t::Float64)
+function discount_function(method::CubicBSplinesFitting, x::Vector{T}, t::Float64) where {T <: Real}
   d = 0.0
   if !method.constrainAtZero
     @simd for i = 1:method.size

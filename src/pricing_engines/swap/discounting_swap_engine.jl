@@ -9,14 +9,14 @@ struct DiscountingSwapEngine{Y <: YieldTermStructure} <: PricingEngine
   # function call{Y}(::Type{DiscountingSwapEngine}, yts::Y, includeSettlementDateFlows::Bool = true)
   #   new{Y}(yts, includeSettlementDateFlows)
   # end
-  DiscountingSwapEngine{Y}(yts::Y, includeSettlementDateFlows) where Y = new(yts, includeSettlementDateFlows)
+  # DiscountingSwapEngine(yts::Y, includeSettlementDateFlows) where {Y} = new(yts, includeSettlementDateFlows)
 end
 
-DiscountingSwapEngine{Y <: YieldTermStructure}(yts::Y, includeSettlementDateFlows::Bool = true) = DiscountingSwapEngine{Y}(yts, includeSettlementDateFlows)
+DiscountingSwapEngine(yts::Y, includeSettlementDateFlows::Bool = true) where {Y <: YieldTermStructure} = DiscountingSwapEngine{Y}(yts, includeSettlementDateFlows)
 
 DiscountingSwapEngine() = DiscountingSwapEngine{NullYieldTermStructure}(NullYieldTermStructure(), true)
 
-function _calculate!{S <: Swap}(pe::DiscountingSwapEngine, swap::S)
+function _calculate!(pe::DiscountingSwapEngine, swap::Swap)
   # stuff
   # println("NEW ONE=============================================================================")
   # if swap.rate.value > 0.0323
@@ -57,4 +57,4 @@ function _calculate!{S <: Swap}(pe::DiscountingSwapEngine, swap::S)
   return swap
 end
 
-clone(pe::DiscountingSwapEngine, ts::TermStructure) = DiscountingSwapEngine(ts, pe.includeSettlementDateFlows)
+clone(pe::DiscountingSwapEngine, ts::Y) where {Y <: YieldTermStructure} = DiscountingSwapEngine{Y}(ts, pe.includeSettlementDateFlows)

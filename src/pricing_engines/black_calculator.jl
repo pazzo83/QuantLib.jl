@@ -20,8 +20,8 @@ mutable struct BlackCalculator{S <: StrikedTypePayoff}
   DxDstrike::Float64
 end
 
-function BlackCalculator(p::StrikedTypePayoff, fwd::Float64, stdDev::Float64, disc::Float64)
-  calc = BlackCalculator(p, p.strike, fwd, stdDev, disc, stdDev * stdDev, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+function BlackCalculator(p::S, fwd::Float64, stdDev::Float64, disc::Float64) where {S <: StrikedTypePayoff}
+  calc = BlackCalculator{S}(p, p.strike, fwd, stdDev, disc, stdDev * stdDev, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
   initialize!(calc, p)
 
   return calc

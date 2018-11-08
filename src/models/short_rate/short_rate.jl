@@ -82,13 +82,13 @@ function value(calibF::CalibrationFunction, params::Vector{Float64})
 end
 
 # accessor methods ##
-get_a{M <: ShortRateModel}(m::M) = m.a.data[1]
-get_sigma{M <: ShortRateModel}(m::M) = m.sigma.data[1]
-get_b{M <: ShortRateModel}(m::M) = m.b.data[1]
+get_a(m::ShortRateModel) = m.a.data[1]
+get_sigma(m::ShortRateModel) = m.sigma.data[1]
+get_b(m::ShortRateModel) = m.b.data[1]
 
 check_params_equal(m::ShortRateModel, params::Vector{Float64}) = get_params(m) == params
 
-function set_params!{M <: ShortRateModel}(model::M, params::Vector{Float64})
+function set_params!(model::ShortRateModel, params::Vector{Float64})
   if check_params_equal(model, params)
     return model
   end
@@ -109,7 +109,7 @@ function set_params!{M <: ShortRateModel}(model::M, params::Vector{Float64})
  end
 
 ## Short Rate Model calibration function #
-function calibrate!{M <: ShortRateModel, C <: CalibrationHelper, O <: OptimizationMethod}(model::M, instruments::Vector{C}, method::O, endCriteria::EndCriteria,
+function calibrate!(model::ShortRateModel, instruments::Vector{CalibrationHelper}, method::OptimizationMethod, endCriteria::EndCriteria,
                     constraint::Constraint = model.privateConstraint, weights::Vector{Float64} = ones(length(instruments)), fixParams::BitArray{1} = BitArray(0))
 
   w = length(weights) == 0 ? ones(length(instruments)) : weights

@@ -13,7 +13,7 @@ mutable struct SobolBrownianGenerator{O <: SobolOrdering} <: BrownianGenerator
   bridgedVariates::Vector{Vector{Float64}}
 end
 
-function SobolBrownianGenerator(factors::Int, steps::Int, ordering::SobolOrdering, ::Int)
+function SobolBrownianGenerator(factors::Int, steps::Int, ordering::S, ::Int) where {S <: SobolOrdering}
   generator = SobolInverseCumulativeRSG(factors * steps)
   bridge = BrownianBridge(steps)
   orderedIndices = Vector{Int}[Vector{Int}(steps) for _ = 1:factors]
@@ -21,7 +21,7 @@ function SobolBrownianGenerator(factors::Int, steps::Int, ordering::SobolOrderin
 
   fill_by_ordering!(ordering, orderedIndices, factors, steps)
 
-  return SobolBrownianGenerator(factors, steps, ordering, generator, bridge, 0, orderedIndices, bridgedVariates)
+  return SobolBrownianGenerator{S}(factors, steps, ordering, generator, bridge, 0, orderedIndices, bridgedVariates)
 end
 
 function fill_by_ordering!(::SobolDiagonalOrdering, M::Vector{Vector{Int}}, factors::Int, steps::Int)
@@ -77,7 +77,7 @@ function next_step!(sob::SobolBrownianGenerator, output::Vector{Float64})
   return 1.0
 end
 
-type SobolBrownianGeneratorFactory{O <: SobolOrdering} <: BrownianGeneratorFactory
+struct SobolBrownianGeneratorFactory{O <: SobolOrdering} <: BrownianGeneratorFactory
   ordering::O
   seed::Int
 end
@@ -85,5 +85,5 @@ end
 create(sob::SobolBrownianGeneratorFactory, factors::Int, steps::Int) = SobolBrownianGenerator(factors, steps, sob.ordering, sob.seed)
 
 # Clone #
-clone(sob::SobolBrownianGenerator) = SobolBrownianGenerator(sob.factors, sob.steps, sob.ordering, sob.generator,
+clone(sob::SobolBrownianGenerator) = SobolBrownianGenerator{typeof(sob.ordering)}(sob.factors, sob.steps, sob.ordering, sob.generator,
                                                           sob.bridge, sob.lastStep, deepcopy(sob.orderedIndices), deepcopy(sob.bridgedVariates))

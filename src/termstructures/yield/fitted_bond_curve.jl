@@ -36,15 +36,15 @@ mutable struct FittedBondDiscountCurve{C <: BusinessCalendar, B <: BondHelper, D
   # end
 end
 
-FittedBondDiscountCurve{C <: BusinessCalendar, B <: BondHelper, DC <: DayCount, F <: FittingMethod}(settlementDays::Int,
-                                                                                                    referenceDate::Date,
-                                                                                                    calendar::C,
-                                                                                                    bonds::Vector{B},
-                                                                                                    dc::DC,
-                                                                                                    fittingMethod::F,
-                                                                                                    accuracy::Float64=1e-10,
-                                                                                                    maxEvaluations::Int=10000,
-                                                                                                    simplexLambda::Float64=1.0) =
+FittedBondDiscountCurve(settlementDays::Int,
+                        referenceDate::Date,
+                        calendar::C,
+                        bonds::Vector{B},
+                        dc::DC,
+                        fittingMethod::F,
+                        accuracy::Float64=1e-10,
+                        maxEvaluations::Int=10000,
+                        simplexLambda::Float64=1.0) where {C <: BusinessCalendar, B <: BondHelper, DC <: DayCount, F <: FittingMethod} =
                             FittedBondDiscountCurve{C, B, DC, F}(settlementDays, referenceDate, calendar, bonds, dc, fittingMethod, accuracy, maxEvaluations, simplexLambda)
 
 ### Fitted curve methods ###

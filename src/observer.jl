@@ -7,7 +7,7 @@ end
 ObserverMixin() = ObserverMixin([], [])
 
 # observable patterns
-function add_observer!{T}(ob::Observer, obsv::T)
+function add_observer!(ob::Observer, obsv::T) where {T}
   if ~in(obsv, get_observers(ob))
     push!(get_observers(ob), obsv)
   end

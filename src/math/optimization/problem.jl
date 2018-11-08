@@ -11,14 +11,14 @@ mutable struct Problem{F <: CostFunction, C <: Constraint, T}
   gradientEvaluation::Int
 end
 
-function Problem{F <: CostFunction, C <: Constraint, T}(costFunction::F, constraint::C, initialValue::Vector{T})
+function Problem(costFunction::F, constraint::C, initialValue::Vector{T}) where {F <: CostFunction, C <: Constraint, T}
   currentValue = initialValue
   functionValue = 0.0
   squaredNorm = 0.0
   functionEvaluation = 0
   gradientEvaluation = 0
 
-  return Problem(costFunction, constraint, initialValue, currentValue, functionValue, squaredNorm, functionEvaluation, gradientEvaluation)
+  return Problem{F, C, T}(costFunction, constraint, initialValue, currentValue, functionValue, squaredNorm, functionEvaluation, gradientEvaluation)
 end
 
 ## Problem methods ##
@@ -29,7 +29,7 @@ function reset!(p::Problem)
   return p
 end
 
-function value!{T}(p::Problem, x::Vector{T})
+function value!(p::Problem, x::Vector{T}) where {T}
   p.functionEvaluation += 1
   return QuantLib.value(p.costFunction, x)
 end
@@ -39,8 +39,8 @@ function values!(p::Problem, x::Vector{Float64})
   return QuantLib.func_values(p.costFunction, x)
 end
 
-function extrapolate!{T}(p::Problem, i_highest::Int, factor::Float64, values::Vector{T}, sum_array::Vector{T},
-                    vertices::Vector{Vector{T}})
+function extrapolate!(p::Problem, i_highest::Int, factor::Float64, values::Vector{T}, sum_array::Vector{T},
+                    vertices::Vector{Vector{T}}) where {T}
   pTry = zeros(length(sum_array))
   while true
     dimensions = length(values) - 1

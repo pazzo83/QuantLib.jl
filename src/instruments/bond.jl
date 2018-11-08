@@ -31,16 +31,16 @@ mutable struct FixedRateBond{DC <: DayCount, P <: PricingEngine, C <: Compoundin
   settlementValue::Float64
 end
 
-function FixedRateBond{DC <: DayCount, B <: BusinessDayConvention, C <: BusinessCalendar, P <: PricingEngine}(settlementDays::Int,
-                                                                                          faceAmount::Float64,
-                                                                                          schedule::Schedule,
-                                                                                          coup_rate::Float64,
-                                                                                          dc::DC,
-                                                                                          paymentConvention::B,
-                                                                                          redemption::Float64,
-                                                                                          issueDate::Date,
-                                                                                          calendar::C,
-                                                                                          pricing_engine::P)
+function FixedRateBond(settlementDays::Int,
+                      faceAmount::Float64,
+                      schedule::Schedule,
+                      coup_rate::Float64,
+                      dc::DC,
+                      paymentConvention::B,
+                      redemption::Float64,
+                      issueDate::Date,
+                      calendar::C,
+                      pricing_engine::P) where {DC <: DayCount, B <: BusinessDayConvention, C <: BusinessCalendar, P <: PricingEngine}
   maturityDate = schedule.dates[end]
 
   # num_payments = length(schedule.dates)
@@ -79,22 +79,22 @@ mutable struct FloatingRateBond{X <: InterestRateIndex, DC <: DayCount, P <: Pri
   settlementValue::Float64
 end
 
-function FloatingRateBond{X <: InterestRateIndex, DC <: DayCount, B <: BusinessDayConvention, P <: PricingEngine}(settlementDays::Int,
-                                                                                              faceAmount::Float64,
-                                                                                              schedule::Schedule,
-                                                                                              iborIndex::X,
-                                                                                              dc::DC,
-                                                                                              convention::B,
-                                                                                              fixingDays::Int,
-                                                                                              issueDate::Date,
-                                                                                              pricingEngine::P,
-                                                                                              inArrears::Bool = false,
-                                                                                              redemption::Float64 = 100.0,
-                                                                                              gearings::Vector{Float64} = ones(length(schedule.dates) - 1),
-                                                                                              spreads::Vector{Float64} = zeros(length(schedule.dates) - 1),
-                                                                                              caps::Vector{Float64} = Vector{Float64}(),
-                                                                                              floors::Vector{Float64} = Vector{Float64}();
-                                                                                              cap_vol::OptionletVolatilityStructure=NullOptionletVolatilityStructure())
+function FloatingRateBond(settlementDays::Int,
+                          faceAmount::Float64,
+                          schedule::Schedule,
+                          iborIndex::X,
+                          dc::DC,
+                          convention::B,
+                          fixingDays::Int,
+                          issueDate::Date,
+                          pricingEngine::P,
+                          inArrears::Bool = false,
+                          redemption::Float64 = 100.0,
+                          gearings::Vector{Float64} = ones(length(schedule.dates) - 1),
+                          spreads::Vector{Float64} = zeros(length(schedule.dates) - 1),
+                          caps::Vector{Float64} = Vector{Float64}(),
+                          floors::Vector{Float64} = Vector{Float64}();
+                          cap_vol::OptionletVolatilityStructure=NullOptionletVolatilityStructure()) where {X <: InterestRateIndex, DC <: DayCount, B <: BusinessDayConvention, P <: PricingEngine}
   maturityDate = schedule.dates[end]
   fixingDaysVect = fill(fixingDays, length(schedule.dates) - 1)
 
@@ -115,14 +115,14 @@ mutable struct ZeroCouponBond{BC <: BusinessCalendar, P <: PricingEngine} <: Bon
   pricingEngine::P
 end
 
-function ZeroCouponBond{B <: BusinessCalendar, C <: BusinessDayConvention, P <: PricingEngine}(settlementDays::Int,
-                                                                                              calendar::B,
-                                                                                              faceAmount::Float64,
-                                                                                              maturityDate::Date,
-                                                                                              paymentConvention::C=Following(),
-                                                                                              redemption::Float64=100.0,
-                                                                                              issueDate::Date=Date(),
-                                                                                              pe::P = DiscountingBondEngine())
+function ZeroCouponBond(settlementDays::Int,
+                        calendar::B,
+                        faceAmount::Float64,
+                        maturityDate::Date,
+                        paymentConvention::C=Following(),
+                        redemption::Float64=100.0,
+                        issueDate::Date=Date(),
+                        pe::P = DiscountingBondEngine()) where {B <: BusinessCalendar, C <: BusinessDayConvention, P <: PricingEngine}
   # build redemption CashFlow
   redemption_cf = ZeroCouponLeg(SimpleCashFlow(redemption, maturityDate))
   return ZeroCouponBond{B, P}(LazyMixin(), BondMixin(settlementDays, issueDate, maturityDate), faceAmount, redemption, redemption_cf, calendar, 0.0, pe)

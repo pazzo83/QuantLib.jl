@@ -12,20 +12,21 @@ mutable struct MCEuropeanEngine{S <: AbstractBlackScholesProcess, RSG <: Abstrac
   rsg::RSG
 end
 
-function MCEuropeanEngine{S <: AbstractBlackScholesProcess, RSG <: AbstractRandomSequenceGenerator}(process::S; timeSteps::Int = -1, timeStepsPerYear::Int = -1, brownianBridge::Bool = false,
-                          antitheticVariate::Bool = false, requiredSamples::Int = -1, requiredTolerance::Float64 = -1.0, maxSamples::Int = typemax(Int), seed::Int = 1, rsg::RSG = InverseCumulativeRSG(seed))
+function MCEuropeanEngine(process::S; timeSteps::Int = -1, timeStepsPerYear::Int = -1, brownianBridge::Bool = false, antitheticVariate::Bool = false, 
+                          requiredSamples::Int = -1, requiredTolerance::Float64 = -1.0, maxSamples::Int = typemax(Int), seed::Int = 1, 
+                          rsg::RSG = InverseCumulativeRSG(seed)) where {S <: AbstractBlackScholesProcess, RSG <: AbstractRandomSequenceGenerator}
   # build mc sim
   # mcSim = MCSimulation{RSG, SingleVariate}(antitheticVariate, false, rsg, SingleVariate())
 
   return MCEuropeanEngine{S, RSG}(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed, antitheticVariate, rsg)
 end
 
-struct EuropeanPathPricer{OT <: OptionType} <: AbstractPathPricer
-  payoff::PlainVanillaPayoff{OT}
+struct EuropeanPathPricer{P <: PlainVanillaPayoff} <: AbstractPathPricer
+  payoff::P
   discount::Float64
 end
 
-EuropeanPathPricer{OT <: OptionType}(optionType::OT, strike::Float64, disc::Float64) = EuropeanPathPricer{OT}(PlainVanillaPayoff(optionType, strike), disc)
+EuropeanPathPricer(optionType::OT, strike::Float64, disc::Float64) where {OT <: OptionType} = EuropeanPathPricer(PlainVanillaPayoff{OT}(optionType, strike), disc)
 
 (pricer::EuropeanPathPricer)(path::Path) = pricer.payoff(path[end]) * pricer.discount
 

@@ -14,14 +14,14 @@ mutable struct FDEuropeanEngine{B <: AbstractBlackScholesProcess} <: AbstractFDV
   fdEvolverFunc::Function
 end
 
-function FDEuropeanEngine(process::AbstractBlackScholesProcess, fdEvolverFunc::Function, timeSteps::Int = 100,
-                          gridPoints::Int = 100, timeDependent::Bool = false)
+function FDEuropeanEngine(process::B, fdEvolverFunc::Function, timeSteps::Int = 100,
+                          gridPoints::Int = 100, timeDependent::Bool = false) where {B <: AbstractBlackScholesProcess}
   prices = SampledCurve(gridPoints)
   finiteDifferenceOperator, intrinsicValues, BCs = gen_fd_vanilla_engine_params(gridPoints)
   sMin = center = sMax = 0.0
   exerciseDate = Date()
 
-  return FDEuropeanEngine(process, timeSteps, gridPoints, timeDependent, exerciseDate, finiteDifferenceOperator,
+  return FDEuropeanEngine{B}(process, timeSteps, gridPoints, timeDependent, exerciseDate, finiteDifferenceOperator,
                           intrinsicValues, BCs, sMin, center, sMax, prices, fdEvolverFunc)
 end
 
@@ -43,8 +43,8 @@ mutable struct FDBermudanEngine{B <: AbstractBlackScholesProcess} <: FDMultiPeri
   fdEvolverFunc::Function
 end
 
-function FDBermudanEngine(process::AbstractBlackScholesProcess, fdEvolverFunc::Function, timeSteps::Int = 100,
-                          gridPoints::Int = 100, timeDependent::Bool = false)
+function FDBermudanEngine(process::B, fdEvolverFunc::Function, timeSteps::Int = 100,
+                          gridPoints::Int = 100, timeDependent::Bool = false) where {B <: AbstractBlackScholesProcess}
   prices = SampledCurve(gridPoints)
   finiteDifferenceOperator, intrinsicValues, BCs = gen_fd_vanilla_engine_params(gridPoints)
   sMin = center = sMax = 0.0
@@ -52,7 +52,7 @@ function FDBermudanEngine(process::AbstractBlackScholesProcess, fdEvolverFunc::F
   stoppingTimes = Vector{Float64}()
   timeStepPerPeriod = timeSteps
 
-  return FDBermudanEngine(process, timeSteps, gridPoints, timeDependent, exerciseDate, finiteDifferenceOperator,
+  return FDBermudanEngine{B}(process, timeSteps, gridPoints, timeDependent, exerciseDate, finiteDifferenceOperator,
                           intrinsicValues, BCs, sMin, center, sMax, prices, stoppingTimes, timeStepPerPeriod, fdEvolverFunc)
 end
 
@@ -75,8 +75,8 @@ mutable struct FDAmericanEngine{B <: AbstractBlackScholesProcess} <: FDStepCondi
   fdEvolverFunc::Function
 end
 
-function FDAmericanEngine(process::AbstractBlackScholesProcess, fdEvolverFunc::Function, timeSteps::Int = 100,
-                          gridPoints::Int = 100, timeDependent::Bool = false)
+function FDAmericanEngine(process::B, fdEvolverFunc::Function, timeSteps::Int = 100,
+                          gridPoints::Int = 100, timeDependent::Bool = false) where {B <: AbstractBlackScholesProcess}
   # build engine
   prices = SampledCurve()
   controlPrices = SampledCurve(gridPoints)
@@ -86,7 +86,7 @@ function FDAmericanEngine(process::AbstractBlackScholesProcess, fdEvolverFunc::F
   controlBCs = Vector{BoundaryCondition}(2)
   controlOperator = TridiagonalOperator()
 
-  return FDAmericanEngine(process, timeSteps, gridPoints, timeDependent, exerciseDate, finiteDifferenceOperator,
+  return FDAmericanEngine{B}(process, timeSteps, gridPoints, timeDependent, exerciseDate, finiteDifferenceOperator,
                           intrinsicValues, BCs, sMin, center, sMax, prices, controlPrices, controlBCs,
                           controlOperator, fdEvolverFunc)
 end

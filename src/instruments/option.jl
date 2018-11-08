@@ -50,12 +50,12 @@ mutable struct VanillaOption{S <: StrikedTypePayoff, E <: Exercise, P <: Pricing
   results::OptionResults
 end
 
-VanillaOption{S <: StrikedTypePayoff, E <: Exercise, P <: PricingEngine}(payoff::S, exercise::E, pe::P) =
+VanillaOption(payoff::S, exercise::E, pe::P) where {S <: StrikedTypePayoff, E <: Exercise, P <: PricingEngine} =
               VanillaOption{S, E, P}(LazyMixin(), payoff, exercise, pe, OptionResults())
 
 get_pricing_engine_type{S, E, P}(::VanillaOption{S, E, P}) = P
 
-function clone{P <: PricingEngine}(opt::VanillaOption, pe::P = opt.pricingEngine)
+function clone(opt::VanillaOption, pe::P = opt.pricingEngine) where {P <: PricingEngine}
   lazyMixin, res = pe == opt.pricingEngine ? (opt.lazyMixin, opt.results) : (LazyMixin(), OptionResults())
 
   return VanillaOption{typeof(opt.payoff), typeof(opt.exercise), P}(lazyMixin, opt.payoff, opt.exercise, pe, res)

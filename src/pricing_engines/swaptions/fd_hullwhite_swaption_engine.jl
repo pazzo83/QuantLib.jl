@@ -8,12 +8,12 @@ struct FdHullWhiteSwaptionEngine{Y <: TermStructure, F <: FdmSchemeDescType} <: 
   ts::Y
 end
 
-FdHullWhiteSwaptionEngine{F <: FdmSchemeDescType, Y <: TermStructure}(model::HullWhite{AffineModelType, Y},
-                                                                      tGrid::Int = 100,
-                                                                      xGrid::Int = 100,
-                                                                      dampingSteps::Int = 0,
-                                                                      invEps::Float64 = 1e-5,
-                                                                      schemeDesc::FdmSchemeDesc{F} = FdmSchemeDesc(Douglas())) =
+FdHullWhiteSwaptionEngine(model::HullWhite{AffineModelType, Y},
+                          tGrid::Int = 100,
+                          xGrid::Int = 100,
+                          dampingSteps::Int = 0,
+                          invEps::Float64 = 1e-5,
+                          schemeDesc::FdmSchemeDesc{F} = FdmSchemeDesc(Douglas())) where {F <: FdmSchemeDescType, Y <: TermStructure} =
                   FdHullWhiteSwaptionEngine{Y, F}(model, tGrid, xGrid, dampingSteps, invEps, schemeDesc, model.ts)
 # methods #
 function _calculate!(pe::FdHullWhiteSwaptionEngine, swaption::Swaption)

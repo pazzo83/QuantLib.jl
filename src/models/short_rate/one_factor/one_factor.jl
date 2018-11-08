@@ -1,12 +1,12 @@
 ## ONE FACTOR MODELS ##
-mutable struct OneFactorShortRateTree{S <: ShortRateDynamics, P <: StochasticProcess} <: ShortRateTree
-  tree::TrinomialTree{P}
+mutable struct OneFactorShortRateTree{S <: ShortRateDynamics, T <: TrinomialTree} <: ShortRateTree
+  tree::T
   dynamics::S
   tg::TimeGrid
-  treeLattice::TreeLattice1D{OneFactorShortRateTree{S, P}}
+  treeLattice::TreeLattice1D{OneFactorShortRateTree{S, T}}
 
-  function OneFactorShortRateTree{S, P}(tree::TrinomialTree{P}, dynamics::S, tg::TimeGrid) where {S, P}
-    oneFactorTree = new{S, P}(tree, dynamics, tg)
+  function OneFactorShortRateTree{S, T}(tree::T, dynamics::S, tg::TimeGrid) where {S, P}
+    oneFactorTree = new{S, T}(tree, dynamics, tg)
     oneFactorTree.treeLattice = TreeLattice1D(tg, get_size(tree, 2), oneFactorTree)
 
     return oneFactorTree

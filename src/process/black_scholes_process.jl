@@ -12,11 +12,11 @@ struct GeneralizedBlackScholesProcess{Y1 <: YieldTermStructure, Y2 <: YieldTermS
   blackScholesType::BST
 end
 
-function GeneralizedBlackScholesProcess(x0::Quote, riskFreeRate::YieldTermStructure, dividendYield::YieldTermStructure,
-          blackVolatility::BlackConstantVol, disc::AbstractDiscretization = EulerDiscretization())
+function GeneralizedBlackScholesProcess(x0::Quote, riskFreeRate::Y1, dividendYield::Y2, blackVolatility::BlackConstantVol, 
+                                        disc::D = EulerDiscretization()) where {Y1 <: YieldTermStructure, Y2 <: YieldTermStructure, D <: AbstractDiscretization}
   localVolatility = LocalConstantVol(blackVolatility.referenceDate, black_vol(blackVolatility, 0.0, x0.value), blackVolatility.dc)
 
-  return GeneralizedBlackScholesProcess(x0, riskFreeRate, dividendYield, blackVolatility, localVolatility, disc, true, GeneralBlackScholesType())
+  return GeneralizedBlackScholesProcess{Y1, Y2, BlackConstantVol, D, GeneralBlackScholesType}(x0, riskFreeRate, dividendYield, blackVolatility, localVolatility, disc, true, GeneralBlackScholesType())
 end
 
 # type BlackScholesMertonProcess{Y1 <: YieldTermStructure, Y2 <: YieldTermStructure, B <: BlackVolTermStructure, D <: AbstractDiscretization} <: AbstractBlackScholesProcess
@@ -29,11 +29,11 @@ end
 #   isStrikeDependent::Bool
 # end
 
-function BlackScholesMertonProcess(x0::Quote, riskFreeRate::YieldTermStructure, dividendYield::YieldTermStructure,
-          blackVolatility::BlackConstantVol, disc::AbstractDiscretization = EulerDiscretization())
+function BlackScholesMertonProcess(x0::Quote, riskFreeRate::Y1, dividendYield::Y2,
+          blackVolatility::BlackConstantVol, disc::D = EulerDiscretization()) where {Y1 <: YieldTermStructure, Y2 <: YieldTermStructure, D <: AbstractDiscretization}
   localVolatility = LocalConstantVol(blackVolatility.referenceDate, black_vol(blackVolatility, 0.0, x0.value), blackVolatility.dc)
 
-  return GeneralizedBlackScholesProcess(x0, riskFreeRate, dividendYield, blackVolatility, localVolatility, disc, true, BlackScholesMertonType())
+  return GeneralizedBlackScholesProcess{Y1, Y2, BlackConstantVol, D, BlackScholesMertonType}(x0, riskFreeRate, dividendYield, blackVolatility, localVolatility, disc, true, BlackScholesMertonType())
 end
 
 function drift(process::GeneralizedBlackScholesProcess, t::Float64, x::Float64)

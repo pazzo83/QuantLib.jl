@@ -9,8 +9,8 @@ mutable struct DiscretizedSwap{ST <: SwapType, L <: Lattice} <: DiscretizedAsset
   common::DiscretizedAssetCommon{L}
 end
 
-function DiscretizedSwap{DC <: DayCount, ST <: SwapType, L <: Lattice}(nominal::Float64, swapT::ST, referenceDate::Date, dc::DC, fixedPayDates::Vector{Date}, fixedResetDates::Vector{Date},
-                        floatingPayDates::Vector{Date}, floatingResetDates::Vector{Date}, args::VanillaSwapArgs, lattice::L)
+function DiscretizedSwap(nominal::Float64, swapT::ST, referenceDate::Date, dc::DayCount, fixedPayDates::Vector{Date}, fixedResetDates::Vector{Date},
+                        floatingPayDates::Vector{Date}, floatingResetDates::Vector{Date}, args::VanillaSwapArgs, lattice::L) where {ST <: SwapType, L <: Lattice}
   fixed_n = length(fixedPayDates)
   float_n = length(floatingPayDates)
 

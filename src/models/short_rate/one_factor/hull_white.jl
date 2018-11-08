@@ -9,7 +9,7 @@ mutable struct HullWhite{AffineModelType, T <: TermStructure} <: OneFactorModel{
   common::ModelCommon
 end
 
-function HullWhite{T <: TermStructure}(ts::T, a::Float64 = 0.1, sigma::Float64 = 0.01)
+function HullWhite(ts::T, a::Float64 = 0.1, sigma::Float64 = 0.01) where {T <: TermStructure}
   _rate = forward_rate(ts, 0.0, 0.0, ContinuousCompounding(), NoFrequency())
   r0 = _rate.rate
   a_const = ConstantParameter([a], PositiveConstraint())
@@ -30,7 +30,7 @@ mutable struct HullWhiteDynamics{P <: Parameter} <: ShortRateDynamics
   sigma::Float64
 end
 
-HullWhiteDynamics{P <: Parameter}(fitting::P, a::Float64, sigma::Float64) = HullWhiteDynamics{P}(OrnsteinUhlenbeckProcess(a, sigma), fitting, a, sigma)
+HullWhiteDynamics(fitting::P, a::Float64, sigma::Float64) where {P <: Parameter} = HullWhiteDynamics{P}(OrnsteinUhlenbeckProcess(a, sigma), fitting, a, sigma)
 
 short_rate(dynamic::HullWhiteDynamics, t::Float64, x::Float64) = x + dynamic.fitting(t)
 
@@ -87,7 +87,7 @@ function A(model::HullWhite, t::Float64, T::Float64)
   return exp(val) * discount2 / discount1
 end
 
-function discount_bond_option{O <: OptionType}(model::HullWhite, optionType::O, strike::Float64, maturity::Float64, bondStart::Float64, bondMaturity::Float64)
+function discount_bond_option(model::HullWhite, optionType::OptionType, strike::Float64, maturity::Float64, bondStart::Float64, bondMaturity::Float64)
   _a = get_a(model)
   if _a < sqrt(eps())
     v = get_sigma(model) * B(model, bondStart, bondMaturity) * sqrt(maturity)

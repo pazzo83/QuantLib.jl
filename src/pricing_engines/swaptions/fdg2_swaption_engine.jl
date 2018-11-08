@@ -9,14 +9,14 @@ struct FdG2SwaptionEngine{Y <: TermStructure, F <: FdmSchemeDescType} <: Pricing
   ts::Y
 end
 
-FdG2SwaptionEngine{F <: FdmSchemeDescType, Y <: TermStructure}(model::G2{AffineModelType, Y},
-                                                              tGrid::Int = 100,
-                                                              xGrid::Int = 50,
-                                                              yGrid::Int = 50,
-                                                              dampingSteps::Int = 0,
-                                                              invEps::Float64 = 1e-5,
-                                                              schemeDesc::FdmSchemeDesc{F} = FdmSchemeDesc(Hundsdorfer())) =
-                  FdG2SwaptionEngine{Y, F}(model, tGrid, xGrid, yGrid, dampingSteps, invEps, schemeDesc, model.ts)
+FdG2SwaptionEngine(model::G2{AffineModelType, Y},
+                  tGrid::Int = 100,
+                  xGrid::Int = 50,
+                  yGrid::Int = 50,
+                  dampingSteps::Int = 0,
+                  invEps::Float64 = 1e-5,
+                  schemeDesc::FdmSchemeDesc{F} = FdmSchemeDesc(Hundsdorfer())) where {F <: FdmSchemeDescType, Y <: TermStructure} =
+                    FdG2SwaptionEngine{Y, F}(model, tGrid, xGrid, yGrid, dampingSteps, invEps, schemeDesc, model.ts)
 
 # methods #
 function _calculate!(pe::FdG2SwaptionEngine, swaption::Swaption)

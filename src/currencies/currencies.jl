@@ -1,15 +1,15 @@
 ### Based off of Ito.jl
 struct NullCurrency <: AbstractCurrency end
 
-struct Currency{S <: AbstractString, S2 <: AbstractString, S3 <: AbstractString} <: AbstractCurrency
-	name::S
-	code::S
+struct Currency <: AbstractCurrency
+	name::String
+	code::String
 	numeric::Int
-	symbol::S2
-	fractionSymbol::S3
+	symbol::String
+	fractionSymbol::String
 	fractionsPerUnit::Int
 	rounding::Function
-	formatString::S
+	formatString::String
 end
 
 # Data from http://fx.sauder.ubc.ca/currency_table.html

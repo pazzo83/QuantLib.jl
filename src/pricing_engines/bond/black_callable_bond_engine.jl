@@ -5,5 +5,5 @@ end
 function BlackCallableFixedRateBondEngine(fwdYieldVol::Quote)
   vol = CallableBondConstantVol(0, NullCalendar(), fwdYieldVol, Actual365())
 
-  return BlackCallableFixedRateBondEngine(vol)
+  return BlackCallableFixedRateBondEngine{typeof(vol)}(vol)
 end

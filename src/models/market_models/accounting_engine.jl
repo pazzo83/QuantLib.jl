@@ -9,7 +9,7 @@ mutable struct AccountingEngine{E <: AbstractMarketModelEvolver, P <: MarketMode
   discounters::Vector{MarketModelDiscounter}
 end
 
-function AccountingEngine(evolver::AbstractMarketModelEvolver, product::MarketModelMultiProduct, initialNumeraireValue::Float64)
+function AccountingEngine(evolver::E, product::P, initialNumeraireValue::Float64) where {E <: AbstractMarketModelEvolver, P <: MarketModelMultiProduct}
   product = clone(product)
   numProd = number_of_products(product)
 
@@ -20,7 +20,7 @@ function AccountingEngine(evolver::AbstractMarketModelEvolver, product::MarketMo
 
   discounters = MarketModelDiscounter[MarketModelDiscounter(cashFlowTimes[i], rateTimes) for i in eachindex(cashFlowTimes)]
 
-  return AccountingEngine(evolver, product, initialNumeraireValue, numProd, Vector{Float64}(numProd), Vector{Int}(numProd), cashFlowsGenerated, discounters)
+  return AccountingEngine{E, P}(evolver, product, initialNumeraireValue, numProd, Vector{Float64}(numProd), Vector{Int}(numProd), cashFlowsGenerated, discounters)
 end
 
 function single_path_values!(ae::AccountingEngine, vals::Vector{Float64})

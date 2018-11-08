@@ -11,9 +11,9 @@ end
 
 function InterpolatedDiscountCurve(dates::Vector{Date},
                                   discounts::Vector{Float64},
-                                  dc::DayCount,
-                                  interpolator::Interpolation)
-  idc = InterpolatedDiscountCurve(0, dates[1], dc, interpolator, NullCalendar(), dates, zeros(length(dates)), discounts)
+                                  dc::DC,
+                                  interpolator::P) where {DC <: DayCount, P <: Interpolation}
+  idc = InterpolatedDiscountCurve{DC, P, NullCalendar}(0, dates[1], dc, interpolator, NullCalendar(), dates, zeros(length(dates)), discounts)
 
   initialize!(idc)
 

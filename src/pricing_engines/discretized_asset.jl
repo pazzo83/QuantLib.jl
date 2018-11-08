@@ -10,7 +10,7 @@ mutable struct DiscretizedAssetCommon{L <: Lattice}
   #     new{Lattice}(t, v, lpa, lpoa)
 end
 
-DiscretizedAssetCommon{L <: Lattice}(lattice::L) = DiscretizedAssetCommon{L}(0.0, zeros(0), eps(), eps(), lattice)
+DiscretizedAssetCommon(lattice::L) where {L <: Lattice} = DiscretizedAssetCommon{L}(0.0, zeros(0), eps(), eps(), lattice)
 
 clone(das::DiscretizedAssetCommon, method::Lattice = das.method) = DiscretizedAssetCommon{typeof(method)}(das.time, das.values, das.latestPreAdjustment, das.latestPostAdjustment, method)
 

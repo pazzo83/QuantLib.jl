@@ -2,7 +2,7 @@ mutable struct DiscretizedDiscountBond{L <: Lattice} <: DiscretizedAsset
   common::DiscretizedAssetCommon{L}
 end
 
-DiscretizedDiscountBond{L <: Lattice}(lattice::L) = DiscretizedDiscountBond(DiscretizedAssetCommon(lattice))
+DiscretizedDiscountBond(lattice::L) where {L <: Lattice} = DiscretizedDiscountBond{L}(DiscretizedAssetCommon(lattice))
 
 function reset!(dBond::DiscretizedDiscountBond, sz::Int)
   dBond.common.values = ones(sz)
@@ -18,7 +18,7 @@ mutable struct DiscretizedCallableFixedRateBond{L <: Lattice} <: DiscretizedAsse
   common::DiscretizedAssetCommon{L}
 end
 
-function DiscretizedCallableFixedRateBond{L <: Lattice}(bond::CallableFixedRateBond, referenceDate::Date, dc::DayCount, lattice::L)
+function DiscretizedCallableFixedRateBond(bond::CallableFixedRateBond, referenceDate::Date, dc::DayCount, lattice::L) where {L <: Lattice}
   args = CallableBondArgs(bond)
   redemptionTime = year_fraction(dc, referenceDate, args.redemptionDate)
   couponTimes = Vector{Float64}(length(args.couponDates))

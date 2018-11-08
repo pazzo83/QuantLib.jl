@@ -1,10 +1,10 @@
-mutable struct BrownianBridge{I <: Integer}
-  size_::I
+mutable struct BrownianBridge
+  size_::Int
   t::Vector{Float64}
   sqrtdt::Vector{Float64}
-  bridgeIndex::Vector{I}
-  leftIndex::Vector{I}
-  rightIndex::Vector{I}
+  bridgeIndex::Vector{Int}
+  leftIndex::Vector{Int}
+  rightIndex::Vector{Int}
   leftWeight::Vector{Float64}
   rightWeight::Vector{Float64}
   stdDev::Vector{Float64}

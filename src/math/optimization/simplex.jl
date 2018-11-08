@@ -3,7 +3,7 @@ struct Simplex <: OptimizationMethod
 end
 
 ## SIMPLEX METHODS ##
-function compute_simplex_size{T}(vert::Vector{Vector{T}})
+function compute_simplex_size(vert::Vector{Vector{T}}) where {T}
   center = sum(vert)
   multiply_array_by_self!(center, 1 / length(vert))
 

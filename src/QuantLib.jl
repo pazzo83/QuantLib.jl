@@ -473,17 +473,17 @@ include("pricing_engines/vanilla/mc_american_engine.jl")
 # # Helpers NOW IN TERM STRUCTURE
 # include("helpers/bond_helpers.jl")
 
-# mutable struct Settings
-#   evaluation_date::Date
-#   counter::Int
-# end
+mutable struct Settings
+  evaluation_date::Date
+  counter::Int
+end
 
-# settings = Settings(Date(), 0)
+settings = Settings(Date(), 0)
 
-# function set_eval_date!(sett::Settings, d::Date)
-#   sett.evaluation_date = d
-# end
+function set_eval_date!(sett::Settings, d::Date)
+  sett.evaluation_date = d
+end
 
-# export Settings, settings, set_eval_date!
+export Settings, settings, set_eval_date!
 
 end

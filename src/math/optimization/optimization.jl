@@ -71,7 +71,7 @@ mutable struct EndCriteria
   gradientNormEpsilon::Float64
 end
 
-test{T}(::NoConstraint, ::Vector{T}) = true
+test(::NoConstraint, ::Vector{T}) where {T} = true
 
 test(c::ProjectedConstraint, x::Vector{Float64}) = test(c.constraint, include_params(c.projection, x))
 
@@ -95,7 +95,7 @@ function test(c::BoundaryConstraint, x::Vector{Float64})
   return true
 end
 
-function update{T}(constraint::Constraint, params::Vector{T}, direction::Vector{Float64}, beta::Float64)
+function update(constraint::Constraint, params::Vector{T}, direction::Vector{Float64}, beta::Float64) where {T}
   diff = beta
   new_params = params + diff * direction
   valid = test(constraint, new_params)

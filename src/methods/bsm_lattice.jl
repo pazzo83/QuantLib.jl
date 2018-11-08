@@ -22,7 +22,7 @@ mutable struct BlackScholesLattice{T <: AbstractBinomialTree} <: TreeLattice
   end
 end
 
-BlackScholesLattice{T <: AbstractBinomialTree}(tree::T, riskFreeRate::Float64, endTime::Float64, steps::Int) = BlackScholesLattice{T}(tree, riskFreeRate, endTime, steps)
+BlackScholesLattice(tree::T, riskFreeRate::Float64, endTime::Float64, steps::Int) where {T <: AbstractBinomialTree} = BlackScholesLattice{T}(tree, riskFreeRate, endTime, steps)
 
 get_underlying(bsm::BlackScholesLattice, i::Int, idx::Int) = get_underlying(bsm.tree, i, idx)
 

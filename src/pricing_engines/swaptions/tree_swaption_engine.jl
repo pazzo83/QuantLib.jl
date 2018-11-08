@@ -16,9 +16,9 @@ mutable struct TreeSwaptionEngine{S <: ShortRateModel, T <: ShortRateTree} <: La
   #
   # call{S, I, Y}(::Type{TreeSwaptionEngine}, m::S, tsteps::I, l::LatticeShortRateModelEngineCommon, ts::Y) = new{S, I, T, Y}(m, tsteps, l, ts)
   function TreeSwaptionEngine{S, T}(model::S,
-                                    timeSteps::Int,
-                                    common::LatticeShortRateModelEngineCommon{T},
-                                    latticeGen::Bool = true) where {S, T}
+                              timeSteps::Int,
+                              common::LatticeShortRateModelEngineCommon{T},
+                              latticeGen::Bool = true) where {S, T}
     ts = new{S, T}(model, timeSteps, common, latticeGen)
     add_observer!(model, ts)
 
@@ -37,12 +37,12 @@ mutable struct TreeSwaptionEngine{S <: ShortRateModel, T <: ShortRateTree} <: La
   # end
 end
 
-function TreeSwaptionEngine{S <: ShortRateModel}(model::S, tg::TimeGrid)
+function TreeSwaptionEngine(model::S, tg::TimeGrid) where {S <: ShortRateModel}
   lattice = tree(model, tg)
   return TreeSwaptionEngine{S, typeof(lattice)}(model, 0, LatticeShortRateModelEngineCommon(tg, lattice))
 end
 
-function TreeSwaptionEngine{S <: ShortRateModel}(model::S, timeSteps::Int)
+function TreeSwaptionEngine(model::S, timeSteps::Int) where {S <: ShortRateModel}
   # create empty tree
   tg = TimeGrid([1.0], 1)
   lattice = tree(model, tg)

@@ -5,9 +5,9 @@ mutable struct SwapRateHelper{PrT <: Dates.Period, PrS <: Dates.Period} <: RateH
   swap::VanillaSwap
 end
 
-function SwapRateHelper{PrT <: Dates.Period, C <: BusinessCalendar, F <: Frequency, B <: BusinessDayConvention, DC <: DayCount, PrS <: Dates.Period, P <: PricingEngine, ST <: SwapType}(rate::Float64, tenor::PrT, cal::C,
-                    fixedFrequency::F, fixedConvention::B, fixedDayCount::DC, iborIndex::IborIndex, spread::Float64, fwdStart::PrS,
-                    pricingEngine::P = DiscountingSwapEngine(), settlementDays::Int = iborIndex.fixingDays, nominal::Float64 = 1.0, swapT::ST = Payer(), fixedRate::Float64 = 0.0)
+function SwapRateHelper(rate::Float64, tenor::PrT, cal::C, fixedFrequency::F, fixedConvention::B, fixedDayCount::DC, iborIndex::IborIndex, spread::Float64, fwdStart::PrS,
+                    pricingEngine::P = DiscountingSwapEngine(), settlementDays::Int = iborIndex.fixingDays, nominal::Float64 = 1.0, swapT::ST = Payer(), 
+                    fixedRate::Float64 = 0.0) where {PrT <: Dates.Period, C <: BusinessCalendar, F <: Frequency, B <: BusinessDayConvention, DC <: DayCount, PrS <: Dates.Period, P <: PricingEngine, ST <: SwapType}
   # do stuff
   fixedCal = cal
   floatingCal = cal
@@ -34,7 +34,7 @@ function SwapRateHelper{PrT <: Dates.Period, C <: BusinessCalendar, F <: Frequen
 
   swap = VanillaSwap(swapT, nominal, fixed_schedule, fixedRate, fixedDayCount, iborIndex, spread, float_schedule, floatDayCount, pricingEngine, fixedConvention)
 
-  return SwapRateHelper(Quote(rate), tenor, fwdStart, swap)
+  return SwapRateHelper{PrT, PrS}(Quote(rate), tenor, fwdStart, swap)
 end
 
 maturity_date(sh::SwapRateHelper) = maturity_date(sh.swap)
@@ -55,19 +55,19 @@ struct DepositRateHelper{B <: BusinessCalendar, C <: BusinessDayConvention, DC <
   fixingDate::Date
 end
 
-function DepositRateHelper(rate::Quote, tenor::TenorPeriod, fixingDays::Integer, calendar::BusinessCalendar, convention::BusinessDayConvention, endOfMonth::Bool, dc::DayCount)
+function DepositRateHelper(rate::Quote, tenor::TenorPeriod, fixingDays::Integer, calendar::B, convention::C, endOfMonth::Bool, dc::DC) where {B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}
   ibor_index = IborIndex("no-fix", tenor, fixingDays, NullCurrency(), calendar, convention, endOfMonth, dc)
   evaluation_date = settings.evaluation_date
   reference_date = adjust(calendar, convention, evaluation_date)
   earliest_date = advance(Dates.Day(fixingDays), calendar, reference_date, convention)
   maturity_d = maturity_date(ibor_index, earliest_date)
   fix_date = fixing_date(ibor_index, earliest_date)
-  return DepositRateHelper(rate, tenor, fixingDays, calendar, convention, endOfMonth, dc, ibor_index, evaluation_date, reference_date, earliest_date, maturity_d, fix_date)
+  return DepositRateHelper{B, C, DC}(rate, tenor, fixingDays, calendar, convention, endOfMonth, dc, ibor_index, evaluation_date, reference_date, earliest_date, maturity_d, fix_date)
 end
 
-maturity_date{R <: RateHelper}(rate::R) = rate.maturityDate
+maturity_date(rate::RateHelper) = rate.maturityDate
 
-value{R <: RateHelper}(rate::R) = rate.rate.value
+value(rate::RateHelper) = rate.rate.value
 
 function implied_quote(swap_helper::SwapRateHelper)
   swap = swap_helper.swap
@@ -90,17 +90,17 @@ function implied_quote(rh::RateHelper)
   return fixing(rh.iborIndex, rh.iborIndex.ts, rh.fixingDate, true)
 end
 
-struct FraRateHelper{D <: Dates.Period, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} <: RateHelper
+struct FraRateHelper{D <: Dates.Period, II <: IborIndex} <: RateHelper
   rate::Quote
   evaluationDate::Date
   periodToStart::D
-  iborIndex::IborIndex{TP, CUR, IB, IC, IDC, IT}
+  iborIndex::II
   fixingDate::Date
   earliestDate::Date
   latestDate::Date
 end
 
-function FraRateHelper{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}(rate::Quote, monthsToStart::Int, monthsToEnd::Int, fixingDays::Int, calendar::B, convention::C, endOfMonth::Bool, dc::DC)
+function FraRateHelper(rate::Quote, monthsToStart::Int, monthsToEnd::Int, fixingDays::Int, calendar::BusinessCalendar, convention::BusinessDayConvention, endOfMonth::Bool, dc::DayCount)
   periodToStart = Dates.Month(monthsToStart)
   iborIndex = IborIndex("no-fix", TenorPeriod(Dates.Month(monthsToEnd - monthsToStart)), fixingDays, NullCurrency(), calendar, convention, endOfMonth, dc)
   evaluationDate = settings.evaluation_date
@@ -112,7 +112,7 @@ function FraRateHelper{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: 
   latestDate = maturity_date(iborIndex, earliestDate)
   fixingDate = fixing_date(iborIndex, earliestDate)
 
-  return FraRateHelper{Dates.Month, typeof(iborIndex.tenor), NullCurrency, B, C, DC, typeof(iborIndex.ts)}(rate, evaluationDate, periodToStart, iborIndex, fixingDate, earliestDate, latestDate)
+  return FraRateHelper{Dates.Month, typeof(iborIndex)}(rate, evaluationDate, periodToStart, iborIndex, fixingDate, earliestDate, latestDate)
 end
 
 maturity_date(fra::FraRateHelper) = fra.latestDate

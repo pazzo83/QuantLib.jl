@@ -12,7 +12,7 @@ end
 
 DiscountingBondEngine() = DiscountingBondEngine{NullYieldTermStructure}(NullYieldTermStructure())
 
-function _calculate!{B <: Bond}(pe::DiscountingBondEngine, bond::B)
+function _calculate!(pe::DiscountingBondEngine, bond::Bond)
   yts = pe.yts
   valuation_date = yts.referenceDate
   value = npv(bond.cashflows, yts, valuation_date, valuation_date)
@@ -22,4 +22,4 @@ function _calculate!{B <: Bond}(pe::DiscountingBondEngine, bond::B)
   return bond
 end
 
-clone(pe::DiscountingBondEngine, ts::TermStructure) = DiscountingBondEngine(ts)
+clone(pe::DiscountingBondEngine, ts::Y) where {Y <: YieldTermStructure} = DiscountingBondEngine{Y}(ts)

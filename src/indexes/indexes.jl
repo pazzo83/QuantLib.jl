@@ -22,14 +22,14 @@ struct IborIndex{TP <: TenorPeriod, CUR <: AbstractCurrency, B <: BusinessCalend
   #                                                                                           endOfMonth, dc, ts)
 end
 
-IborIndex{TP <: TenorPeriod, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::String,
-                                                                                                          tenor::TP,
-                                                                                                          fixingDays::Int,
-                                                                                                          currency::CUR,
-                                                                                                          fixingCalendar::B,
-                                                                                                          convention::C,
-                                                                                                          endOfMonth::Bool,
-                                                                                                          dc::DC, ts::T = NullTermStructure()) =
+IborIndex(familyName::String,
+          tenor::TP,
+          fixingDays::Int,
+          currency::CUR,
+          fixingCalendar::B,
+          convention::C,
+          endOfMonth::Bool,
+          dc::DC, ts::T = NullTermStructure()) where {TP <: TenorPeriod, CUR <: AbstractCurrency, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} =
           IborIndex{TP, CUR, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, convention, endOfMonth, dc, ts, Dict{Date, Float64}())
 
 
@@ -53,16 +53,16 @@ struct LiborIndex{TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConv
 end
 
 # catch all constructor #
-LiborIndex{TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure}(familyName::String,
-                                                                                                              tenor::TP,
-                                                                                                              fixingDays::Int,
-                                                                                                              currency::Currency,
-                                                                                                              fixingCalendar::B,
-                                                                                                              jointCalendar::JointCalendar,
-                                                                                                              convention::C,
-                                                                                                              endOfMonth::Bool,
-                                                                                                              dc::DC,
-                                                                                                              ts::T = NullTermStructure()) =
+LiborIndex(familyName::String,
+          tenor::TP,
+          fixingDays::Int,
+          currency::Currency,
+          fixingCalendar::B,
+          jointCalendar::JointCalendar,
+          convention::C,
+          endOfMonth::Bool,
+          dc::DC,
+          ts::T = NullTermStructure()) where {TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure} =
         LiborIndex{TP, B, C, DC, T}(familyName, tenor, fixingDays, currency, fixingCalendar, jointCalendar, convention, endOfMonth, dc, ts, Dict{Date, Float64}())
 
 
@@ -151,7 +151,7 @@ libor_eom(::Union{Base.Dates.Day, Base.Dates.Week}) = false
 libor_eom(::Union{Base.Dates.Month, Base.Dates.Year}) = true
 
 # clone methods #
-clone{TP, CUR, B, C, DC, T}(idx::IborIndex{TP, CUR, B, C, DC, T}, ts::TermStructure = idx.ts) =
+clone(idx::IborIndex{TP, CUR, B, C, DC, T}, ts::TermStructure = idx.ts) where {TP, CUR, B, C, DC, T} =
       IborIndex(idx.familyName, idx.tenor, idx.fixingDays, idx.currency, idx.fixingCalendar, idx.convention, idx.endOfMonth, idx.dc, ts)
 clone(idx::LiborIndex, ts::TermStructure = idx.ts) = LiborIndex(idx.familyName, idx.tenor, idx.fixingDays, idx.currency, idx.fixingCalendar, idx.jointCalendar, idx.convention, idx.endOfMonth, idx.dc, ts)
 

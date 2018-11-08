@@ -1,5 +1,5 @@
 ## TOP LEVEL CALCULATION METHODS - KEEPING TRACK OF CALCULATION STATE ##
-function update_pricing_engine{I <: Instrument, P <: PricingEngine}(inst::I, pe::P)
+function update_pricing_engine(inst::Instrument, pe::PricingEngine)
   T = get_pricing_engine_type(inst)
   if typeof(pe) <: T
     inst.pricingEngine = pe

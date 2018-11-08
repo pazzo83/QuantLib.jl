@@ -40,19 +40,19 @@ mutable struct MCAmericanEngine{S <: AbstractBlackScholesProcess, P <: LsmBasisS
   rsg::RSG
   pathPricer::LongstaffSchwartzPathPricer
 
-  MCAmericanEngine{S, P, RSG}(process::S,
-                              timeSteps::Int,
-                              timeStepsPerYear::Int,
-                              requiredSamples::Int,
-                              maxSamples::Int,
-                              requiredTolerance::Float64,
-                              brownianBridge::Bool,
-                              seed::Int,
-                              nCalibrationSamples::Int,
-                              polynomOrder::Int,
-                              polynomType::P,
-                              antitheticVariate::Bool,
-                              rsg::RSG) where {S, P, RSG} =
+  MCAmericanEngine(process::S,
+                  timeSteps::Int,
+                  timeStepsPerYear::Int,
+                  requiredSamples::Int,
+                  maxSamples::Int,
+                  requiredTolerance::Float64,
+                  brownianBridge::Bool,
+                  seed::Int,
+                  nCalibrationSamples::Int,
+                  polynomOrder::Int,
+                  polynomType::P,
+                  antitheticVariate::Bool,
+                  rsg::RSG) where {S, P, RSG} =
                             new{S, P, RSG}(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed,
                                         nCalibrationSamples, polynomOrder, polynomType, antitheticVariate, rsg)
 end
@@ -91,7 +91,7 @@ function get_payoff(app::AmericanPathPricer)
   return _get_payoff
 end
 
-function AmericanPathPricer{OT <: OptionType, L <: LsmBasisSystemPolynomType}(payoff::PlainVanillaPayoff{OT}, polynomOrder::Int, polynomType::L)
+function AmericanPathPricer(payoff::PlainVanillaPayoff{OT}, polynomOrder::Int, polynomType::LsmBasisSystemPolynomType) where {OT <: OptionType}
   # T = get_type(polynomType)
   v = Vector{Function}(polynomOrder + 1)
   path_basis_system!(polynomType, polynomOrder, v)

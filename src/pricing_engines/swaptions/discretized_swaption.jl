@@ -10,7 +10,7 @@ mutable struct DiscretizedSwaption{E <: Exercise, L <: Lattice} <: DiscretizedOp
   common::DiscretizedAssetCommon{L}
 end
 
-function DiscretizedSwaption{DC <: DayCount, L <: Lattice}(swaption::Swaption, referenceDate::Date, dc::DC, lattice::L)
+function DiscretizedSwaption(swaption::Swaption, referenceDate::Date, dc::DayCount, lattice::L) where {L <: Lattice}
   dates = copy(swaption.exercise.dates)
   fixed_coups = swaption.swap.legs[1].coupons
   floating_coups = swaption.swap.legs[2].coupons

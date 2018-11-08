@@ -6,14 +6,14 @@ struct FdmMesherComposite{FM1D <: Fdm1DMesher} <: FdmMesher
 end
 
 # Constructors
-function FdmMesherComposite{F1D <: Fdm1DMesher}(mesh::F1D)
+function FdmMesherComposite(mesh::F1D) where {F1D <: Fdm1DMesher}
   meshers = F1D[mesh]
   layout = get_layout_from_meshers(meshers)
 
   return FdmMesherComposite{F1D}(layout, meshers)
 end
 
-function FdmMesherComposite{F1D <: Fdm1DMesher}(xmesher::F1D, ymesher::F1D)
+function FdmMesherComposite(xmesher::F1D, ymesher::F1D) where {F1D <: Fdm1DMesher}
   meshers = F1D[xmesher, ymesher]
   layout = get_layout_from_meshers(meshers)
 

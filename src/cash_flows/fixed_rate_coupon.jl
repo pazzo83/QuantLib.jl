@@ -1,22 +1,22 @@
 using QuantLib.Time
 
-mutable struct FixedRateCoupon{DC <: DayCount, DCI <: DayCount, C <: CompoundingType, F <: Frequency} <: Coupon
+mutable struct FixedRateCoupon{DC <: DayCount, IR <: InterestRate} <: Coupon
   couponMixin::CouponMixin{DC}
   paymentDate::Date
   nominal::Float64
-  rate::InterestRate{DCI, C, F}
+  rate::IR
 end
 
-FixedRateCoupon{DC <: DayCount, DCI <: DayCount, C <: CompoundingType, F <: Frequency}(paymentDate::Date,
-                                                                                      faceAmount::Float64,
-                                                                                      rate::InterestRate{DCI, C, F},
-                                                                                      accrual_start::Date,
-                                                                                      accrual_end::Date,
-                                                                                      ref_start::Date,
-                                                                                      ref_end::Date,
-                                                                                      dc::DC,
-                                                                                      accrual::Float64) =
-                FixedRateCoupon{DC, DCI, C, F}(CouponMixin{DC}(accrual_start, accrual_end, ref_start, ref_end, dc, accrual), paymentDate, faceAmount, rate)
+FixedRateCoupon(paymentDate::Date,
+                faceAmount::Float64,
+                rate::IR,
+                accrual_start::Date,
+                accrual_end::Date,
+                ref_start::Date,
+                ref_end::Date,
+                dc::DC,
+                accrual::Float64) where {DC <: DayCount, IR <: InterestRate} =
+                FixedRateCoupon{DC, IR}(CouponMixin{DC}(accrual_start, accrual_end, ref_start, ref_end, dc, accrual), paymentDate, faceAmount, rate)
 
 ## COUPON METHODS ##
 amount(coup::FixedRateCoupon) =
@@ -24,9 +24,9 @@ amount(coup::FixedRateCoupon) =
 
 calc_rate(coup::FixedRateCoupon) = coup.rate.rate
 
-mutable struct FixedRateLeg{DC <: DayCount, DCI <: DayCount, C <: CompoundingType, F <: Frequency} <: Leg
-  coupons::Vector{FixedRateCoupon{DC, DCI, C, F}}
-  redemption::Nullable{SimpleCashFlow}
+mutable struct FixedRateLeg{FRC <: FixedRateCoupon} <: Leg
+  coupons::Vector{FRC}
+  redemption::Union{SimpleCashFlow, Nothing}
 end
 
 function FixedRateLeg(schedule::Schedule,
@@ -70,13 +70,13 @@ function FixedRateLeg(schedule::Schedule,
   FixedRateLeg(schedule, faceAmount, ratesVec, calendar, paymentConvention, dc; add_redemption = add_redemption)
 end
 
-function FixedRateLeg{DC <: DayCount}(schedule::Schedule,
-                                      faceAmount::Float64,
-                                      rates::Vector{Float64},
-                                      calendar::BusinessCalendar,
-                                      paymentConvention::BusinessDayConvention,
-                                      dc::DC;
-                                      add_redemption::Bool = false)
+function FixedRateLeg(schedule::Schedule,
+                      faceAmount::Float64,
+                      rates::Vector{Float64},
+                      calendar::BusinessCalendar,
+                      paymentConvention::BusinessDayConvention,
+                      dc::DC;
+                      add_redemption::Bool = false) where {DC <: DayCount}
   n = length(schedule.dates) - 1
   length(rates) == length(schedule.dates) - 1 || error("mismatch in coupon rates")
 
@@ -103,12 +103,12 @@ function FixedRateLeg{DC <: DayCount}(schedule::Schedule,
   end
 
   if add_redemption
-    redempt = Nullable(SimpleCashFlow(faceAmount, end_date))
+    redempt = SimpleCashFlow(faceAmount, end_date)
   else
-    redempt = Nullable()
+    redempt = nothing
   end
 
-  return FixedRateLeg{DC, DC, SimpleCompounding, typeof(schedule.tenor.freq)}(coups, redempt)
+  return FixedRateLeg{FixedRateCoupon{DC, DC, SimpleCompounding, typeof(schedule.tenor.freq)}}(coups, redempt)
 end
 
 # Coupon methods

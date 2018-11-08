@@ -100,14 +100,14 @@ function reset!(cr::CDSResults)
   return cr
 end
 
-mutable struct VanillaSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, L <: Leg, P <: PricingEngine, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} <: Swap
+mutable struct VanillaSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, L <: Leg, P <: PricingEngine, II <: IborIndex} <: Swap
   lazyMixin::LazyMixin
   swapT::ST
   nominal::Float64
   fixedSchedule::Schedule
   fixedRate::Float64
   fixedDayCount::DC_fix
-  iborIndex::IborIndex{TP, CUR, IB, IC, IDC, IT}
+  iborIndex::II
   spread::Float64
   floatSchedule::Schedule
   floatDayCount::DC_float
@@ -120,18 +120,17 @@ mutable struct VanillaSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCo
 end
 
 # Constructors
-function VanillaSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, P <: PricingEngine, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure}(
-                                                                                swapT::ST,
-                                                                                nominal::Float64,
-                                                                                fixedSchedule::Schedule,
-                                                                                fixedRate::Float64,
-                                                                                fixedDayCount::DC_fix,
-                                                                                iborIndex::IborIndex{TP, CUR, IB, IC, IDC, IT},
-                                                                                spread::Float64,
-                                                                                floatSchedule::Schedule,
-                                                                                floatDayCount::DC_float,
-                                                                                pricingEngine::P = NullPricingEngine(),
-                                                                                paymentConvention::B = floatSchedule.convention)
+function VanillaSwap(swapT::ST,
+                    nominal::Float64,
+                    fixedSchedule::Schedule,
+                    fixedRate::Float64,
+                    fixedDayCount::DC_fix,
+                    iborIndex::II,
+                    spread::Float64,
+                    floatSchedule::Schedule,
+                    floatDayCount::DC_float,
+                    pricingEngine::P = NullPricingEngine(),
+                    paymentConvention::B = floatSchedule.convention) where {ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, P <: PricingEngine, II <: IborIndex}
   # build swap cashflows
   legs = Vector{Leg}(2)
   # first leg is fixed
@@ -143,7 +142,7 @@ function VanillaSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B
 
   results = SwapResults(2)
 
-  return VanillaSwap{ST, DC_fix, DC_float, B, Leg, P, TP, CUR, IB, IC, IDC, IT}(LazyMixin(), swapT, nominal, fixedSchedule, fixedRate, fixedDayCount, iborIndex, spread,
+  return VanillaSwap{ST, DC_fix, DC_float, B, Leg, P, II}(LazyMixin(), swapT, nominal, fixedSchedule, fixedRate, fixedDayCount, iborIndex, spread,
                       floatSchedule, floatDayCount, paymentConvention, legs, payer, pricingEngine, results, VanillaSwapArgs(legs))
 end
 
@@ -157,7 +156,7 @@ get_floating_spreads(swap::VanillaSwap) = swap.args.floatingSpreads
 get_fixed_coupons(swap::VanillaSwap) = swap.args.fixedCoupons
 get_floating_coupons(swap::VanillaSwap) = swap.args.floatingCoupons
 
-mutable struct NonstandardSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, L <: Leg, P <: PricingEngine, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} <: Swap
+mutable struct NonstandardSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, L <: Leg, P <: PricingEngine, II <: IborIndex} <: Swap
   lazyMixin::LazyMixin
   swapT::ST
   fixedNominal::Vector{Float64}
@@ -165,7 +164,7 @@ mutable struct NonstandardSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: D
   fixedSchedule::Schedule
   fixedRate::Vector{Float64}
   fixedDayCount::DC_fix
-  iborIndex::IborIndex{TP, CUR, IB, IC, IDC, IT}
+  iborIndex::II
   spread::Float64
   gearing::Float64
   floatSchedule::Schedule
@@ -181,8 +180,7 @@ mutable struct NonstandardSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: D
 end
 
 # Constructor #
-function NonstandardSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, P <: PricingEngine, TP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure}(
-                                                                                vs::VanillaSwap{ST, DC_fix, DC_float, B, Leg, P, TP, CUR, IB, IC, IDC, IT})
+function NonstandardSwap(vs::VanillaSwap{ST, DC_fix, DC_float, B, Leg, P, II}) where {ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, P <: PricingEngine, II <: IborIndex}
   # build swap cashflows
   legs = Vector{Leg}(2)
   # first leg is fixed
@@ -197,7 +195,7 @@ function NonstandardSwap{ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCoun
   fixedSize = length(vs.legs[1].coupons)
   floatSize = length(vs.legs[2].coupons)
 
-  return NonstandardSwap{ST, DC_fix, DC_float, B, Leg, P, TP, CUR, IB, IC, IDC, IT}(LazyMixin(), vs.swapT, fill(vs.nominal, fixedSize), fill(vs.nominal, floatSize), vs.fixedSchedule, fill(vs.fixedRate, fixedSize),
+  return NonstandardSwap{ST, DC_fix, DC_float, B, Leg, P, II}(LazyMixin(), vs.swapT, fill(vs.nominal, fixedSize), fill(vs.nominal, floatSize), vs.fixedSchedule, fill(vs.fixedRate, fixedSize),
                         vs.fixedDayCount, vs.iborIndex, vs.spread, 1.0, vs.floatSchedule, vs.floatDayCount, vs.paymentConvention, false, false, legs,
                         payer, vs.pricingEngine, results, NonstandardSwapArgs(legs))
 end
@@ -247,16 +245,16 @@ mutable struct CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvent
                                             paysAtDefaultTime, protectionStart, pricingEngine, FaceValueClaim(), CDSResults())
 end
 
-function CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvention, DC <: DayCount, P <: PricingEngine}(side::S,
-                                                                                              notional::Float64,
-                                                                                              spread::Float64,
-                                                                                              schedule::Schedule,
-                                                                                              convention::B,
-                                                                                              dc::DC,
-                                                                                              settlesAccrual::Bool,
-                                                                                              paysAtDefaultTime::Bool,
-                                                                                              protectionStart::Date,
-                                                                                              pricingEngine::P)
+function CreditDefaultSwap(side::S,
+                          notional::Float64,
+                          spread::Float64,
+                          schedule::Schedule,
+                          convention::B,
+                          dc::DC,
+                          settlesAccrual::Bool,
+                          paysAtDefaultTime::Bool,
+                          protectionStart::Date,
+                          pricingEngine::P) where {S <: CDSProtectionSide, B <: BusinessDayConvention, DC <: DayCount, P <: PricingEngine}
   # build leg
   leg = FixedRateLeg(schedule, notional, spread, schedule.cal, convention, dc; add_redemption = false)
 
@@ -325,9 +323,8 @@ end
 #                     swap.floatSchedule, swap.floatDayCount, swap.paymentConvention, swap.legs, swap.payer, pe, res, args)
 # end
 
-function clone{ST, DC_fix, DC_float, B, L, P, TP, CUR, IB, IC, IDC, IT}(swap::VanillaSwap{ST, DC_fix, DC_float, B, L, P, TP, CUR, IB, IC, IDC, IT},
-                                                                        pe::PricingEngine = swap.pricingEngine,
-                                                                        ts::TermStructure = swap.iborIndex.ts)
+function clone(swap::VanillaSwap{ST, DC_fix, DC_float, B, L, P, II}, pe::PricingEngine = swap.pricingEngine, 
+              ts::TermStructure = swap.iborIndex.ts) where {ST, DC_fix, DC_float, B, L, P, II}
   # is_new = pe != swap.pricingEngine || ts != swap.iborIndex.ts
 
   lazyMixin, res, args = pe == swap.pricingEngine ? (swap.lazyMixin, swap.results, swap.args) : (LazyMixin(), SwapResults(2), VanillaSwapArgs(swap.legs))
@@ -343,7 +340,7 @@ function clone{ST, DC_fix, DC_float, B, L, P, TP, CUR, IB, IC, IDC, IT}(swap::Va
     newLegs = swap.legs
   end
 
-  return VanillaSwap{ST, DC_fix, DC_float, B, L, typeof(pe), TP, CUR, IB, IC, IDC, typeof(ts)}(lazyMixin,
+  return VanillaSwap{ST, DC_fix, DC_float, B, L, typeof(pe), typeof(newIbor)}(lazyMixin,
                     swap.swapT, swap.nominal, swap.fixedSchedule, swap.fixedRate, swap.fixedDayCount, newIbor, swap.spread,
                     swap.floatSchedule, swap.floatDayCount, swap.paymentConvention, newLegs, swap.payer, pe, res, args)
 end
