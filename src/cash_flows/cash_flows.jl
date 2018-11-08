@@ -478,5 +478,5 @@ Base.next(f::Leg, state) = f.coupons[state], state + 1
 Base.done(f::Leg, state) = length(f.coupons) == state - 1
 
 Base.getindex(f::Leg, i::Int) = f.coupons[i]
-Base.endof(f::Leg) = endof(f.coupons)
+Base.lastindex(f::Leg) = lastindex(f.coupons)
 # end

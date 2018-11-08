@@ -1,6 +1,6 @@
 using QuantLib
 
-import Base.getindex, Base.endof
+import Base.getindex, Base.lastindex
 
 mutable struct TimeGrid
   times::Vector{Float64}
@@ -55,7 +55,7 @@ function TimeGrid(endTime::Float64, steps::Int)
 end
 
 getindex(tg::TimeGrid, i::Int) = tg.times[i]
-endof(tg::TimeGrid) = endof(tg.times)
+lastindex(tg::TimeGrid) = lastindex(tg.times)
 
 is_empty(tg::TimeGrid) = length(tg.times) == 0
 

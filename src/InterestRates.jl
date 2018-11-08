@@ -54,7 +54,7 @@ function equivalent_rate(ir::InterestRate, result_dc::DayCount, comp::Compoundin
 end
 
 # implied rates
-function implied_rate{DC <: DayCount, C <: CompoundingType, F <: Frequency}(compound::Float64, dc::DC, comp::C, time_frac::Float64, freq::F)
+function implied_rate(compound::Float64, dc::DC, comp::C, time_frac::Float64, freq::F) where {DC <: DayCount, C <: CompoundingType, F <: Frequency}
   rate = compound == 1.0 ? 0.0 : _implied_rate(comp, compound, time_frac, freq)
 
   return InterestRate{DC, C, F}(rate, dc, comp, freq)
