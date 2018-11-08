@@ -57,19 +57,19 @@ mutable struct MCAmericanEngine{S <: AbstractBlackScholesProcess, P <: LsmBasisS
                                         nCalibrationSamples, polynomOrder, polynomType, antitheticVariate, rsg)
 end
 
-function MCAmericanEngine{RSG <: AbstractRandomSequenceGenerator, S <: AbstractBlackScholesProcess}(process::S;
-                                                                                                    timeSteps::Int = -1,
-                                                                                                    timeStepsPerYear::Int = -1,
-                                                                                                    brownianBridge::Bool = false,
-                                                                                                    antitheticVariate::Bool = false,
-                                                                                                    requiredSamples::Int = -1,
-                                                                                                    requiredTolerance::Float64 = -1.0,
-                                                                                                    maxSamples::Int = typemax(Int),
-                                                                                                    seed::Int = 0,
-                                                                                                    rsg::RSG = InverseCumulativeRSG(seed),
-                                                                                                    nCalibrationSamples::Int = 2048,
-                                                                                                    polynomOrder::Int = 2,
-                                                                                                    polynomType::LsmBasisSystemPolynomType = Monomial())
+function MCAmericanEngine(process::S;
+                          timeSteps::Int = -1,
+                          timeStepsPerYear::Int = -1,
+                          brownianBridge::Bool = false,
+                          antitheticVariate::Bool = false,
+                          requiredSamples::Int = -1,
+                          requiredTolerance::Float64 = -1.0,
+                          maxSamples::Int = typemax(Int),
+                          seed::Int = 0,
+                          rsg::RSG = InverseCumulativeRSG(seed),
+                          nCalibrationSamples::Int = 2048,
+                          polynomOrder::Int = 2,
+                          polynomType::LsmBasisSystemPolynomType = Monomial()) where {RSG <: AbstractRandomSequenceGenerator, S <: AbstractBlackScholesProcess}
   # build mc sim
   # mcSim = MCSimulation{RSG, SingleVariate}(antitheticVariate, false, rsg, SingleVariate())
 

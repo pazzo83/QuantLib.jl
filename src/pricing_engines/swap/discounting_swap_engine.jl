@@ -12,9 +12,8 @@ struct DiscountingSwapEngine{Y <: YieldTermStructure} <: PricingEngine
   #   new{Y}(yts, includeSettlementDateFlows)
   # end
   # DiscountingSwapEngine(yts::Y, includeSettlementDateFlows) where {Y} = new(yts, includeSettlementDateFlows)
+  DiscountingSwapEngine{Y}(yts::Y, includeSettlementDateFlows::Bool = true) where {Y} = new{Y}(yts, includeSettlementDateFlows)
 end
-
-DiscountingSwapEngine(yts::Y, includeSettlementDateFlows::Bool = true) where {Y <: YieldTermStructure} = DiscountingSwapEngine{Y}(yts, includeSettlementDateFlows)
 
 DiscountingSwapEngine() = DiscountingSwapEngine{NullYieldTermStructure}(NullYieldTermStructure(), true)
 
