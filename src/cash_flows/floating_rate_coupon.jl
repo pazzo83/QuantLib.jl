@@ -119,7 +119,7 @@ end
 # Floating legs
 mutable struct IborLeg{DC <: DayCount, X <: InterestRateIndex, ICP <: IborCouponPricer} <: Leg
   coupons::Vector{IborCoupon{DC, X, ICP}}
-  redemption::Nullable{SimpleCashFlow}
+  redemption::Union{SimpleCashFlow, Nothing}
 end
 
 function IborLeg(schedule::Schedule,
@@ -179,9 +179,9 @@ function IborLeg(schedule::Schedule,
   # end
 
   if add_redemption
-    redempt = Nullable(SimpleCashFlow(nominal, _end))
+    redempt = SimpleCashFlow(nominal, _end)
   else
-    redempt = Nullable()
+    redempt = nothing
   end
 
   IborLeg{DC, X, typeof(pricer)}(coups, redempt)
