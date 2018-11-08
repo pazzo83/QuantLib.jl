@@ -25,7 +25,7 @@ mutable struct TrinomialTree{S <: StochasticProcess} <: AbstractTree
   isPositive::Bool
 end
 
-function TrinomialTree{S <: StochasticProcess}(process::S, timeGrid::TimeGrid, isPositive::Bool = false)
+function TrinomialTree(process::S, timeGrid::TimeGrid, isPositive::Bool = false) where {S <: StochasticProcess}
   x0 = process.x0
   dx = zeros(length(timeGrid.times))
   nTimeSteps = length(timeGrid.times) - 1
