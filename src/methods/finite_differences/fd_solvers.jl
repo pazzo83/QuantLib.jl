@@ -187,26 +187,26 @@ function perform_calculations!(solv::Fdm2DimSolver)
   return solv
 end
 
-mutable struct FdmG2Solver{FS <: FdmMesher, C <: FdmInnerValueCalculator, F <: FdmSchemeDescType} <: LazyObject
+mutable struct FdmG2Solver{FS <: FdmSolverDesc, F <: FdmSchemeDescType} <: LazyObject
   lazyMixin::LazyMixin
   model::G2
-  solverDesc::FdmSolverDesc{FS, C}
+  solverDesc::FS
   schemeDesc::FdmSchemeDesc{F}
-  solver::Fdm2DimSolver{FS, C, F, FdmG2Op}
+  solver::Fdm2DimSolver{FSolve, F, FdmG2Op}
 
-  function FdmG2Solver{FS, C, F}(model::G2,
-                                solverDesc::FdmSolverDesc{FS, C},
-                                schemeDesc::FdmSchemeDesc{F}) where {FS, C, F}
+  function FdmG2Solver{FS, F}(model::G2,
+                                solverDesc::FS,
+                                schemeDesc::FdmSchemeDesc{F}) where {FS, F}
     op = FdmG2Op(solverDesc.mesher, model, 1, 2)
-    solver = Fdm2DimSolver{FS, C, F, FdmG2Op}(solverDesc, schemeDesc, op)
-    new{FS, C, F}(LazyMixin(), model, solverDesc, schemeDesc, solver)
+    solver = Fdm2DimSolver{FS, F, FdmG2Op}(solverDesc, schemeDesc, op)
+    new{FS, F}(LazyMixin(), model, solverDesc, schemeDesc, solver)
   end
 end
 
 FdmG2Solver(model::G2,
-            solverDesc::FdmSolverDesc{FS, C},
-            schemeDesc::FdmSchemeDesc{F}) where {FS <: FdmMesher, C <: FdmInnerValueCalculator, F <: FdmSchemeDescType} =
-            FdmG2Solver{FS, C, F}(model, solverDesc, schemeDesc)
+            solverDesc::FS,
+            schemeDesc::FdmSchemeDesc{F}) where {FS <: FdmSolverDesc, F <: FdmSchemeDescType} =
+            FdmG2Solver{FS, F}(model, solverDesc, schemeDesc)
 
 mutable struct FdmHullWhiteSolver{FS <: FdmSolverDesc, F <: FdmSchemeDescType} <: LazyObject
   lazyMixin::LazyMixin
