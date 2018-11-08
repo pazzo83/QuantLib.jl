@@ -12,7 +12,7 @@ end
 
 max_date(ts::TermStructure) = ts.referenceDate + Date.Year(100)
 
-time_from_reference(ts::TermStructure, date::Date) = year_fraction(ts.dc, reference_date(ts), date, Date(), Date())
+time_from_reference(ts::TermStructure, date::Date) = year_fraction(ts.dc, reference_date(ts), date, Date(0), Date(0))
 
 function reference_date(ts::TermStructure)
   if ts.referenceDate == Date(0)

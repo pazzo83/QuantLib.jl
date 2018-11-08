@@ -48,7 +48,7 @@ function CallableFixedRateBond(settlementDays::Int,
 end
 
 function accrued(bond::CallableFixedRateBond, d::Date)
-  if d == Date()
+  if d == Date(0)
     d = settlement_date(bond)
   end
 

@@ -19,7 +19,7 @@ end
 
 discount_factor(ir::InterestRate, time_frac::Float64) = 1.0 / compound_factor(ir, time_frac)
 
-function discount_factor(ir::InterestRate, date1::Date, date2::Date, ref_start::Date = Date(), ref_end::Date = Date())
+function discount_factor(ir::InterestRate, date1::Date, date2::Date, ref_start::Date = Date(0), ref_end::Date = Date(0))
   date2 < date1 && error("Date1 $date1 later than date2 $date2")
 
   return discount_factor(ir, year_fraction(ir.dc, date1, date2, ref_start, ref_end))
@@ -38,7 +38,7 @@ _compound_factor(::ContinuousCompounding, rate::Float64, time_frac::Float64, ::F
 _compound_factor(::SimpleThenCompounded, rate::Float64, time_frac::Float64, freq::Frequency) =
   time_frac <= 1.0 ? _compound_factor(SimpleCompounding(), rate, time_frac, freq) : _compound_factor(CompoundedCompounding(), rate, time_frac, freq)
 
-function compound_factor(ir::InterestRate, date1::Date, date2::Date, ref_start::Date = Date(), ref_end::Date = Date())
+function compound_factor(ir::InterestRate, date1::Date, date2::Date, ref_start::Date = Date(0), ref_end::Date = Date(0))
   date2 < date1 && error("Date1 $date1 later than date2 $date2")
 
   return compound_factor(ir, year_fraction(ir.dc, date1, date2, ref_start, ref_end))
@@ -47,7 +47,7 @@ end
 # equivalent rates
 equivalent_rate(ir::InterestRate, comp::CompoundingType, freq::Frequency, time_frac::Float64) = implied_rate(compound_factor(ir, time_frac), ir.dc, comp, time_frac, freq)
 
-function equivalent_rate(ir::InterestRate, result_dc::DayCount, comp::CompoundingType, freq::Frequency, date1::Date, date2::Date, ref_start::Date = Date(), ref_end::Date = Date())
+function equivalent_rate(ir::InterestRate, result_dc::DayCount, comp::CompoundingType, freq::Frequency, date1::Date, date2::Date, ref_start::Date = Date(0), ref_end::Date = Date(0))
   date1 > date2 && error("Date1 ($date1) later than date2 ($date2)")
   compound = compound_factor(ir, year_fraction(ir.dc, date1, date2, ref_start, ref_end))
 
@@ -68,7 +68,7 @@ _implied_rate(::ContinuousCompounding, compound::Float64, time_frac::Float64, ::
 _implied_rate(::SimpleThenCompounded, compound::Float64, time_frac::Float64, freq::Frequency) =
   time_frac <= 1.0 ? _implied_rate(SimpleCompounding(), compound, time_frac, freq) : _implied_rate(CompoundedCompounding(), compound, time_frac, freq)
 
-function implied_rate(compound::Float64, dc::DayCount, comp::CompoundingType, date1::Date, date2::Date, freq::Frequency, ref_start::Date = Date(), ref_end::Date = Date())
+function implied_rate(compound::Float64, dc::DayCount, comp::CompoundingType, date1::Date, date2::Date, freq::Frequency, ref_start::Date = Date(0), ref_end::Date = Date(0))
   date1 > date2 && error("Date1 ($date1) later than date2 ($date2)")
 
   return implied_rate(compound, dc, comp, year_fraction(dc, date1, date2, ref_start, ref_end), freq)

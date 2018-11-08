@@ -21,7 +21,7 @@ function FDEuropeanEngine(process::B, fdEvolverFunc::Function, timeSteps::Int = 
   prices = SampledCurve(gridPoints)
   finiteDifferenceOperator, intrinsicValues, BCs = gen_fd_vanilla_engine_params(gridPoints)
   sMin = center = sMax = 0.0
-  exerciseDate = Date()
+  exerciseDate = Date(0)
 
   return FDEuropeanEngine{B}(process, timeSteps, gridPoints, timeDependent, exerciseDate, finiteDifferenceOperator,
                           intrinsicValues, BCs, sMin, center, sMax, prices, fdEvolverFunc)
@@ -50,7 +50,7 @@ function FDBermudanEngine(process::B, fdEvolverFunc::Function, timeSteps::Int = 
   prices = SampledCurve(gridPoints)
   finiteDifferenceOperator, intrinsicValues, BCs = gen_fd_vanilla_engine_params(gridPoints)
   sMin = center = sMax = 0.0
-  exerciseDate = Date()
+  exerciseDate = Date(0)
   stoppingTimes = Vector{Float64}()
   timeStepPerPeriod = timeSteps
 
@@ -84,7 +84,7 @@ function FDAmericanEngine(process::B, fdEvolverFunc::Function, timeSteps::Int = 
   controlPrices = SampledCurve(gridPoints)
   finiteDifferenceOperator, intrinsicValues, BCs = gen_fd_vanilla_engine_params(gridPoints)
   sMin = center = sMax = 0.0
-  exerciseDate = Date()
+  exerciseDate = Date(0)
   controlBCs = Vector{BoundaryCondition}(2)
   controlOperator = TridiagonalOperator()
 

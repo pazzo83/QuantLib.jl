@@ -96,7 +96,7 @@ end
 SwaptionHelper(maturity::Dm, swapLength::Dl, volatility::Quote, iborIndex::IborIndex{STP, CUR, IB, IC, IDC, IT}, fixedLegTenor::TP, fixedLegDayCount::DC_fix, floatingLegDayCount::DC_float,
               yts::T, pe::P, strike::Float64 = -1.0, nominal::Float64 = 1.0, shift::Float64 = 0.0, 
               exerciseRate::Float64 = 0.0) where {Dm <: Dates.Period, Dl <: Dates.Period, TP <: TenorPeriod, DC_fix <: DayCount, DC_float <: DayCount, T <: YieldTermStructure, P <: PricingEngine, STP <: TenorPeriod, CUR <: AbstractCurrency, IB <: BusinessCalendar, IC <: BusinessDayConvention, IDC <: DayCount, IT <: TermStructure} =
-              SwaptionHelper(LazyMixin(), Date(), Date(), maturity, swapLength, volatility, iborIndex, fixedLegTenor,
+              SwaptionHelper(LazyMixin(), Date(0), Date(0), maturity, swapLength, volatility, iborIndex, fixedLegTenor,
                 fixedLegDayCount, floatingLegDayCount, strike, nominal, shift, exerciseRate, CalibrationHelperCommon(), yts, pe)
 
 SwaptionHelper(expiryDate::Date, endDate::Date, volatility::Quote, iborIndex::IborIndex{STP, CUR, IB, IC, IDC, IT}, fixedLegTenor::TP, fixedLegDayCount::DC_fix, floatingLegDayCount::DC_float,
@@ -205,11 +205,11 @@ function build_swaption(exerciseDate::Date, endDate::Date, maturity::Dates.Perio
   fixingDays = iborIndex.fixingDays
   convention = iborIndex.convention
 
-  exerciseDate = exerciseDate == Date() ? advance(maturity, calendar, yts.referenceDate, convention) : exerciseDate
+  exerciseDate = exerciseDate == Date(0) ? advance(maturity, calendar, yts.referenceDate, convention) : exerciseDate
 
   startDate = advance(Dates.Day(fixingDays), calendar, exerciseDate, convention)
 
-  endDate = endDate == Date() ? advance(swapLength, calendar, startDate, convention) : endDate
+  endDate = endDate == Date(0) ? advance(swapLength, calendar, startDate, convention) : endDate
 
   fixedSchedule = QuantLib.Time.Schedule(startDate, endDate, fixedLegTenor, convention, convention, QuantLib.Time.DateGenerationForwards(), false, calendar)
   floatSchedule = QuantLib.Time.Schedule(startDate, endDate, iborIndex.tenor, convention, convention, QuantLib.Time.DateGenerationForwards(), false, calendar)

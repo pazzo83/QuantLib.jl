@@ -245,12 +245,12 @@ modified_duration_calc(::ContinuousCompounding, c::Float64, B::Float64, t::Float
 modified_duration_calc(::SimpleThenCompounded, c::Float64, B::Float64, t::Float64, r::Float64, N::Frequency) =
   t <= 1.0 / N ? modified_duration_calc(Simple(), c, B, t, r, N) : modified_duration_calc(CompoundedCompounding(), c, B, t, r, N)
 
-function duration(::ModifiedDuration, leg::Leg, y::InterestRate, dc::DayCount, include_settlement_cf::Bool, settlement_date::Date, npv_date::Date = Date())
+function duration(::ModifiedDuration, leg::Leg, y::InterestRate, dc::DayCount, include_settlement_cf::Bool, settlement_date::Date, npv_date::Date = Date(0))
   if (length(leg.coupons) == 0 && isnull(get(leg.redemption))) # TODO make this applicable to redemption too
     return 0.0
   end
 
-  if npv_date == Date()
+  if npv_date == Date(0)
     npv_date = settlement_date
   end
 
@@ -307,14 +307,14 @@ function duration(::ModifiedDuration, leg::Leg, y::InterestRate, dc::DayCount, i
   return -dPdy / P # reverse derivative sign
 end
 
-function duration(::ModifiedDuration, leg::ZeroCouponLeg, y::InterestRate, dc::DayCount, include_settlement_cf::Bool, settlement_date::Date, npv_date::Date = Date())
+function duration(::ModifiedDuration, leg::ZeroCouponLeg, y::InterestRate, dc::DayCount, include_settlement_cf::Bool, settlement_date::Date, npv_date::Date = Date(0))
   if amount(leg.redemption) == 0.0 || has_occurred(leg.redemption, settlement_date)
     return 0.0
   end
 
   redempt_date = date(leg.redemption)
 
-  if npv_date == Date()
+  if npv_date == Date(0)
     npv_date = settlement_date
   end
 

@@ -17,10 +17,10 @@ mutable struct FlatSmileSection{DC <: DayCount, V <: VolatilityType} <: Abstract
   isFloating::Bool
 end
 
-function FlatSmileSection{DC <: DayCount}(d::Date, vol::Float64, dc::DC, referenceDate::Date = Date(), atmLevel::Float64 = -1.0, shift::Float64 = 0.0)
+function FlatSmileSection{DC <: DayCount}(d::Date, vol::Float64, dc::DC, referenceDate::Date = Date(0), atmLevel::Float64 = -1.0, shift::Float64 = 0.0)
   d >= referenceDate || error("Exercise Date must be greater than reference date")
   exerciseTime = year_fraction(dc, referenceDate, d)
-  isFloating = referenceDate == Date()
+  isFloating = referenceDate == Date(0)
   return FlatSmileSection{DC, ShiftedLognormalVolType}(d, exerciseTime, vol, dc, referenceDate, atmLevel, shift, ShiftedLognormalVolType(), isFloating)
 end
 
@@ -54,7 +54,7 @@ end
 
 # floating reference date, floating market data
 ConstantSwaptionVolatility{B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount}(settlementDays::Int, cal::B, bdc::C, volatility::Quote, dc::DC) =
-                          ConstantSwaptionVolatility{B, C, DC}(settlementDays, Date(), cal, bdc, volatility, dc)
+                          ConstantSwaptionVolatility{B, C, DC}(settlementDays, Date(0), cal, bdc, volatility, dc)
 
 # Local Vol Term Structure #
 mutable struct LocalConstantVol{DC <: DayCount} <: LocalVolTermStructure

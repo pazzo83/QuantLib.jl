@@ -123,7 +123,7 @@ function ZeroCouponBond(settlementDays::Int,
                         maturityDate::Date,
                         paymentConvention::C=Following(),
                         redemption::Float64=100.0,
-                        issueDate::Date=Date(),
+                        issueDate::Date=Date(0),
                         pe::P = DiscountingBondEngine()) where {B <: BusinessCalendar, C <: BusinessDayConvention, P <: PricingEngine}
   # build redemption CashFlow
   redemption_cf = ZeroCouponLeg(SimpleCashFlow(redemption, maturityDate))
@@ -200,8 +200,8 @@ end
 
 dirty_price(bond::Bond) = dirty_price(bond, bond.settlementValue, settlement_date(bond))
 
-function settlement_date(bond::Bond, d::Date = Date())
-  if d == Date()
+function settlement_date(bond::Bond, d::Date = Date(0))
+  if d == Date(0)
     d = settings.evaluation_date
   end
 

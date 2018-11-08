@@ -54,7 +54,7 @@ function GSR(ts::YieldTermStructure, volstepdates::Vector{Date}, volatilities::V
 
   # TOOD registration with quotes in reversions and volatilities
 
-  return GSR(LazyMixin(), TermStructureConsistentModelType(), stateProcess, Date(), true, reversion, sigma, volatilityQuotes, reversions, volstepdates,
+  return GSR(LazyMixin(), TermStructureConsistentModelType(), stateProcess, Date(0), true, reversion, sigma, volatilityQuotes, reversions, volstepdates,
         volsteptimes, volsteptimesArray, ts, swapCache, ModelCommon())
 end
 
@@ -122,7 +122,7 @@ end
 
 # additional methods #
 function perform_calculations!(model::GSR)
-  if model.evaluationDate == Date() # not calculated
+  if model.evaluationDate == Date(0) # not calculated
    model.evaluationDate = settings.evaluation_date
   end
 
@@ -214,7 +214,7 @@ end
 
 zerobond(model::Gaussian1DModel, T::Float64, t::Float64, y::Float64, yts::YieldTermStructure) = zerobond_impl(model, T, t, y, yts)
 zerobond(model::Gaussian1DModel, maturity::Date, referenceDate::Date, y::Float64, yts::YieldTermStructure) =
-        zerobond(model, time_from_reference(yts, maturity), referenceDate != Date() ? time_from_reference(yts, referenceDate) : 0.0, y, yts)
+        zerobond(model, time_from_reference(yts, maturity), referenceDate != Date(0) ? time_from_reference(yts, referenceDate) : 0.0, y, yts)
 
 function forward_rate(model::Gaussian1DModel, fixing::Date, referenceDate::Date, y::Float64, iborIdx::IborIndex)
   calculate!(model)

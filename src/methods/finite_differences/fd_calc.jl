@@ -88,7 +88,7 @@ get_state(model::HullWhite, calc::FdmAffineModelSwapInnerValue, coords::Vector{I
                             [short_rate(get_dynamics(model), t, get_location(calc.mesher, coords, calc.direction))]
 
 function inner_value(calc::FdmAffineModelSwapInnerValue, coords::Vector{Int}, i::Int, t::Float64)
-  iterExerciseDate = get(calc.exerciseDates, t, Date())
+  iterExerciseDate = get(calc.exerciseDates, t, Date(0))
   disRate = get_state(calc.disModel, calc, coords, t)
   fwdRate = get_state(calc.fwdModel, calc, coords, t)
 

@@ -66,7 +66,7 @@ days_per_year(::Actual365) = 365.0
 
 # year fractions
 # default
-year_fraction(c::SimpleDayCount, d_start::Date, d_end::Date) = year_fraction(c, d_start, d_end, Date(), Date())
+year_fraction(c::SimpleDayCount, d_start::Date, d_end::Date) = year_fraction(c, d_start, d_end, Date(0), Date(0))
 
 year_fraction(c::DayCount, d_start::Date, d_end::Date) = day_count(c, d_start, d_end) / days_per_year(c)
 
@@ -85,13 +85,13 @@ function year_fraction(::SimpleDayCount, d_start::Date, d_end::Date, ::Date, ::D
   end
 end
 
-function year_fraction(dc::ISDAActualActual, d1::Date, d2::Date, ::Date = Date(), ::Date = Date())
+function year_fraction(dc::ISDAActualActual, d1::Date, d2::Date, ::Date = Date(0), ::Date = Date(0))
   if d1 == d2
     return 0.0
   end
 
   if d1 > d2
-    return -year_fraction(dc, d2, d1, Date(), Date())
+    return -year_fraction(dc, d2, d1, Date(0), Date(0))
   end
 
   y1 = year(d1)
@@ -113,7 +113,7 @@ function year_fraction(dc::ISDAActualActual, d1::Date, d2::Date, ::Date = Date()
   return sum
 end
 
-function year_fraction(dc::ISMAActualActual, d1::Date, d2::Date, d3::Date = Date(), d4::Date = Date())
+function year_fraction(dc::ISMAActualActual, d1::Date, d2::Date, d3::Date = Date(0), d4::Date = Date(0))
   if d1 == d2
     return 0.0
   end
@@ -122,8 +122,8 @@ function year_fraction(dc::ISMAActualActual, d1::Date, d2::Date, d3::Date = Date
     return -year_fraction(dc, d2, d1, d3, d4)
   end
 
-  ref_period_start = d3 != Date() ? d3 : d1
-  ref_period_end = d4 != Date() ? d4 : d2
+  ref_period_start = d3 != Date(0) ? d3 : d1
+  ref_period_end = d4 != Date(0) ? d4 : d2
 
   months = floor(Int, 0.5 + 12 * Dates.value(ref_period_end - ref_period_start) / 365)
 
@@ -149,7 +149,7 @@ function year_fraction(dc::ISMAActualActual, d1::Date, d2::Date, d3::Date = Date
   else
     sum = year_fraction(dc, d1, ref_period_end, ref_period_start, ref_period_end)
     i = 0
-    new_ref_start = new_ref_end = Date()
+    new_ref_start = new_ref_end = Date(0)
     while true
       new_ref_start = ref_period_end + Month(i * months)
       new_ref_end = ref_period_end + Month((i + 1) * months)

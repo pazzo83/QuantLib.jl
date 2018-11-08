@@ -478,7 +478,7 @@ mutable struct Settings
   counter::Int
 end
 
-settings = Settings(Date(), 0)
+settings = Settings(Date(0), 0)
 
 function set_eval_date!(sett::Settings, d::Date)
   sett.evaluation_date = d
