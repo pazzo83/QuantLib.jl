@@ -11,20 +11,20 @@ function (be::BootstrapError)(g::Float64)
   return quote_error(be.inst)
 end
 
-quote_error{B <: BondHelper}(inst::B) = QuantLib.value(inst) - implied_quote(inst) # recalculate
-quote_error{R <: RateHelper}(rate::R) = QuantLib.value(rate) - implied_quote(rate)
+quote_error(inst::BondHelper) = QuantLib.value(inst) - implied_quote(inst) # recalculate
+quote_error(rate::RateHelper) = QuantLib.value(rate) - implied_quote(rate)
 quote_error(rate::AbstractCDSHelper) = QuantLib.value(rate) - implied_quote(rate)
 
-get_pricing_engine{Y}(::Discount, yts::Y) = DiscountingBondEngine(yts)
+get_pricing_engine(::Discount, yts::YieldTermStructure) = DiscountingBondEngine(yts)
 
-function apply_termstructure{R <: RateHelper, T <: TermStructure}(rate::R, ts::T)
+function apply_termstructure(rate::RateHelper, ts::TermStructure)
   newRate = update_termstructure(rate, ts)
 
   return newRate
 end
 
-apply_termstructure{B <: BondHelper, T <: TermStructure}(b::B, ts::T) = update_termstructure(b, ts)
-function apply_termstructure{T <: TermStructure}(s::SwapRateHelper, ts::T)
+apply_termstructure(b::BondHelper, ts::TermStructure) = update_termstructure(b, ts)
+function apply_termstructure(s::SwapRateHelper, ts::TermStructure)
   newSwapHelper = update_termstructure(s, ts)
 
   return newSwapHelper
@@ -47,7 +47,7 @@ mutable struct IterativeBootstrap <: Bootstrap
 end
 
 # returns initial bootstrap state to Term Structure
-function initialize{T <: TermStructure}(::IterativeBootstrap, ts::T)
+function initialize(::IterativeBootstrap, ts::TermStructure)
   # get the intial data based on trait
   data_initial = initial_value(ts.trait)
   n = length(ts.instruments) + 1
@@ -80,7 +80,7 @@ function initialize{T <: TermStructure}(::IterativeBootstrap, ts::T)
   QuantLib.Math.initialize!(ts.interp, ts.times, ts.data)
 end
 
-function _calculate!{T <: TermStructure}(boot::IterativeBootstrap, ts::T)
+function _calculate!(boot::IterativeBootstrap, ts::TermStructure)
   max_iter = max_iterations(ts.trait)
   valid_data = ts.validCurve
 
@@ -134,7 +134,7 @@ function _calculate!{T <: TermStructure}(boot::IterativeBootstrap, ts::T)
   return ts
 end
 
-function bootstrap_error{T <: BootstrapHelper, Y <: TermStructure}(i::Int, inst::T, ts::Y)
+function bootstrap_error(i::Int, inst::BootstrapHelper, ts::TermStructure)
   function bootstrap_error_inner(g::Float64)
     # update trait
     update_guess!(ts.trait, i, ts, g)
