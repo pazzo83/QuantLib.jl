@@ -5,7 +5,7 @@ mutable struct OneFactorShortRateTree{S <: ShortRateDynamics, T <: TrinomialTree
   tg::TimeGrid
   treeLattice::TreeLattice1D{OneFactorShortRateTree{S, T}}
 
-  function OneFactorShortRateTree{S, T}(tree::T, dynamics::S, tg::TimeGrid) where {S, P}
+  function OneFactorShortRateTree{S, T}(tree::T, dynamics::S, tg::TimeGrid) where {S, T}
     oneFactorTree = new{S, T}(tree, dynamics, tg)
     oneFactorTree.treeLattice = TreeLattice1D(tg, get_size(tree, 2), oneFactorTree)
 
