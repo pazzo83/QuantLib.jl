@@ -4,7 +4,7 @@ mutable struct TwoFactorShortRateTree{S <: ShortRateDynamics, T1 <: TrinomialTre
   dynamics::S
   treeLattice::TreeLattice2D{TwoFactorShortRateTree{S, T1, T2}}
 
-  function TwoFactorShortRateTree{S, P1, P2}(tree1::T1, tree2::T2, dyn::S) where {S, T1, T2}
+  function TwoFactorShortRateTree{S, T1, T2}(tree1::T1, tree2::T2, dyn::S) where {S, T1, T2}
     twoFactorTree = new{S, T1, T2}(tree1, tree2, dyn)
     twoFactorTree.treeLattice = TreeLattice2D(tree1, tree2, dyn.correlation, twoFactorTree)
 
