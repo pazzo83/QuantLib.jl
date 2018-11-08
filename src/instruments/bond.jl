@@ -145,7 +145,7 @@ function notional(bond::Bond, d::Date)
 end
 
 # Calculation method
-function perform_calculations!{B <: Bond}(bond::B)
+function perform_calculations!(bond::Bond)
   bond.settlementValue = 0.0 # reset - TODO this will be expanded
   _calculate!(bond.pricingEngine, bond)
 
