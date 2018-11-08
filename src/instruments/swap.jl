@@ -219,7 +219,7 @@ mutable struct CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvent
   schedule::Schedule
   convention::B
   dc::DC
-  leg::FixedRateLeg{DC, DC, C, F}
+  leg::FixedRateLeg{FixedRateCoupon{DC, InterestRate{DC, C, F}}}
   upfrontPayment::SimpleCashFlow
   settlesAccrual::Bool
   paysAtDefaultTime::Bool
@@ -235,7 +235,7 @@ mutable struct CreditDefaultSwap{S <: CDSProtectionSide, B <: BusinessDayConvent
                     schedule::Schedule,
                     convention::B,
                     dc::DC,
-                    leg::FixedRateLeg{DC, DC, C, F},
+                    leg::FixedRateLeg{FixedRateCoupon{DC, InterestRate{DC, C, F}}},
                     upfrontPayment::SimpleCashFlow,
                     settlesAccrual::Bool,
                     paysAtDefaultTime::Bool,
