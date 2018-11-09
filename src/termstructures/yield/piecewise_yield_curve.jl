@@ -31,10 +31,10 @@ function PiecewiseYieldCurve(referenceDate::Date, instruments::Vector{B}, dc::DC
                             trait,
                             accuracy,
                             boot,
-                            Vector{Float64}(n + 1),
-                            Vector{Date}(n + 1),
-                            Vector{Float64}(n + 1),
-                            Vector{Function}(n + 1),
+                            Vector{Float64}(undef, n + 1),
+                            Vector{Date}(undef, n + 1),
+                            Vector{Float64}(undef, n + 1),
+                            Vector{Function}(undef, n + 1),
                             false)
 
   # initialize the bootstrapping
