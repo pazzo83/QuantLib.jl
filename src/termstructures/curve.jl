@@ -62,7 +62,7 @@ function value(cf::CostFunction, x::Vector{T}) where {T}
 
     # redemption
     if leg.redemption != nothing
-      @inbounds model_price += amount(get(leg.redemption)) * discount_function(cf.curve.fittingMethod, x, year_fraction(dc, ref_date, date(get(leg.redemption))))
+      @inbounds model_price += amount(leg.redemption) * discount_function(cf.curve.fittingMethod, x, year_fraction(dc, ref_date, date(leg.redemption)))
     end
 
     # adjust NPV for forward settlement

@@ -128,7 +128,7 @@ function npv(leg::Leg, yts::YieldTermStructure, settlement_date::Date, npv_date:
 
   # redemption
   if leg.redemption != nothing
-    totalNPV += amount(get(leg.redemption)) * discount(yts, date(get(leg.redemption)))
+    totalNPV += amount(leg.redemption) * discount(yts, date(eg.redemption))
   end
   return totalNPV / discount(yts, npv_date)
 end
@@ -162,8 +162,8 @@ function npv(leg::Leg, y::InterestRate, include_settlement_cf::Bool, settlement_
 
   # redemption
   if leg.redemption != nothing
-    if ~has_occurred(get(leg.redemption), settlement_date)
-      redempt_date = date(get(leg.redemption))
+    if ~has_occurred(leg.redemption, settlement_date)
+      redempt_date = date(leg.redemption)
       if last_date == npv_date
         ref_start_date = redempt_date - Dates.Year(1)
       else
@@ -171,7 +171,7 @@ function npv(leg::Leg, y::InterestRate, include_settlement_cf::Bool, settlement_
       end
       ref_end_date = redempt_date
 
-      amount_ = amount(get(leg.redemption))
+      amount_ = amount(leg.redemption)
       b = discount_factor(y, last_date, redempt_date, ref_start_date, ref_end_date)
       discount_ *= b
       totalNPV += amount_ * discount_
@@ -226,9 +226,9 @@ function npvbps(leg::L, yts::YieldTermStructure, settlement_date::Date, npv_date
   end
   # redemption is present
   if leg.redemption != nothing
-    if ~has_occurred(get(leg.redemption), settlement_date, includeSettlementDateFlows)
-      df = discount(yts, date(get(leg.redemption)))
-      npv += amount(get(leg.redemption)) * df
+    if ~has_occurred(leg.redemption, settlement_date, includeSettlementDateFlows)
+      df = discount(yts, date(leg.redemption))
+      npv += amount(leg.redemption) * df
     end
   end
   d = discount(yts, npv_date)
@@ -281,9 +281,9 @@ function duration(::ModifiedDuration, leg::Leg, y::InterestRate, dc::DayCount, i
   end
 
   if leg.redemption != nothing
-    if ~has_occurred(get(leg.redemption), settlement_date)
-      c = amount(get(leg.redemption))
-      coupon_date = date(get(leg.redemption))
+    if ~has_occurred(leg.redemption, settlement_date)
+      c = amount(leg.redemption)
+      coupon_date = date(leg.redemption)
       if last_date == npv_date
         ref_start_date = coupon_date - Dates.Year(1)
       else
@@ -445,7 +445,7 @@ end
 function maturity_date(leg::Leg)
   # sort cashflows
   if leg.redemption != nothing
-    return date_accrual_end(get(leg.redemption))
+    return date_accrual_end(leg.redemption)
   else
     sorted_cf = sort(leg.coupons, by=sort_cashflow)
     return date_accrual_end(sorted_cf[end])
