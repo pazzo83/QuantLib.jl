@@ -98,23 +98,25 @@ mutable struct FlatForwardTermStructure{B <: BusinessCalendar, DC <: DayCount, C
   jumpDates::Vector{JumpDate}
 end
 
+# MAIN CONSTRUCTOR
 function FlatForwardTermStructure(settlement_days::Int, referenceDate::Date, calendar::B, forward::Quote, dc::DC,
                                   comp::C = ContinuousCompounding(), freq::F = QuantLib.Time.Annual()) where {B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency}
   rate = InterestRate(forward.value, dc, comp, freq)
-  FlatForwardTermStructure{B, DC, C, F}(settlement_days, referenceDate, calendar, forward, dc, comp, freq, rate, Vector{JumpTime}(0), Vector{JumpDate}(0))
+  FlatForwardTermStructure{B, DC, C, F}(settlement_days, referenceDate, calendar, forward, dc, comp, freq, rate, Vector{JumpTime}(), Vector{JumpDate}())
 end
 
-FlatForwardTermStructure(referenceDate::Date, calendar::B, forward::Quote, dc::DC, comp::C = ContinuousCompounding(), freq::F = QuantLib.Time.Annual()) where {B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency} =
-                        FlatForwardTermStructure{B, DC, C, F}(0, referenceDate, calendar, forward, dc, comp, freq)
+# Alt Constructors
+FlatForwardTermStructure(referenceDate::Date, calendar::BusinessCalendar, forward::Quote, dc::DayCount, comp::CompoundingType = ContinuousCompounding(), freq::Frequency = QuantLib.Time.Annual()) =
+                        FlatForwardTermStructure(0, referenceDate, calendar, forward, dc, comp, freq)
 
-FlatForwardTermStructure(settlementDays::Int, calendar::B, forward::Quote, dc::DC, comp::C = ContinuousCompounding(), freq::F = QuantLib.Time.Annual()) where {B <: BusinessCalendar, DC <: DayCount, C <: CompoundingType, F <: Frequency} =
-                        FlatForwardTermStructure{B, DC, C, F}(settlementDays, Date(0), calendar, forward, dc, comp, freq)
+FlatForwardTermStructure(settlementDays::Int, calendar::BusinessCalendar, forward::Quote, dc::DayCount, comp::CompoundingType = ContinuousCompounding(), freq::Frequency = QuantLib.Time.Annual()) =
+                        FlatForwardTermStructure(settlementDays, Date(0), calendar, forward, dc, comp, freq)
 
-FlatForwardTermStructure(referenceDate::Date, forward::Float64, dc::DC) where {DC <: DayCount} =
-                        FlatForwardTermStructure{TargetCalendar, DC, ContinuousCompounding, Annual}(0, referenceDate, TargetCalendar(), Quote(forward), dc, ContinuousCompounding(), Annual())
+FlatForwardTermStructure(referenceDate::Date, forward::Float64, dc::DayCount) =
+                        FlatForwardTermStructure(0, referenceDate, TargetCalendar(), Quote(forward), dc, ContinuousCompounding(), Annual())
 
-FlatForwardTermStructure(referenceDate::Date, forward::Float64, dc::DC, compounding::C, freq::F) where {DC <: DayCount, C <: CompoundingType, F <: Frequency} =
-                        FlatForwardTermStructure{TargetCalendar, DC, C, F}(0, referenceDate, TargetCalendar(), Quote(forward), dc, compounding, freq)
+FlatForwardTermStructure(referenceDate::Date, forward::Float64, dc::DayCount, compounding::CompoundingType, freq::Frequency) =
+                        FlatForwardTermStructure(0, referenceDate, TargetCalendar(), Quote(forward), dc, compounding, freq)
 
 discount_impl(ffts::FlatForwardTermStructure, time_frac::Float64) = discount_factor(ffts.rate, time_frac)
 
