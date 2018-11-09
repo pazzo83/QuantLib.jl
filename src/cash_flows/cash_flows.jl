@@ -128,7 +128,7 @@ function npv(leg::Leg, yts::YieldTermStructure, settlement_date::Date, npv_date:
 
   # redemption
   if leg.redemption != nothing
-    totalNPV += amount(leg.redemption) * discount(yts, date(eg.redemption))
+    totalNPV += amount(leg.redemption) * discount(yts, date(leg.redemption))
   end
   return totalNPV / discount(yts, npv_date)
 end
