@@ -1,7 +1,7 @@
 using Dates
 
 mutable struct FdmAffineModelTermStructure{B <: BusinessCalendar, DC <: DayCount, A <: AffineModel} <: YieldTermStructure
-  settlementDays::Int
+  settlement_days::Int
   referenceDate::Date
   calendar::B
   dc::DC

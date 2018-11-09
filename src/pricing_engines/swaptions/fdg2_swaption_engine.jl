@@ -38,7 +38,7 @@ function _calculate!(pe::FdG2SwaptionEngine, swaption::Swaption)
   # 3. Inner Value calculator
   exerciseDates = swaption.exercise.dates
   t2d = Dict{Float64, Date}()
-  @simd for i = 1:length(exerciseDates)
+  @simd for i = eachindex(exerciseDates)
     @inbounds t = year_fraction(dc, refDate, exerciseDates[i])
     @inbounds t2d[t] = exerciseDates[i]
   end
