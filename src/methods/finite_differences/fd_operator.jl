@@ -61,7 +61,7 @@ function FirstDerivativeOp(direction::Int, mesher::FdmMesher)
     i0[i] = neighborhood(mesher.layout, i, coords, direction, -1)
     i2[i] = neighborhood(mesher.layout, i, coords, direction, 1)
 
-    newIndex = dot(coords - 1, newSpacing) + 1
+    newIndex = dot(coords .- 1, newSpacing) + 1
 
     reverseIndex[newIndex] = i
 
