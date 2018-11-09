@@ -106,9 +106,9 @@ get_latest_coupon(leg::Leg, coup::Coupon) = coup
 
 check_coupon(x::CashFlow) = isa(x, Coupon)
 
-get_pay_dates(coups::Vector{Coupon}) = Date[date(coup) for coup in coups]
+get_pay_dates(coups::Vector{C}) where {C <: Coupon} = Date[date(coup) for coup in coups]
 
-get_reset_dates(coups::Vector{Coupon}) = Date[accrual_start_date(coup) for coup in coups]
+get_reset_dates(coups::Vector{C}) where {C <: Coupon} = Date[accrual_start_date(coup) for coup in coups]
 
 ## NPV METHODS ##
 function _npv_reduce(coup::Coupon, yts::YieldTermStructure, settlement_date::Date)

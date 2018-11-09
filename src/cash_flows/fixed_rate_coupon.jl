@@ -113,8 +113,8 @@ function FixedRateLeg(schedule::Schedule,
 end
 
 # Coupon methods
-get_pay_dates(coups::Vector{FixedRateCoupon}) = Date[date(coup) for coup in coups]
-get_reset_dates(coups::Vector{FixedRateCoupon}) = Date[accrual_start_date(coup) for coup in coups]
+get_pay_dates(coups::Vector{F}) where {F <: FixedRateCoupon} = Date[date(coup) for coup in coups]
+get_reset_dates(coups::Vector{F}) where {F <: FixedRateCoupon} = Date[accrual_start_date(coup) for coup in coups]
 
 function accrued_amount(coup::FixedRateCoupon, settlement_date::Date)
   if settlement_date <= accrual_start_date(coup) || settlement_date > coup.paymentDate

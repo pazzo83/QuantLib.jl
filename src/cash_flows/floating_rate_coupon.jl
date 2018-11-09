@@ -76,9 +76,9 @@ end
 # Coupon methods
 amount(coup::IborCoupon) = calc_rate(coup) * accrual_period(coup) * coup.nominal
 
-get_pay_dates(coups::Vector{IborCoupon}) = Date[date(coup) for coup in coups]
-get_reset_dates(coups::Vector{IborCoupon}) = Date[accrual_start_date(coup) for coup in coups]
-get_gearings(coups::Vector{IborCoupon}) = Float64[coup.gearing for coup in coups]
+get_pay_dates(coups::Vector{IC}) where {IC <: IborCoupon} = Date[date(coup) for coup in coups]
+get_reset_dates(coups::Vector{IC}) where {IC <: IborCoupon} = Date[accrual_start_date(coup) for coup in coups]
+get_gearings(coups::Vector{IC}) where {IC <: IborCoupon} = Float64[coup.gearing for coup in coups]
 
 function calc_rate(coup::IborCoupon)
   QuantLib.initialize!(coup.pricer, coup)

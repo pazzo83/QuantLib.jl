@@ -246,7 +246,7 @@ function generate_floatingrate_bond(yts::YieldTermStructure, disc_yts::YieldTerm
   in_arrears = true
   gearings = ones(length(fb_schedule.dates) - 1)
   spreads = fill(0.001, length(fb_schedule.dates) - 1)
-  libor_3m = usd_libor_index(QuantLib.Time.TenorPeriod(Base.Dates.Month(3)), yts)
+  libor_3m = usd_libor_index(QuantLib.Time.TenorPeriod(Dates.Month(3)), yts)
   floating_bond = FloatingRateBond(settlement_days, face_amount, fb_schedule, libor_3m, fb_dc, conv, fixing_days, fb_issue_date, bond_engine, in_arrears, 100.0, gearings, spreads, cap_vol=cap_vol)
 
   return floating_bond
@@ -283,7 +283,7 @@ function generate_discounting_ts(sett::Date)
 
   # build depos
   depo_rates = [0.0096, 0.0145, 0.0194]
-  depo_tens = [Base.Dates.Month(3), Base.Dates.Month(6), Base.Dates.Month(12)]
+  depo_tens = [Dates.Month(3), Dates.Month(6), Dates.Month(12)]
 
   # build bonds
   issue_dates = [Date(2005, 3, 15), Date(2005, 6, 15), Date(2006, 6, 30), Date(2002, 11, 15), Date(1987, 5, 15)]
@@ -401,14 +401,21 @@ function main()
       date_vec[i+1] = date(cf)
     end
 
-    if ~isnull(bh.bond.cashflows.redemption)
-      push!(date_vec, date(get(bh.bond.cashflows.redemption)))
+    if bh.bond.cashflows.redemption != nothing
+      push!(date_vec, date(bh.bond.cashflows.redemption))
     end
-
     tenor = QuantLib.Time.year_fraction(dc, issue_date, date(bond.cashflows.coupons[end]))
-    println(@printf(" %.2f  | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f ",
-            tenor, 100.0 * bond.cashflows.coupons[end].rate.rate, 100.0 * par_rate(yts, date_vec, dc), 100.0 * par_rate(esf_fitted_curve, date_vec, dc), 100.0 * par_rate(spf_fitted_curve, date_vec, dc),
-            100.0 * par_rate(nsf_fitted_curve, date_vec, dc), 100.0 * par_rate(cbsf_fitted_curve, date_vec, dc), 100.0 * par_rate(sf_fitted_curve, date_vec, dc)))
+    println(@sprintf(" %.2f  | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f ",
+            tenor, 
+            100.0 * bond.cashflows.coupons[end].rate.rate,
+            100.0 * par_rate(yts, date_vec, dc), 
+            100.0 * par_rate(esf_fitted_curve, date_vec, dc), 
+            100.0 * par_rate(spf_fitted_curve, date_vec, dc),
+            100.0 * par_rate(nsf_fitted_curve, date_vec, dc), 
+            100.0 * par_rate(cbsf_fitted_curve, date_vec, dc), 
+            100.0 * par_rate(sf_fitted_curve, date_vec, dc)
+            )
+      )
   end
 end
 
@@ -448,7 +455,7 @@ function main3()
   fixedLegFreq = QuantLib.Time.Annual()
   fixedLegConv = QuantLib.Time.Unadjusted()
   fixedLegDC = QuantLib.Time.EuroThirty360()
-  floatingLegIndex = euribor_index(QuantLib.Time.TenorPeriod(Base.Dates.Month(6)))
+  floatingLegIndex = euribor_index(QuantLib.Time.TenorPeriod(Dates.Month(6)))
   forwardStart = 1
 
   swap_quotes = [0.0295, 0.0323, 0.0359, 0.0412, 0.0433]
@@ -496,12 +503,12 @@ function main3()
   println("")
   println("              ZC      Fixed    Floating  ")
   println("-----------------------------------------")
-  println(@printf("  NPV       %.2f   %.2f   %.2f", npv(zcb), npv(fxb), npv(fb)))
-  println(@printf(" Clean      %.2f   %.2f   %.2f", clean_price(zcb), clean_price(fxb), clean_price(fb)))
-  println(@printf(" Dirty      %.2f   %.2f   %.2f", dirty_price(zcb), dirty_price(fxb), dirty_price(fb)))
-  println(@printf("accrued      %.2f     %.2f     %.2f", accrued_amount(zcb, settlement_date), accrued_amount(fxb, settlement_date), accrued_amount(fb, settlement_date)))
-  println(@printf(" Next C      N/A      %.2f%%    %.2f%%", next_coupon_rate(fxb.cashflows, settlement_date) * 100.0, next_coupon_rate(fb.cashflows, settlement_date) * 100.0))
-  println(@printf(" Yield      %.2f%%    %.2f%%    %.2f%%",
+  println(@sprintf("  NPV       %.2f   %.2f   %.2f", npv(zcb), npv(fxb), npv(fb)))
+  println(@sprintf(" Clean      %.2f   %.2f   %.2f", clean_price(zcb), clean_price(fxb), clean_price(fb)))
+  println(@sprintf(" Dirty      %.2f   %.2f   %.2f", dirty_price(zcb), dirty_price(fxb), dirty_price(fb)))
+  println(@sprintf("accrued      %.2f     %.2f     %.2f", accrued_amount(zcb, settlement_date), accrued_amount(fxb, settlement_date), accrued_amount(fb, settlement_date)))
+  println(@sprintf(" Next C      N/A      %.2f%%    %.2f%%", next_coupon_rate(fxb.cashflows, settlement_date) * 100.0, next_coupon_rate(fb.cashflows, settlement_date) * 100.0))
+  println(@sprintf(" Yield      %.2f%%    %.2f%%    %.2f%%",
           QuantLib.yield(zcb, clean_price(zcb), QuantLib.Time.Actual360(), CompoundedCompounding(), QuantLib.Time.Annual(), settlement_date) * 100.0,
           QuantLib.yield(fxb, clean_price(fxb), QuantLib.Time.Actual360(), CompoundedCompounding(), QuantLib.Time.Annual(), settlement_date) * 100.0,
           QuantLib.yield(fb, clean_price(fb), QuantLib.Time.Actual360(), CompoundedCompounding(), QuantLib.Time.Annual(), settlement_date) * 100.0))
