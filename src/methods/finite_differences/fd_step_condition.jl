@@ -59,7 +59,7 @@ function FdmBermudanStepCondition(exerciseDates::Vector{Date}, refDate::Date, dc
 end
 
 function apply_to!(cond::FdmBermudanStepCondition, a::Vector{Float64}, t::Float64)
-  if findfirst(cond.exerciseTimes, t) != 0
+  if findfirst(isequal(t), cond.exerciseTimes) != 0
     layout = cond.mesher.layout
     dims = length(layout.dim)
     coords = ones(Int, dims)

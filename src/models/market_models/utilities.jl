@@ -21,7 +21,7 @@ end
 
 function MarketModelDiscounter(paymentTime::Float64, rateTimes::Vector{Float64})
   check_increasing_times(rateTimes)
-  beforeTime = findfirst(rateTimes, paymentTime)
+  beforeTime = findfirst(isequal(paymentTime), rateTimes)
 
   # handle the case where the payment is in the last period or after the last period
   if beforeTime > length(rateTimes) - 1
@@ -67,7 +67,7 @@ function MarketModelPathwiseDiscounter(paymentTime::Float64, rateTimes::Vector{F
   check_increasing_times(rateTimes)
 
   numberRates = length(rateTimes) - 1
-  beforeTimeIdx = findfirst(rateTimes, paymentTime)
+  beforeTimeIdx = findfirst(isequal(paymentTime), rateTimes)
 
   # handle the case where the payment is in the last period or after the last period
   if beforeTimeIdx > length(rateTimes) - 1
@@ -154,7 +154,7 @@ function merge_times(times::Vector{Vector{Float64}})
   @inbounds @simd for i in eachindex(times)
     isPresent[i] = BitArray{1}(undef, length(times[i]))
     for j in eachindex(allTimes)
-      isPresent[i][j] = findfirst(times[i], allTimes[j]) > 0 ? true : false
+      isPresent[i][j] = findfirst(isequal(allTimes[j]), times[i]) > 0 ? true : false
     end
   end
 

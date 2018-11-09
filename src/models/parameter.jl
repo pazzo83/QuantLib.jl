@@ -70,7 +70,7 @@ function set_params!(param::TermStructureFittingParameter, tm::Float64, val::Flo
 end
 
 function value(param::TermStructureFittingParameter, t::Float64)
-  idx = findfirst(param.times, t)
+  idx = findfirst(isequal(t), param.times)
   return param.values[idx]
 end
 

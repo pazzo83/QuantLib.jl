@@ -80,7 +80,7 @@ function finalize!(mm::MarketModelComposite)
   # and map each product's cash flow time into the total vector
   @inbounds @simd for i in eachindex(mm.components)
     productTimes = possible_cash_flow_times(mm.components[i].product)
-    mm.components[i].timeIndices = Int[findfirst(mm.cashFlowTimes, productTimes[j]) for j in eachindex(productTimes)]
+    mm.components[i].timeIndices = Int[findfirst(isequal(productTimes[j]), mm.cashFlowTimes) for j in eachindex(productTimes)]
   end
 
   mm.evolution = EvolutionDescription(mm.rateTimes, mm.evolutionTimes)
