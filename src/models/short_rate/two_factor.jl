@@ -19,7 +19,7 @@ function tree(model::TwoFactorModel, grid::TimeGrid)
   tree1 = TrinomialTree(dyn.xProcess, grid)
   tree2 = TrinomialTree(dyn.yProcess, grid)
 
-  return TwoFactorShortRateTree{typeof(dyn), typeof(dyn.xProcess), typeof(dyn.yProcess)}(tree1, tree2, dyn)
+  return TwoFactorShortRateTree{typeof(dyn), typeof(tree1), typeof(tree2)}(tree1, tree2, dyn)
 end
 
 function rebuild_lattice!(lattice::TwoFactorShortRateTree, tg::TimeGrid)

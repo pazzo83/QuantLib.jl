@@ -43,7 +43,7 @@ function tree(model::HullWhite, grid::TimeGrid)
   phi = TermStructureFittingParameter(model.ts)
   numericDynamics = HullWhiteDynamics(phi, get_a(model), get_sigma(model))
   trinomial = TrinomialTree(numericDynamics.process, grid)
-  numericTree = OneFactorShortRateTree{typeof(numericDynamics), typeof(numericDynamics.process)}(trinomial, numericDynamics, grid)
+  numericTree = OneFactorShortRateTree{typeof(numericDynamics), typeof(trinomial)}(trinomial, numericDynamics, grid)
 
   reset_param_impl!(phi)
 
