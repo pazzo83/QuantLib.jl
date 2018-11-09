@@ -1,3 +1,5 @@
+using LinearAlgebra
+
 struct NullLattice <: Lattice end
 
 mutable struct Branching
