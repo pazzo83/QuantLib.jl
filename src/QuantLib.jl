@@ -5,14 +5,14 @@ module QuantLib
 # functions overridden from based
 import Base.findprev, Base.findnext
 
-function findprev(testf::Function, A::Vector{Int}, start::Int, val)
+function findprev(testf::Function, A::Vector, start::Int, val)
   for i = start:-1:1
     @inbounds testf(A[i], val) && return i
   end
   0
 end
 
-function findnext(testf::Function, A::Vector{Int}, start::Int, val)
+function findnext(testf::Function, A::Vector, start::Int, val)
   @inbounds for i = start:length(A)
     if testf(A[i], val)
       return i
