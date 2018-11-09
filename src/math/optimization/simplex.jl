@@ -1,3 +1,5 @@
+using LinearAlgebra
+
 struct Simplex <: OptimizationMethod
   lambda::Float64
 end
