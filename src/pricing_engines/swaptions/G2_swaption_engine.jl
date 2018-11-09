@@ -11,7 +11,7 @@ function _calculate!(pe::G2SwaptionEngine, swaption::Swaption)
   swap = swaption.swap
 
   # overriding pricing engine
-  _calculate!(DiscountingSwapEngine(pe.model.ts), swap)
+  _calculate!(DiscountingSwapEngine{typeof(pe.model.ts)}(pe.model.ts), swap)
   swap.lazyMixin.calculated = true
 
   correction = swap.spread * abs(floating_leg_BPS(swap) / fixed_leg_BPS(swap))
