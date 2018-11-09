@@ -42,6 +42,7 @@ function main()
 
   # flat yield term strucutre implying 1x5 swap at 5%
   rhTermStructure = generate_flatforward_ts(cal, settlementDate)
+  TS = typeof(rhTermStructure)
 
   # Define the ATM/OTM/ITM swaps
   fixedLegFrequency = QuantLib.Time.Annual()
@@ -60,18 +61,18 @@ function main()
   fixedSchedule = QuantLib.Time.Schedule(startDate, maturity, QuantLib.Time.TenorPeriod(fixedLegFrequency), fixedLegConvention, fixedLegConvention, QuantLib.Time.DateGenerationForwards(), false, cal)
   floatSchedule = QuantLib.Time.Schedule(startDate, maturity, QuantLib.Time.TenorPeriod(floatingLegFrequency), floatingLegConvention, floatingLegConvention, QuantLib.Time.DateGenerationForwards(), false, cal)
 
-  swap = VanillaSwap(swapType, 1000.0, fixedSchedule, dummyFixedRate, fixedLegDayCounter, indexSixMonths, 0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine(rhTermStructure))
+  swap = VanillaSwap(swapType, 1000.0, fixedSchedule, dummyFixedRate, fixedLegDayCounter, indexSixMonths, 0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine{TS}(rhTermStructure))
 
   fixedATMRate = fair_rate(swap)
   fixedOTMRate = fixedATMRate * 1.2
   fixedITMRate = fixedATMRate * 0.8
 
-  atmSwap = VanillaSwap(swapType, 1000.0, fixedSchedule, fixedATMRate, fixedLegDayCounter, indexSixMonths, 0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine(rhTermStructure))
-  otmSwap = VanillaSwap(swapType, 1000.0, fixedSchedule, fixedOTMRate, fixedLegDayCounter, indexSixMonths, 0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine(rhTermStructure))
-  itmSwap = VanillaSwap(swapType, 1000.0, fixedSchedule, fixedITMRate, fixedLegDayCounter, indexSixMonths, 0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine(rhTermStructure))
+  atmSwap = VanillaSwap(swapType, 1000.0, fixedSchedule, fixedATMRate, fixedLegDayCounter, indexSixMonths, 0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine{TS}(rhTermStructure))
+  otmSwap = VanillaSwap(swapType, 1000.0, fixedSchedule, fixedOTMRate, fixedLegDayCounter, indexSixMonths, 0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine{TS}(rhTermStructure))
+  itmSwap = VanillaSwap(swapType, 1000.0, fixedSchedule, fixedITMRate, fixedLegDayCounter, indexSixMonths, 0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine{TS}(rhTermStructure))
 
   times = zeros(0)
-  swaptions = Vector{SwaptionHelper}(numRows)
+  swaptions = Vector{SwaptionHelper}(undef, numRows)
 
   # First Model
   modelG2 = G2(rhTermStructure)
@@ -111,7 +112,7 @@ function main()
 
   # Hull White
   for i in eachindex(swaptions)
-    swaptions[i] = update_pricing_engine(swaptions[i], JamshidianSwaptionEngine(hullWhiteModel))
+    swaptions[i] = update_pricing_engine(swaptions[i], JamshidianSwaptionEngine{typeof(hullWhiteModel)}(hullWhiteModel))
   end
 
   println("")

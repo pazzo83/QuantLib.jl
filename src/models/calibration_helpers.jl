@@ -200,7 +200,7 @@ end
 
 function build_swaption(exerciseDate::Date, endDate::Date, maturity::Dates.Period, swapLength::Dates.Period, iborIndex::IborIndex,
                         fixedLegTenor::TenorPeriod, fixedLegDayCount::DayCount, floatingLegDayCount::DayCount, strike::Float64, nominal::Float64,
-                        exerciseRate::Float64, yts::TermStructure, pe::PricingEngine)
+                        exerciseRate::Float64, yts::T, pe::PricingEngine) where {T <: TermStructure}
   calendar = iborIndex.fixingCalendar
   fixingDays = iborIndex.fixingDays
   convention = iborIndex.convention
@@ -214,7 +214,7 @@ function build_swaption(exerciseDate::Date, endDate::Date, maturity::Dates.Perio
   fixedSchedule = QuantLib.Time.Schedule(startDate, endDate, fixedLegTenor, convention, convention, QuantLib.Time.DateGenerationForwards(), false, calendar)
   floatSchedule = QuantLib.Time.Schedule(startDate, endDate, iborIndex.tenor, convention, convention, QuantLib.Time.DateGenerationForwards(), false, calendar)
 
-  swapEngine = DiscountingSwapEngine(yts, false)
+  swapEngine = DiscountingSwapEngine{T}(yts, false)
 
   swapT = Receiver()
 
