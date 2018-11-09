@@ -463,8 +463,8 @@ function set_time!(op::FdmG2Op, t1::Float64, t2::Float64)
   phi = 0.5 * (short_rate(dynamics, t1, 0.0, 0.0) + short_rate(dynamics, t2, 0.0, 0.0))
 
   hr = -0.5 * (op.x + op.y + phi)
-  axpyb!(op.mapX, Vector{Float64}(0), op.dxMap, op.dxMap, hr)
-  axpyb!(op.mapY, Vector{Float64}(0), op.dyMap, op.dyMap, hr)
+  axpyb!(op.mapX, Vector{Float64}(), op.dxMap, op.dxMap, hr)
+  axpyb!(op.mapY, Vector{Float64}(), op.dyMap, op.dyMap, hr)
 
   return op
 end
@@ -474,7 +474,7 @@ function set_time!(op::FdmHullWhiteOp, t1::Float64, t2::Float64)
 
   phi = 0.5 * (short_rate(dynamics, t1, 0.0) + short_rate(dynamics, t2, 0.0))
 
-  axpyb!(op.mapT, Vector{Float64}(0), op.dzMap, op.dzMap, -(op.x + phi))
+  axpyb!(op.mapT, Vector{Float64}(), op.dzMap, op.dzMap, -(op.x + phi))
 
   return op
 end

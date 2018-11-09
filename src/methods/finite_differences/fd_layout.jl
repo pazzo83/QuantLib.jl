@@ -58,7 +58,7 @@ mutable struct FdmBoundaryConditionSet
   conditions::Vector{BoundaryCondition}
 end
 
-FdmBoundaryConditionSet() = FdmBoundaryConditionSet(Vector{BoundaryCondition}(0))
+FdmBoundaryConditionSet() = FdmBoundaryConditionSet(Vector{BoundaryCondition}())
 
 function set_time!(bcSet::FdmBoundaryConditionSet, t::Float64)
   for cond in bcSet.conditions

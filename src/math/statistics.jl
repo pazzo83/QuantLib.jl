@@ -33,14 +33,14 @@ end
 
 function GenericSequenceStats(dimension::Int, dim2::Int = dimension)
   # initial init
-  gss = GenericSequenceStats(0, Vector{GenericRiskStatistics}(0), Vector{Float64}(0), Matrix{Float64}(0, 0))
+  gss = GenericSequenceStats(0, Vector{GenericRiskStatistics}(), Vector{Float64}(), Matrix{Float64}(undef, 0, 0))
 
   reset!(gss, dimension, dim2)
 
   return gss
 end
 
-GenericSequenceStats() = reset!(GenericSequenceStats(0, Vector{GenericRiskStatistics}(0), Vector{Float64}(0), Matrix{Float64}(0, 0)), 0)
+GenericSequenceStats() = reset!(GenericSequenceStats(0, Vector{GenericRiskStatistics}(), Vector{Float64}(), Matrix{Float64}(undef, 0, 0)), 0)
 
 function reset!(gss::GenericSequenceStats, dimension::Int, dim2::Int = dimension)
   # re-init

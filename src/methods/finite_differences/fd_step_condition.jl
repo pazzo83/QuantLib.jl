@@ -88,7 +88,7 @@ mutable struct FdmSnapshotCondition <: StepCondition
   a::Vector{Float64}
 end
 
-FdmSnapshotCondition(t::Float64) = FdmSnapshotCondition(t, Vector{Float64}(0))
+FdmSnapshotCondition(t::Float64) = FdmSnapshotCondition(t, Vector{Float64}())
 
 function apply_to!(cond::FdmSnapshotCondition, a::Vector{Float64}, t::Float64)
   if cond.t == t
