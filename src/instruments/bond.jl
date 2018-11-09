@@ -209,7 +209,7 @@ function settlement_date(bond::Bond, d::Date = Date(0))
   return advance(Dates.Day(get_settlement_days(bond)), get_calendar(bond), d)
 end
 
-get_redemption(b::Bond) = isnull(b.cashflows.redemption) ? b.cashflows.coupons[end] : get(b.cashflows.redemption)
+get_redemption(b::Bond) = b.cashflows.redemption == nothing ? b.cashflows.coupons[end] : get(b.cashflows.redemption)
 get_frequency(b::Bond) = b.schedule.tenor.freq
 
 ## clone methods ##

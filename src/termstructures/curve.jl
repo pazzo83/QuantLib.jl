@@ -61,7 +61,7 @@ function value(cf::CostFunction, x::Vector{T}) where {T}
     end
 
     # redemption
-    if ~isnull(leg.redemption)
+    if leg.redemption != nothing
       @inbounds model_price += amount(get(leg.redemption)) * discount_function(cf.curve.fittingMethod, x, year_fraction(dc, ref_date, date(get(leg.redemption))))
     end
 
