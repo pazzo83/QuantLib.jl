@@ -68,7 +68,7 @@ mutable struct Fdm1DimSolver{FS <: FdmSolverDesc, F <: FdmSchemeDescType, FD <: 
 
   function Fdm1DimSolver{FS, F, FD}(solverDesc::FS,
                                       schemeDesc::FdmSchemeDesc{F},
-                                      op::FD) where {FS, C, F, FD}
+                                      op::FD) where {FS, F, FD}
     thetaCondition = FdmSnapshotCondition(0.99 * min(1.0 / 365.0, length(solverDesc.condition.stoppingTimes) == 0 ? solverDesc.maturity : solverDesc.condition.stoppingTimes[1]))
     conditions = join_conditions_FdmStepConditionComposite(thetaCondition, solverDesc.condition)
 
@@ -143,7 +143,7 @@ mutable struct Fdm2DimSolver{FS <: FdmSolverDesc, F <: FdmSchemeDescType, FD <: 
       iter_coords!(coords, layout.dim)
     end
 
-    return new{FS, C, F, FD}(LazyMixin(), solverDesc, schemeDesc, op, thetaCondition, conditions, initialValues, resultValues, x, y)
+    return new{FS, F, FD}(LazyMixin(), solverDesc, schemeDesc, op, thetaCondition, conditions, initialValues, resultValues, x, y)
   end
 end
 
@@ -217,7 +217,7 @@ mutable struct FdmHullWhiteSolver{FS <: FdmSolverDesc, F <: FdmSchemeDescType} <
 
   function FdmHullWhiteSolver{FS, F}(model::HullWhite,
                                         solverDesc::FS,
-                                        schemeDesc::FdmSchemeDesc{F}) where {FS, C, F}
+                                        schemeDesc::FdmSchemeDesc{F}) where {FS, F}
     op = FdmHullWhiteOp(solverDesc.mesher, model, 1)
     solver = Fdm1DimSolver{FS, F, FdmHullWhiteOp}(solverDesc, schemeDesc, op)
     new{FS, F}(LazyMixin(), model, solverDesc, schemeDesc, solver)
