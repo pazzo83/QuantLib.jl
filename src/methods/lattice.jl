@@ -10,7 +10,7 @@ mutable struct Branching
 end
 
 function Branching()
-  probs = Vector{Vector{Float64}}(3)
+  probs = Vector{Vector{Float64}}(undef, 3)
   probs[1] = zeros(0)
   probs[2] = zeros(0)
   probs[3] = zeros(0)
