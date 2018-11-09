@@ -99,7 +99,7 @@ end
 function ParallelEvolver(L::Vector{TridiagonalOperator}, bcs::Matrix{BC}, evolverFunc::Function) where {BC <: BoundaryCondition}
   # build first for Vector
   evolv1 = evolverFunc(L[1], FdmBoundaryConditionSet(bcs[:, 1]))
-  evolvers = Vector{typeof(evolv1)}(length(L))
+  evolvers = Vector{typeof(evolv1)}(undef, length(L))
   evolvers[1] = evolv1
 
   @simd for i = 2:length(L)

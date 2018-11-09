@@ -11,12 +11,12 @@ end
 
 function TripleBandLinearOp(direction::Int, mesher::FdmMesher)
   sz = mesher.layout.size
-  i0 = Vector{Int}(sz)
-  i2 = Vector{Int}(sz)
-  reverseIndex = Vector{Int}(sz)
-  lower = Vector{Float64}(sz)
-  _diag = Vector{Float64}(sz)
-  upper = Vector{Float64}(sz)
+  i0 = Vector{Int}(undef, sz)
+  i2 = Vector{Int}(undef, sz)
+  reverseIndex = Vector{Int}(undef, sz)
+  lower = Vector{Float64}(undef, sz)
+  _diag = Vector{Float64}(undef, sz)
+  upper = Vector{Float64}(undef, sz)
 
   newDim = copy(mesher.layout.dim)
   newDim[1], newDim[direction] = newDim[direction], newDim[1] # swap
@@ -42,12 +42,12 @@ end
 
 function FirstDerivativeOp(direction::Int, mesher::FdmMesher)
   sz = mesher.layout.size
-  i0 = Vector{Int}(sz)
-  i2 = Vector{Int}(sz)
-  reverseIndex = Vector{Int}(sz)
-  lower = Vector{Float64}(sz)
-  _diag = Vector{Float64}(sz)
-  upper = Vector{Float64}(sz)
+  i0 = Vector{Int}(undef, sz)
+  i2 = Vector{Int}(undef, sz)
+  reverseIndex = Vector{Int}(undef, sz)
+  lower = Vector{Float64}(undef, sz)
+  _diag = Vector{Float64}(undef, sz)
+  upper = Vector{Float64}(undef, sz)
 
   newDim = copy(mesher.layout.dim)
   newDim[1], newDim[direction] = newDim[direction], newDim[1] # swap
@@ -96,12 +96,12 @@ end
 
 function SecondDerivativeOp(direction::Int, mesher::FdmMesher)
   sz = mesher.layout.size
-  i0 = Vector{Int}(sz)
-  i2 = Vector{Int}(sz)
-  reverseIndex = Vector{Int}(sz)
-  lower = Vector{Float64}(sz)
-  _diag = Vector{Float64}(sz)
-  upper = Vector{Float64}(sz)
+  i0 = Vector{Int}(undef, sz)
+  i2 = Vector{Int}(undef, sz)
+  reverseIndex = Vector{Int}(undef, sz)
+  lower = Vector{Float64}(undef, sz)
+  _diag = Vector{Float64}(undef, sz)
+  upper = Vector{Float64}(undef, sz)
 
   newDim = copy(mesher.layout.dim)
   newDim[1], newDim[direction] = newDim[direction], newDim[1] # swap
@@ -192,7 +192,7 @@ function apply(trpBandLinOp::TripleBandLinearOp, r::Vector{Float64})
   idx = trpBandLinOp.mesher.layout
   length(r) == idx.size || error("inconsistent length of r")
 
-  retArray = Vector{Float64}(length(r))
+  retArray = Vector{Float64}(undef, length(r))
 
   for i = 1:idx.size
     retArray[i] = r[trpBandLinOp.i0[i]] * trpBandLinOp.lower[i] + r[i] * trpBandLinOp._diag[i] + r[trpBandLinOp.i2[i]] * trpBandLinOp.upper[i]
@@ -205,8 +205,8 @@ function solve_splitting(trpBandLinOp::TripleBandLinearOp, r::Vector{Float64}, a
   layout = trpBandLinOp.mesher.layout
   length(r) == layout.size || error("inconsistent length of r")
 
-  retArray = Vector{Float64}(length(r))
-  tmp = Vector{Float64}(length(r))
+  retArray = Vector{Float64}(undef, length(r))
+  tmp = Vector{Float64}(undef, length(r))
 
   # solving a tridiagonal system (we could use Julia built in f'ns here)
   rim1 = trpBandLinOp.reverseIndex[1]
@@ -262,23 +262,23 @@ end
 
 function SecondOrderMixedDerivativeOp(d1::Int, d2::Int, mesher::FD) where {FD <: FdmMesher}
   sz = mesher.layout.size
-  i00 = Vector{Int}(sz)
-  i10 = Vector{Int}(sz)
-  i20 = Vector{Int}(sz)
-  i01 = Vector{Int}(sz)
-  i21 = Vector{Int}(sz)
-  i02 = Vector{Int}(sz)
-  i12 = Vector{Int}(sz)
-  i22 = Vector{Int}(sz)
-  a00 = Vector{Float64}(sz)
-  a10 = Vector{Float64}(sz)
-  a20 = Vector{Float64}(sz)
-  a01 = Vector{Float64}(sz)
-  a11 = Vector{Float64}(sz)
-  a21 = Vector{Float64}(sz)
-  a02 = Vector{Float64}(sz)
-  a12 = Vector{Float64}(sz)
-  a22 = Vector{Float64}(sz)
+  i00 = Vector{Int}(undef, sz)
+  i10 = Vector{Int}(undef, sz)
+  i20 = Vector{Int}(undef, sz)
+  i01 = Vector{Int}(undef, sz)
+  i21 = Vector{Int}(undef, sz)
+  i02 = Vector{Int}(undef, sz)
+  i12 = Vector{Int}(undef, sz)
+  i22 = Vector{Int}(undef, sz)
+  a00 = Vector{Float64}(undef, sz)
+  a10 = Vector{Float64}(undef, sz)
+  a20 = Vector{Float64}(undef, sz)
+  a01 = Vector{Float64}(undef, sz)
+  a11 = Vector{Float64}(undef, sz)
+  a21 = Vector{Float64}(undef, sz)
+  a02 = Vector{Float64}(undef, sz)
+  a12 = Vector{Float64}(undef, sz)
+  a22 = Vector{Float64}(undef, sz)
 
   coords = ones(Int, length(mesher.layout.dim))
   @inbounds @simd for i = 1:sz

@@ -13,7 +13,7 @@ function SwapRateTrigger(rateTimes::Vector{Float64}, swapTriggers::Vector{Float6
   check_increasing_times(exerciseTimes)
   length(swapTriggers) == length(exerciseTimes) || error("swapTriggers / exerciseTimes mismatch")
 
-  rateIndex = Vector{Int}(length(exerciseTimes))
+  rateIndex = Vector{Int}(undef, length(exerciseTimes))
   j = 1
   @inbounds @simd for i in eachindex(exerciseTimes)
     while j <= length(rateTimes) && rateTimes[j] < exerciseTimes[i]

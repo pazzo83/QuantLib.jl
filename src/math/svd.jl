@@ -166,11 +166,11 @@ function SVD(M::Matrix{Float64})
     transp = true
   end
 
-  s = Vector{Float64}(n)
+  s = Vector{Float64}(undef, n)
   U = zeros(m, n)
-  V = Matrix{Float64}(n, n)
-  e = Vector{Float64}(n)
-  work = Vector{Float64}(m)
+  V = Matrix{Float64}(undef, n, n)
+  e = Vector{Float64}(undef, n)
+  work = Vector{Float64}(undef, m)
   i = j = k = 0
 
   # reduce A to its bidiagonal form, storing the diagonal elements

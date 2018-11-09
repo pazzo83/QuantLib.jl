@@ -22,8 +22,8 @@ function generic_longstaff_schwartz_regression!(simulationData::Vector{Vector{No
     means = stats_mean(stats)
     covMat = stats_covariance(stats)
 
-    C = Matrix{Float64}(N, N)
-    target = Vector{Float64}(N)
+    C = Matrix{Float64}(undef, N, N)
+    target = Vector{Float64}(undef, N)
 
     for k in eachindex(target)
       target[k] = covMat[k, N+1] + means[k] * means[N+1]

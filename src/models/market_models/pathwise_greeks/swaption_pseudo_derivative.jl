@@ -147,11 +147,11 @@ function CapPseudoDerivative(inputModel::AbstractMarketModel,
 
   totalCovariance = total_covariance(inputModel, inputModel.numberOfSteps)
 
-  displacedImpliedVols = Vector{Float64}(numberCaplets)
-  annuities = Vector{Float64}(numberCaplets)
-  capletPrices = Vector{Float64}(numberCaplets)
-  initialRates = Vector{Float64}(numberCaplets)
-  expires = Vector{Float64}(numberCaplets)
+  displacedImpliedVols = Vector{Float64}(undef, numberCaplets)
+  annuities = Vector{Float64}(undef, numberCaplets)
+  capletPrices = Vector{Float64}(undef, numberCaplets)
+  initialRates = Vector{Float64}(undef, numberCaplets)
+  expires = Vector{Float64}(undef, numberCaplets)
 
   capPrice = 0.0
   guess = 0.0

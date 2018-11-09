@@ -12,7 +12,7 @@ end
 function LongstaffSchwartzPathPricer(tg::TimeGrid, ep::EarlyExercisePathPricer, yts::YieldTermStructure)
   v = basis_system(ep)
   len = length(tg.times)
-  coeff = Vector{Vector{Float64}}(len - 2)
+  coeff = Vector{Vector{Float64}}(undef, len - 2)
   dF = zeros(len - 1)
   paths = Vector{Path}()
 
@@ -93,7 +93,7 @@ end
 
 function AmericanPathPricer(payoff::PlainVanillaPayoff{OT}, polynomOrder::Int, polynomType::LsmBasisSystemPolynomType) where {OT <: OptionType}
   # T = get_type(polynomType)
-  v = Vector{Function}(polynomOrder + 1)
+  v = Vector{Function}(undef, polynomOrder + 1)
   path_basis_system!(polynomType, polynomOrder, v)
 
   scalingVal = 1.0 / payoff.strike

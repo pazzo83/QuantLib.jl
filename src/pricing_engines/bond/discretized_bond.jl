@@ -23,14 +23,14 @@ end
 function DiscretizedCallableFixedRateBond(bond::CallableFixedRateBond, referenceDate::Date, dc::DayCount, lattice::L) where {L <: Lattice}
   args = CallableBondArgs(bond)
   redemptionTime = year_fraction(dc, referenceDate, args.redemptionDate)
-  couponTimes = Vector{Float64}(length(args.couponDates))
+  couponTimes = Vector{Float64}(undef, length(args.couponDates))
 
   # for i in eachindex(couponTimes)
   #   couponTimes[i] = year_fraction(dc, referenceDate, args.couponDates[i])
   # end
   map!(x -> year_fraction(dc, referenceDate, x), couponTimes, args.couponDates)
 
-  callabilityTimes = Vector{Float64}(length(args.callabilityDates))
+  callabilityTimes = Vector{Float64}(undef, length(args.callabilityDates))
 
   # for i in eachindex(callabilityTimes)
   #   callabilityTimes[i] = year_fraction(dc, referenceDate, args.callabilityDates[i])

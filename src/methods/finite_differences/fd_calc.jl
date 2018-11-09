@@ -77,7 +77,7 @@ FdmAffineModelSwapInnerValue(disModel::M1,
                             FdmAffineModelSwapInnerValue{M1, M2, FM}(disModel, fwdModel, swap, exerciseDates, mesher, direction, disTs, fwdTs)
 
 function get_state(::G2, calc::FdmAffineModelSwapInnerValue, coords::Vector{Int}, ::Float64)
-  retVal = Vector{Float64}(2)
+  retVal = Vector{Float64}(undef, 2)
   retVal[1] = get_location(calc.mesher, coords, calc.direction)
   retVal[2] = get_location(calc.mesher, coords, calc.direction + 1)
 

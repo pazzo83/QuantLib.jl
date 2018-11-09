@@ -8,7 +8,7 @@ end
 
 function SwapForwardBasisSystem(rateTimes::Vector{Float64}, exerciseTimes::Vector{Float64})
   evolution = EvolutionDescription(rateTimes, exerciseTimes)
-  rateIndex = Vector{Int}(length(exerciseTimes))
+  rateIndex = Vector{Int}(undef, length(exerciseTimes))
   j = 1
   @inbounds @simd for i in eachindex(exerciseTimes)
     while j <= length(rateTimes) && rateTimes[j] < exerciseTimes[i]

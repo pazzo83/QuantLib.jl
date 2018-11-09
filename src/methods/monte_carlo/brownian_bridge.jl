@@ -23,7 +23,7 @@ function BrownianBridge(tg::TimeGrid)
 end
 
 function BrownianBridge(steps::Int)
-  t = Vector{Float64}(steps)
+  t = Vector{Float64}(undef, steps)
   @inbounds @simd for i in eachindex(t)
     t[i] = float(i)
   end

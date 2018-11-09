@@ -31,7 +31,7 @@ function TrinomialTree(process::S, timeGrid::TimeGrid, isPositive::Bool = false)
   nTimeSteps = length(timeGrid.times) - 1
   jMin = 0
   jMax = 0
-  branchings = Vector{Branching}(nTimeSteps)
+  branchings = Vector{Branching}(undef, nTimeSteps)
 
   for i = 1:nTimeSteps
     t = timeGrid.times[i]
@@ -81,7 +81,7 @@ function rebuild_tree!(tt::TrinomialTree, timeGrid::TimeGrid)
   nTimeSteps = length(timeGrid.times) - 1
   jMin = 0
   jMax = 0
-  branchings = Vector{Branching}(nTimeSteps)
+  branchings = Vector{Branching}(undef, nTimeSteps)
 
   for i = 1:nTimeSteps
     t = timeGrid.times[i]
@@ -137,7 +137,7 @@ mutable struct TreeLattice1D{T <: TreeLattice} <: TreeLattice
 end
 
 function TreeLattice1D(tg::TimeGrid, n::Int, impl::T) where {T <: TreeLattice}
-  statePrices = Vector{Vector{Float64}}(1)
+  statePrices = Vector{Vector{Float64}}(undef, 1)
   statePrices[1] = ones(1)
 
   statePricesLimit = 1
@@ -170,7 +170,7 @@ end
 
 function TreeLattice2D(tree1::TrinomialTree, tree2::TrinomialTree, correlation::Float64, impl::T) where {T <: TreeLattice}
   tg = tree1.timeGrid
-  statePrices = Vector{Vector{Float64}}(1)
+  statePrices = Vector{Vector{Float64}}(undef, 1)
   statePrices[1] = ones(1)
 
   statePricesLimit = 1

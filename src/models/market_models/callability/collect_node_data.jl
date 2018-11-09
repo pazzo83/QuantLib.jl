@@ -9,8 +9,8 @@ function collect_node_data!(evolver::AbstractMarketModelEvolver,
   numerairesHeld = Vector{Float64}()
   number_of_products(product) == 1 || error("single product required")
 
-  numberCashFlowsThisStep = Vector{Int}(1)
-  cashFlowsGenerated = Vector{Vector{MarketModelCashFlow}}(1)
+  numberCashFlowsThisStep = Vector{Int}(undef, 1)
+  cashFlowsGenerated = Vector{Vector{MarketModelCashFlow}}(undef, 1)
   #cashFlowsGenerated[1] = Vector{MarketModelCashFlow}(max_number_of_cashflows_per_product_per_step(product))
   cashFlowsGenerated[1] = MarketModelCashFlow[MarketModelCashFlow() for i = 1:max_number_of_cashflows_per_product_per_step(product)]
 
@@ -21,19 +21,19 @@ function collect_node_data!(evolver::AbstractMarketModelEvolver,
   controlTimes = possible_cash_flow_times(control)
 
   n = length(cashFlowTimes)
-  productDiscounters = Vector{MarketModelDiscounter}(n)
+  productDiscounters = Vector{MarketModelDiscounter}(undef, n)
   @simd for i in eachindex(productDiscounters)
     @inbounds productDiscounters[i] = MarketModelDiscounter(cashFlowTimes[i], rateTimes)
   end
 
   n = length(rebateTimes)
-  rebateDiscounters = Vector{MarketModelDiscounter}(n)
+  rebateDiscounters = Vector{MarketModelDiscounter}(undef, n)
   @simd for i in eachindex(rebateDiscounters)
     @inbounds rebateDiscounters[i] = MarketModelDiscounter(rebateTimes[i], rateTimes)
   end
 
   n = length(controlTimes)
-  controlDiscounters = Vector{MarketModelDiscounter}(n)
+  controlDiscounters = Vector{MarketModelDiscounter}(undef, n)
   @simd for i in eachindex(controlDiscounters)
     @inbounds controlDiscounters[i] = MarketModelDiscounter(controlTimes[i], rateTimes)
   end

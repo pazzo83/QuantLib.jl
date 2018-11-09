@@ -6,7 +6,7 @@ end
 function MultiProductMultiStepCommon(rateTimes::Vector{Float64})
   n = length(rateTimes) - 1
   evolutionTimes = zeros(n)
-  relevanceRates = Vector{Pair{Int, Int}}(n)
+  relevanceRates = Vector{Pair{Int, Int}}(undef, n)
   @simd for i in eachindex(evolutionTimes)
     @inbounds evolutionTimes[i] = rateTimes[i]
     @inbounds relevanceRates[i] = Pair(i, i+1)

@@ -58,7 +58,7 @@ function money_market_plus_measure(ev::EvolutionDescription, offset::Int)
   offset <= maxNumeraire || error("offset is greater than the max allowed value for numeraire")
   evolutionTimes = ev.evolutionTimes
   n = length(evolutionTimes)
-  numeraires = Vector{Int}(n)
+  numeraires = Vector{Int}(undef, n)
   j = 1
   @inbounds @simd for i = 1:n
     while rateTimes[j] < evolutionTimes[i]

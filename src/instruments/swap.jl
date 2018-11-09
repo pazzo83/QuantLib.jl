@@ -132,7 +132,7 @@ function VanillaSwap(swapT::ST,
                     pricingEngine::P = NullPricingEngine(),
                     paymentConvention::B = floatSchedule.convention) where {ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, P <: PricingEngine, II <: IborIndex}
   # build swap cashflows
-  legs = Vector{Leg}(2)
+  legs = Vector{Leg}(undef, 2)
   # first leg is fixed
   legs[1] = FixedRateLeg(fixedSchedule, nominal, fixedRate, fixedSchedule.cal, paymentConvention, fixedDayCount; add_redemption=false)
   # second leg is floating
@@ -182,7 +182,7 @@ end
 # Constructor #
 function NonstandardSwap(vs::VanillaSwap{ST, DC_fix, DC_float, B, Leg, P, II}) where {ST <: SwapType, DC_fix <: DayCount, DC_float <: DayCount, B <: BusinessDayConvention, P <: PricingEngine, II <: IborIndex}
   # build swap cashflows
-  legs = Vector{Leg}(2)
+  legs = Vector{Leg}(undef, 2)
   # first leg is fixed
   legs[1] = FixedRateLeg(vs.fixedSchedule, vs.nominal, vs.fixedRate, vs.fixedSchedule.cal, vs.paymentConvention, vs.fixedDayCount; add_redemption=false)
   # second leg is floating
@@ -332,7 +332,7 @@ function clone(swap::VanillaSwap{ST, DC_fix, DC_float, B, L, P, II}, pe::Pricing
   # we need a new ibor and to rebuild floating rate coupons
   if ts != swap.iborIndex.ts
     newIbor = clone(swap.iborIndex, ts)
-    newLegs = Vector{Leg}(2)
+    newLegs = Vector{Leg}(undef, 2)
     newLegs[1] = swap.legs[1]
     newLegs[2] = IborLeg(swap.floatSchedule, swap.nominal, newIbor, swap.floatDayCount, swap.paymentConvention; add_redemption=false)
   else

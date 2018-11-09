@@ -5,7 +5,7 @@ function coterminal_swap_forward_jacobian(::SwapForwardMappings, cs::CurveState)
   f = cs.forwardRates
   tau = cs.rateTaus
 
-  a = Vector{Float64}(n)
+  a = Vector{Float64}(undef, n)
   @simd for k in eachindex(a)
     @inbounds a[k] = discount_ratio(cs, k, n+1) - 1.0
   end

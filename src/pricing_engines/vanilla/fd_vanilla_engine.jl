@@ -85,7 +85,7 @@ function FDAmericanEngine(process::B, fdEvolverFunc::Function, timeSteps::Int = 
   finiteDifferenceOperator, intrinsicValues, BCs = gen_fd_vanilla_engine_params(gridPoints)
   sMin = center = sMax = 0.0
   exerciseDate = Date(0)
-  controlBCs = Vector{BoundaryCondition}(2)
+  controlBCs = Vector{BoundaryCondition}(undef, 2)
   controlOperator = TridiagonalOperator()
 
   return FDAmericanEngine{B}(process, timeSteps, gridPoints, timeDependent, exerciseDate, finiteDifferenceOperator,
@@ -96,7 +96,7 @@ end
 function gen_fd_vanilla_engine_params(gridPoints::Int)
   finiteDifferenceOperator = TridiagonalOperator()
   intrinsicValues = SampledCurve(gridPoints)
-  BCs = Vector{BoundaryCondition}(2)
+  BCs = Vector{BoundaryCondition}(undef, 2)
 
   return finiteDifferenceOperator, intrinsicValues, BCs
 end

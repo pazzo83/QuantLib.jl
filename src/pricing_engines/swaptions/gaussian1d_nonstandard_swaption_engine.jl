@@ -235,7 +235,7 @@ function calibration_basket(swaptionEngine::Gaussian1DNonstandardSwaptionEngine,
   n = length(swaption.exercise.dates)
   minIdxAlive = upper_bound(swaption.exercise.dates, settings.evaluation_date)
   minIdxAlive = minIdxAlive == 0 ? 1 : minIdxAlive
-  result = Vector{SwaptionHelper}(n - (minIdxAlive - 1))
+  result = Vector{SwaptionHelper}(undef, n - (minIdxAlive - 1))
 
   # rebEx = RebatedExercise(exercise)
 

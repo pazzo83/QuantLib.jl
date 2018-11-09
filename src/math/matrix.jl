@@ -105,7 +105,7 @@ function OrthogonalProjection(originalVectors::Matrix{Float64}, multiplierCutoff
   orthoNormalizedVectors = Matrix{Float64}(numberVectors, dimension)
   projectedVectors = Vector{Vector{Float64}}()
 
-  currentVector = Vector{Float64}(dimension)
+  currentVector = Vector{Float64}(undef, dimension)
   @inbounds @simd for j in eachindex(validVectors)
     if validVectors[j]
       for k = 1:numberVectors

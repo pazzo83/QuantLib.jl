@@ -117,7 +117,7 @@ end
 
 function nodes(ts::PiecewiseDefaultCurve)
   calculate!(ts)
-  results = Vector{Tuple}(length(ts.dates))
+  results = Vector{Tuple}(undef, length(ts.dates))
   for i in eachindex(ts.dates)
     results[i] = (ts.dates[i], ts.data[i])
   end

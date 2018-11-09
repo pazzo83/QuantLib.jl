@@ -1,9 +1,11 @@
 # building fixed rate bonds
 using QuantLib
+using Dates
+using Printf
 
 function build_bonds(bond_mats::Vector{Date}, bond_rates::Vector{Float64}, tenor::QuantLib.Time.TenorPeriod, conv::QuantLib.Time.BusinessDayConvention,
                     rule::QuantLib.Time.DateGenerationRule, calendar::QuantLib.Time.BusinessCalendar, dc::QuantLib.Time.DayCount, freq::QuantLib.Time.Frequency, issue_date::Date)
-  bonds = Vector{FixedRateBondHelper}(length(bond_mats))
+  bonds = Vector{FixedRateBondHelper}(undef, length(bond_mats))
   pricing_engine = DiscountingBondEngine()
 
   for i =1:length(bond_mats)
@@ -18,9 +20,8 @@ function build_bonds(bond_mats::Vector{Date}, bond_rates::Vector{Float64}, tenor
   return bonds
 end
 
-function build_depos{P <: Dates.Period, DC <: QuantLib.Time.DayCount, B <: QuantLib.Time.BusinessDayConvention, C <: QuantLib.Time.BusinessCalendar, I <: Integer}(depo_quotes::Vector{Float64}, depo_tenors::Vector{P},
-                    dc::DC, conv::B, calendar::C, fixing_days::I)
-  depos = Vector{DepositRateHelper}(length(depo_quotes))
+function build_depos(depo_quotes::Vector{Float64}, depo_tenors::Vector{P}, dc::QuantLib.Time.DayCount, conv::QuantLib.Time.BusinessDayConvention, calendar::QuantLib.Time.BusinessCalendar, fixing_days::Int) where {P <: Dates.Period}
+  depos = Vector{DepositRateHelper}(undef, length(depo_quotes))
   for i = 1:length(depo_quotes)
     depo_quote = Quote(depo_quotes[i])
     depo_tenor = QuantLib.Time.TenorPeriod(depo_tenors[i])
@@ -31,10 +32,9 @@ function build_depos{P <: Dates.Period, DC <: QuantLib.Time.DayCount, B <: Quant
   return depos
 end
 
-function build_swaps{P <: Dates.Period, DC <: QuantLib.Time.DayCount, B <: QuantLib.Time.BusinessDayConvention, C <: QuantLib.Time.BusinessCalendar, F <: QuantLib.Time.Frequency, I <: Integer}(swap_quotes::Vector{Float64},
-                    swap_tenors::Vector{P}, fixed_dc::DC, fixed_conv::B, calendar::C, fixed_freq::F, float_index::IborIndex, forward_start::I)
+function build_swaps(swap_quotes::Vector{Float64}, swap_tenors::Vector{P}, fixed_dc::QuantLib.Time.DayCount, fixed_conv::QuantLib.Time.BusinessDayConvention, calendar::QuantLib.Time.BusinessCalendar, fixed_freq::QuantLib.Time.Frequency, float_index::IborIndex, forward_start::Int) where {P <: Dates.Period}
   forward_start_period = Dates.Day(forward_start)
-  swaps = Vector{SwapRateHelper}(length(swap_quotes))
+  swaps = Vector{SwapRateHelper}(undef, length(swap_quotes))
   pricing_engine = DiscountingSwapEngine()
 
   for i = 1:length(swap_quotes)
@@ -71,7 +71,7 @@ end
 function setup()
   today = now()
   issue_date = Date(Dates.Year(today), Dates.Month(today), Dates.Day(today))
-  bond_mats = [issue_date + Dates.Year(i) for i in range(2, 2, 15)]
+  bond_mats = [issue_date + Dates.Year(i) for i in range(2, step=2, length=15)]
   # bond_rates = [5.75, 6.0, 6.25, 6.5, 6.75, 6.80, 7.00, 7.1, 7.15, 7.2]
   bond_rates = [0.0200, 0.0225, 0.0250, 0.0275, 0.0300, 0.0325, 0.0350, 0.0375, 0.0400, 0.0425, 0.0450, 0.0475, 0.0500, 0.0525, 0.0550]
   set_eval_date!(settings, issue_date)
@@ -103,7 +103,7 @@ function piecewise_yld_curve()
   # println(yts.data)
 
   for bond in bonds
-    date_vec = Vector{Date}(length(bond.cashflows.coupons) + 1)
+    date_vec = Vector{Date}(undef, length(bond.cashflows.coupons) + 1)
     date_vec[1] = issue_date
     for (i, cf) in enumerate(bond.cashflows.coupons)
       date_vec[i+1] = date(cf)
@@ -292,7 +292,7 @@ function generate_discounting_ts(sett::Date)
   coupon_rates = [0.02375, 0.04625, 0.03125, 0.04000, 0.04500]
   market_quotes = [100.390625, 106.21875, 100.59375, 101.6875, 102.140625]
 
-  insts = Vector{BootstrapHelper}(length(depo_rates) + length(issue_dates))
+  insts = Vector{BootstrapHelper}(undef, length(depo_rates) + length(issue_dates))
   for i = 1:length(depo_rates)
     depo_quote = Quote(depo_rates[i])
     depo_tenor = QuantLib.Time.TenorPeriod(depo_tens[i])
@@ -395,7 +395,7 @@ function main()
 
   for bh in bonds
     bond = bh.bond
-    date_vec = Vector{Date}(length(bond.cashflows.coupons) + 1)
+    date_vec = Vector{Date}(undef, length(bond.cashflows.coupons) + 1)
     date_vec[1] = issue_date
     for (i, cf) in enumerate(bond.cashflows.coupons)
       date_vec[i+1] = date(cf)
@@ -406,7 +406,7 @@ function main()
     end
 
     tenor = QuantLib.Time.year_fraction(dc, issue_date, date(bond.cashflows.coupons[end]))
-    println(@sprintf(" %.2f  | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f ",
+    println(@printf(" %.2f  | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f ",
             tenor, 100.0 * bond.cashflows.coupons[end].rate.rate, 100.0 * par_rate(yts, date_vec, dc), 100.0 * par_rate(esf_fitted_curve, date_vec, dc), 100.0 * par_rate(spf_fitted_curve, date_vec, dc),
             100.0 * par_rate(nsf_fitted_curve, date_vec, dc), 100.0 * par_rate(cbsf_fitted_curve, date_vec, dc), 100.0 * par_rate(sf_fitted_curve, date_vec, dc)))
   end
@@ -456,7 +456,7 @@ function main3()
 
   swaps = build_swaps(swap_quotes, swap_tenors, fixedLegDC, fixedLegConv, cal, fixedLegFreq, floatingLegIndex, forwardStart)
 
-  insts = Vector{BootstrapHelper}(length(swap_quotes) + length(depo_quotes))
+  insts = Vector{BootstrapHelper}(undef, length(swap_quotes) + length(depo_quotes))
 
   insts[1:length(depo_quotes)] = depos
   insts[length(depo_quotes) + 1: end] = swaps
@@ -496,12 +496,12 @@ function main3()
   println("")
   println("              ZC      Fixed    Floating  ")
   println("-----------------------------------------")
-  println(@sprintf("  NPV       %.2f   %.2f   %.2f", npv(zcb), npv(fxb), npv(fb)))
-  println(@sprintf(" Clean      %.2f   %.2f   %.2f", clean_price(zcb), clean_price(fxb), clean_price(fb)))
-  println(@sprintf(" Dirty      %.2f   %.2f   %.2f", dirty_price(zcb), dirty_price(fxb), dirty_price(fb)))
-  println(@sprintf("accrued      %.2f     %.2f     %.2f", accrued_amount(zcb, settlement_date), accrued_amount(fxb, settlement_date), accrued_amount(fb, settlement_date)))
-  println(@sprintf(" Next C      N/A      %.2f%%    %.2f%%", next_coupon_rate(fxb.cashflows, settlement_date) * 100.0, next_coupon_rate(fb.cashflows, settlement_date) * 100.0))
-  println(@sprintf(" Yield      %.2f%%    %.2f%%    %.2f%%",
+  println(@printf("  NPV       %.2f   %.2f   %.2f", npv(zcb), npv(fxb), npv(fb)))
+  println(@printf(" Clean      %.2f   %.2f   %.2f", clean_price(zcb), clean_price(fxb), clean_price(fb)))
+  println(@printf(" Dirty      %.2f   %.2f   %.2f", dirty_price(zcb), dirty_price(fxb), dirty_price(fb)))
+  println(@printf("accrued      %.2f     %.2f     %.2f", accrued_amount(zcb, settlement_date), accrued_amount(fxb, settlement_date), accrued_amount(fb, settlement_date)))
+  println(@printf(" Next C      N/A      %.2f%%    %.2f%%", next_coupon_rate(fxb.cashflows, settlement_date) * 100.0, next_coupon_rate(fb.cashflows, settlement_date) * 100.0))
+  println(@printf(" Yield      %.2f%%    %.2f%%    %.2f%%",
           QuantLib.yield(zcb, clean_price(zcb), QuantLib.Time.Actual360(), CompoundedCompounding(), QuantLib.Time.Annual(), settlement_date) * 100.0,
           QuantLib.yield(fxb, clean_price(fxb), QuantLib.Time.Actual360(), CompoundedCompounding(), QuantLib.Time.Annual(), settlement_date) * 100.0,
           QuantLib.yield(fb, clean_price(fb), QuantLib.Time.Actual360(), CompoundedCompounding(), QuantLib.Time.Annual(), settlement_date) * 100.0))

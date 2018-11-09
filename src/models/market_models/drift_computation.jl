@@ -21,8 +21,8 @@ function LMMDriftCalculator(pseudo::Matrix{Float64}, displacements::Vector{Float
   isFullFactor = numberOfFactors == numberOfRates
   tmp = zeros(numberOfRates)
   e = zeros(pcols, prows)
-  downs = Vector{Int}(numberOfRates)
-  ups = Vector{Int}(numberOfRates)
+  downs = Vector{Int}(undef, numberOfRates)
+  ups = Vector{Int}(undef, numberOfRates)
 
 
 

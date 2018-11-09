@@ -26,7 +26,7 @@ function Projection(parameterValues::Vector{Float64}, fixParams::BitArray{1})
 end
 
 function project(proj::Projection, params::Vector{Float64})
-  projectedParams = Vector{Float64}(proj.numberOfFreeParams)
+  projectedParams = Vector{Float64}(undef, proj.numberOfFreeParams)
 
   i = 1
   @inbounds @simd for j = 1:length(proj.fixParams)

@@ -56,19 +56,19 @@ function PathwiseVegasOuterAccountingEngine(evolver::LogNormalFwdRateEuler,
   product = clone(product)
   numberProducts = number_of_products(product)
   doDeflation = ~already_deflated(product)
-  numerairesHeld = Vector{Float64}(numberProducts)
-  numberCashFlowsThisStep = Vector{Int}(numberProducts)
-  cashFlowsGenerated = Vector{Vector{MarketModelPathWiseCashFlow}}(numberProducts)
-  stepsDiscounts = Vector{Float64}(pseudoRootStructure.numberOfRates + 1)
-  elementaryVegasThisPath = Vector{Vector{Matrix{Float64}}}(numberProducts)
-  deflatorAndDerivatives = Vector{Float64}(pseudoRootStructure.numberOfRates + 1)
+  numerairesHeld = Vector{Float64}(undef, numberProducts)
+  numberCashFlowsThisStep = Vector{Int}(undef, numberProducts)
+  cashFlowsGenerated = Vector{Vector{MarketModelPathWiseCashFlow}}(undef, numberProducts)
+  stepsDiscounts = Vector{Float64}(undef, pseudoRootStructure.numberOfRates + 1)
+  elementaryVegasThisPath = Vector{Vector{Matrix{Float64}}}(undef, numberProducts)
+  deflatorAndDerivatives = Vector{Float64}(undef, pseudoRootStructure.numberOfRates + 1)
 
   stepsDiscounts[1] = 1.0
 
   numberRates = pseudoRootStructure.numberOfRates
   numberSteps = pseudoRootStructure.numberOfSteps
   factors = pseudoRootStructure.numberOfFactors
-  fullDerivatives = Vector{Float64}(numberRates)
+  fullDerivatives = Vector{Float64}(undef, numberRates)
 
   evolution = pseudoRootStructure.evolution
   numeraires = money_market_measure(evolution)
@@ -77,14 +77,14 @@ function PathwiseVegasOuterAccountingEngine(evolver::LogNormalFwdRateEuler,
 
   numberBumps = length(vegaBumps[1])
 
-  jacobiansThisPathsModel = Vector{Matrix{Float64}}(numberRates)
+  jacobiansThisPathsModel = Vector{Matrix{Float64}}(undef, numberRates)
 
   @simd for i in eachindex(jacobiansThisPathsModel)
     @inbounds jacobiansThisPathsModel[i] = Matrix{Float64}(numberRates, factors)
   end
 
-  jacobianComputers = Vector{RatePseudoRootJacobianAllElements}(numberSteps)
-  jacobiansThisPaths = Vector{Vector{Matrix{Float64}}}(numberSteps)
+  jacobianComputers = Vector{RatePseudoRootJacobianAllElements}(undef, numberSteps)
+  jacobiansThisPaths = Vector{Vector{Matrix{Float64}}}(undef, numberSteps)
   @simd for i in eachindex(jacobianComputers)
     @inbounds jacobianComputers[i] = RatePseudoRootJacobianAllElements(pseudoRootStructure.pseudoRoots[i], evolution.firstAliveRate[i],
                             numeraires[i], evolution.rateTaus, pseudoRootStructure.displacements)
@@ -99,19 +99,19 @@ function PathwiseVegasOuterAccountingEngine(evolver::LogNormalFwdRateEuler,
     @inbounds Discounts[i, 1] = 1.0
   end
 
-  V = Vector{Matrix{Float64}}(numberProducts)
+  V = Vector{Matrix{Float64}}(undef, numberProducts)
 
   modelCashFlowIndex = Matrix{Float64}(length(possible_cash_flow_times(product)), numberRates + 1)
 
-  numberCashFlowsThisIndex = Vector{Vector{Int}}(numberProducts)
-  V = Vector{Matrix{Float64}}(numberProducts)
-  totalCashFlowsThisIndex = Vector{Matrix{Float64}}(numberProducts)
+  numberCashFlowsThisIndex = Vector{Vector{Int}}(undef, numberProducts)
+  V = Vector{Matrix{Float64}}(undef, numberProducts)
+  totalCashFlowsThisIndex = Vector{Matrix{Float64}}(undef, numberProducts)
 
   @inbounds @simd for i in eachindex(numberCashFlowsThisIndex)
     p = max_number_of_cashflows_per_product_per_step(product)
     cashFlowsGenerated[i] = MarketModelPathWiseCashFlow[MarketModelPathWiseCashFlow(numberRates + 1) for i = 1:p]
 
-    numberCashFlowsThisIndex[i] = Vector{Int}(length(possible_cash_flow_times(product)))
+    numberCashFlowsThisIndex[i] = Vector{Int}(undef, length(possible_cash_flow_times(product)))
     V[i] = copy(VModel)
     totalCashFlowsThisIndex[i] = copy(modelCashFlowIndex)
   end
@@ -362,7 +362,7 @@ end
 
 function multiple_path_values_elementary!(pwEng::PathwiseVegasOuterAccountingEngine, means::Vector{Float64}, errors::Vector{Float64}, numberOfPaths::Int)
   numberOfElementaryVegas = pwEng.numberRates * pwEng.numberSteps * pwEng.factors
-  values = Vector{Float64}(number_of_products(pwEng.product) * (1 + pwEng.numberRates + numberOfElementaryVegas))
+  values = Vector{Float64}(undef, number_of_products(pwEng.product) * (1 + pwEng.numberRates + numberOfElementaryVegas))
   resize!(means, length(values))
   resize!(errors, length(values))
 

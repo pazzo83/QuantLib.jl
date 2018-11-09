@@ -81,7 +81,7 @@ function FixedRateLeg(schedule::Schedule,
   length(rates) == length(schedule.dates) - 1 || error("mismatch in coupon rates")
   
   coup_type = FixedRateCoupon{DC, InterestRate{DC, SimpleCompounding, typeof(schedule.tenor.freq)}}
-  coups = Vector{coup_type}(n)
+  coups = Vector{coup_type}(undef, n)
 
   start_date = schedule.dates[1]
   end_date = schedule.dates[2]

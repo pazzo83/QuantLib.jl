@@ -27,13 +27,13 @@ function LogNormalFwdRatePc(marketModel::AbstractMarketModel, factory::BrownianG
   curveState = LMMCurveState(marketModel.evolution.rateTimes)
   forwards = copy(marketModel.initialRates)
   displacements = copy(marketModel.displacements)
-  logForwards = Vector{Float64}(numberOfRates)
-  initialLogForwards = Vector{Float64}(numberOfRates)
-  drifts1 = Vector{Float64}(numberOfRates)
-  drifts2 = Vector{Float64}(numberOfRates)
-  initialDrifts = Vector{Float64}(numberOfRates)
-  brownians = Vector{Float64}(numberOfFactors)
-  correlatedBrownians = Vector{Float64}(numberOfRates)
+  logForwards = Vector{Float64}(undef, numberOfRates)
+  initialLogForwards = Vector{Float64}(undef, numberOfRates)
+  drifts1 = Vector{Float64}(undef, numberOfRates)
+  drifts2 = Vector{Float64}(undef, numberOfRates)
+  initialDrifts = Vector{Float64}(undef, numberOfRates)
+  brownians = Vector{Float64}(undef, numberOfFactors)
+  correlatedBrownians = Vector{Float64}(undef, numberOfRates)
   alive = marketModel.evolution.firstAliveRate
 
   steps = number_of_steps(marketModel.evolution)
@@ -42,13 +42,13 @@ function LogNormalFwdRatePc(marketModel::AbstractMarketModel, factory::BrownianG
 
   currentStep = initialStep
 
-  calculators = Vector{LMMDriftCalculator}(steps)
-  fixedDrifts = Vector{Vector{Float64}}(steps)
+  calculators = Vector{LMMDriftCalculator}(sundef, teps)
+  fixedDrifts = Vector{Vector{Float64}}(undef, steps)
 
   @inbounds @simd for j = 1:steps
     A = marketModel.pseudoRoots[j]
     calculators[j] = LMMDriftCalculator(A, displacements, marketModel.evolution.rateTaus, numeraires[j], alive[j])
-    fixed = Vector{Float64}(numberOfRates)
+    fixed = Vector{Float64}(undef, numberOfRates)
 
     for k in eachindex(fixed)
       # variance_ = dot(A[:, k], A[:, k])

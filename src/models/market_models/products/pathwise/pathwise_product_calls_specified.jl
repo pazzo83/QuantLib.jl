@@ -29,7 +29,7 @@ function CallSpecifiedPathwiseMultiProduct(underlying::MarketModelPathwiseMultiP
   amounts = zeros(products, length(exerciseTimes))
   rebate = MarketModelPathwiseCashRebate(description, exerciseTimes, amounts, products)
 
-  allEvolutionTimes = Vector{Vector{Float64}}(4)
+  allEvolutionTimes = Vector{Vector{Float64}}(undef, 4)
   allEvolutionTimes[1] = evolutionTimes1
   allEvolutionTimes[2] = exerciseTimes
   allEvolutionTimes[3] = rebate.evolution.evolutionTimes

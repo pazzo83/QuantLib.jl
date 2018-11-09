@@ -85,7 +85,7 @@ function single_path_values!(ae::AccountingEngine, vals::Vector{Float64})
 end
 
 function multiple_path_values!(ae::AccountingEngine, stats::GenericSequenceStats, numberOfPaths::Int)
-  vals = Vector{Float64}(number_of_products(ae.product))
+  vals = Vector{Float64}(undef, number_of_products(ae.product))
   QuantLib.Math.reset!(stats, length(vals), numberOfPaths)
 
   @inbounds @simd for i = 1:numberOfPaths

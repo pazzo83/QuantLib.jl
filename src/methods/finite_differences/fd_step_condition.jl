@@ -17,7 +17,7 @@ end
 function FdmDividendHandler(schedule::DividendSchedule, mesher::F, refDate::Date, dc::DayCount, equityDirection::Int) where {F <: FdmMesher}
   schedLength = length(schedule.dividends)
   dividends = zeros(schedLength)
-  dividendDates = Vector{Date}(schedLength)
+  dividendDates = Vector{Date}(undef, schedLength)
   dividendTimes = zeros(schedLength)
   x = zeros(mesher.layout.dim[equityDirection])
 
@@ -130,7 +130,7 @@ function join_conditions_FdmStepConditionComposite(c1::FdmSnapshotCondition, c2:
   stoppingTimes = c2.stoppingTimes
   push!(stoppingTimes, c1.t)
 
-  conditions = Vector{StepCondition}(2)
+  conditions = Vector{StepCondition}(undef, 2)
   conditions[1] = c2
   conditions[2] = c1
 

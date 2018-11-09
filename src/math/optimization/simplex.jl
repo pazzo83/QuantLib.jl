@@ -25,7 +25,7 @@ function minimize!(simplex::Simplex, p::Problem, end_criteria::EndCriteria)
   # initialize the vertices of the simplex
   end_condition = false
   n = length(x)
-  vertices = Vector{Vector{Float64}}(n + 1)
+  vertices = Vector{Vector{Float64}}(undef, n + 1)
   fill!(vertices, x)
   direction = zeros(n)
   @simd for i = 1:n

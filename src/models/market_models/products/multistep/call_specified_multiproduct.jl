@@ -32,7 +32,7 @@ function CallSpecifiedMultiProduct(underlying::MarketModelMultiProduct,
   rateTimes2 = d2.rateTimes
   rateTimes1 == rateTimes2 || error("incompatible rate times")
 
-  allEvolutionTimes = Vector{Vector{Float64}}(4)
+  allEvolutionTimes = Vector{Vector{Float64}}(undef, 4)
   allEvolutionTimes[1] = evolutionTimes1
   allEvolutionTimes[2] = exerciseTimes
   allEvolutionTimes[3] = d2.evolutionTimes

@@ -76,7 +76,7 @@ function MarketModelPathwiseDiscounter(paymentTime::Float64, rateTimes::Vector{F
 
   beforeWeight = 1.0 - (paymentTime - rateTimes[beforeTimeIdx]) / (rateTimes[beforeTimeIdx + 1] - rateTimes[beforeTimeIdx])
   postWeight = 1.0 - beforeWeight
-  taus = Vector{Float64}(numberRates)
+  taus = Vector{Float64}(undef, numberRates)
   @simd for i in eachindex(taus)
     @inbounds taus[i] = rateTimes[i+1] - rateTimes[i]
   end
@@ -85,7 +85,7 @@ function MarketModelPathwiseDiscounter(paymentTime::Float64, rateTimes::Vector{F
 end
 
 function get_factors(mmdisc::MarketModelPathwiseDiscounter, ::Matrix{Float64}, Discounts::Matrix{Float64}, currentStep::Int)
-  factors = Vector{Float64}(mmdisc.numberRates + 1)
+  factors = Vector{Float64}(undef, mmdisc.numberRates + 1)
   preDF = Discounts[currentStep, mmdisc.beforeTimeIdx]
   postDF = Discounts[currentStep, mmdisc.beforeTimeIdx + 1]
 
@@ -131,7 +131,7 @@ function check_increasing_times_and_calculate_taus(times::Vector{Float64})
   nTimes = length(times)
   nTimes > 1 || error("at least two times are required")
 
-  taus = Vector{Float64}(nTimes - 1)
+  taus = Vector{Float64}(undef, nTimes - 1)
 
   @simd for i in eachindex(taus)
     @inbounds taus[i] = times[i+1] - times[i]

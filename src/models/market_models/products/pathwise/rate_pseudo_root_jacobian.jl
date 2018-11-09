@@ -17,7 +17,7 @@ function RatePseudoRootJacobianAllElements(pseudoRoot::Matrix{Float64},
   pr_rows, factors = size(pseudoRoot)
   e = Matrix{Float64}(pr_rows, factors)
   numberRates = length(taus)
-  ratios = Vector{Float64}(numberRates)
+  ratios = Vector{Float64}(undef, numberRates)
 
   aliveIndex == numeraire || error("we can only do discrete compounding MM account so alive Index must equal numeraire")
   pr_rows == numberRates || error("pseudoRoot rows != taus size")

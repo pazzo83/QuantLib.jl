@@ -142,7 +142,7 @@ function IborLeg(schedule::Schedule,
   if isa(pricer.capletVolatility, NullOptionletVolatilityStructure) && ~isa(cap_vol, NullOptionletVolatilityStructure)
     pricer = BlackIborCouponPricer(cap_vol)
   end
-  coups = Vector{IborCoupon{DC, X, typeof(pricer)}}(n)
+  coups = Vector{IborCoupon{DC, X, typeof(pricer)}}(undef, n)
   last_payment_date = adjust(schedule.cal, paymentAdj, schedule.dates[end])
 
   _start = ref_start = schedule.dates[1]

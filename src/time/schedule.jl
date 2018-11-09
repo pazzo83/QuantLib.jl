@@ -104,7 +104,7 @@ function Schedule(effectiveDate::Date,
                   endOfMonth::Bool,
                   cal::C = TargetCalendar()) where {B <: BusinessDayConvention, B1 <: BusinessDayConvention, C <: BusinessCalendar}
   size = get_size(tenor.period, effectiveDate, terminationDate)
-  dates = Vector{Date}(size)
+  dates = Vector{Date}(undef, size)
   dates[1] = effectiveDate
 
   dates[end] = terminationDate

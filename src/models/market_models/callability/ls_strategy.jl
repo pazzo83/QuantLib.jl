@@ -36,7 +36,7 @@ function LongstaffSchwartzExerciseStrategy(basisSystem::MarketModelBasisSystem,
   isRebateTime = is_in_subset(relevantTimes, exercise.evolution.evolutionTimes)
   isControlTime = is_in_subset(relevantTimes, control.evolution.evolutionTimes)
 
-  exerciseIndex = Vector{Int}(length(relevantTimes))
+  exerciseIndex = Vector{Int}(undef, length(relevantTimes))
   isExerciseTime = falses(length(exerciseIndex))
   exerciseTimes = Vector{Float64}()
   v = exercise.isExerciseTime

@@ -66,7 +66,7 @@ function finalize!(mm::MarketModelComposite)
 
     # allocate working vectors
     n = number_of_products(mm.components[i].product)
-    mm.components[i].numberOfCashflows = Vector{Int}(n)
+    mm.components[i].numberOfCashflows = Vector{Int}(undef, n)
     mm.components[i].cashFlows = Vector{MarketModelCashFlow}[
                                 [MarketModelCashFlow() for i=1:max_number_of_cashflows_per_product_per_step(mm.components[i].product)] for j = 1:n]
   end
