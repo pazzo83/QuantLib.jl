@@ -4,7 +4,7 @@ mutable struct DividendSchedule
   dividends::Vector{Dividend}
 end
 
-DividendSchedule() = DividendSchedule(Vector{Dividend}(0))
+DividendSchedule() = DividendSchedule(Vector{Dividend}())
 
 struct BondMixin
   settlementDays::Int

@@ -149,7 +149,7 @@ function main()
 
   swapLeg = swap.legs[1] # Fixed Leg
 
-  bermudanDates = Vector{Date}(length(swapLeg.coupons))
+  bermudanDates = Vector{Date}(undef, length(swapLeg.coupons))
   for i=1:length(swapLeg.coupons)
     bermudanDates[i]  = accrual_start_date(swapLeg.coupons[i])
   end
