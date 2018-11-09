@@ -152,7 +152,7 @@ function merge_times(times::Vector{Vector{Float64}})
   isPresent = similar(times, BitArray{1})
 
   @inbounds @simd for i in eachindex(times)
-    isPresent[i] = BitArray{1}(length(times[i]))
+    isPresent[i] = BitArray{1}(undef, length(times[i]))
     for j in eachindex(allTimes)
       isPresent[i][j] = findfirst(times[i], allTimes[j]) > 0 ? true : false
     end
