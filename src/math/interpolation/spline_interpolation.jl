@@ -1,4 +1,5 @@
 using Dierckx
+using LinearAlgebra
 
 mutable struct BicubicSpline
   spline::Dierckx.Spline2D
@@ -35,7 +36,7 @@ function NaturalCubicSpline(x_vert::Vector{T}, y_vert::Vector{T}) where {T <: Nu
     g[i] = b[i + 1] - b[i]
   end
 
-  Alu = lufact(Tridiagonal(h[2:end-1], a[1:end], h[2:end-1]))
+  Alu = lu(Tridiagonal(h[2:end-1], a[1:end], h[2:end-1]))
   c[2:end - 1] = Alu \ g
 
   for i=1:n - 1

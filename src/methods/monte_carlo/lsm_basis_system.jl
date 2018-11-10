@@ -1,7 +1,7 @@
 struct Monomial <: LsmBasisSystemPolynomType end
 
-struct MonomialFunction{I <: Integer} <: LSMBasisSystemFunction
-  order::I
+struct MonomialFunction <: LSMBasisSystemFunction
+  order::Int
 end
 
 function (m::MonomialFunction)(x::Float64)

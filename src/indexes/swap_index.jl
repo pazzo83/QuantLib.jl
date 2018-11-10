@@ -39,7 +39,7 @@ SwapIndex(familyName::String,
           fixedLegConvention::C,
           fixedLegDayCount::DC, discount::T,
           iborIndex::II) where {TP <: TenorPeriod, B <: BusinessCalendar, C <: BusinessDayConvention, DC <: DayCount, T <: TermStructure, II <: IborIndex} =
-          SwapIndex{TP, B, C, DC, T, }(familyName, tenor, settlementDays, currency, fixingCalendar, fixedLegTenor, fixedLegConvention, fixedLegDayCount, discount, iborIndex)
+          SwapIndex{TP, B, C, DC, T, II}(familyName, tenor, settlementDays, currency, fixingCalendar, fixedLegTenor, fixedLegConvention, fixedLegDayCount, discount, iborIndex)
 
 function EuriborSwapIsdaFixA(tenor::TenorPeriod, forwardingTS::YieldTermStructure, discTS::YieldTermStructure)
   ibor = tenor.period.value > 1 ? euribor_index(TenorPeriod(Dates.Month(6)), forwardingTS) : euribor_index(TenorPeriod(Dates.Month(3)), forwardingTS)

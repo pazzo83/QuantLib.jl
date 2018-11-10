@@ -1,7 +1,8 @@
 using QuantLib
+using Dates
 
 ## TYPES ##
-type ReplicationError{OT <: OptionType}
+struct ReplicationError{OT <: OptionType}
   maturity::Float64
   payoff::PlainVanillaPayoff{OT}
   s0::Float64
@@ -10,7 +11,7 @@ type ReplicationError{OT <: OptionType}
   vega::Float64
 end
 
-function ReplicationError{OT <: OptionType}(optionType::OT, maturity::Float64, strike::Float64, s0::Float64, sigma::Float64, r::Float64)
+function ReplicationError(optionType::OT, maturity::Float64, strike::Float64, s0::Float64, sigma::Float64, r::Float64) where {OT <: OptionType}
   rDiscount = exp(-r * maturity)
   qDiscount = 1.0
   forward = s0 * rDiscount / rDiscount
@@ -24,7 +25,7 @@ function ReplicationError{OT <: OptionType}(optionType::OT, maturity::Float64, s
   return ReplicationError{OT}(maturity, payoff, s0, sigma, r, vega_)
 end
 
-type ReplicationPathPricer{OT <: OptionType} <: QuantLib.AbstractPathPricer
+struct ReplicationPathPricer{OT <: OptionType} <: QuantLib.AbstractPathPricer
   optionType::OT
   strike::Float64
   r::Float64

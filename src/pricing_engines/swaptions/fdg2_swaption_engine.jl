@@ -56,7 +56,7 @@ function _calculate!(pe::FdG2SwaptionEngine, swaption::Swaption)
   boundaries = FdmBoundaryConditionSet()
 
   # 6. Solver
-  solverDesc = FdmSolverDesc(mesher, boundaries, conditions, calculator, maturity, pe.tGrid, pe.dampingSteps)
+  solverDesc = FdmSolverDesc{typeof(mesher), typeof(calculator)}(mesher, boundaries, conditions, calculator, maturity, pe.tGrid, pe.dampingSteps)
   solver = FdmG2Solver(pe.model, solverDesc, pe.schemeDesc)
   swaption.results.value = value_at(solver, 0.0, 0.0)
 end

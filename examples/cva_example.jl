@@ -1,6 +1,7 @@
 using QuantLib
+using Dates
 
-function make_swap(startDate::Date, maturity::Dates.Period, nominal::Float64, fixedRate::Float64, iborIndex::IborIndex, yts::YieldTermStructure, typ::SwapType = Payer())
+function make_swap(startDate::Date, maturity::Dates.Period, nominal::Float64, fixedRate::Float64, iborIndex::IborIndex, yts::Y, typ::SwapType = Payer()) where {Y <: YieldTermStructure}
   endDate = QuantLib.Time.advance(maturity, QuantLib.Time.TargetCalendar(), startDate)
   fixedLegTenor = Dates.Year(1)
   fixedLegBDC = QuantLib.Time.ModifiedFollowing()
@@ -12,7 +13,7 @@ function make_swap(startDate::Date, maturity::Dates.Period, nominal::Float64, fi
   floatSchedule = QuantLib.Time.Schedule(startDate, endDate, iborIndex.tenor, iborIndex.convention, iborIndex.convention,
                   QuantLib.Time.DateGenerationBackwards(), false, iborIndex.fixingCalendar)
 
-  vanillaSwap = VanillaSwap(typ, nominal, fixedSchedule, fixedRate, fixedLegDC, iborIndex, spread, floatSchedule, iborIndex.dc, DiscountingSwapEngine(yts))
+  vanillaSwap = VanillaSwap(typ, nominal, fixedSchedule, fixedRate, fixedLegDC, iborIndex, spread, floatSchedule, iborIndex.dc, DiscountingSwapEngine{Y}(yts))
 
   return vanillaSwap, Date[fixing_date(iborIndex, x) for x in floatSchedule.dates[1:end-1]]
 end
@@ -62,7 +63,7 @@ function main()
   zero_bonds = zeros(12, length(time_grid), N)
 
   for j = 1:12
-    zero_bonds[j, 1, :] = QuantLib.zerobond(model, pillars[j], 0.0, 0.0, model.ts)
+    zero_bonds[j, 1, :] = fill(QuantLib.zerobond(model, pillars[j], 0.0, 0.0, model.ts), N)
   end
 
   for n = 1:N
@@ -87,7 +88,7 @@ function main()
   tempPort = Tuple{VanillaSwap, Vector{Date}}[]
   defaultDiscCurve = InterpolatedDiscountCurve(Date[tdy for i = 1:12], ones(12), QuantLib.Time.Actual365(), QuantLib.Math.LogLinear())
   for (deal, dates) in portfolio
-    push!(tempPort, (QuantLib.clone(deal, DiscountingSwapEngine(defaultDiscCurve), defaultDiscCurve), dates))
+    push!(tempPort, (QuantLib.clone(deal, DiscountingSwapEngine{typeof(defaultDiscCurve)}(defaultDiscCurve), defaultDiscCurve), dates))
   end
   portfolio = tempPort
   for p = 1:N
@@ -121,27 +122,27 @@ function main()
   end
 
   # calculate the discounted rows
-  portfolio_npv = sum(npv_cube, 1)
+  portfolio_npv = sum(npv_cube; dims=1)
   # portfolio_npv = sum(npv_cube, 2)
-  discounted_npv = sum(discountedCube, 1)
+  discounted_npv = sum(discountedCube; dims=1)
   # discounted_npv = sum(discountedCube, 2)
 
   # calculate the exposure and discounted exposure
   E = deepcopy(portfolio_npv)
   dE = deepcopy(discounted_npv)
 
-  E[E .< 0.0] = 0.0
-  dE[dE .< 0.0] = 0.0
+  E[E .< 0.0] .= 0.0
+  dE[dE .< 0.0] .= 0.0
 
   # expected exposure
-  EE = sum(E, 3) / N
-  dEE = sum(dE, 3) / N
+  EE = sum(E; dims=3) / N
+  dEE = sum(dE; dims=3) / N
 
-  PFE_curve = sort(E, 3)[:, :, round(Int, 0.95 * N)]
+  PFE_curve = sort(E; dims=3)[:, :, round(Int, 0.95 * N)]
   MPFE = maximum(PFE_curve)
 
   # alternative pfc 95% quantile of the maxima of each exposure path
-  PFE = sort(maximum(E, 2), 3)[round(Int, 0.95 * N)]
+  PFE = sort(maximum(E; dims=2), dims=3)[round(Int, 0.95 * N)]
   # PFE = sort(maximum(E, 1), 3)[round(Int, 0.95 * N)]
 
   # setup default curve
@@ -150,7 +151,7 @@ function main()
   pdCurve = InterpolatedHazardRateCurve(pdDates, hzrates, QuantLib.Time.Actual365(), QuantLib.Math.BackwardFlatInterpolation())
 
   # calculate defalut probs on grid *times*
-  times = collect(linspace(0, 30, 100))
+  times = collect(range(0, stop=30, length=100))
   dp = zeros(length(times))
   sp = zeros(length(times))
   dd = zeros(length(times))

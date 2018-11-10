@@ -38,9 +38,9 @@ mutable struct MCAmericanEngine{S <: AbstractBlackScholesProcess, P <: LsmBasisS
   # mcSimulation::MCSimulation{RSG, T}
   antitheticVariate::Bool
   rsg::RSG
-  pathPricer::LongstaffSchwartzPathPricer
+  pathPricer::Union{LongstaffSchwartzPathPricer, Nothing}
 
-  MCAmericanEngine(process::S,
+  MCAmericanEngine{S, P, RSG}(process::S,
                   timeSteps::Int,
                   timeStepsPerYear::Int,
                   requiredSamples::Int,
@@ -53,8 +53,8 @@ mutable struct MCAmericanEngine{S <: AbstractBlackScholesProcess, P <: LsmBasisS
                   polynomType::P,
                   antitheticVariate::Bool,
                   rsg::RSG) where {S, P, RSG} =
-                            new{S, P, RSG}(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed,
-                                        nCalibrationSamples, polynomOrder, polynomType, antitheticVariate, rsg)
+                            new(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed,
+                                        nCalibrationSamples, polynomOrder, polynomType, antitheticVariate, rsg, nothing)
 end
 
 function MCAmericanEngine(process::S;
@@ -69,11 +69,11 @@ function MCAmericanEngine(process::S;
                           rsg::RSG = InverseCumulativeRSG(seed),
                           nCalibrationSamples::Int = 2048,
                           polynomOrder::Int = 2,
-                          polynomType::LsmBasisSystemPolynomType = Monomial()) where {RSG <: AbstractRandomSequenceGenerator, S <: AbstractBlackScholesProcess}
+                          polynomType::P = Monomial()) where {RSG <: AbstractRandomSequenceGenerator, S <: AbstractBlackScholesProcess, P <: LsmBasisSystemPolynomType}
   # build mc sim
   # mcSim = MCSimulation{RSG, SingleVariate}(antitheticVariate, false, rsg, SingleVariate())
 
-  return MCAmericanEngine{S, typeof(polynomType), RSG}(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed,
+  return MCAmericanEngine{S, P, RSG}(process, timeSteps, timeStepsPerYear, requiredSamples, maxSamples, requiredTolerance, brownianBridge, seed,
                                                       nCalibrationSamples, polynomOrder, polynomType, antitheticVariate, rsg)
 end
 

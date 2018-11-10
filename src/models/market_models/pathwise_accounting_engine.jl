@@ -56,19 +56,19 @@ function PathwiseVegasOuterAccountingEngine(evolver::LogNormalFwdRateEuler,
   product = clone(product)
   numberProducts = number_of_products(product)
   doDeflation = ~already_deflated(product)
-  numerairesHeld = Vector{Float64}(undef, numberProducts)
-  numberCashFlowsThisStep = Vector{Int}(undef, numberProducts)
+  numerairesHeld = zeros(numberProducts)
+  numberCashFlowsThisStep = zeros(Int, numberProducts)
   cashFlowsGenerated = Vector{Vector{MarketModelPathWiseCashFlow}}(undef, numberProducts)
-  stepsDiscounts = Vector{Float64}(undef, pseudoRootStructure.numberOfRates + 1)
+  stepsDiscounts = zeros(pseudoRootStructure.numberOfRates + 1)
   elementaryVegasThisPath = Vector{Vector{Matrix{Float64}}}(undef, numberProducts)
-  deflatorAndDerivatives = Vector{Float64}(undef, pseudoRootStructure.numberOfRates + 1)
+  deflatorAndDerivatives = zeros(pseudoRootStructure.numberOfRates + 1)
 
   stepsDiscounts[1] = 1.0
 
   numberRates = pseudoRootStructure.numberOfRates
   numberSteps = pseudoRootStructure.numberOfSteps
   factors = pseudoRootStructure.numberOfFactors
-  fullDerivatives = Vector{Float64}(undef, numberRates)
+  fullDerivatives = zeros(numberRates)
 
   evolution = pseudoRootStructure.evolution
   numeraires = money_market_measure(evolution)
@@ -80,7 +80,7 @@ function PathwiseVegasOuterAccountingEngine(evolver::LogNormalFwdRateEuler,
   jacobiansThisPathsModel = Vector{Matrix{Float64}}(undef, numberRates)
 
   @simd for i in eachindex(jacobiansThisPathsModel)
-    @inbounds jacobiansThisPathsModel[i] = Matrix{Float64}(numberRates, factors)
+    @inbounds jacobiansThisPathsModel[i] = zeros(numberRates, factors)
   end
 
   jacobianComputers = Vector{RatePseudoRootJacobianAllElements}(undef, numberSteps)
@@ -91,9 +91,9 @@ function PathwiseVegasOuterAccountingEngine(evolver::LogNormalFwdRateEuler,
     @inbounds jacobiansThisPaths[i] = deepcopy(jacobiansThisPathsModel)
   end
 
-  VModel = Matrix{Float64}(numberSteps + 1, numberRates)
+  VModel = zeros(numberSteps + 1, numberRates)
 
-  Discounts = Matrix{Float64}(numberSteps + 1, numberRates + 1)
+  Discounts = zeros(numberSteps + 1, numberRates + 1)
 
   @simd for i = 1:numberSteps+1
     @inbounds Discounts[i, 1] = 1.0
@@ -101,7 +101,7 @@ function PathwiseVegasOuterAccountingEngine(evolver::LogNormalFwdRateEuler,
 
   V = Vector{Matrix{Float64}}(undef, numberProducts)
 
-  modelCashFlowIndex = Matrix{Float64}(length(possible_cash_flow_times(product)), numberRates + 1)
+  modelCashFlowIndex = zeros(length(possible_cash_flow_times(product)), numberRates + 1)
 
   numberCashFlowsThisIndex = Vector{Vector{Int}}(undef, numberProducts)
   V = Vector{Matrix{Float64}}(undef, numberProducts)
@@ -139,8 +139,8 @@ function PathwiseVegasOuterAccountingEngine(evolver::LogNormalFwdRateEuler,
     # if idx != 1
     #   idx -= 1
     # end
-    idx = findlast(evolutionTimes, cashFlowTimes[i])
-    if idx == 0
+    idx = findlast(isequal(cashFlowTimes[i]), evolutionTimes)
+    if idx == nothing
       if cashFlowTimes[i] > evolutionTimes[end]
         idx = length(evolutionTimes)
       else
@@ -150,7 +150,7 @@ function PathwiseVegasOuterAccountingEngine(evolver::LogNormalFwdRateEuler,
     push!(cashFlowIndicesThisStep[idx], i)
   end
 
-  partials = Matrix{Float64}(factors, numberRates)
+  partials = zeros(factors, numberRates)
 
   begin
     modelVegaMatrix = zeros(numberRates, factors)
@@ -362,7 +362,7 @@ end
 
 function multiple_path_values_elementary!(pwEng::PathwiseVegasOuterAccountingEngine, means::Vector{Float64}, errors::Vector{Float64}, numberOfPaths::Int)
   numberOfElementaryVegas = pwEng.numberRates * pwEng.numberSteps * pwEng.factors
-  values = Vector{Float64}(undef, number_of_products(pwEng.product) * (1 + pwEng.numberRates + numberOfElementaryVegas))
+  values = zeros(number_of_products(pwEng.product) * (1 + pwEng.numberRates + numberOfElementaryVegas))
   resize!(means, length(values))
   resize!(errors, length(values))
 

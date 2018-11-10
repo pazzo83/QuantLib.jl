@@ -1,4 +1,5 @@
 using QuantLib
+using Dates
 
 function main()
   todaysDate = Date(2007, 10, 16)
@@ -10,7 +11,7 @@ function main()
   ts = FlatForwardTermStructure(todaysDate, bbIR.rate, bbIR.dc, bbIR.comp, bbIR.freq)
 
   # set up call schedule
-  callSchedule = CallabilitySchedule(24)
+  callSchedule = CallabilitySchedule(undef, 24)
   callPrice = 100.0
   callDate = Date(2006, 9, 15)
 

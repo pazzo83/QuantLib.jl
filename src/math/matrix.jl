@@ -1,3 +1,5 @@
+using LinearAlgebra
+
 abstract type SalvagingAlgo end
 struct NoneSalvagingAlgo <: SalvagingAlgo end
 
@@ -27,8 +29,8 @@ end
 function rank_reduced_sqrt(matrix::Matrix, maxRank::Int, componentRetainedPercentage::Float64, sa::NoneSalvagingAlgo)
   sz = size(matrix)[1]
   # Symmetric Schur decomp
-  jd = schurfact(matrix)
-  eigenVals = jd[:values]
+  jd = schur(matrix)
+  eigenVals = jd.values
 
   # eigen vals are sorted in decreasing order
   eigenVals[end] >= -1e-16 || error("negative eigenvalue(s)")
@@ -59,7 +61,7 @@ function rank_reduced_sqrt(matrix::Matrix, maxRank::Int, componentRetainedPercen
     @inbounds diagonal[i, i] = sqrt(eigenVals[i])
   end
 
-  result = jd[:vectors] * diagonal
+  result = jd.vectors * diagonal
 
   normalize_pseudo_root!(matrix, result)
 
@@ -102,10 +104,10 @@ end
 function OrthogonalProjection(originalVectors::Matrix{Float64}, multiplierCutoff::Float64, tolerance::Float64)
   numberVectors, dimension = size(originalVectors)
   validVectors = trues(numberVectors)
-  orthoNormalizedVectors = Matrix{Float64}(numberVectors, dimension)
+  orthoNormalizedVectors = zeros(numberVectors, dimension)
   projectedVectors = Vector{Vector{Float64}}()
 
-  currentVector = Vector{Float64}(undef, dimension)
+  currentVector = zeros(dimension)
   @inbounds @simd for j in eachindex(validVectors)
     if validVectors[j]
       for k = 1:numberVectors

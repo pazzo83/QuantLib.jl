@@ -23,7 +23,7 @@ function TqrEigenDecomposition(dg::Vector{Float64}, subVec::Vector{Float64}, cal
   ev = zeros(n, ev_cols)
   e = copy(subVec)
   # insert!(e, 1, 0.0)
-  unshift!(e, 0.0)
+  pushfirst!(e, 0.0)
 
   for i = 1:ev_cols
     ev[i, i] = 1.0

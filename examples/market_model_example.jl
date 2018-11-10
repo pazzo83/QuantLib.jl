@@ -14,7 +14,7 @@ function theVegaBumps(factorwiseBumping::Bool, marketModel::AbstractMarketModel,
     end
   end
 
-  swaptions = Vector{VolatilityBumpInstrumentJacobianSwaption}(numberRates)
+  swaptions = Vector{VolatilityBumpInstrumentJacobianSwaption}(undef, numberRates)
 
   for i in eachindex(swaptions)
     swaptions[i] = VolatilityBumpInstrumentJacobianSwaption(i, numberRates)

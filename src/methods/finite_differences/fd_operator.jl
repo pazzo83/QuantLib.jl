@@ -168,7 +168,7 @@ function axpyb!(trpBandLinOp::TripleBandLinearOp, a::Vector{Float64}, x::TripleB
       trpBandLinOp.lower[1:sz] = y.lower
       trpBandLinOp.upper[1:sz] = y.upper
     else
-      addB = length(b) > 1 ? b[1:sz] : b[1:1]
+      addB = length(b) > 1 ? b[1:sz] : b[1]
       trpBandLinOp._diag[1:sz] = y._diag + addB
       trpBandLinOp.lower[1:sz] = y.lower
       trpBandLinOp.upper[1:sz] = y.upper
@@ -179,7 +179,7 @@ function axpyb!(trpBandLinOp::TripleBandLinearOp, a::Vector{Float64}, x::TripleB
     trpBandLinOp.lower[1:sz] = y.lower + (length(a) > 0 ? a .* x.lower : a[1] * x.lower)
     trpBandLinOp.upper[1:sz] = y.upper + (length(a) > 0 ? a .* x.upper : a[1] * x.upper)
   else
-    addB = length(b) > 0 ? b[1:sz] : b[1:1]
+    addB = length(b) > 1 ? b[1:sz] : b[1]
     trpBandLinOp._diag[1:sz] = y._diag + (length(a) > 0 ? a .* x._diag : a[1] * x._diag) + addB
     trpBandLinOp.lower[1:sz] = y.lower + (length(a) > 0 ? a .* x.lower : a[1] * x.lower)
     trpBandLinOp.upper[1:sz] = y.upper + (length(a) > 0 ? a .* x.upper : a[1] * x.upper)

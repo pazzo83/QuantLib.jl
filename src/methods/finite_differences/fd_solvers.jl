@@ -31,7 +31,7 @@ function rollback!(bsolv::FdmBackwardSolver, schemeType::Hundsdorfer, rhs::Vecto
   #   implicitEvolver = ImplicitEulerScheme(bsolv.map, bsolv.bcSet)
   # end
 
-  dampingSteps == 0 || error("damping steps shoudl be 0")
+  dampingSteps == 0 || error("damping steps should be 0")
 
   hsEvolver = HundsdorferScheme(bsolv.schemeDesc.theta, bsolv.schemeDesc.mu, bsolv.map, bsolv.bcSet)
   hsModel = FiniteDifferenceModel{HundsdorferScheme}(hsEvolver, bsolv.condition.stoppingTimes)
@@ -45,7 +45,7 @@ function rollback!(bsolv::FdmBackwardSolver, schemeType::Douglas, rhs::Vector{Fl
   allSteps = steps + dampingSteps
   dampingTo = from - (deltaT * dampingSteps) / allSteps
 
-  dampingSteps == 0 || error("damping steps shoudl be 0")
+  dampingSteps == 0 || error("damping steps should be 0")
 
   dsEvolver = DouglasScheme(bsolv.schemeDesc.theta, bsolv.map, bsolv.bcSet)
   dsModel = FiniteDifferenceModel{DouglasScheme}(dsEvolver, bsolv.condition.stoppingTimes)

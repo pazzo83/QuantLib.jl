@@ -1,4 +1,5 @@
 using QuantLib
+using Dates
 
 function main()
   euribor3m = euribor_index(QuantLib.Time.TenorPeriod(Dates.Month(3)))

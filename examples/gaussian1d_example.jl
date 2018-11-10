@@ -1,6 +1,8 @@
 using QuantLib
+using Printf
+using Dates
 
-function print_calibration_basket(basket::Vector{SwaptionHelper})
+function print_calibration_basket(basket::Vector{S}) where {S <: SwaptionHelper}
   println("Expiry         Maturity       Nominal        Rate               Pay/Rec    Market ivol")
   println("======================================================================================")
   for i in eachindex(basket)
@@ -16,7 +18,7 @@ function print_calibration_basket(basket::Vector{SwaptionHelper})
   end
 end
 
-function print_model_calibration(basket::Vector{SwaptionHelper}, volatilities::Vector{Float64})
+function print_model_calibration(basket::Vector{S}, volatilities::Vector{Float64}) where {S <: SwaptionHelper}
   println("Expiry   Model Sigma  ModelPx  MktPx     ModelVol  MktVol")
   println("=========================================================")
   for i in eachindex(basket)
@@ -64,7 +66,7 @@ function main()
   floatingSchedule = QuantLib.Time.Schedule(effectiveDate, maturityDate, QuantLib.Time.TenorPeriod(Dates.Month(6)), schedBizConvention, schedBizConvention,
                   QuantLib.Time.DateGenerationForwards(), false, QuantLib.Time.TargetCalendar())
 
-  exerciseDates = Vector{Date}(9)
+  exerciseDates = Vector{Date}(undef, 9)
 
   for i = 2:10
     exerciseDates[i - 1] = QuantLib.Time.advance(Dates.Day(-2), QuantLib.Time.TargetCalendar(), fixedSchedule.dates[i])

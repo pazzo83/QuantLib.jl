@@ -7,7 +7,7 @@ function generic_longstaff_schwartz_regression!(simulationData::Vector{Vector{No
 
     # 1) Find the covariance matrix of basis function values and deflated cash-flows
     N = length(exerciseData[1].values)
-    temp = Vector{Float64}(N+1)
+    temp = zeros(N+1)
     stats = GenericSequenceStats(N+1, length(exerciseData))
 
     for j in eachindex(exerciseData)
@@ -22,8 +22,8 @@ function generic_longstaff_schwartz_regression!(simulationData::Vector{Vector{No
     means = stats_mean(stats)
     covMat = stats_covariance(stats)
 
-    C = Matrix{Float64}(undef, N, N)
-    target = Vector{Float64}(undef, N)
+    C = zeros(N, N)
+    target = zeros(N)
 
     for k in eachindex(target)
       target[k] = covMat[k, N+1] + means[k] * means[N+1]
@@ -33,7 +33,7 @@ function generic_longstaff_schwartz_regression!(simulationData::Vector{Vector{No
     end
 
     # 2) Solve for least squares regression
-    alphas = svdfact(C) \ target
+    alphas = svd(C) \ target
     # resize!(basisCoefficients[i-1], N)
     basisCoefficients[i-1] = copy(alphas) # copy
 

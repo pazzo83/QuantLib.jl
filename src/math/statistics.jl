@@ -20,7 +20,7 @@ mutable struct GenericRiskStatistics{S <: StatsType} <: AbstractStatistics
   isSorted::Bool
 end
 
-gen_RiskStatistics(dims::Int = 0) = GenericRiskStatistics(GaussianStatsType(), Vector{Float64}(dims), weights(Vector{Float64}(dims)), zeros(dims, 2), false)
+gen_RiskStatistics(dims::Int = 0) = GenericRiskStatistics(GaussianStatsType(), Vector{Float64}(undef, dims), weights(Vector{Float64}(undef, dims)), zeros(dims, 2), false)
 
 const RiskStatistics = GenericRiskStatistics{GaussianStatsType}
 
@@ -121,7 +121,7 @@ end
 
 function sort_samples!(stat::GenericRiskStatistics)
   if ~stat.isSorted
-    stat.samplesMatrix = sortrows(stat.samplesMatrix)
+    stat.samplesMatrix = sortslices(stat.samplesMatrix, dims=1)
     stat.samples = stat.samplesMatrix[:, 1]
     stat.sampleWeights = weights(stat.samplesMatrix[:, 2])
     stat.isSorted = true

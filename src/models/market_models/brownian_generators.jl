@@ -16,8 +16,8 @@ end
 function SobolBrownianGenerator(factors::Int, steps::Int, ordering::S, ::Int) where {S <: SobolOrdering}
   generator = SobolInverseCumulativeRSG(factors * steps)
   bridge = BrownianBridge(steps)
-  orderedIndices = Vector{Int}[Vector{Int}(steps) for _ = 1:factors]
-  bridgedVariates = Vector{Float64}[Vector{Float64}(steps) for _ = 1:factors]
+  orderedIndices = Vector{Int}[Vector{Int}(undef, steps) for _ = 1:factors]
+  bridgedVariates = Vector{Float64}[Vector{Float64}(undef, steps) for _ = 1:factors]
 
   fill_by_ordering!(ordering, orderedIndices, factors, steps)
 

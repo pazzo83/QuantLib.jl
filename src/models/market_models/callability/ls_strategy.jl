@@ -61,7 +61,7 @@ function LongstaffSchwartzExerciseStrategy(basisSystem::MarketModelBasisSystem,
   @inbounds controlDiscounters = MarketModelDiscounter[MarketModelDiscounter(controlTimes[i], rateTimes) for i in eachindex(controlTimes)]
 
   basisSizes = number_of_functions(basisSystem)
-  @inbounds basisValues = Vector{Float64}[Vector{Float64}(basisSizes[i]) for i in eachindex(basisSizes)]
+  @inbounds basisValues = Vector{Float64}[zeros(basisSizes[i]) for i in eachindex(basisSizes)]
 
   return LongstaffSchwartzExerciseStrategy(basisSystem, basisCoefficients, exercise, control, numeraires, -1, 0.0, 0.0, exerciseTimes, relevantTimes,
                                           isBasisTime, isRebateTime, isControlTime, isExerciseTime, rebateDiscounters, controlDiscounters,

@@ -82,7 +82,7 @@ function apply_callability!(dcb::DiscretizedCallableFixedRateBond, ::Put, i::Int
 end
 
 function add_coupon!(dcb::DiscretizedCallableFixedRateBond, i::Int)
-  dcb.common.values += dcb.args.couponAmounts[i]
+  dcb.common.values .+= dcb.args.couponAmounts[i]
 
   return dcb
 end

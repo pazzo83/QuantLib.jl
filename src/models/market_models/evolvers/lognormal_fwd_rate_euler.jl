@@ -52,7 +52,7 @@ function LogNormalFwdRateEuler(marketModel::AbstractMarketModel, factory::Browni
 
     for k in eachindex(fixed)
       # variance_ = dot(A[:, k], A[:, k])
-      variance_ = vecdot(A[k, :], A[k, :])
+      variance_ = dot(A[k, :], A[k, :])
       fixed[k] = -0.5 * variance_
     end
 
@@ -102,7 +102,7 @@ function advance_step!(lognorm::LogNormalFwdRateEuler)
   alive = lognorm.alive[lognorm.currentStep]
   @inbounds @simd for i = alive:lognorm.numberOfRates
     lognorm.logForwards[i] += lognorm.drifts1[i] + fixedDrift[i]
-    lognorm.logForwards[i] += vecdot(A[i, :], lognorm.brownians)
+    lognorm.logForwards[i] += dot(A[i, :], lognorm.brownians)
     lognorm.forwards[i] = exp(lognorm.logForwards[i]) - lognorm.displacement[i]
   end
 

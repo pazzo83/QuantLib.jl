@@ -1,4 +1,5 @@
 using Dates
+using SpecialFunctions
 
 struct CachedSwapKey
   index::SwapIndex

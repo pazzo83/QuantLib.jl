@@ -56,7 +56,7 @@ end
 
 NonstandardSwaption(swap::NS, exercise::E) where {E <: Exercise, NS <: NonstandardSwap} = NonstandardSwaption{E, SettlementPhysical, NullSwaptionEngine, NS}(LazyMixin(), swap, exercise,
                                                                       SettlementPhysical(), SwaptionResults(), NullSwaptionEngine())
-NonstandardSwaption(swap::NS, exercise::E, pe::P) where {E <: Exercise, P <: PricingEngine, NS <: TermStructure} =
+NonstandardSwaption(swap::NS, exercise::E, pe::P) where {E <: Exercise, P <: PricingEngine, NS <: NonstandardSwap} =
     NonstandardSwaption{E, SettlementPhysical, P, NS}(LazyMixin(), swap, exercise, SettlementPhysical(), SwaptionResults(), pe)
 
 function perform_calculations!(swaption::Union{Swaption, NonstandardSwaption})

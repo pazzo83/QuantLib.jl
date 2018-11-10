@@ -1,3 +1,5 @@
+using LinearAlgebra
+
 mutable struct TridiagonalOperator
   diagonal::Vector{Float64}
   lowerDiagonal::Vector{Float64}
@@ -39,7 +41,7 @@ function solve_for(L::TridiagonalOperator, rhs::Vector{Float64})
   tri = Tridiagonal(L.lowerDiagonal, L.diagonal, L.upperDiagonal)
 
   # lu factorization
-  Alu = lufact(tri)
+  Alu = lu(tri)
 
   return Alu \ rhs
 end

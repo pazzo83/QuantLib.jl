@@ -1,6 +1,8 @@
 using QuantLib
+using Dates
+using Printf
 
-generate_flatforward_ts{C <: QuantLib.Time.BusinessCalendar}(cal::C, settlementDate::Date, flatRate::Quote) =
+generate_flatforward_ts(cal::QuantLib.Time.BusinessCalendar, settlementDate::Date, flatRate::Quote) =
                         FlatForwardTermStructure(settlementDate, cal, flatRate, QuantLib.Time.Actual365())
 
 function main()

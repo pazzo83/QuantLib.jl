@@ -30,7 +30,7 @@ function FlatVol(vols::Vector{Float64},
 
   numberOfRates = length(initialRates)
   numberOfSteps = length(evolution.evolutionTimes)
-  pseudoRoots = Matrix{Float64}[Matrix{Float64}(numberOfRates, numberOfFactors) for i = 1:numberOfSteps]
+  pseudoRoots = Matrix{Float64}[Matrix{Float64}(undef, numberOfRates, numberOfFactors) for i = 1:numberOfSteps]
 
   rateTimes = evolution.rateTimes
   numberOfRates == length(rateTimes) - 1 || error("mismatch between number of rates and rate times")
@@ -43,7 +43,7 @@ function FlatVol(vols::Vector{Float64},
   effStopTime = 0.0
   corrTimes = corr.times
   evolTimes = evolution.evolutionTimes
-  covariance = Matrix{Float64}(numberOfRates, numberOfRates)
+  covariance = Matrix{Float64}(undef, numberOfRates, numberOfRates)
 
   kk = 1
   @inbounds @simd for k = 1:numberOfSteps

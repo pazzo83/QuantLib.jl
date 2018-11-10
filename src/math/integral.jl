@@ -1,3 +1,5 @@
+using SpecialFunctions
+
 abstract type Integrator end
 abstract type GaussianQuadrature end
 abstract type GaussianOrthogonalPolynomial end

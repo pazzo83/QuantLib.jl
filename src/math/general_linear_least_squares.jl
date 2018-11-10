@@ -27,16 +27,11 @@ function calculate!(glls::GeneralLinearLeastSquares, x::Vector{Float64}, y::Vect
   @inbounds @simd for i in eachindex(v)
     A[:, i] = map(v[i], x)
   end
-  # println(A[:, 2])
-  # println("-----------------")
-  # println(A[:, 3])
-  # println("-----------------")
-  # println(A[:, 4])
-  # error("DIE")
-  svdA = svdfact(A)
-  V = svdA[:V]
-  U = svdA[:U]
-  w = svdA[:S]
+
+  svdA = svd(A)
+  V = svdA.V
+  U = svdA.U
+  w = svdA.S
   # svdA = SVD(A)
   # V = svdA.V
   # U = svdA.U

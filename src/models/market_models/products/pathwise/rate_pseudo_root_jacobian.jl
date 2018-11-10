@@ -15,7 +15,7 @@ function RatePseudoRootJacobianAllElements(pseudoRoot::Matrix{Float64},
                                             taus::Vector{Float64},
                                             displacements::Vector{Float64})
   pr_rows, factors = size(pseudoRoot)
-  e = Matrix{Float64}(pr_rows, factors)
+  e = Matrix{Float64}(undef, pr_rows, factors)
   numberRates = length(taus)
   ratios = Vector{Float64}(undef, numberRates)
 

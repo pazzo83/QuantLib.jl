@@ -20,7 +20,7 @@ function AccountingEngine(evolver::E, product::P, initialNumeraireValue::Float64
 
   discounters = MarketModelDiscounter[MarketModelDiscounter(cashFlowTimes[i], rateTimes) for i in eachindex(cashFlowTimes)]
 
-  return AccountingEngine{E, P}(evolver, product, initialNumeraireValue, numProd, Vector{Float64}(numProd), Vector{Int}(numProd), cashFlowsGenerated, discounters)
+  return AccountingEngine{E, P}(evolver, product, initialNumeraireValue, numProd, zeros(numProd), zeros(Int, numProd), cashFlowsGenerated, discounters)
 end
 
 function single_path_values!(ae::AccountingEngine, vals::Vector{Float64})

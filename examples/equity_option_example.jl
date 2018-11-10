@@ -2,6 +2,7 @@
 # various pricing methods
 
 using QuantLib
+using Dates
 
 function main()
   cal = QuantLib.Time.TargetCalendar()

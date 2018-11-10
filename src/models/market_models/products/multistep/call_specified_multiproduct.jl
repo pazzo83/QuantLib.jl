@@ -49,7 +49,7 @@ function CallSpecifiedMultiProduct(underlying::MarketModelMultiProduct,
   dummyCashFlowsThisStep = zeros(Int, products)
   n = max_number_of_cashflows_per_product_per_step(rebate)
 
-  dummyCashFlowsGenerated = fill(Vector{MarketModelCashFlow}(n), products)
+  dummyCashFlowsGenerated = fill(Vector{MarketModelCashFlow}(undef, n), products)
 
   return CallSpecifiedMultiProduct(underlying, strategy, rebate, evolution, isPresent, cashFlowTimes, rebateOffset, false, dummyCashFlowsThisStep,
                                   dummyCashFlowsGenerated, 1, true)
