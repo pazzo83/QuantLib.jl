@@ -6,9 +6,9 @@ This package aims to provide a pure Julia version of the popular open source lib
 
 ### Install
 ```julia
-Pkg.clone("https://github.com/pazzo83/QuantLib.jl.git")
+Pkg.add("https://github.com/pazzo83/QuantLib.jl.git")
 ```
-Note: only supports versions of Julia 0.6 and up
+Note: only supports versions of Julia 1.0 and up
 
 The package essentially contains the main QuantLib module and two sub-modules for various time-based and math-based operations.  Below is a fairly up-to-date status of what is included.
 
@@ -160,6 +160,7 @@ Yield:
 ### Price a fixed rate Bond
 ```julia
 using QuantLib
+using Dates
 
 settlement_date = Date(2008, 9, 18) # construct settlement date
 # settings is a global singleton that contains global settings
@@ -179,7 +180,7 @@ fixing_days = 3
 
 # build depos
 depo_rates = [0.0096, 0.0145, 0.0194]
-depo_tens = [Base.Dates.Month(3), Base.Dates.Month(6), Base.Dates.Month(12)]
+depo_tens = [Dates.Month(3), Dates.Month(6), Dates.Month(12)]
 
 # build bonds
 issue_dates = [Date(2005, 3, 15), Date(2005, 6, 15), Date(2006, 6, 30), Date(2002, 11, 15),
@@ -191,7 +192,7 @@ coupon_rates = [0.02375, 0.04625, 0.03125, 0.04000, 0.04500]
 market_quotes = [100.390625, 106.21875, 100.59375, 101.6875, 102.140625]
 
 # construct the deposit and fixed rate bond helpers
-insts = Vector{BootstrapHelper}(length(depo_rates) + length(issue_dates))
+insts = Vector{BootstrapHelper}(undef, length(depo_rates) + length(issue_dates))
 for i = 1:length(depo_rates)
   depo_quote = Quote(depo_rates[i])
   depo_tenor = QuantLib.Time.TenorPeriod(depo_tens[i])
