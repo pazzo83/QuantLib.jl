@@ -1,6 +1,7 @@
 julia 1.0
 Dierckx
 Distributions
+Random
 StatsFuns
 StatsBase
 Sobol
