@@ -1,5 +1,6 @@
-using Base.Test
+using Test
 using QuantLib
+using Dates
 
 # build a fixed rate bond to test cash flows
 settlement_date = Date(2008, 9, 18)
@@ -35,7 +36,7 @@ zcb = ZeroCouponBond(3, zcb_cal, 100.0, Date(2013, 8, 15), QuantLib.Time.Followi
 @test dirty_price(fixedrate_bond) == 94.67245111530346
 @test clean_price(fixedrate_bond) == 93.13169024573823
 
-@test QuantLib.get_redemption(fixedrate_bond) == get(fixedrate_bond.cashflows.redemption)
+@test QuantLib.get_redemption(fixedrate_bond) == fixedrate_bond.cashflows.redemption
 @test QuantLib.get_frequency(fixedrate_bond) == QuantLib.Time.Semiannual()
 
 # Zero coupon bond calculations
@@ -52,11 +53,12 @@ set_eval_date!(settings, todaysDate)
 ts = FlatForwardTermStructure(todaysDate, bbIR.rate, bbIR.dc, bbIR.comp, bbIR.freq)
 
 # set up call schedule
-callSchedule = CallabilitySchedule(24)
+callSchedule = CallabilitySchedule(undef, 24)
 callPrice = 100.0
 callDate = Date(2006, 9, 15)
 
 for i in eachindex(callSchedule)
+  global callDate
   nullCal = QuantLib.Time.NullCalendar()
   myPrice = Price(callPrice, CleanCall())
 
@@ -92,5 +94,5 @@ engine0 = TreeCallableFixedRateEngine(hw0, gridIntervals)
 
 callableBond = CallableFixedRateBond(settlementDays, faceAmount, schedule, coupon, bondDayCount, paymentConvention, redemption, issue, callSchedule, engine0)
 
-@test clean_price(callableBond) == 96.46794584230872
+@test QuantLib.Math.is_close(clean_price(callableBond), 96.46794584230871)
 @test QuantLib.yield(callableBond, bondDayCount, CompoundedCompounding(), freq, accuracy, maxIter) == 0.054753332138061515

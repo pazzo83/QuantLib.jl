@@ -1,6 +1,7 @@
 ## This also tests some vanilla pricing engines ##
-using Base.Test
+using Test
 using QuantLib
+using Dates
 
 cal = QuantLib.Time.TargetCalendar()
 todaysDate = Date(1998, 5, 15)
@@ -46,6 +47,6 @@ timeSteps = 801
 fdBermudanPE = FDBermudanEngine(bsmProcess, CrankNelson, timeSteps, timeSteps - 1)
 bermudanOption = VanillaOption(payoff, bermudanExercise, fdBermudanPE)
 
-@test npv(europeanOption) == 3.8443077915968398
-@test npv(americanOption) == 4.459627613776478
-@test npv(bermudanOption) == 4.360806862508797
+@test QuantLib.Math.is_close(npv(europeanOption), 3.8443077915968398)
+@test QuantLib.Math.is_close(npv(americanOption), 4.459627613776478)
+@test QuantLib.Math.is_close(npv(bermudanOption), 4.360806862508797)

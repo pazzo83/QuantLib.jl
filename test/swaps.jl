@@ -1,5 +1,6 @@
-using Base.Test
+using Test
 using QuantLib
+using Dates
 
 cal = QuantLib.Time.TargetCalendar()
 settlementDate = Date(2002, 2, 19)
@@ -26,7 +27,7 @@ maturity = QuantLib.Time.advance(Dates.Year(5), cal, startDate, floatingLegConve
 fixedSchedule = QuantLib.Time.Schedule(startDate, maturity, QuantLib.Time.TenorPeriod(fixedLegFrequency), fixedLegConvention, fixedLegConvention, QuantLib.Time.DateGenerationForwards(), false, cal)
 floatSchedule = QuantLib.Time.Schedule(startDate, maturity, QuantLib.Time.TenorPeriod(floatingLegFrequency), floatingLegConvention, floatingLegConvention, QuantLib.Time.DateGenerationForwards(), false, cal)
 
-swap = VanillaSwap(swapType, 1000.0, fixedSchedule, dummyFixedRate, fixedLegDayCounter, indexSixMonths, 0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine(rhTermStructure))
+swap = VanillaSwap(swapType, 1000.0, fixedSchedule, dummyFixedRate, fixedLegDayCounter, indexSixMonths, 0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine{typeof(rhTermStructure)}(rhTermStructure))
 
 # Calculations
 @test fair_rate(swap) == 0.050000005910246725

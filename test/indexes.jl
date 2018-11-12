@@ -1,13 +1,14 @@
-using Base.Dates
+using Test
 using QuantLib
+using Dates
 
 ts = FlatForwardTermStructure(settlement_date, bbIR.rate, bbIR.dc, bbIR.comp, bbIR.freq)
 
 # Construct a 6 month euribor index
-euribor6m = euribor_index(QuantLib.Time.TenorPeriod(Base.Dates.Month(6)))
+euribor6m = euribor_index(QuantLib.Time.TenorPeriod(Dates.Month(6)))
 
 # Construct a 3 month usd libor index
-libor_3m = usd_libor_index(QuantLib.Time.TenorPeriod(Base.Dates.Month(3)), ts)
+libor_3m = usd_libor_index(QuantLib.Time.TenorPeriod(Dates.Month(3)), ts)
 
 # test date calculations
 fixing_date(euribor6m, Date(2016, 4, 3)) == Date(2016, 3, 31)

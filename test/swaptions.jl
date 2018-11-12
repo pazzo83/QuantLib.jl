@@ -1,5 +1,6 @@
-using Base.Test
+using Test
 using QuantLib
+using Dates
 
 cal = QuantLib.Time.TargetCalendar()
 settlementDate = Date(2002, 2, 19)
@@ -34,12 +35,12 @@ floatSchedule = QuantLib.Time.Schedule(startDate, maturity, QuantLib.Time.TenorP
                 floatingLegConvention, floatingLegConvention, QuantLib.Time.DateGenerationForwards(), false, cal)
 
 swap = VanillaSwap(swapType, 1000.0, fixedSchedule, dummyFixedRate, fixedLegDayCounter,
-      indexSixMonths, 0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine(rhTermStructure))
+      indexSixMonths, 0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine{typeof(rhTermStructure)}(rhTermStructure))
 
 fixedATMRate = fair_rate(swap)
 
 atmSwap = VanillaSwap(swapType, 1000.0, fixedSchedule, fixedATMRate, fixedLegDayCounter, indexSixMonths,
-          0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine(rhTermStructure))
+          0.0, floatSchedule, indexSixMonths.dc, DiscountingSwapEngine{typeof(rhTermStructure)}(rhTermStructure))
 
 modelG2 = G2(rhTermStructure)
 
@@ -47,9 +48,10 @@ numRows = 5
 numCols = 5
 
 times = zeros(0)
-swaptions = Vector{SwaptionHelper}(numRows)
+swaptions = Vector{SwaptionHelper}(undef, numRows)
 
 for i = 1:numRows
+  global times
   j = numCols - (i - 1)
   k = (i - 1) * numCols + j
 
@@ -77,7 +79,7 @@ end
 
 swapLeg = swap.legs[1] # Fixed Leg
 
-bermudanDates = Vector{Date}(length(swapLeg.coupons))
+bermudanDates = Vector{Date}(undef, length(swapLeg.coupons))
 for i=1:length(swapLeg.coupons)
 bermudanDates[i]  = accrual_start_date(swapLeg.coupons[i])
 end
@@ -88,4 +90,4 @@ bermudanSwaption = Swaption(atmSwap, bermudanExercise)
 
 bermudanSwaption = update_pricing_engine(bermudanSwaption, TreeSwaptionEngine(modelG2, 50))
 
-@test npv(bermudanSwaption) == 14.11010300956427
+@test QuantLib.Math.is_close(npv(bermudanSwaption), 14.11010300956427)

@@ -1,5 +1,6 @@
-using Base.Test
+using Test
 using QuantLib
+using Dates
 
 # build a fixed rate bond to test cash flows
 settlement_date = Date(2008, 9, 18)
@@ -37,7 +38,7 @@ fixing_days = 2
 in_arrears = true
 gearings = ones(length(fb_schedule.dates) - 1)
 spreads = fill(0.001, length(fb_schedule.dates) - 1)
-libor_3m = usd_libor_index(QuantLib.Time.TenorPeriod(Base.Dates.Month(3)), ts)
+libor_3m = usd_libor_index(QuantLib.Time.TenorPeriod(Dates.Month(3)), ts)
 floating_bond = FloatingRateBond(settlement_days, face_amount, fb_schedule, libor_3m, fb_dc, conv, fixing_days, fb_issue_date, fb_bond_engine, in_arrears, 100.0, gearings, spreads, cap_vol=cap_vol)
 
 # test
