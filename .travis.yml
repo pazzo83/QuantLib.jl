@@ -24,7 +24,7 @@ before_install:
 #  - julia -e 'Pkg.clone(pwd()); Pkg.build("QuantLib"); Pkg.test("QuantLib"; coverage=true)'
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia --check-bounds=yes -e 'import Pkg; 'Pkg.add(pwd()); Pkg.build("QuantLib"); Pkg.test(; coverage=true)'
+  - julia --check-bounds=yes -e 'import Pkg; Pkg.add(pwd()); Pkg.build("QuantLib"); Pkg.test(; coverage=true)'
 after_success:
   # push coverage results to Coveralls
   - julia -e 'import Pkg; Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
