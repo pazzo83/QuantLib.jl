@@ -270,6 +270,7 @@ export
 
     # methods - finite difference
     FdmG2Solver, FdmHullWhiteSolver, CrankNelson, FdmSolverDesc, Fdm2DimSolver, FdmG2Op, FdmMesherComposite, FdmSimpleProcess1dMesher, FdmAffineModelSwapInnerValue,
+    Concentrating1dMesher,
 
     # methods - monte carlo
     MonteCarloModel, PathGenerator, add_samples!, Path,
