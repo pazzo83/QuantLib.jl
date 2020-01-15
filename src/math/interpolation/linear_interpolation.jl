@@ -4,6 +4,22 @@ mutable struct LinearInterpolation <: Interpolation
   s::Vector{Float64}
 end
 
+"""
+initialize without data, e.g. for usage in curve constructors
+
+Example:
+
+QuantLib.InterpolatedDiscountCurve(curve_dates, curve_values, daycount,
+        QuantLib.Math.LinearInterpolation())
+"""
+function LinearInterpolation()
+  x_vals = Vector{Float64}()
+  y_vals = Vector{Float64}()
+  s = Vector{Float64}()
+
+  QuantLib.Math.LinearInterpolation(x_vals, y_vals, s)
+end
+
 # Linear initialize
 function initialize!(interp::LinearInterpolation, x_vals::Vector{Float64}, y_vals::Vector{Float64})
   interp.x_vals = x_vals
