@@ -7,7 +7,8 @@ tests = ["cash_flows",
         "options",
         "swaps",
         "swaptions",
-        "fd_mesher"]
+        "fd_mesher",
+        "curves"]
 
 println("Running tests:")
 
