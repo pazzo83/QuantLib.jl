@@ -17,6 +17,20 @@ mutable struct JointCalendar{B <: BusinessCalendar, C <: BusinessCalendar} <: Bu
   cal2::C
 end
 
+"""
+support more than 2 calendars for joint calendar
+"""
+function JointCalendar(cals...)
+	length(cals) >= 2 || error("at least 2 calendars must be specified for JointCalendar")
+    cal = JointCalendar(cals[1], cals[2])
+    if length(cals) > 2
+        for i=3:length(cals)
+            cal = JointCalendar(cal, cals[i])
+        end
+    end
+    return cal
+end
+
 # US Calendars
 abstract type UnitedStatesCalendar <: WesternCalendar end
 
