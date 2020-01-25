@@ -24,3 +24,15 @@ dx = (test_curve_linear.dates[5]-test_curve_linear.dates[4]).value
 dy = (test_curve_linear.data[5]) - (test_curve_linear.data[4])
 df_recalc = ((test_curve_linear.data[4]) + x1*dy/dx)
 @test disc_factor == df_recalc
+
+# test joint calendars
+const calendar_nyc = QuantLib.Time.USNYSECalendar()
+const calendar_target = QuantLib.Time.TargetCalendar()
+const calendar_lon = QuantLib.Time.UKLSECalendar()
+
+calendar_nyc_target = QuantLib.Time.JointCalendar(calendar_nyc, calendar_target) # standard constructor
+@test calendar_nyc_target isa QuantLib.Time.BusinessCalendar
+calendar_nyc_target_lon = QuantLib.Time.JointCalendar(calendar_nyc, calendar_target, calendar_lon) # new constructor
+@test calendar_nyc_target_lon isa QuantLib.Time.BusinessCalendar
+# at least 2 calendars must be specified for JointCalendar
+@test_throws ErrorException QuantLib.Time.JointCalendar(calendar_nyc)
