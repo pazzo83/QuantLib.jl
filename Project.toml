@@ -1,7 +1,7 @@
 name = "QuantLib"
 uuid = "96a2b5a2-274e-5d11-8b3e-35bccd200598"
 author = ["Chris Alexander <uvapazzo@email.com>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
