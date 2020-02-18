@@ -8,6 +8,7 @@ First, start off by importing QuantLib.jl
 .. code-block:: julia
 
     using QuantLib
+    using Dates
 
 
 
@@ -45,7 +46,7 @@ First we will set up vectors of the deposit rates and tenors, and bond issue dat
 
     # build depos
     depo_rates = [0.0096, 0.0145, 0.0194]
-    depo_tens = [Base.Dates.Month(3), Base.Dates.Month(6), Base.Dates.Month(12)]
+    depo_tens = [Dates.Month(3), Dates.Month(6), Dates.Month(12)]
 
     # build bonds
     issue_dates = [Date(2005, 3, 15), Date(2005, 6, 15), Date(2006, 6, 30), Date(2002, 11, 15), Date(1987, 5, 15)]
