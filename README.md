@@ -6,7 +6,7 @@ This package aims to provide a pure Julia version of the popular open source lib
 
 ### Install
 ```julia
-Pkg.add("https://github.com/pazzo83/QuantLib.jl.git")
+using Pkg; Pkg.add("QuantLib")
 ```
 Note: only supports versions of Julia 1.0 and up
 
